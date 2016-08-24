@@ -230,9 +230,9 @@ void NandPim::initialOutputs()
 			{
 				m_sol_no3[i][k] = 0.f;
 				float zdst = 0.f;
-				zdst = exp(-m_sol_z[i][k] );
+				zdst = exp(-m_sol_z[i][k] / 1000.f);
 				m_sol_no3[i][k] = 10.f * zdst * 0.7f;
-				m_sol_no3[i][k] *= wt1;// mg/kg => kg/ha
+				m_sol_no3[i][k] *= wt1;	// mg/kg => kg/ha
 			}
 			/// if m_sol_orgn is not provided, then initialize it.
 			if (m_sol_orgn[i][k] <=0.f)
@@ -293,7 +293,7 @@ void NandPim::initialOutputs()
 				// estimate Total Mineral P in this soil
 				float ssp = 0.;
 				ssp = 25.044f * pow((actp + solp), -0.3833f);
-				//limit SSP Range
+				// limit SSP Range
 				if (ssp > 7.f) ssp = 7.;
 				if (ssp < 1.f) ssp = 1.f;
 				// define stableP

@@ -516,7 +516,7 @@ void NutrientRemviaSr::NitrateLoss()
                         // calculate organic carbon loading to main channel
                         float org_c = (m_sol_om[i][0] * 0.58f / 100.f) * enratio * m_sedimentYield[i] * 1000.f;
                         // calculate carbonaceous biological oxygen demand (CBOD) and COD(transform from CBOD)
-                        float cbod  = 2.7f * org_c / (qdr * m_cellWidth * m_cellWidth);
+                        float cbod  = 2.7f * org_c / (qdr * m_cellWidth * m_cellWidth * 0.0001f);
                         // calculate COD
                         float n = 3.f; // Conversion factor 1~6.5
                         float k = 0.15f; // Reaction coefficient 0.1~0.2

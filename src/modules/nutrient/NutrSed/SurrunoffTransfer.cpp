@@ -269,18 +269,18 @@ int SurrunoffTransfer::Execute()
 		}
 		m_sedorgnToCh[subi] += m_sedorgn[i];
 		m_sedorgpToCh[subi] += m_sedorgp[i];
-		m_sedminpaToCh[subi] = m_sedminpa[i];
-		m_sedminpsToCh[subi] = m_sedminps[i];
+		m_sedminpaToCh[subi] += m_sedminpa[i];
+		m_sedminpsToCh[subi] += m_sedminps[i];
 	}
 	// sum all the subbasins and put the sum value in the zero-index of the array
-	float cellArea = m_cellWidth * m_cellWidth * 0.0001f; //ha
+	float cellArea = m_cellWidth * m_cellWidth * 0.0001f; // ha
 	//for (int i = 1; i < m_nSubbasins + 1; i++)
 	for (vector<int>::iterator it = m_subbasinIDs.begin(); it != m_subbasinIDs.end(); it++)
 	{
 		m_sedorgnToCh[0] += m_sedorgnToCh[*it] * cellArea;
 		m_sedorgpToCh[0] += m_sedorgpToCh[*it] * cellArea;
-		m_sedminpaToCh[0] = m_sedminpaToCh[*it] * cellArea;
-		m_sedminpsToCh[0] = m_sedminpsToCh[*it] * cellArea;
+		m_sedminpaToCh[0] += m_sedminpaToCh[*it] * cellArea;
+		m_sedminpsToCh[0] += m_sedminpsToCh[*it] * cellArea;
 	}
     return 0;
 }
@@ -299,7 +299,7 @@ void SurrunoffTransfer::OrgnRemoveinSr(int i)
         float concn = 0.f;
         concn = orgninfl * m_enratio[i] / wt;
         //Calculate the amount of organic nitrogen transported with sediment to the stream, equation 4:2.2.1 in SWAT Theory 2009, p271
-        m_sedorgn[i] = 0.001f * concn * m_sedimentYield[i] / (m_cellWidth * m_cellWidth * m_nCells);
+        m_sedorgn[i] = 0.001f * concn * m_sedimentYield[i] / (m_cellWidth * m_cellWidth * m_nCells * 0.0001f);	// * 0.0001f, m2 -> ha
         //update soil nitrogen pools
         if (orgninfl > 1e-6f)
         {
