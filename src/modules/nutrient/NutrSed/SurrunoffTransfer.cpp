@@ -193,15 +193,15 @@ void SurrunoffTransfer::initialOutputs()
 		Initialize1DArray(m_nCells, m_enratio, 0.f);
 		for (int i = 0; i < m_nCells; i++)
 		{
-			if (m_sedimentYield[i] < 1e-4f)
+			if (m_sedimentYield[i] < 1.e-4f)
 			{
 				m_sedimentYield[i] = 0.f;
 			}
 			// CREAMS method for calculating enrichment ratio
 			float cy = 0.f;
 			// Calculate sediment calculations, equation 4:2.2.3 in SWAT Theory 2009, p272
-			cy = 0.1f * m_sedimentYield[i] / (m_cellWidth * m_cellWidth * 0.0001f * m_surfr[i] + 1e-6f);
-			if (cy > 1e-6f)
+			cy = 0.1f * m_sedimentYield[i] / (m_cellWidth * m_cellWidth * 0.0001f * m_surfr[i] + 1.e-6f);
+			if (cy > 1.e-6f)
 			{
 				m_enratio[i] = 0.78f * pow(cy, -0.2468f);
 			} else
@@ -301,7 +301,7 @@ void SurrunoffTransfer::OrgnRemoveinSr(int i)
         //Calculate the amount of organic nitrogen transported with sediment to the stream, equation 4:2.2.1 in SWAT Theory 2009, p271
         m_sedorgn[i] = 0.001f * concn * m_sedimentYield[i] / (m_cellWidth * m_cellWidth * m_nCells * 0.0001f);	// * 0.0001f, m2 -> ha
         //update soil nitrogen pools
-        if (orgninfl > 1e-6f)
+        if (orgninfl > 1.e-6f)
         {
             m_sol_aorgn[i][0] = m_sol_aorgn[i][0] - m_sedorgn[i] * (m_sol_aorgn[i][0] / orgninfl);
             m_sol_orgn[i][0] = m_sol_orgn[i][0] - m_sedorgn[i] * (m_sol_orgn[i][0] / orgninfl);
@@ -337,7 +337,7 @@ void SurrunoffTransfer::OrgpAttachedtoSed(int i)
         float sol_attp_s = 0.f;
         //Calculate sediment
         sol_attp = m_sol_orgp[i][0] + m_sol_fop[i][0] + m_sol_actp[i][0] + m_sol_stap[i][0];
-        if (sol_attp > 1e-3f)
+        if (sol_attp > 1.e-3f)
         {
             sol_attp_o = (m_sol_orgp[i][0] + m_sol_fop[i][0]) / sol_attp;
             sol_attp_a = m_sol_actp[i][0] / sol_attp;
@@ -362,7 +362,7 @@ void SurrunoffTransfer::OrgpAttachedtoSed(int i)
         //total amount of P in organic pools prior to sediment removal (porgg)
         float porgg = 0.f;
         porgg = m_sol_orgp[i][0] + m_sol_fop[i][0];
-        if (porgg > 1e-3f)
+        if (porgg > 1.e-3f)
         {
             m_sol_orgp[i][0] = m_sol_orgp[i][0] - m_sedorgp[i] * (m_sol_orgp[i][0] / porgg);
             m_sol_fop[i][0] = m_sol_fop[i][0] - m_sedorgp[i] * (m_sol_fop[i][0] / porgg);

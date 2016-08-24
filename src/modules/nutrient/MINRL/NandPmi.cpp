@@ -294,7 +294,7 @@ void NandPim::initialOutputs()
 				float ssp = 0.;
 				ssp = 25.044f * pow((actp + solp), -0.3833f);
 				// limit SSP Range
-				if (ssp > 7.f) ssp = 7.;
+				if (ssp > 7.f) ssp = 7.f;
 				if (ssp < 1.f) ssp = 1.f;
 				// define stableP
 				m_sol_stap[i][k] = ssp * (m_sol_actp[i][k] + m_sol_solp[i][k]);
@@ -396,7 +396,7 @@ void NandPim::CalculateMinerandImmobi(int i)
             // compute flow from active to stable pools
             //amount of nitrogen moving from active organic to stable organic pool in layer (rwn)
             float rwn = 0.f;
-            rwn = 0.1e-4f * (m_sol_aorgn[i][k] * (1 / m_nactfr - 1.f) - m_sol_orgn[i][k]);
+            rwn = 0.1e-4f * (m_sol_aorgn[i][k] * (1.f / m_nactfr - 1.f) - m_sol_orgn[i][k]);
             if (rwn > 0.f)
             {
                 rwn = min(rwn, m_sol_aorgn[i][k]);
@@ -417,7 +417,7 @@ void NandPim::CalculateMinerandImmobi(int i)
             //amount of phosphorus moving from the organic pool to the labile pool in layer (hmp)
             float hmp = 0.f;
             xx = m_sol_orgn[i][k] + m_sol_aorgn[i][k];
-            if (xx > 1e-6f)
+            if (xx > 1.e-6f)
             {
                 hmp = 1.4f * hmn * m_sol_orgp[i][k] / xx;
             } else
@@ -427,7 +427,7 @@ void NandPim::CalculateMinerandImmobi(int i)
             hmp = min(hmp, m_sol_orgp[i][k]);
 
             // move mineralized nutrients between pools;
-            m_sol_aorgn[i][k] = max(1e-6f, m_sol_aorgn[i][k] - hmn);
+            m_sol_aorgn[i][k] = max(1.e-6f, m_sol_aorgn[i][k] - hmn);
             m_sol_no3[i][k] = m_sol_no3[i][k] + hmn;
             m_sol_orgp[i][k] = m_sol_orgp[i][k] - hmp;
             m_sol_solp[i][k] = m_sol_solp[i][k] + hmp;
@@ -497,11 +497,11 @@ void NandPim::CalculateMinerandImmobi(int i)
                 m_sol_rsd[i][k] = m_sol_rsd[i][k] - rdc;
                 if (m_sol_rsd[i][k] < 0)m_sol_rsd[i][k] = 0.f;
                 rmn1 = decr * m_sol_fon[i][k];
-                m_sol_fop[i][k] = max(1e-6f, m_sol_fop[i][k]);
+                m_sol_fop[i][k] = max(1.e-6f, m_sol_fop[i][k]);
                 rmp = decr * m_sol_fop[i][k];
 
                 m_sol_fop[i][k] = m_sol_fop[i][k] - rmp;
-                m_sol_fon[i][k] = max(1e-6f, m_sol_fon[i][k]) - rmn1;;
+                m_sol_fon[i][k] = max(1.e-6f, m_sol_fon[i][k]) - rmn1;;
                 //Calculate no3, aorgn, solp, orgp, equation 3:1.2.9 in SWAT Theory 2009, p190
                 m_sol_no3[i][k] = m_sol_no3[i][k] + 0.8f * rmn1;
                 m_sol_aorgn[i][k] = m_sol_aorgn[i][k] + 0.2f * rmn1;
@@ -607,7 +607,7 @@ void NandPim::CalculateMinerandVolati(int i)
             rvol = 1.f - exp(-akv);
 
             //calculate nitrification (NH3 => NO3)
-            if ((rvol + rnit) > 1e-6f)
+            if ((rvol + rnit) > 1.e-6f)
             {
                 //Calculate the amount of nitrogen removed from the ammonium pool by nitrification,
                 //equation 3:1.3.11 in SWAT Theory 2009, p193

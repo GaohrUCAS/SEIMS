@@ -377,7 +377,7 @@ void NutrientRemviaSr::NitrateLoss()
                     {
                         //add nitrate moved from layer above
                         m_sol_no3[i][k] = m_sol_no3[i][k] + percnlyr;
-                        if (m_sol_no3[i][k] < 1e-6f)
+                        if (m_sol_no3[i][k] < 1.e-6f)
                             m_sol_no3[i][k] = 0.f;
 
                         // determine concentration of nitrate in mobile water
@@ -518,10 +518,10 @@ void NutrientRemviaSr::NitrateLoss()
                         // calculate carbonaceous biological oxygen demand (CBOD) and COD(transform from CBOD)
                         float cbod  = 2.7f * org_c / (qdr * m_cellWidth * m_cellWidth * 0.0001f);
                         // calculate COD
-                        float n = 3.f; // Conversion factor 1~6.5
+                        float n = 3.75f; // Conversion factor 1~6.5
                         float k = 0.15f; // Reaction coefficient 0.1~0.2
                         m_cod[i] = n * (cbod * (1.f - exp(-5.f * k)));
-						m_cod[i] = m_cod[i] * m_surfr[i] * 100.f;	// mg/L converted to kg/ha
+						m_cod[i] = m_surfr[i] / 1000.f * m_cod[i] * 10.f;	// mg/L converted to kg/ha
 
                         /*
                         // calculate dissolved oxygen saturation concentration (soxy)

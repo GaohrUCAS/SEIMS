@@ -176,11 +176,11 @@ void NutrientinGroundwater::initialOutputs()
         throw ModelException(MID_NUTRGW, "CheckInputData",
                              "The dimension of the input data can not be less than zero.");
 
-	if (m_gwno3Con == NULL)
-	{
-		Initialize1DArray(m_nSubbasins+1, m_gwno3Con, 6.f);
-		Initialize1DArray(m_nSubbasins+1, m_gwminpCon, 0.2f);
-	}
+// 	if (m_gwno3Con == NULL)
+// 	{
+// 		Initialize1DArray(m_nSubbasins+1, m_gwno3Con, 6.f);
+// 		Initialize1DArray(m_nSubbasins+1, m_gwminpCon, 0.2f);
+// 	}
 
     // allocate the output variables
 	if (m_no3gwToCh == NULL)
@@ -200,16 +200,16 @@ int NutrientinGroundwater::Execute()
     {
 		int id = *iter;
 		// gw no3 to channel
-		float xx = m_gw_q[id] * m_TimeStep; //m3
-		m_no3gwToCh[id] = m_gwno3Con[id] * xx / 1000.f; // g/m3 * m3 / 1000 = kg
+		float xx = m_gw_q[id] * m_TimeStep;	//m3
+		m_no3gwToCh[id] = m_gwno3Con[id] * xx / 1000.f;	// g/m3 * m3 / 1000 = kg
 		m_minpgwToCh[id] = m_gwminpCon[id] * xx / 1000.f;
 
 		// gw no3 loss through revep
 		Subbasin *subbasin = m_subbasinsInfo->GetSubbasinByID(id);
-		float subArea = subbasin->getCellCount() * m_cellWidth * m_cellWidth; //m2
+		float subArea = subbasin->getCellCount() * m_cellWidth * m_cellWidth;	//m2
 		float revap = subbasin->getEG();
-		float no3ToSoil = revap/1000.f * m_gwno3Con[id] * 10.f;// kg/ha  (10*g/m3=kg/ha)
-		float solpToSoil = revap/1000.f * m_gwminpCon[id] * 10.f;
+		float no3ToSoil = revap / 1000.f * m_gwno3Con[id] * 10.f;	// kg/ha  (m*10*g/m3=kg/ha)
+		float solpToSoil = revap / 1000.f * m_gwminpCon[id] * 10.f;
 		// update no3 in the bottom soil layer due to revap
 		int *cells = subbasin->getCells();
 		int nCells = subbasin->getCellCount();
@@ -222,9 +222,9 @@ int NutrientinGroundwater::Execute()
 		}
 
 		// update concentration
-		float gwVol = subArea * m_gwStor[id]/1000.f;//m3
-		m_gwno3Con[id] += m_perco_no3_gw[id]*1000.f/gwVol;
-		m_gwminpCon[id] += m_perco_solp_gw[id]*1000.f/gwVol;
+		float gwVol = subArea * m_gwStor[id] / 1000.f;//m3
+		m_gwno3Con[id] += m_perco_no3_gw[id] * 1000.f / gwVol;
+		m_gwminpCon[id] += m_perco_solp_gw[id] * 1000.f / gwVol;
     }
     return 0;
 }
