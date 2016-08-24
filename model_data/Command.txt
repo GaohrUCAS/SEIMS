@@ -49,6 +49,9 @@ python G:\code_zhulj\SEIMS\preprocess\parameters_extraction.py -ini G:\code_zhul
 
 + Under LINUX
   + /home/zhulj/SEIMS/seims_omp/seims_omp /home/zhulj/SEIMS/models/dianbu/model_dianbu_30m_longterm 8 0 127.0.0.1 27017 0
+  
++ 192.168.6.57
+  + python G:\code_zhulj\SEIMS\preprocess\import_parameters.py -ini G:\code_zhulj\SEIMS\preprocess\dianbu_30m_longterm_omp_zhulj_winserver.ini
 
 
 

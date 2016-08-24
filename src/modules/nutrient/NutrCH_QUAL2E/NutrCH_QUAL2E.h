@@ -64,7 +64,7 @@ public:
 private:
 	// cell number
 	int m_nCells;
-    /// time step (hr)
+    /// time step (sec)
     int m_dt;
     /// downstream id (The value is 0 if there if no downstream reach)
     float *m_reachDownStream;
