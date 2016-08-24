@@ -64,21 +64,6 @@ void PETHargreaves::initialOutputs()
 	if(this->m_vpd == NULL) Initialize1DArray(m_nCells, m_vpd, 0.f);
 	if(this->m_dayLen == NULL) Initialize1DArray(m_nCells, m_dayLen, 0.f);
 	if(this->m_phuBase == NULL) Initialize1DArray(m_nCells, m_phuBase, 0.f);
-//	if (NULL == m_pet || NULL == m_vpd || NULL == m_dayLen || NULL == m_phuBase)
-//	{
-//		this->m_pet = new float[m_nCells];
-//		this->m_vpd = new float[m_nCells];
-//		this->m_dayLen = new float[m_nCells];
-//		this->m_phuBase = new float[m_nCells];
-//#pragma omp parallel for
-//		for (int i = 0; i < m_nCells; ++i)
-//		{
-//			m_pet[i] = 0.f;
-//			m_vpd[i] = 0.f;
-//			m_dayLen[i] = 0.f;
-//			m_phuBase[i] = 0.f;
-//		}
-//	}
 }
 
 int PETHargreaves::Execute()
@@ -86,7 +71,7 @@ int PETHargreaves::Execute()
     if (!this->CheckInputData()) return false;
     initialOutputs();
     m_jday = JulianDay(this->m_date);
-    //cout<<m_tMean[0]<<","<<m_tMax[0]<<","<<m_tMin[0]<<endl;
+    //cout<<m_jday<<","m_tMean[0]<<","<<m_tMax[0]<<","<<m_tMin[0]<<endl;
 #pragma omp parallel for
     for (int i = 0; i < m_nCells; ++i)
     {
@@ -95,7 +80,8 @@ int PETHargreaves::Execute()
         if (tmpav(j) > 0. .and. phutot(hru_sub(j)) > 0.01) then
             phubase(j) = phubase(j) + tmpav(j) / phutot(hru_sub(j))
         end if*/
-        if (m_jday == 1) m_phuBase[i] = 0.f;
+        if (m_jday == 1)
+			m_phuBase[i] = 0.f;
         if (m_tMean[i] > 0.f && m_phutot[i] > 0.01f)
             m_phuBase[i] += m_tMean[i] / m_phutot[i];
         MaxSolarRadiation(m_jday, m_cellLat[i], m_dayLen[i], m_srMax);

@@ -93,7 +93,7 @@ int PETPriestleyTaylor::Execute()
 {
     CheckInputData();
     initialOutputs();
-    int d = JulianDay(this->m_date);
+    m_jday = JulianDay(this->m_date);
 #pragma omp parallel for
     for (int i = 0; i < m_nCells; ++i)
     {
@@ -114,7 +114,7 @@ int PETPriestleyTaylor::Execute()
             raShortWave = m_sr[i] * (1.0f - 0.8f);
 
         /// calculate the max solar radiation
-        MaxSolarRadiation(d, this->m_cellLat[i], this->m_dayLen[i], m_srMax);
+        MaxSolarRadiation(m_jday, this->m_cellLat[i], this->m_dayLen[i], m_srMax);
 
         /// calculate net long-wave radiation
         /// net emissivity  equation 2.2.20 in SWAT manual
