@@ -490,38 +490,58 @@ bool MGTOpt_SWAT::GetOperationCode(int i, int &factoryID, vector<int> &nOps)
     /// 3. Figure out if any management operation should be applied, i.e., find sequence IDs (nOps)
     vector<int> tmpOpSeqences = m_mgtFactory[factoryID]->GetOperationSequence();
     map < int, PlantManagementOperation * > tmpOperations = m_mgtFactory[factoryID]->GetOperations();
-    for (vector<int>::iterator seqIter = tmpOpSeqences.begin(); seqIter != tmpOpSeqences.end(); seqIter++)
-    {
+	// get the next should be done sequence number
+	int curSeq = m_doneOpSequence[i];
+	int nextSeq = -1;
+	if (curSeq == -1 || curSeq == tmpOpSeqences.size()-1)
+		nextSeq = 0;
+	else
+		nextSeq = curSeq + 1;
+	int opCode = tmpOpSeqences[nextSeq];
+	// figure out the nextSeq is satisfied or not.
+	if (tmpOperations.find(opCode) != tmpOperations.end())
+	{
+		PlantManagementOperation *tmpOperation = tmpOperations.at(opCode);
+    //for (vector<int>::iterator seqIter = tmpOpSeqences.begin(); seqIter != tmpOpSeqences.end(); seqIter++)
+    //{
         /// *seqIter is calculated by: seqNo. * 1000 + operationCode
         bool dateDepent = false, huscDepent = false;
         /// If operation applied date (month and day) are defined
-        if (tmpOperations[*seqIter]->GetMonth() != 0 && tmpOperations[*seqIter]->GetDay() != 0)
+		if (tmpOperation->GetMonth() != 0 && tmpOperation->GetDay() != 0)
         {
             struct tm dateInfo;
             LocalTime(m_date, &dateInfo);
-            if (dateInfo.tm_mon == tmpOperations[*seqIter]->GetMonth() &&
-                dateInfo.tm_mday == tmpOperations[*seqIter]->GetDay())
+            if (dateInfo.tm_mon == tmpOperation->GetMonth() &&
+                dateInfo.tm_mday == tmpOperation->GetDay())
                 dateDepent = true;
         }
         /// If husc is defined
-        if (tmpOperations[*seqIter]->GetHUFraction() >= 0.f)
+        if (tmpOperation->GetHUFraction() >= 0.f)
         {
             float aphu; /// fraction of total heat units accumulated
-            if (FloatEqual(m_igro[i], 0.f))
-                aphu = m_phuBase[i];
-            else
-                aphu = m_phuAcc[i];
-            if (FloatEqual(m_dormFlag[i], 1.f))
-                aphu = NODATA_VALUE;
-            if (aphu >= tmpOperations[*seqIter]->GetHUFraction())
-                huscDepent = true;
+			if (FloatEqual(m_dormFlag[i], 1.f))
+				aphu = NODATA_VALUE;
+			else{
+				if (tmpOperation->UseBaseHUSC() && FloatEqual(m_igro[i], 0.f)) // use base hu
+				{
+					aphu = m_phuBase[i];
+					if (aphu >= tmpOperation->GetHUFraction())
+						huscDepent = true;
+				}
+				else{ // use accumulated plant hu
+					aphu = m_phuAcc[i];
+					if (aphu >= tmpOperation->GetHUFraction())
+						huscDepent = true;
+				}
+			}
         }
         /// The operation will be applied either date or HUSC are satisfied,
         /// and also in case of repeated run
-        if ((dateDepent || huscDepent) && *seqIter > m_doneOpSequence[i])
+        // if ((dateDepent || huscDepent) && *seqIter > m_doneOpSequence[i])
+		if (dateDepent || huscDepent)
         {
-            nOps.push_back(*seqIter);
-            m_doneOpSequence[i] = *seqIter; /// update value
+            nOps.push_back(opCode);
+            m_doneOpSequence[i] = nextSeq; /// update value
         }
     }
     if (nOps.empty()) return false;
@@ -1516,10 +1536,22 @@ int MGTOpt_SWAT::Execute()
             {
                 //cout<<curFactoryID<<","<<*it<<endl;
                 ScheduledManagement(i, curFactoryID, *it);
+				/// output for debug, by LJ.
+				if (i == 987){
+					ofstream fs;
+					utils util;
+					string filename = "E:\\code\\Hydro\\SEIMS\\model_data\\dianbu\\model_dianbu2_30m_longterm\\pltMgt.txt";
+					fs.open(filename.c_str(), ios::out|ios::app);
+					if (fs.is_open())
+					{
+						fs << util.ConvertToString(&this->m_date) <<", IGRO: "<<m_igro[i]<<", phuBase: "<<m_phuBase[i]<<", phuAcc: "<<m_phuAcc[i]<<", phuPlt: "<<m_phuPlant[i]<<", optCode: "<<*it<< endl;
+						fs.close();
+					}
+				}
             }
         }
     }
-    return true;
+    return 0;
 }
 
 void MGTOpt_SWAT::Get1DData(const char *key, int *n, float **data)
