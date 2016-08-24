@@ -23,7 +23,7 @@ NutrientRemviaSr::NutrientRemviaSr(void) :
         m_sol_om(NULL), m_flowOutIndex(NULL), m_nSubbasins(-1), m_subbasin(NULL), m_subbasinsInfo(NULL), m_streamLink(NULL),
         //output
         m_latno3(NULL), m_perco_n(NULL),m_perco_p(NULL), m_surqno3(NULL), m_sol_no3(NULL), m_surqsolp(NULL), m_wshd_plch(-1),
-		m_latno3ToCh(NULL), m_sur_no3ToCh(NULL), m_sur_solpToCh(NULL), m_perco_n_gw(NULL), m_perco_p_gw(NULL),
+		m_latno3ToCh(NULL), m_sur_no3ToCh(NULL), m_sur_codToCh(NULL), m_sur_solpToCh(NULL), m_perco_n_gw(NULL), m_perco_p_gw(NULL),
         m_sol_solp(NULL), m_cod(NULL), m_chl_a(NULL) //,m_doxq(), m_soxy()
 {
 
@@ -42,6 +42,7 @@ NutrientRemviaSr::~NutrientRemviaSr(void)
 	if(m_latno3ToCh != NULL) Release1DArray(m_latno3ToCh);
 	if(m_sur_no3ToCh != NULL) Release1DArray(m_sur_no3ToCh);
 	if(m_sur_solpToCh != NULL) Release1DArray(m_sur_solpToCh);
+	if(m_sur_codToCh != NULL) Release1DArray(m_sur_codToCh);
 	if(m_perco_n_gw != NULL) Release1DArray(m_perco_n_gw);
 	if(m_perco_p_gw != NULL) Release1DArray(m_perco_p_gw);
 }
@@ -54,7 +55,7 @@ void NutrientRemviaSr::SumBySubbasin()
 		m_sur_solpToCh[subi] = 0.f;
 		m_perco_n_gw[subi] = 0.f;
 		m_perco_p_gw[subi] = 0.f;
-
+		m_sur_codToCh[subi] = 0.f;
 		m_latno3ToCh[subi] = 0.f;
 	}
 
@@ -78,6 +79,7 @@ void NutrientRemviaSr::SumBySubbasin()
 
 		m_sur_no3ToCh[subi] += m_surqno3[i] * cellArea;
 		m_sur_solpToCh[subi] += m_surqsolp[i] * cellArea;
+		m_sur_codToCh[subi] += m_cod[i] * cellArea;
 		m_perco_n_gw[subi] += m_perco_n[i] * cellArea;
 		m_perco_p_gw[subi] += m_perco_p[i] * cellArea;
 
@@ -91,6 +93,7 @@ void NutrientRemviaSr::SumBySubbasin()
 	{
 		m_sur_no3ToCh[0] += m_sur_no3ToCh[i];
 		m_sur_solpToCh[0] += m_sur_solpToCh[i];
+		m_sur_codToCh[0] += m_sur_codToCh[i];
 		m_latno3ToCh[0] += m_latno3ToCh[i];
 		m_perco_n_gw[0] += m_perco_n_gw[i];
 		m_perco_p_gw[0] += m_perco_p_gw[i];
@@ -321,6 +324,7 @@ void NutrientRemviaSr::initialOutputs()
 		Initialize1DArray(m_nSubbasins+1, m_latno3ToCh, 0.f);
 		Initialize1DArray(m_nSubbasins+1, m_sur_no3ToCh, 0.f);
 		Initialize1DArray(m_nSubbasins+1, m_sur_solpToCh, 0.f);
+		Initialize1DArray(m_nSubbasins+1, m_sur_codToCh, 0.f);
 		Initialize1DArray(m_nSubbasins+1, m_perco_n_gw, 0.f);
 		Initialize1DArray(m_nSubbasins+1, m_perco_p_gw, 0.f);
 
@@ -679,6 +683,11 @@ void NutrientRemviaSr::NitrateLoss()
 				else if(StringMatch(sk, VAR_SUR_SOLP_TOCH))
 				{
 					*data = m_sur_solpToCh;
+					*n = m_nSubbasins + 1;
+				}
+				else if(StringMatch(sk, VAR_SUR_COD_TOCH))
+				{
+					*data = m_sur_codToCh;
 					*n = m_nSubbasins + 1;
 				}
                 else

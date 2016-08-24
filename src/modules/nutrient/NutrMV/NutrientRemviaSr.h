@@ -129,6 +129,9 @@ private:
 	float *m_perco_n_gw;  // amount of nitrate percolating past bottom of soil profile sum by sub-basin
 	float *m_perco_p_gw;  // amount of solute P percolating past bottom of soil profile sum by sub-basin
 
+	// amount of COD to reach in surface runoff (kg)
+	float *m_sur_codToCh; 
+
 	/// subbasin related
 	/// the total number of subbasins
 	int m_nSubbasins;

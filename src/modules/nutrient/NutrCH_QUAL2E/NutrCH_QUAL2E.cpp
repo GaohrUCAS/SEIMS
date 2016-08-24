@@ -87,6 +87,8 @@ NutrCH_QUAL2E::~NutrCH_QUAL2E(void)
 	if(m_chOutSolP != NULL) Release1DArray(m_chOutSolP);
 	if(m_chOutDOx != NULL) Release1DArray(m_chOutDOx);
 	if(m_chOutCOD != NULL) Release1DArray(m_chOutCOD);
+	if(m_chOutDOx != NULL) Release1DArray(m_chOutTN);
+	if(m_chOutCOD != NULL) Release1DArray(m_chOutTP);
 	/// concentration out of channel
 	if(m_chOutChloraConc != NULL) Release1DArray(m_chOutChloraConc);
 	if(m_chOutAlgaeConc != NULL) Release1DArray(m_chOutAlgaeConc);
@@ -98,6 +100,8 @@ NutrCH_QUAL2E::~NutrCH_QUAL2E(void)
 	if(m_chOutSolPConc != NULL) Release1DArray(m_chOutSolPConc);
 	if(m_chOutDOxConc != NULL) Release1DArray(m_chOutDOxConc);
 	if(m_chOutCODConc != NULL) Release1DArray(m_chOutCODConc);
+	if(m_chOutDOxConc != NULL) Release1DArray(m_chOutTNConc);
+	if(m_chOutCODConc != NULL) Release1DArray(m_chOutTPConc);
 }
 
 void NutrCH_QUAL2E::ParametersSubbasinForChannel()
@@ -207,7 +211,8 @@ bool NutrCH_QUAL2E::CheckInputData()
     CHECK_POINTER(MID_NUTRCH_QUAL2E, m_chWTdepth, "m_chWTdepth")
     CHECK_POINTER(MID_NUTRCH_QUAL2E, m_latNO3ToCh, "m_latNO3ToCh")
     CHECK_POINTER(MID_NUTRCH_QUAL2E, m_surNO3ToCh, "m_surNO3ToCh")
-    CHECK_POINTER(MID_NUTRCH_QUAL2E, m_surSolPToCh, "m_surSolPToCh")
+	CHECK_POINTER(MID_NUTRCH_QUAL2E, m_surSolPToCh, "m_surSolPToCh")
+	CHECK_POINTER(MID_NUTRCH_QUAL2E, m_codToCh, "m_codToCh")
     CHECK_POINTER(MID_NUTRCH_QUAL2E, m_gwNO3ToCh, "m_gwNO3ToCh")
 	CHECK_POINTER(MID_NUTRCH_QUAL2E, m_gwSolPToCh, "m_gwSolPToCh")
 	CHECK_POINTER(MID_NUTRCH_QUAL2E, m_sedOrgNToCh, "m_sedOrgNToCh")
@@ -313,7 +318,8 @@ void NutrCH_QUAL2E::Set1DData(const char *key, int n, float *data)
 
     else if (StringMatch(sk, VAR_LATNO3_TOCH))   { m_latNO3ToCh = data; }
     else if (StringMatch(sk, VAR_SUR_NO3_TOCH))  { m_surNO3ToCh = data; }
-    else if (StringMatch(sk, VAR_SUR_SOLP_TOCH)) { m_surSolPToCh = data; }
+	else if (StringMatch(sk, VAR_SUR_SOLP_TOCH)) { m_surSolPToCh = data; }
+	else if (StringMatch(sk, VAR_SUR_COD_TOCH)) { m_codToCh = data; }
     else if (StringMatch(sk, VAR_NO3GW_TOCH))    { m_gwNO3ToCh = data; }
     else if (StringMatch(sk, VAR_MINPGW_TOCH))   { m_gwSolPToCh = data; }
     else if (StringMatch(sk, VAR_SEDORGN_TOCH))  { m_sedOrgNToCh = data; }
@@ -454,6 +460,8 @@ void NutrCH_QUAL2E::initialOutputs()
 		Initialize1DArray(m_nReaches+1, m_chOutSolP, 0.f);
 		Initialize1DArray(m_nReaches+1, m_chOutDOx, 0.f);
 		Initialize1DArray(m_nReaches+1, m_chOutCOD, 0.f);
+		Initialize1DArray(m_nReaches+1, m_chOutTN, 0.f);
+		Initialize1DArray(m_nReaches+1, m_chOutTP, 0.f);
 
 		Initialize1DArray(m_nReaches+1, m_chOutChloraConc,0.f);
 		Initialize1DArray(m_nReaches+1, m_chOutAlgaeConc, 0.f);
@@ -465,6 +473,8 @@ void NutrCH_QUAL2E::initialOutputs()
 		Initialize1DArray(m_nReaches+1, m_chOutSolPConc, 0.f);
 		Initialize1DArray(m_nReaches+1, m_chOutDOxConc, 0.f);
 		Initialize1DArray(m_nReaches+1, m_chOutCODConc, 0.f);
+		Initialize1DArray(m_nReaches+1, m_chOutTNConc, 0.f);
+		Initialize1DArray(m_nReaches+1, m_chOutTPConc, 0.f);
 	}
 }
 
@@ -645,6 +655,9 @@ void NutrCH_QUAL2E::RouteOut(int i)
 	m_chOutDOx[i]   = m_chDOx[i] * outFraction;
 	m_chOutAlgae[i] = m_chAlgae[i] * outFraction;
 	m_chOutChlora[i] = m_chChlora[i] * outFraction;
+	/// total N and total P
+	m_chOutTN[i] = m_chOutOrgN[i] + m_chOutNO3[i] + m_chOutNH4[i];
+	m_chOutTP[i] = m_chOutOrgP[i] + m_chOutSolP[i];
 
 	// kg ==> mg/L
 	float cvt = 1000.f / wtrOut;
@@ -658,6 +671,9 @@ void NutrCH_QUAL2E::RouteOut(int i)
 	m_chOutDOxConc[i] = m_chOutDOx[i] * cvt;
 	m_chOutAlgaeConc[i] = m_chOutAlgae[i] * cvt;
 	m_chOutChloraConc[i] = m_chOutChlora[i] * cvt;
+	/// total N and total P
+	m_chOutTNConc[i] = m_chOutOrgNConc[i] + m_chOutNO3Conc[i] + m_chOutNH4Conc[i];
+	m_chOutTPConc[i] = m_chOutOrgPConc[i] + m_chOutSolPConc[i];
 
 	m_chOrgN[i] -= m_chOutOrgN[i];
 	m_chOrgP[i] -= m_chOutOrgP[i];
@@ -1012,6 +1028,11 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	m_chCBOD[i]   = dbod * wtrTotal / 1000.f;
 	m_chDOx[i]    = ddisox * wtrTotal / 1000.f;
 	m_chChlora[i] = m_chAlgae[i] * m_ai0;
+
+	/// CBOD convert to COD, (still call it CBOD here...)
+	float n = 3.75f; // Conversion factor 1~6.5
+	float k = 0.15f; // Reaction coefficient 0.1~0.2
+	m_chCBOD[i] = n * (m_chCBOD[i] * (1.f - exp(-5.f * k)));
 }
 
 float NutrCH_QUAL2E::corTempc(float r20, float thk, float tmp)
@@ -1054,6 +1075,10 @@ void NutrCH_QUAL2E::Get1DData(const char *key, int *n, float **data)
 	else if(StringMatch(sk, VAR_CH_NH3Conc))    *data = m_chOutNH4Conc;
 	else if(StringMatch(sk, VAR_CH_DOX))    *data = m_chOutDOx;
 	else if(StringMatch(sk, VAR_CH_DOXConc))    *data = m_chOutDOxConc;
+	else if(StringMatch(sk, VAR_CH_TN))    *data = m_chOutTN;
+	else if(StringMatch(sk, VAR_CH_TNConc))    *data = m_chOutTNConc;
+	else if(StringMatch(sk, VAR_CH_TP))    *data = m_chOutTP;
+	else if(StringMatch(sk, VAR_CH_TPConc))    *data = m_chOutTPConc;
     else
         throw ModelException(MID_NUTRCH_QUAL2E, "Get1DData", "Parameter " + sk + " does not exist.");
 }
