@@ -262,8 +262,14 @@ private:
 	float *m_chOutDOx;
 	/// dissolved oxygen concentration in reach (mg/L)
 	float *m_chOutDOxConc;
-
-	
+	/// total N amount in reach (kg)
+	float *m_chOutTN;
+	/// total N concentration in reach (mg/L)
+	float *m_chOutTNConc;
+	/// total P amount in reach (kg)
+	float *m_chOutTP;
+	/// total P concentration in reach (mg/L)
+	float *m_chOutTPConc;
 
 	//intermediate variables
 

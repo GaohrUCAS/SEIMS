@@ -66,6 +66,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	//nutrient from surface water
 	mdi.AddInput(VAR_SUR_NO3_TOCH, UNIT_KG, DESC_SUR_NO3_CH, Source_Module, DT_Array1D);
 	mdi.AddInput(VAR_SUR_SOLP_TOCH, UNIT_KG, DESC_SUR_SOLP_CH, Source_Module, DT_Array1D);
+	mdi.AddInput(VAR_SUR_COD_TOCH, UNIT_KG, DESC_SUR_COD_CH, Source_Module, DT_Array1D);
 	mdi.AddInput(VAR_SEDORGN_TOCH, UNIT_KG, DESC_SEDORGN_CH, Source_Module, DT_Array1D);
 	mdi.AddInput(VAR_SEDORGP_TOCH, UNIT_KG, DESC_SEDORGP_CH, Source_Module, DT_Array1D);
 	
@@ -89,7 +90,9 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.AddOutput(VAR_CH_SOLP, UNIT_KG, DESC_CH_SOLP, DT_Array1D);
     mdi.AddOutput(VAR_CH_COD, UNIT_KG, DESC_CH_COD, DT_Array1D);
 	mdi.AddOutput(VAR_CH_CHLORA, UNIT_KG, DESC_CH_CHLORA, DT_Array1D);
-	mdi.AddOutput(VAR_CH_DOX, UNIT_CONCENTRATION, DESC_CH_DOX, DT_Array1D);
+	mdi.AddOutput(VAR_CH_DOX, UNIT_KG, DESC_CH_DOX, DT_Array1D);
+	mdi.AddOutput(VAR_CH_TN, UNIT_KG, DESC_CH_TN, DT_Array1D);
+	mdi.AddOutput(VAR_CH_TP, UNIT_KG, DESC_CH_TP, DT_Array1D);
 	/// 2. Concentration (mg/L) outputs
 	mdi.AddOutput(VAR_CH_ALGAEConc, UNIT_CONCENTRATION, DESC_CH_ALGAE, DT_Array1D);
 	mdi.AddOutput(VAR_CH_ORGNConc, UNIT_CONCENTRATION, DESC_CH_ORGN, DT_Array1D);
@@ -101,6 +104,8 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddOutput(VAR_CH_CODConc, UNIT_CONCENTRATION, DESC_CH_COD, DT_Array1D);
 	mdi.AddOutput(VAR_CH_CHLORAConc, UNIT_CONCENTRATION, DESC_CH_CHLORA, DT_Array1D);
 	mdi.AddOutput(VAR_CH_DOXConc, UNIT_CONCENTRATION, DESC_CH_DOX, DT_Array1D);
+	mdi.AddOutput(VAR_CH_TNConc, UNIT_CONCENTRATION, DESC_CH_TNConc, DT_Array1D);
+	mdi.AddOutput(VAR_CH_TPConc, UNIT_CONCENTRATION, DESC_CH_TPConc, DT_Array1D);
     string res = mdi.GetXMLDocument();
     char *tmp = new char[res.size() + 1];
     strprintf(tmp, res.size() + 1, "%s", res.c_str());
