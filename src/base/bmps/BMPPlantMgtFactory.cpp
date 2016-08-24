@@ -63,6 +63,7 @@ void BMPPlantMgtFactory::loadBMP(mongoc_client_t *conn, string &bmpDBName)
         //int seqNo;
         int mgtCode = -1, year = -9999, month = -9999, day = -9999;
         float husc = 0.f;
+		bool usebaseHU = true;
         if (bson_iter_init_find(&itertor, bsonTable, BMP_FLD_NAME))
             m_name = GetStringFromBSONITER(&itertor);
         if (bson_iter_init_find(&itertor, bsonTable, BMP_PLTOP_FLD_LUCC))
@@ -78,6 +79,8 @@ void BMPPlantMgtFactory::loadBMP(mongoc_client_t *conn, string &bmpDBName)
             month = GetIntFromBSONITER(&itertor);
         if (bson_iter_init_find(&itertor, bsonTable, BMP_PLTOP_FLD_DAY))
             day = GetIntFromBSONITER(&itertor);
+		if (bson_iter_init_find(&itertor, bsonTable, BMP_PLTOP_FLD_BASEHU))
+			usebaseHU = GetBoolFromBSONITER(&itertor);
         if (bson_iter_init_find(&itertor, bsonTable, BMP_PLTOP_FLD_HUSC))
             husc = GetFloatFromBSONITER(&itertor);
         for (int i = 0; i < paramNum; i++)
@@ -92,54 +95,54 @@ void BMPPlantMgtFactory::loadBMP(mongoc_client_t *conn, string &bmpDBName)
         switch (mgtCode)
         {
             case BMP_PLTOP_Plant:
-                m_bmpPlantOps[uniqueMgtCode] = new PlantOperation(mgtCode, husc, year, month, day, m_parameters);
+                m_bmpPlantOps[uniqueMgtCode] = new PlantOperation(mgtCode, usebaseHU, husc, year, month, day, m_parameters);
                 break;
             case BMP_PLTOP_Irrigation:
-                m_bmpPlantOps[uniqueMgtCode] = new IrrigationOperation(mgtCode, husc, year, month, day, m_parameters);
+                m_bmpPlantOps[uniqueMgtCode] = new IrrigationOperation(mgtCode,usebaseHU, husc, year, month, day, m_parameters);
                 break;
             case BMP_PLTOP_Fertilizer:
-                m_bmpPlantOps[uniqueMgtCode] = new FertilizerOperation(mgtCode, husc, year, month, day, m_parameters);
+                m_bmpPlantOps[uniqueMgtCode] = new FertilizerOperation(mgtCode, usebaseHU,husc, year, month, day, m_parameters);
                 break;
             case BMP_PLTOP_Pesticide:
-                m_bmpPlantOps[uniqueMgtCode] = new PesticideOperation(mgtCode, husc, year, month, day, m_parameters);
+                m_bmpPlantOps[uniqueMgtCode] = new PesticideOperation(mgtCode, usebaseHU,husc, year, month, day, m_parameters);
                 break;
             case BMP_PLTOP_HarvestKill:
-                m_bmpPlantOps[uniqueMgtCode] = new HarvestKillOperation(mgtCode, husc, year, month, day, m_parameters);
+                m_bmpPlantOps[uniqueMgtCode] = new HarvestKillOperation(mgtCode, usebaseHU,husc, year, month, day, m_parameters);
                 break;
             case BMP_PLTOP_Tillage:
-                m_bmpPlantOps[uniqueMgtCode] = new TillageOperation(mgtCode, husc, year, month, day, m_parameters);
+                m_bmpPlantOps[uniqueMgtCode] = new TillageOperation(mgtCode, usebaseHU,husc, year, month, day, m_parameters);
                 break;
             case BMP_PLTOP_Harvest:
-                m_bmpPlantOps[uniqueMgtCode] = new HarvestOnlyOperation(mgtCode, husc, year, month, day, m_parameters);
+                m_bmpPlantOps[uniqueMgtCode] = new HarvestOnlyOperation(mgtCode, usebaseHU,husc, year, month, day, m_parameters);
                 break;
             case BMP_PLTOP_Kill:
-                m_bmpPlantOps[uniqueMgtCode] = new KillOperation(mgtCode, husc, year, month, day, m_parameters);
+                m_bmpPlantOps[uniqueMgtCode] = new KillOperation(mgtCode, usebaseHU,husc, year, month, day, m_parameters);
                 break;
             case BMP_PLTOP_Grazing:
-                m_bmpPlantOps[uniqueMgtCode] = new GrazingOperation(mgtCode, husc, year, month, day, m_parameters);
+                m_bmpPlantOps[uniqueMgtCode] = new GrazingOperation(mgtCode, usebaseHU,husc, year, month, day, m_parameters);
                 break;
             case BMP_PLTOP_AutoIrrigation:
-                m_bmpPlantOps[uniqueMgtCode] = new AutoIrrigationOperation(mgtCode, husc, year, month, day,
+                m_bmpPlantOps[uniqueMgtCode] = new AutoIrrigationOperation(mgtCode, usebaseHU,husc, year, month, day,
                                                                            m_parameters);
                 break;
             case BMP_PLTOP_AutoFertilizer:
-                m_bmpPlantOps[uniqueMgtCode] = new AutoFertilizerOperation(mgtCode, husc, year, month, day,
+                m_bmpPlantOps[uniqueMgtCode] = new AutoFertilizerOperation(mgtCode, usebaseHU,husc, year, month, day,
                                                                            m_parameters);
                 break;
             case BMP_PLTOP_ReleaseImpound:
-                m_bmpPlantOps[uniqueMgtCode] = new ReleaseImpoundOperation(mgtCode, husc, year, month, day,
+                m_bmpPlantOps[uniqueMgtCode] = new ReleaseImpoundOperation(mgtCode, usebaseHU,husc, year, month, day,
                                                                            m_parameters);
                 break;
             case BMP_PLTOP_ContinuousFertilizer:
-                m_bmpPlantOps[uniqueMgtCode] = new ContinuousFertilizerOperation(mgtCode, husc, year, month, day,
+                m_bmpPlantOps[uniqueMgtCode] = new ContinuousFertilizerOperation(mgtCode, usebaseHU,husc, year, month, day,
                                                                                  m_parameters);
                 break;
             case BMP_PLTOP_ContinuousPesticide:
-                m_bmpPlantOps[uniqueMgtCode] = new ContinuousPesticideOperation(mgtCode, husc, year, month, day,
+                m_bmpPlantOps[uniqueMgtCode] = new ContinuousPesticideOperation(mgtCode, usebaseHU,husc, year, month, day,
                                                                                 m_parameters);
                 break;
             case BMP_PLTOP_Burning:
-                m_bmpPlantOps[uniqueMgtCode] = new BurningOperation(mgtCode, husc, year, month, day, m_parameters);
+                m_bmpPlantOps[uniqueMgtCode] = new BurningOperation(mgtCode, usebaseHU,husc, year, month, day, m_parameters);
                 break;
             default:
                 break;

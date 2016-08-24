@@ -28,19 +28,22 @@ namespace MainBMP
             /*!
              * \brief Constructor
              * \param[in] mgtCode 1 to 16
+			 * \param[in] usebaseHU true or false
              * \param[in] husc Fraction of heat units (base or plant)
              * \param[in] year Rotation year, e.g., 1,2,...
              * \param[in] month
              * \param[in] day
              * \param[in] location Indexes of field to practice the operation (string)
              */
-            PlantManagementOperation(int mgtOp, float husc, int year, int month, int day, float *parameters);
+            PlantManagementOperation(int mgtOp, bool usebaseHU, float husc, int year, int month, int day, float *parameters);
 
             //! virtual Destructor
             virtual ~PlantManagementOperation(void);
 
             //! Output
             virtual void dump(ostream *fs) = 0;
+
+			bool &UseBaseHUSC() {return m_useBaseHUSC;}
 
             float &GetHUFraction() { return m_frHU; }
 
@@ -51,6 +54,8 @@ namespace MainBMP
             int &GetOperationCode() { return m_mgtOp; }
 
         protected:
+			/// use base hu or plant accumulated hu
+			bool m_useBaseHUSC;
             /// husc
             float m_frHU;
             /// year
@@ -73,7 +78,7 @@ namespace MainBMP
         class PlantOperation : public PlantManagementOperation
         {
         public:
-            PlantOperation(int mgtOp, float husc, int year, int month, int day, float *parameters);
+            PlantOperation(int mgtOp, bool usebaseHU, float husc, int year, int month, int day, float *parameters);
 
             ~PlantOperation();
 
@@ -115,7 +120,7 @@ namespace MainBMP
         class IrrigationOperation : public PlantManagementOperation
         {
         public:
-            IrrigationOperation(int mgtOp, float husc, int year, int month, int day, float *parameters);
+            IrrigationOperation(int mgtOp, bool usebaseHU, float husc, int year, int month, int day, float *parameters);
 
             ~IrrigationOperation();
 
@@ -151,7 +156,7 @@ namespace MainBMP
         class FertilizerOperation : public PlantManagementOperation
         {
         public:
-            FertilizerOperation(int mgtOp, float husc, int year, int month, int day, float *parameters);
+            FertilizerOperation(int mgtOp, bool usebaseHU, float husc, int year, int month, int day, float *parameters);
 
             ~FertilizerOperation();
 
@@ -178,7 +183,7 @@ namespace MainBMP
         class PesticideOperation : public PlantManagementOperation
         {
         public:
-            PesticideOperation(int mgtOp, float husc, int year, int month, int day, float *parameters);
+            PesticideOperation(int mgtOp, bool usebaseHU, float husc, int year, int month, int day, float *parameters);
 
             ~PesticideOperation();
 
@@ -205,7 +210,7 @@ namespace MainBMP
         class HarvestKillOperation : public PlantManagementOperation
         {
         public:
-            HarvestKillOperation(int mgtOp, float husc, int year, int month, int day, float *parameters);
+            HarvestKillOperation(int mgtOp, bool usebaseHU, float husc, int year, int month, int day, float *parameters);
 
             ~HarvestKillOperation();
 
@@ -232,7 +237,7 @@ namespace MainBMP
         class TillageOperation : public PlantManagementOperation
         {
         public:
-            TillageOperation(int mgtOp, float husc, int year, int month, int day, float *parameters);
+            TillageOperation(int mgtOp, bool usebaseHU, float husc, int year, int month, int day, float *parameters);
 
             ~TillageOperation();
 
@@ -256,7 +261,7 @@ namespace MainBMP
         class HarvestOnlyOperation : public PlantManagementOperation
         {
         public:
-            HarvestOnlyOperation(int mgtOp, float husc, int year, int month, int day, float *parameters);
+            HarvestOnlyOperation(int mgtOp, bool usebaseHU, float husc, int year, int month, int day, float *parameters);
 
             ~HarvestOnlyOperation();
 
@@ -283,7 +288,7 @@ namespace MainBMP
         class KillOperation : public PlantManagementOperation
         {
         public:
-            KillOperation(int mgtOp, float husc, int year, int month, int day, float *parameters);
+            KillOperation(int mgtOp, bool usebaseHU, float husc, int year, int month, int day, float *parameters);
 
             ~KillOperation();
 
@@ -299,7 +304,7 @@ namespace MainBMP
         class GrazingOperation : public PlantManagementOperation
         {
         public:
-            GrazingOperation(int mgtOp, float husc, int year, int month, int day, float *parameters);
+            GrazingOperation(int mgtOp, bool usebaseHU, float husc, int year, int month, int day, float *parameters);
 
             ~GrazingOperation();
 
@@ -332,7 +337,7 @@ namespace MainBMP
         class AutoIrrigationOperation : public PlantManagementOperation
         {
         public:
-            AutoIrrigationOperation(int mgtOp, float husc, int year, int month, int day, float *parameters);
+            AutoIrrigationOperation(int mgtOp, bool usebaseHU, float husc, int year, int month, int day, float *parameters);
 
             ~AutoIrrigationOperation();
 
@@ -371,7 +376,7 @@ namespace MainBMP
         class AutoFertilizerOperation : public PlantManagementOperation
         {
         public:
-            AutoFertilizerOperation(int mgtOp, float husc, int year, int month, int day, float *parameters);
+            AutoFertilizerOperation(int mgtOp, bool usebaseHU, float husc, int year, int month, int day, float *parameters);
 
             ~AutoFertilizerOperation();
 
@@ -410,7 +415,7 @@ namespace MainBMP
         class ReleaseImpoundOperation : public PlantManagementOperation
         {
         public:
-            ReleaseImpoundOperation(int mgtOp, float husc, int year, int month, int day, float *parameters);
+            ReleaseImpoundOperation(int mgtOp, bool usebaseHU, float husc, int year, int month, int day, float *parameters);
 
             ~ReleaseImpoundOperation();
 
@@ -431,7 +436,7 @@ namespace MainBMP
         class ContinuousFertilizerOperation : public PlantManagementOperation
         {
         public:
-            ContinuousFertilizerOperation(int mgtOp, float husc, int year, int month, int day, float *parameters);
+            ContinuousFertilizerOperation(int mgtOp, bool usebaseHU, float husc, int year, int month, int day, float *parameters);
 
             ~ContinuousFertilizerOperation();
 
@@ -461,7 +466,7 @@ namespace MainBMP
         class ContinuousPesticideOperation : public PlantManagementOperation
         {
         public:
-            ContinuousPesticideOperation(int mgtOp, float husc, int year, int month, int day, float *parameters);
+            ContinuousPesticideOperation(int mgtOp,bool usebaseHU,  float husc, int year, int month, int day, float *parameters);
 
             ~ContinuousPesticideOperation();
 
@@ -491,7 +496,7 @@ namespace MainBMP
         class BurningOperation : public PlantManagementOperation
         {
         public:
-            BurningOperation(int mgtOp, float husc, int year, int month, int day, float *parameters);
+            BurningOperation(int mgtOp, bool useBaseHU, float husc, int year, int month, int day, float *parameters);
 
             ~BurningOperation();
 

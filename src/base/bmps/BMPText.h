@@ -163,6 +163,7 @@
 #define BMP_PLTOP_FLD_YEAR                    "YEAR"
 #define BMP_PLTOP_FLD_MONTH                "MONTH"
 #define BMP_PLTOP_FLD_DAY                    "DAY"
+#define BMP_PLTOP_FLD_BASEHU                    "BASE_HU"
 #define BMP_PLTOP_FLD_HUSC                    "HUSC"
 #define BMP_PLTOP_FLD_MGTOP                "MGT_OP"
 #define BMP_PLTOP_FLD_MGT_PRE            "MGT"
