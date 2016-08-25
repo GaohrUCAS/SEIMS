@@ -676,7 +676,6 @@
 #define VAR_K_N "k_n"
 #define VAR_K_P "k_p"
 #define VAR_K_PET "K_pet"                           /// Correction factor for PET
-#define VAR_K_PET "K_pet"                           /// Correction factor for PET
 #define VAR_K_RUN "K_run"
 #define VAR_K_SOIL10 "k_soil10"
 #define VAR_K_SUBLI "K_subli"
@@ -838,7 +837,6 @@
 #define VAR_SNOCOVMX "SNOCOVMX"
 #define VAR_SNO50COV "SNO50COV"
 #define VAR_SNRD "SNRD"
-#define VAR_SNRD "SNRD"
 #define VAR_SNSB "SNSB"
 #define VAR_SNWB "SNWB"
 #define VAR_SOER "SOER"                             /// soil loss caused by water erosion (t)
@@ -871,7 +869,6 @@
 #define VAR_SOL_STAP "sol_stap"                     /// amount of phosphorus in the soil layer stored in the stable mineral phosphorus pool(kg P/ha)
 #define VAR_SOL_SUMAWC "sol_sumAWC"  /// mm H2O sol_sumfc in SWAT
 #define VAR_SOL_SUMSAT "sol_sumul"  /// mm H2O  sol_sumul in SWAT
-#define VAR_SOL_UL "sol_ul"
 #define VAR_SOL_TA0 "soil_ta0"
 #define VAR_SOL_TA1 "soil_ta1"
 #define VAR_SOL_TA2 "soil_ta2"
