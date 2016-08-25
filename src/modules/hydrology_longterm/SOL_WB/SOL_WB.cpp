@@ -141,9 +141,7 @@ void SOL_WB::Set1DData(const char *key, int nRows, float *data)
     else if (StringMatch(s, VAR_DPST))
         m_Dep = data;
     else if (StringMatch(s, VAR_SURU))
-        m_RS = data;
-    else if (StringMatch(s, VAR_RG))
-        m_RG = data;
+		m_RS = data;
     else if (StringMatch(s, VAR_SNSB))
 		m_SE = data;
 	else if (StringMatch(s, VAR_TMEAN))
