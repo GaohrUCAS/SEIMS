@@ -14,7 +14,7 @@ using namespace std;
 
 //! Constructor
 MUSK_CH::MUSK_CH(void) : m_dt(-1), m_nreach(-1), m_Kchb(NODATA_VALUE),
-                         m_Kbank(NODATA_VALUE), m_Epch(NODATA_VALUE), m_Bnk0(NODATA_VALUE), m_Chs0(NODATA_VALUE), m_aBank(NODATA_VALUE),
+                         m_Kbank(NODATA_VALUE), m_Epch(NODATA_VALUE), m_Bnk0(NODATA_VALUE), m_Chs0_perc(NODATA_VALUE), m_aBank(NODATA_VALUE),
                          m_bBank(NODATA_VALUE), m_subbasin(NULL), m_qsSub(NULL),
 						 m_reachDownStream(NULL), m_chOrder(NULL), m_chWidth(NULL), 
 						 m_chLen(NULL), m_chDepth(NULL), m_chVel(NULL), m_area(NULL),
@@ -40,7 +40,6 @@ MUSK_CH::~MUSK_CH(void)
     if (m_qOut != NULL) Release1DArray(m_qOut);
     if (m_bankStorage != NULL)Release1DArray(m_bankStorage);
     if (m_seepage != NULL)Release1DArray(m_seepage);
-    if (m_chStorage != NULL)Release1DArray(m_chStorage);
     if (m_qsCh != NULL)Release1DArray(m_qsCh);
     if (m_qiCh != NULL)Release1DArray(m_qiCh);
     if (m_qgCh != NULL)Release1DArray(m_qgCh);
@@ -77,7 +76,7 @@ bool MUSK_CH::CheckInputData(void)
         throw ModelException(MID_MUSK_CH, "CheckInputData", "The parameter: Ep_ch has not been set.");
     if (FloatEqual(m_Bnk0, NODATA_VALUE))
         throw ModelException(MID_MUSK_CH, "CheckInputData", "The parameter: Bnk0 has not been set.");
-    if (FloatEqual(m_Chs0, NODATA_VALUE))
+    if (FloatEqual(m_Chs0_perc, NODATA_VALUE))
         throw ModelException(MID_MUSK_CH, "CheckInputData", "The parameter: Chs0 has not been set.");
     if (FloatEqual(m_aBank, NODATA_VALUE))
         throw ModelException(MID_MUSK_CH, "CheckInputData", "The parameter: A_bnk has not been set.");
@@ -145,7 +144,8 @@ void  MUSK_CH::initialOutputs()
                 qgSub = m_qgSub[i];
             m_seepage[i] = 0.f;
             m_bankStorage[i] = m_Bnk0 * m_chLen[i];
-            m_chStorage[i] = m_Chs0 * m_chLen[i];
+            //m_chStorage[i] = m_Chs0 * m_chLen[i];
+			m_chStorage[i] = m_Chs0_perc * m_chWTdepth[i] * m_chWidth[i] * m_chLen[i];
             m_qIn[i] = 0.f;
             m_qOut[i] = m_qsSub[i] + qiSub + qgSub;
             m_qsCh[i] = m_qsSub[i];
@@ -307,7 +307,7 @@ void MUSK_CH::SetValue(const char *key, float value)
     else if (StringMatch(sk, VAR_K_BANK))m_Kbank = value;
     else if (StringMatch(sk, VAR_EP_CH))m_Epch = value;
     else if (StringMatch(sk, VAR_BNK0))m_Bnk0 = value;
-    else if (StringMatch(sk, VAR_CHS0))m_Chs0 = value;
+    else if (StringMatch(sk, VAR_CHS0_PERC))m_Chs0_perc = value;
     else if (StringMatch(sk, VAR_VSEEP0))m_Vseep0 = value;
     else if (StringMatch(sk, VAR_A_BNK))m_aBank = value;
     else if (StringMatch(sk, VAR_B_BNK))m_bBank = value;

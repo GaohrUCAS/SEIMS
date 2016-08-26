@@ -121,7 +121,8 @@ void  SEDR_VCD::initialOutputs()
 
         for (int i = 1; i <= m_nreach; i++){
             //m_sedStorage[i] = m_Chs0 * m_chLen[i]; // m_Chs0 is initial channel storage per meter, not sediment! By LJ
-			m_sedStorage[i] = m_sedChi0 * m_Chs0 * m_chLen[i] * 1000.f; /// ton/m3 * m3/m * m * 1000 = kg
+			//m_sedStorage[i] = m_sedChi0 * m_Chs0 * m_chLen[i] * 1000.f; /// ton/m3 * m3/m * m * 1000 = kg
+			m_sedStorage[i] = m_sedChi0 * m_chStorage[i] * 1000.f;
 		}
     }
 	/// initialize point source loadings
