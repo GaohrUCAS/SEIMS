@@ -157,23 +157,23 @@ namespace MainBMP
         time_t m_endDate;
         ///  Q	Water volume	m3/'size'/day ('Size' may be one cattle or one pig, depends on PTSRC code)
         float m_waterVolume;
-        /// Sed	Sediment concentration	kg/'size'/day
+        /// Sed	Sediment concentration	g/cm3, or Mg/m3
         float m_sedimentConc;
-        ///	TN	Total Nitrogen concentration	kg/'size'/day
+        ///	TN	Total Nitrogen concentration mg/L
         float m_TNConc;
-        ///	NO3	Nitrate Nitrogen concentration	kg/'size'/day
+        ///	NO3	Nitrate Nitrogen concentration	mg/L
         float m_NO3Conc;
-        /// NH3	Ammonium Nitrogen concentration	kg/'size'/day
+        /// NH3	Ammonium Nitrogen concentration	mg/L
         float m_NH3Conc;
-        ///	ORGN	Organic Nitrogen concentration	kg/'size'/day
+        ///	ORGN	Organic Nitrogen concentration	mg/L
         float m_OrgNConc;
-        ///	TP	Total phosphorus concentration	kg/'size'/day
+        ///	TP	Total phosphorus concentration	mg/L
         float m_TPConc;
-        ///	SOLP	Soluble phosphorus concentration	kg/'size'/day
+        ///	SOLP	Soluble phosphorus concentration	mg/L
         float m_SolPConc;
-        ///	ORGP	Organic phosphorus concentration	kg/'size'/day
+        ///	ORGP	Organic phosphorus concentration	mg/L
         float m_OrgPConc;
-		/// COD
+		/// COD  mg/L
 		float m_COD;
     };
 

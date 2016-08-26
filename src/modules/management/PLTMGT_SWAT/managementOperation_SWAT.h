@@ -106,6 +106,8 @@ private:
     ///    sol_solp(:,:) |kg P/ha       |amount of inorganic phosphorus stored in solution
     float **m_soilSolP;
 
+	/// minimum temperature for plant growth
+	float *m_tBase;
     /** Temporary parameters**/
 
     /// Sequence number of management operations done in the previous time step run

@@ -131,3 +131,7 @@ NutrientTransport	CH_NH3Conc	ammonia concentration in reach	mg/L	NONE	2013-01-01
 NutrientTransport	CH_ORGPConc	organic phosphorus concentration in reach	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CH_ORGPConc.txt	1
 NutrientTransport	CH_ORGNConc	organic nitrogen concentration in reach	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CH_ORGNConc.txt	1
 NutrientTransport	CH_ALGAEConc	algal biomass concentration in reach	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CH_ALGAEConc.txt	1
+NutrientTransport	CH_TN	total nitrogen amount in reach	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CH_TN.txt	1
+NutrientTransport	CH_TNConc	total nitrogen concentration in reach	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CH_TNConc.txt	1
+NutrientTransport	CH_TP	total phosphorus amount in reach	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CH_TP.txt	1
+NutrientTransport	CH_TPConc	total phosphorus concentration in reach	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CH_TPConc.txt	1
