@@ -91,6 +91,7 @@ Discharge	k_bank	channel bank hydraulic conductivity	mm/hr	ALL	20	0	AC	150	0	Y
 Discharge	ep_ch	reach evaporation adjustment factor	m3/m	ALL	1	0	AC	1	0	Y
 Discharge	bnk0	Initial bank storage	m3/m	ALL	0	0	AC	1	0	Y
 Discharge	chs0	initial channel storage	m3/m	All	0	0	AC	100	0	Y
+Discharge	chs0_perc	initial percentage of channel volume	none	ALL	0.05	0	AC	1	0	Y
 Discharge	a_bnk	bank flow recession constant	none	ALL	0.2	0	AC	1	0	Y
 Discharge	b_bnk	bank storage loss coefficient	none	ALL	0.05	0	AC	0.2	0.02	Y
 Discharge	ReachParameter	the parameters of each reach	none	ALL	-9999		NC	-9999	-9999	Y

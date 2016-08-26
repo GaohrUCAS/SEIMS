@@ -1537,17 +1537,17 @@ int MGTOpt_SWAT::Execute()
     {
         int curFactoryID;
         vector<int> curOps;
-		if (i == 987){
-			ofstream fs;
-			utils util;
-			string filename = "E:\\code\\Hydro\\SEIMS\\model_data\\dianbu\\model_dianbu2_30m_longterm\\husc.txt";
-			fs.open(filename.c_str(), ios::out|ios::app);
-			if (fs.is_open())
-			{
-				fs << util.ConvertToString(&this->m_date) <<", IGRO: "<<m_igro[i]<<", phuBase: "<<m_phuBase[i]<<", phuAcc: "<<m_phuAcc[i]<<", phuPlt: "<<m_phuPlant[i]<< endl;
-				fs.close();
-			}
-		}
+		//if (i == 987){
+		//	ofstream fs;
+		//	utils util;
+		//	string filename = "E:\\code\\Hydro\\SEIMS\\model_data\\dianbu\\model_dianbu2_30m_longterm\\husc.txt";
+		//	fs.open(filename.c_str(), ios::out|ios::app);
+		//	if (fs.is_open())
+		//	{
+		//		fs << util.ConvertToString(&this->m_date) <<", IGRO: "<<m_igro[i]<<", phuBase: "<<m_phuBase[i]<<", phuAcc: "<<m_phuAcc[i]<<", phuPlt: "<<m_phuPlant[i]<< endl;
+		//		fs.close();
+		//	}
+		//}
         if (GetOperationCode(i, curFactoryID, curOps))
         {
             for (vector<int>::iterator it = curOps.begin(); it != curOps.end(); it++)
@@ -1555,17 +1555,17 @@ int MGTOpt_SWAT::Execute()
                 //cout<<curFactoryID<<","<<*it<<endl;
                 ScheduledManagement(i, curFactoryID, *it);
 				/// output for debug, by LJ.
-				if (i == 987){
-					ofstream fs;
-					utils util;
-					string filename = "E:\\code\\Hydro\\SEIMS\\model_data\\dianbu\\model_dianbu2_30m_longterm\\pltMgt.txt";
-					fs.open(filename.c_str(), ios::out|ios::app);
-					if (fs.is_open())
-					{
-						fs << util.ConvertToString(&this->m_date) <<", IGRO: "<<m_igro[i]<<", phuBase: "<<m_phuBase[i]<<", phuAcc: "<<m_phuAcc[i]<<", phuPlt: "<<m_phuPlant[i]<<", optCode: "<<*it<< endl;
-						fs.close();
-					}
-				}
+				//if (i == 987){
+				//	ofstream fs;
+				//	utils util;
+				//	string filename = "E:\\code\\Hydro\\SEIMS\\model_data\\dianbu\\model_dianbu2_30m_longterm\\pltMgt.txt";
+				//	fs.open(filename.c_str(), ios::out|ios::app);
+				//	if (fs.is_open())
+				//	{
+				//		fs << util.ConvertToString(&this->m_date) <<", IGRO: "<<m_igro[i]<<", phuBase: "<<m_phuBase[i]<<", phuAcc: "<<m_phuAcc[i]<<", phuPlt: "<<m_phuPlant[i]<<", optCode: "<<*it<< endl;
+				//		fs.close();
+				//	}
+				//}
             }
         }
     }

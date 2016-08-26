@@ -1,27 +1,35 @@
-## This file define point source related inputs.
-## SUBSCENARIO: Sub-Scenario ID which used in BMP_scenarios.txt, MUST BE INTEGER
-## NAME: Name of Sub-Scenario
-## PTSRC: Point source code includes:
-## 		10000: Cattle farm
-## 		20000: Pig farm
-## 		30000: Water release point, such as spillway of upstream reservoir
-## 		40000: Sewage outlet in rural resident
-## 	SEQUENCE: The operation sequence, which is scheduled by starting date and ending date.
-## 	SYear, SMonth, SDay and EYear, EMonth, EDay can be used to define the starting and ending release date respectively.
-## 		If all set to -9999, then every time step will release the water, sediment, and nutrient.
-## 	Here after is the parameters information:
-## 	Parameter	Description	Unit
-## 	Q	Water volume	m3/'size'/day ('Size' may be one cattle or one pig, depends on PTSRC code)
-## 	Sed	Sediment concentration	kg/'size'/day
-## 	TN	Total Nitrogen concentration	kg/'size'/day
-## 	NO3	Nitrate Nitrogen concentration	kg/'size'/day
-## 	NH3	Ammonium Nitrogen concentration	kg/'size'/day
-## 	ORGN	Organic Nitrogen concentration	kg/'size'/day
-## 	TP	Total phosphorus concentration	kg/'size'/day
-## 	SOLP	Dissolved (soluble) phosphorus concentration	kg/'size'/day
-## 	ORGP	Organic phosphorus concentration	kg/'size'/day
+## This file define point source related inputs.						
+## SUBSCENARIO: Sub-Scenario ID which used in BMP_scenarios.txt, MUST BE INTEGER						
+## NAME: Name of Sub-Scenario						
+## PTSRC: Point source code includes:						
+## 		10000: Cattle farm				
+## 		20000: Pig farm				
+## 		30000: Water release point, such as spillway of upstream reservoir				
+## 		40000: Sewage outlet in rural resident				
+## 	SEQUENCE: The operation sequence, which is scheduled by starting date and ending date.					
+## 	SYear, SMonth, SDay and EYear, EMonth, EDay can be used to define the starting and ending release date respectively.					
+## 		If all set to -9999, then every time step will release the water, sediment, and nutrient.				
+## 	Here after is the parameters information:					
+## 	Parameter	Description	Unit			
+## 	Q	Water volume	m3/'size'/day ('Size' may be one cattle or one pig, depends on PTSRC code)			
+## 	Sed	Sediment concentration	g/cm3			
+## 	TN	Total Nitrogen concentration	mg/L			
+## 	NO3	Nitrate Nitrogen concentration	mg/L			
+## 	NH3	Ammonium Nitrogen concentration	mg/L			
+## 	ORGN	Organic Nitrogen concentration	mg/L			
+## 	TP	Total phosphorus concentration	mg/L			
+## 	SOLP	Dissolved (soluble) phosphorus concentration	mg/L			
+## 	ORGP	Organic phosphorus concentration	mg/L			
+##	CAPEX	capital expenditures	RMB/'size'			
+##	OPEX	operation expenses	RMB/'size'/year			
+##	INCOME	additional incoime	RMB/'size'/year			
+##	Hypothesis: NO3:OrgN = 	4	,	SOLP:OrgP = 	4	
 
-SUBSCENARIO	NAME	PTSRC	SEQUENCE	SYear	SMonth	SDay	EYear	EMonth	EDay	Q	SED	TN	NO3	NH3	ORGN	TP	SOLP	ORGP	COD
-10001	traditional	10000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.0003	0	0.04	0.01	0.01	0.02	0.05	0.01	0.04	0
-20001	traditional	20000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.0003	0	0.04	0.01	0.01	0.02	0.05	0.01	0.04	0
-40001	traditional	40000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.0003	0	0.04	0.01	0.01	0.02	0.05	0.01	0.04	0
+
+SUBSCENARIO	NAME	PTSRC	SEQUENCE	SYear	SMonth	SDay	EYear	EMonth	EDay	Q	SED	TN	NO3	NH3	ORGN	TP	SOLP	ORGP	COD	CAPEX	OPEX	INCOME
+10001	traditional	10000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.025	0	103.5	17.872	81.16	4.468	28.46	22.768	5.692	718.61	0	0	0
+20001	traditional	20000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.0072	0	401.1	108.064	266.02	27.016	78.24	62.592	15.648	1275.61	0	0	0
+40001	traditional	40000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.01631	0	37.16	9.28	25.56	2.32	2.46	1.968	0.492	108.64	0	0	0
+10002	management	10001	0	-9999	-9999	-9999	-9999	-9999	-9999	0.012	0	2.9475	0.908	1.8125	0.227	0.535	0.428	0.107	44.8075	150	10	0
+20002	management	20001	0	-9999	-9999	-9999	-9999	-9999	-9999	0.0036	0	45.135	15.028	26.35	3.757	3.795	3.036	0.759	72.505	20	10	0
+40001	management	40001	0	-9999	-9999	-9999	-9999	-9999	-9999	0.013048	0	4.6975	3.414	0.43	0.8535	0.305	0.244	0.061	28.3425	8000	0.15	0
