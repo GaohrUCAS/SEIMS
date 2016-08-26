@@ -1439,7 +1439,7 @@
 #define DESC_SURU "surface runoff generated"
 #define DESC_SWE "average snow accumulation of the watershed"
 #define DESC_SWE0 "Initial snow water equivalent"
-#define DESC_T_BASE "base or minimum temperature for growth"
+#define DESC_T_BASE "base or minimum temperature for plant growth"
 #define DESC_T_OPT "optimal temperature for plant growth"
 #define DESC_T_RG "groundwater runoff"
 #define DESC_T_SNOW "Snowfall temperature"
