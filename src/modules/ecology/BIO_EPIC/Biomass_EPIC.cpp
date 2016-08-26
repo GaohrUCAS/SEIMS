@@ -54,7 +54,6 @@ Biomass_EPIC::~Biomass_EPIC(void)
     if (m_pltPET != NULL) Release1DArray(m_pltPET);
 	if (m_hvstIdxAdj != NULL) Release1DArray(m_hvstIdxAdj);
 	if (m_LAIMaxFr != NULL) Release1DArray(m_LAIMaxFr);
-	if (m_frPHUacc != NULL) Release1DArray(m_frPHUacc);
 	if (m_oLAI != NULL) Release1DArray(m_oLAI);
 	if (m_lastSoilRootDepth != NULL) Release1DArray(m_lastSoilRootDepth);
     if (m_plantEPDay != NULL) Release1DArray(m_plantEPDay);

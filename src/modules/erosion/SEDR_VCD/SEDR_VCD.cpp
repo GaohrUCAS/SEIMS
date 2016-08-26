@@ -150,14 +150,15 @@ void SEDR_VCD::PointSourceLoading()
 					continue;
 			}
 			// 1.2 Otherwise, get the water volume
-			float per_sed = curPtMgt->GetSedment(); /// kg/'size'/day 
+			float per_sed = curPtMgt->GetSedment(); /// g/cm3, or Mg/m3 
 			// 1.3 Sum up all point sources
 			for (vector<int>::iterator locIter = m_ptSrcIDs.begin(); locIter != m_ptSrcIDs.end(); locIter++)
 			{
 				if (m_pointSrcLocsMap.find(*locIter) != m_pointSrcLocsMap.end()){
 					PointSourceLocations* curPtLoc = m_pointSrcLocsMap.at(*locIter);
 					int curSubID = curPtLoc->GetSubbasinID();
-					m_ptSub[curSubID] += per_sed * curPtLoc->GetSize(); /// kg
+					/// Mg/m3 ==> kg / timestep
+					m_ptSub[curSubID] += per_sed * curPtLoc->GetSize() * 1000.f * m_dt / 86400.f; 
 				}
 			}
 		}

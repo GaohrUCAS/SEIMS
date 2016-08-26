@@ -212,8 +212,8 @@ private:
     float *m_chNO3;
     /// dissolved phosphorus storage in reach (kg)
     float *m_chSolP;
-    /// carbonaceous biochemical oxygen demand in reach (kg)
-    float *m_chCBOD;
+    /// carbonaceous oxygen demand in reach (kg)
+    float *m_chCOD;
     /// dissolved oxygen storage in reach (kg)
     float *m_chDOx;
     /// chlorophyll-a storage in reach (kg)

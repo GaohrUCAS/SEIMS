@@ -29,7 +29,7 @@ NutrCH_QUAL2E::NutrCH_QUAL2E(void) :
 		m_ptSolPToCh(NULL), m_ptOrgPToCh(NULL), m_ptCODToCh(NULL), 
         // nutrient storage in channel
         m_chAlgae(NULL), m_chOrgN(NULL), m_chOrgP(NULL), m_chNH4(NULL), m_chNO2(NULL), m_chNO3(NULL),
-        m_chSolP(NULL), m_chCBOD(NULL), m_chDOx(NULL), m_chChlora(NULL), m_chSatDOx(NODATA_VALUE),
+        m_chSolP(NULL), m_chCOD(NULL), m_chDOx(NULL), m_chChlora(NULL), m_chSatDOx(NODATA_VALUE),
 		// nutrient amount outputs of channels
 		m_chOutAlgae(NULL), m_chOutChlora(NULL), m_chOutOrgN(NULL), m_chOutOrgP(NULL), m_chOutNH4(NULL), 
 		m_chOutNO2(NULL), m_chOutNO3(NULL), m_chOutSolP(NULL), m_chOutCOD(NULL), m_chOutDOx(NULL),
@@ -73,7 +73,7 @@ NutrCH_QUAL2E::~NutrCH_QUAL2E(void)
     if (m_chNO2 != NULL) Release1DArray(m_chNO2);
     if (m_chNO3 != NULL) Release1DArray(m_chNO3);
     if (m_chSolP != NULL) Release1DArray(m_chSolP);
-    if (m_chCBOD != NULL) Release1DArray(m_chCBOD);
+    if (m_chCOD != NULL) Release1DArray(m_chCOD);
     if (m_chDOx != NULL) Release1DArray(m_chDOx);
     if (m_chChlora != NULL) Release1DArray(m_chChlora);
 	/// amount out of channel
@@ -310,7 +310,7 @@ void NutrCH_QUAL2E::Set1DData(const char *key, int n, float *data)
 			m_chNO3[i] *= cvt_conc2amount;
 			m_chSolP[i] *= cvt_conc2amount;
 			m_chDOx[i] *= cvt_conc2amount;
-			m_chCBOD[i] *= cvt_conc2amount;
+			m_chCOD[i] *= cvt_conc2amount;
 		}
 	}
     else if (StringMatch(sk, VAR_CHWTDEPTH)) { m_chWTdepth = data; }
@@ -364,7 +364,7 @@ void NutrCH_QUAL2E::SetReaches(clsReaches *reaches)
 		Initialize1DArray(m_nReaches+1,m_chNO2,0.f);
 		Initialize1DArray(m_nReaches+1,m_chNO3,0.f);
 		Initialize1DArray(m_nReaches+1,m_chSolP,0.f);
-		Initialize1DArray(m_nReaches+1,m_chCBOD,0.f);
+		Initialize1DArray(m_nReaches+1,m_chCOD,0.f);
 		Initialize1DArray(m_nReaches+1,m_chDOx,0.f);
 		Initialize1DArray(m_nReaches+1,m_chChlora,0.f);
 		for (vector<int>::iterator it = m_reachId.begin(); it != m_reachId.end(); it++)
@@ -395,7 +395,7 @@ void NutrCH_QUAL2E::SetReaches(clsReaches *reaches)
 			m_chNO3[i] = tmpReach->GetNO3();
 			m_chSolP[i] = tmpReach->GetSolP();
 			m_chDOx[i] = tmpReach->GetDisOxygen();
-			m_chCBOD[i] = tmpReach->GetBOD();
+			m_chCOD[i] = tmpReach->GetBOD();
 		}
 
 		m_reachUpStream.resize(m_nReaches + 1);
@@ -521,7 +521,8 @@ void NutrCH_QUAL2E::PointSourceLoading()
 				if (m_date < curPtMgt->GetStartDate() || m_date > curPtMgt->GetEndDate())
 					continue;
 			}
-			// 1.2 Otherwise, get the nutrient amount
+			// 1.2 Otherwise, get the nutrient concentration, mg/L
+			float per_wtr = curPtMgt->GetWaterVolume();
 			float per_no3 = curPtMgt->GetNO3();
 			float per_nh4 = curPtMgt->GetNH3();
 			float per_orgn = curPtMgt->GetOrgN();
@@ -534,7 +535,7 @@ void NutrCH_QUAL2E::PointSourceLoading()
 				if (m_pointSrcLocsMap.find(*locIter) != m_pointSrcLocsMap.end()){
 					PointSourceLocations* curPtLoc = m_pointSrcLocsMap.at(*locIter);
 					int curSubID = curPtLoc->GetSubbasinID();
-					float cvt = curPtLoc->GetSize() * m_dt / 86400.f;/// kg/'size'/day ==> kg / timestep 
+					float cvt = per_wtr * curPtLoc->GetSize() / 1000.f * m_dt / 86400.f;/// mg/L ==> kg / timestep 
 					m_ptNO3ToCh[curSubID] += per_no3 * cvt;
 					m_ptNH4ToCh[curSubID] += per_nh4 * cvt;
 					m_ptOrgNToCh[curSubID] += per_orgn * cvt;
@@ -590,7 +591,7 @@ void NutrCH_QUAL2E::AddInputNutrient(int i)
 
 		m_chNO2[i]    += m_chOutNO2[upReachId];
 		m_chNH4[i]    += m_chOutNH4[upReachId];
-        m_chCBOD[i]    += m_chOutCOD[upReachId];
+        m_chCOD[i]    += m_chOutCOD[upReachId];
 
 		m_chDOx[i]     += m_chOutDOx[upReachId];
 		m_chChlora[i] += m_chOutChlora[upReachId];
@@ -604,14 +605,14 @@ void NutrCH_QUAL2E::AddInputNutrient(int i)
 	m_chSolP[i] += m_surSolPToCh[i] + m_gwSolPToCh[i];
 	if(m_nh4ToCh != NULL) m_chNH4[i] += m_nh4ToCh[i];
 	if(m_no2ToCh != NULL) m_chNO2[i] += m_no2ToCh[i];
-	if(m_codToCh != NULL) m_chCBOD[i] += m_codToCh[i];
+	if(m_codToCh != NULL) m_chCOD[i] += m_codToCh[i];
 	/// add point source loadings to channel
 	if(m_ptNO3ToCh != NULL && m_ptNO3ToCh[i] > 0.f) m_chNO3[i] += m_ptNO3ToCh[i];
 	if(m_ptNH4ToCh != NULL && m_ptNH4ToCh[i] > 0.f) m_chNH4[i] += m_ptNH4ToCh[i];
 	if(m_ptOrgNToCh != NULL && m_ptOrgNToCh[i] > 0.f) m_chOrgN[i] += m_ptOrgNToCh[i];
 	if(m_ptSolPToCh != NULL && m_ptSolPToCh[i] > 0.f) m_chSolP[i] += m_ptSolPToCh[i];
 	if(m_ptOrgPToCh != NULL && m_ptOrgPToCh[i] > 0.f) m_chOrgP[i] += m_ptOrgPToCh[i];
-	if(m_ptCODToCh != NULL && m_ptCODToCh[i] > 0.f) m_chCBOD[i] += m_ptCODToCh[i];
+	if(m_ptCODToCh != NULL && m_ptCODToCh[i] > 0.f) m_chCOD[i] += m_ptCODToCh[i];
 }
 
 void NutrCH_QUAL2E::RouteOut(int i)
@@ -651,7 +652,7 @@ void NutrCH_QUAL2E::RouteOut(int i)
 	m_chOutSolP[i] = m_chSolP[i] * outFraction;
 	m_chOutNO2[i]  = m_chNO2[i] * outFraction;
 	m_chOutNH4[i]  = m_chNH4[i] * outFraction;
-	m_chOutCOD[i]  = m_chCBOD[i] * outFraction;
+	m_chOutCOD[i]  = m_chCOD[i] * outFraction;
 	m_chOutDOx[i]   = m_chDOx[i] * outFraction;
 	m_chOutAlgae[i] = m_chAlgae[i] * outFraction;
 	m_chOutChlora[i] = m_chChlora[i] * outFraction;
@@ -681,7 +682,7 @@ void NutrCH_QUAL2E::RouteOut(int i)
 	m_chSolP[i] -= m_chOutSolP[i];
 	m_chNO2[i]  -= m_chOutNO2[i];
 	m_chNH4[i]  -= m_chOutNH4[i];
-	m_chCBOD[i]  -= m_chOutCOD[i];
+	m_chCOD[i]  -= m_chOutCOD[i];
 	m_chDOx[i]   -= m_chOutDOx[i];
 }
 
@@ -723,7 +724,7 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 		m_chSolP[i] = 0.f;
 		m_chOrgP[i] = 0.f;
 		m_chDOx[i] = 0.f;
-		m_chCBOD[i] = 0.f;
+		m_chCOD[i] = 0.f;
 		m_chSatDOx = 0.f;
 		// return and route out with 0.f
 		return;
@@ -744,7 +745,7 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	// initial soluble P concentration in reach (solpcon mg/L)
 	float solpcon = cvt_amout2conc * m_chSolP[i];
 	// initial carbonaceous biological oxygen demand (cbodcon mg/L)
-	float cbodcon = cvt_amout2conc * m_chCBOD[i];
+	float cbodcon = cvt_amout2conc * m_chCOD[i];
 	// initial dissolved oxygen concentration in reach (o2con mg/L)
 	float o2con = cvt_amout2conc * m_chDOx[i];
 
@@ -1025,14 +1026,14 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	m_chNO3[i]   = dno3 * wtrTotal / 1000.f;
 	m_chOrgP[i]  = dorgp * wtrTotal / 1000.f;
 	m_chSolP[i]  = dsolp * wtrTotal / 1000.f;
-	m_chCBOD[i]   = dbod * wtrTotal / 1000.f;
+	m_chCOD[i]   = dbod * wtrTotal / 1000.f;
 	m_chDOx[i]    = ddisox * wtrTotal / 1000.f;
 	m_chChlora[i] = m_chAlgae[i] * m_ai0;
 
 	/// CBOD convert to COD, (still call it CBOD here...)
 	float n = 3.75f; // Conversion factor 1~6.5
 	float k = 0.15f; // Reaction coefficient 0.1~0.2
-	m_chCBOD[i] = n * (m_chCBOD[i] * (1.f - exp(-5.f * k)));
+	m_chCOD[i] = n * (m_chCOD[i] * (1.f - exp(-5.f * k)));
 }
 
 float NutrCH_QUAL2E::corTempc(float r20, float thk, float tmp)
