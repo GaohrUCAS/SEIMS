@@ -301,6 +301,7 @@ void NutrCH_QUAL2E::Set1DData(const char *key, int n, float *data)
 			throw ModelException(MID_NUTRCH_QUAL2E, "Set1DData", "Reaches data should be set!");
 		for (int i = 0; i<= m_nReaches; i++)
 		{
+			// input from SetReaches(), unit is mg/L, need to be converted to kg
 			float cvt_conc2amount = m_chStorage[i] / 1000.f;
 			m_chAlgae[i] *= cvt_conc2amount;
 			m_chOrgN[i] *= cvt_conc2amount;
@@ -673,7 +674,7 @@ void NutrCH_QUAL2E::RouteOut(int i)
 	m_chOutAlgaeConc[i] = m_chOutAlgae[i] * cvt;
 	m_chOutChloraConc[i] = m_chOutChlora[i] * cvt;
 	/// total N and total P
-	m_chOutTNConc[i] = m_chOutOrgNConc[i] + m_chOutNO3Conc[i] + m_chOutNH4Conc[i];
+	m_chOutTNConc[i] = m_chOutOrgNConc[i] + m_chOutNO3Conc[i] + m_chOutNH4Conc[i] + m_chOutNO2Conc[i];
 	m_chOutTPConc[i] = m_chOutOrgPConc[i] + m_chOutSolPConc[i];
 
 	m_chOrgN[i] -= m_chOutOrgN[i];
@@ -756,7 +757,7 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 
 	// calculate saturation concentration for dissolved oxygen
 	// variable to hold intermediate calculation result
-	float ww = -139.34410f + (1.575701e05f / (wtmp + 273.15f));    
+	float ww = -139.34410f + (1.575701e+05f / (wtmp + 273.15f));    
 	float xx = 6.642308e+07f / pow((wtmp + 273.15f), 2.f);          
 	float yy = 1.243800e+10f / pow((wtmp + 273.15f), 3.f);          
 	float zz = 8.621949e+11f / pow((wtmp + 273.15f), 4.f);          
