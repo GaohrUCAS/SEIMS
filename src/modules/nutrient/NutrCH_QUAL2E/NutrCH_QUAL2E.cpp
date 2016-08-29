@@ -658,7 +658,7 @@ void NutrCH_QUAL2E::RouteOut(int i)
 	m_chOutAlgae[i] = m_chAlgae[i] * outFraction;
 	m_chOutChlora[i] = m_chChlora[i] * outFraction;
 	/// total N and total P
-	m_chOutTN[i] = m_chOutOrgN[i] + m_chOutNO3[i] + m_chOutNH4[i];
+	m_chOutTN[i] = m_chOutOrgN[i] + m_chOutNH4[i] + m_chOutNO2[i];
 	m_chOutTP[i] = m_chOutOrgP[i] + m_chOutSolP[i];
 
 	// kg ==> mg/L
@@ -674,8 +674,8 @@ void NutrCH_QUAL2E::RouteOut(int i)
 	m_chOutAlgaeConc[i] = m_chOutAlgae[i] * cvt;
 	m_chOutChloraConc[i] = m_chOutChlora[i] * cvt;
 	/// total N and total P
-	m_chOutTNConc[i] = m_chOutOrgNConc[i] + m_chOutNO3Conc[i] + m_chOutNH4Conc[i] + m_chOutNO2Conc[i];
-	m_chOutTPConc[i] = m_chOutOrgPConc[i] + m_chOutSolPConc[i];
+	m_chOutTNConc[i] = m_chOutTN[i] * cvt;
+	m_chOutTPConc[i] = m_chOutTP[i] * cvt;
 
 	m_chOrgN[i] -= m_chOutOrgN[i];
 	m_chOrgP[i] -= m_chOutOrgP[i];
@@ -891,7 +891,9 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	xx = 0.f;     // variable to hold intermediate calculation result
 	yy = 0.f;     // variable to hold intermediate calculation result
 	zz = 0.f;     // variable to hold intermediate calculation result
-	m_rk2[i] =1.f;
+
+	//m_rk2[i] =1.f;	// Why define this value?
+
 	//float hh = corTempc(m_rk2[i], thm_rk2, wtmp);
 	uu = corTempc(m_rk2[i], thm_rk2, wtmp) * (m_chSatDOx - o2con);
 	vv = (m_ai3 * corTempc(gra, thgra, wtmp) - m_ai4 * corTempc(m_rhoq, thrho, wtmp)) * algcon;
