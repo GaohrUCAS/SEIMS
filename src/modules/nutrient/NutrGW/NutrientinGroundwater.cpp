@@ -220,6 +220,7 @@ int NutrientinGroundwater::Execute()
 		//cout << m_gwno3Con[id] << ", " << m_perco_no3_gw[id] << ",   ";
 		//cout << m_sol_no3[0][0] << "\n";
     }
+	//cout<<"NUTRGW, cell id 2805, sol_no3[0]: "<<m_sol_no3[2805][0]<<endl;
     return 0;
 }
 

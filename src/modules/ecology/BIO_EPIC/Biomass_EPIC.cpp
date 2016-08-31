@@ -202,8 +202,7 @@ void Biomass_EPIC::Set2DData(const char *key, int nRows, int nCols, float **data
     else if (StringMatch(sk, VAR_SOL_NO3)) m_soilNO3 = data;
     else if (StringMatch(sk, VAR_SOL_SOLP)) m_soilPsol = data;
     else
-        throw ModelException(MID_BIO_EPIC, "Set2DData", "Parameter " + sk +
-                                                        " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_BIO_EPIC, "Set2DData", "Parameter " + sk + " does not exist.");
 }
 
 bool Biomass_EPIC::CheckInputData(void)
@@ -880,6 +879,7 @@ int Biomass_EPIC::Execute()
             CheckDormantStatus(i);                /// dormant.f
         }
     }
+	//cout<<"BIO_EPIC, cell id 2805, sol_no3[0]: "<<m_soilNO3[2805][0]<<endl;
     return 0;
 }
 
