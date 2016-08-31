@@ -1,8 +1,3 @@
-/*
- * \author Huiran Gao
- * \date Jun 2016
- */
-
 #include <iostream>
 #include "NutrientinGroundwater.h"
 #include "MetadataInfo.h"
@@ -117,10 +112,6 @@ void NutrientinGroundwater::Set1DData(const char *key, int n, float *data)
 		if (!CheckInputSize(key, n)) return;
 		m_subbasin = data;
 	}
-	//else if (StringMatch(sk, VAR_GWNO3_CON))
- //       m_gwno3Con = data;
-	//else if (StringMatch(sk, VAR_GWMINP_CON))
- //       m_gwminpCon = data;
     else if (StringMatch(sk, VAR_SBQG))
         m_gw_q = data;
 	else if (StringMatch(sk, VAR_SBGS))
@@ -222,14 +213,13 @@ int NutrientinGroundwater::Execute()
 			m_sol_no3[index][(int)m_soilLayers[index] - 1] += no3ToSoil;
 			m_sol_solp[index][(int)m_soilLayers[index] - 1] += solpToSoil;
 		}
-
-		// update concentration
+		// update concentration, minus loss and add perco
 		float gwVol = subArea * m_gwStor[id] / 1000.f;//m3
-		m_gwno3Con[id] += m_perco_no3_gw[id]* 1000.f / gwVol;
-		m_gwminpCon[id] += m_perco_solp_gw[id] * 1000.f / gwVol;
+		m_gwno3Con[id] += (m_perco_no3_gw[id] - m_no3gwToCh[id]) * 1000.f / gwVol;
+		m_gwminpCon[id] += (m_perco_solp_gw[id] - m_minpgwToCh[id]) * 1000.f / gwVol;
 		//cout << m_gwno3Con[id] << ", " << m_perco_no3_gw[id] << ",   ";
 		//cout << m_sol_no3[0][0] << "\n";
-	}
+    }
     return 0;
 }
 
@@ -245,6 +235,10 @@ void NutrientinGroundwater::Get1DData(const char *key, int *n, float **data)
     {
         *data = m_minpgwToCh;
     }
+	else if (StringMatch(sk, VAR_GWNO3_CON))
+		*data = m_gwno3Con;
+	else if (StringMatch(sk, VAR_GWMINP_CON))
+		*data = m_gwminpCon;
     else
     {
         throw ModelException(MID_NUTRGW, "Get1DData", "Parameter " + sk + " does not exist.");

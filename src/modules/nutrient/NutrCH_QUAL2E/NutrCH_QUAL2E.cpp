@@ -604,6 +604,8 @@ void NutrCH_QUAL2E::AddInputNutrient(int i)
 	/// dissolved N, P from overland surface flow routing and groundwater
 	m_chNO3[i]  += m_surNO3ToCh[i] + m_latNO3ToCh[i] + m_gwNO3ToCh[i];
 	m_chSolP[i] += m_surSolPToCh[i] + m_gwSolPToCh[i];
+	//m_chNO3[i]  += m_surNO3ToCh[i] + m_latNO3ToCh[i];
+	//m_chSolP[i] += m_surSolPToCh[i];
 	if(m_nh4ToCh != NULL) m_chNH4[i] += m_nh4ToCh[i];
 	if(m_no2ToCh != NULL) m_chNO2[i] += m_no2ToCh[i];
 	if(m_codToCh != NULL) m_chCOD[i] += m_codToCh[i];
@@ -658,7 +660,7 @@ void NutrCH_QUAL2E::RouteOut(int i)
 	m_chOutAlgae[i] = m_chAlgae[i] * outFraction;
 	m_chOutChlora[i] = m_chChlora[i] * outFraction;
 	/// total N and total P
-	m_chOutTN[i] = m_chOutOrgN[i] + m_chOutNH4[i] + m_chOutNO3[i] + m_chOutNO2[i];
+	m_chOutTN[i] = m_chOutOrgN[i] + m_chOutNH4[i] + m_chOutNO2[i] + m_chOutNO3[i];
 	m_chOutTP[i] = m_chOutOrgP[i] + m_chOutSolP[i];
 
 	// kg ==> mg/L

@@ -70,7 +70,7 @@ int ReservoirMethod::Execute()
 			index = curCells[i];
 			perco += m_perc[index][(int)m_soilLayers[index]-1];
 		}
-		perco /= curCellsNum;
+		perco /= curCellsNum; // mean mm
 		curSub->setPerco(perco);
 
 		//if (perco > 0.f)

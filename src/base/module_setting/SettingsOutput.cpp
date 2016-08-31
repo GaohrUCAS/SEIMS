@@ -496,19 +496,26 @@ void SettingsOutput::checkDate(time_t startTime, time_t endTime)
         vector<PrintInfoItem *>::iterator itemIt;
         for (itemIt = (*it)->m_PrintItems.begin(); itemIt < (*it)->m_PrintItems.end(); itemIt++)
         {
-            if ((*itemIt)->getStartTime() < startTime)
-                throw ModelException("SettingsOutput", "CheckDate",
-                                     "The start time of output " + (*it)->getOutputID() + " to " + (*itemIt)->Filename +
-                                     " is " + (*itemIt)->StartTime +
-                                     ". It's earlier than start time of time series data " +
-                                     util.ConvertToString(&startTime) +
-                                     ". Please check time setting of file.in and file.out.");
-            if ((*itemIt)->getEndTime() > endTime)
-                throw ModelException("SettingsOutput", "CheckDate",
-                                     "The end time of output " + (*it)->getOutputID() + " to " + (*itemIt)->Filename +
-                                     " is " + (*itemIt)->EndTime + ". It's later than end time of time series data " +
-                                     util.ConvertToString(&endTime) +
-                                     ". Please check time setting of file.in and file.out.");
+            if ((*itemIt)->getStartTime() < startTime){
+				(*itemIt)->setStartTime(startTime);
+				cout<<"WARNING: The start time of output "<<(*it)->getOutputID()<<" to "<<(*itemIt)->Filename<<" is "<<(*itemIt)->StartTime<<
+					". It's earlier than start time of time series data "<<util.ConvertToString(&startTime)<<", and will be updated."<<endl;
+                //throw ModelException("SettingsOutput", "CheckDate",
+                //                     "The start time of output " + (*it)->getOutputID() + " to " + (*itemIt)->Filename +
+                //                     " is " + (*itemIt)->StartTime +
+                //                     ". It's earlier than start time of time series data " +
+                //                     util.ConvertToString(&startTime) +
+                //                     ". Please check time setting of file.in and file.out.");
+			}
+            if ((*itemIt)->getEndTime() > endTime){
+				cout<<"WARNING: The end time of output "<<(*it)->getOutputID()<<" to "<<(*itemIt)->Filename<<" is "<<(*itemIt)->EndTime<<
+					". It's later than end time of time series data "<<util.ConvertToString(&endTime)<<", and will be updated."<<endl;
+                //throw ModelException("SettingsOutput", "CheckDate",
+                //                     "The end time of output " + (*it)->getOutputID() + " to " + (*itemIt)->Filename +
+                //                     " is " + (*itemIt)->EndTime + ". It's later than end time of time series data " +
+                //                     util.ConvertToString(&endTime) +
+                //                     ". Please check time setting of file.in and file.out.");
+			}
         }
     }
 }

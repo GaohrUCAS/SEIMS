@@ -576,6 +576,7 @@
 #define VAR_CH_CHLORAConc "CH_chloraConc"
 #define VAR_CHL_A "chl_a"
 #define VAR_CHS0 "Chs0"                               /// initial channel storage per meter of reach length
+#define VAR_CHS0_PERC "chs0_perc"
 #define VAR_CHSB "CHSB"
 #define VAR_CHST "CHST"                               /// channel storage
 #define VAR_CHT "CHT" /// canopy height for the day(m)
@@ -1101,6 +1102,7 @@
 #define DESC_CH_CHLORA "chlorophyll-a in reach"
 #define DESC_CHL_A "chlorophyll-a concentration in water yield"
 #define DESC_CHS0 "initial channel storage per meter of reach length"
+#define DESC_CHS0_PERC "initial percentage of channel volume"
 #define DESC_CHSB "Channel sediment balance for each reach and at each time step"
 #define DESC_CHST "channel storage"
 #define DESC_CHT "canopy height for the day (m)"
@@ -1167,9 +1169,9 @@
 #define DESC_GW_Q "groundwater contribution to stream flow"
 #define DESC_GW0 "initial ground water storage"
 #define DESC_GWMAX "maximum ground water storage"
-#define DESC_GWMINP "soluble P concentration in groundwater loading to reach"
+#define DESC_GWMINP "soluble P concentration in groundwater"
 #define DESC_GWNEW "The volume of water from the bank storage to the adjacent unsaturated zone and groundwater storage"
-#define DESC_GWNO3 "nitrate N concentration in groundwater loading to reach"
+#define DESC_GWNO3 "nitrate N concentration in groundwater"
 #define DESC_GWWB "groundwater water balance"
 #define DESC_GWRQ "groundwater recharge to channel"
 #define DESC_HCH "Water depth in the downslope boundary of cells"

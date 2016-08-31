@@ -36,8 +36,7 @@ int PER_PI::Execute()
 //#pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
     {
-        float k = 0.f, maxSoilWater = 0.f, fcSoilWater = 0.f;
-		float swater = 0.f;//, wpSoilWater = 0.f;        
+        float k = 0.f, swater = 0.f, maxSoilWater = 0.f, fcSoilWater = 0.f;
         /// firstly, assume all infiltrated water is added to the first soil layer.
 		m_soilStorage[i][0] += m_infil[i];
 		/// secondly, model water percolation across layers
@@ -50,8 +49,7 @@ int PER_PI::Execute()
 			swater = m_soilStorage[i][j];
 			maxSoilWater = m_sat[i][j];
 			fcSoilWater = m_fc[i][j];
-			//wpSoilWater = m_wp[i][j];
-
+			
             if (swater > fcSoilWater)
             {
                 //the moisture content can exceed the porosity in the way the algorithm is implemented
@@ -71,9 +69,9 @@ int PER_PI::Execute()
                     m_perc[i][j] = swater - fcSoilWater;
 
                 //Adjust the moisture content in the current layer, and the layer immediately below it
-                m_soilStorage[i][j] -= m_perc[i][j];// / m_soilThick[i][j];
+                m_soilStorage[i][j] -= m_perc[i][j];
                 if (j < m_nSoilLayers[i] - 1)
-                    m_soilStorage[i][j + 1] += m_perc[i][j];// / m_soilThick[i][j + 1];
+                    m_soilStorage[i][j + 1] += m_perc[i][j];
 
 				
                 //if (m_soilStorage[i][j] != m_soilStorage[i][j] || m_soilStorage[i][j] < 0.f)
@@ -86,15 +84,19 @@ int PER_PI::Execute()
             }
 			else
 			{
-				for (int j = 0; j < (int)m_nSoilLayers[i]; j++)
-					m_perc[i][j] = 0.f;
+				// for (int j = 0; j < (int)m_nSoilLayers[i]; j++)
+				m_perc[i][j] = 0.f;
 			}
-
-			/// update total soil water content
-			m_soilStorageProfile[i] = 0.f;
-			for (int ly = 0; ly < (int)m_nSoilLayers[i]; ly++)
-				m_soilStorageProfile[i] += m_soilStorage[i][ly];
-        }
+			//if (i == 200)
+			//{
+			//	cout<<"infil: "<<m_infil[i]<<", perco: "<<m_perc[i][j]<<", soilStorage: "<<m_soilStorage[i][j]<<endl;
+			//}
+		}
+		/// update total soil water content
+		m_soilStorageProfile[i] = 0.f;
+		for (int ly = 0; ly < (int)m_nSoilLayers[i]; ly++){
+			m_soilStorageProfile[i] += m_soilStorage[i][ly];
+		}
     }
     return 0;
 }
