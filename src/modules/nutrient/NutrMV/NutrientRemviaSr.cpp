@@ -17,8 +17,8 @@ using namespace std;
 
 NutrientRemviaSr::NutrientRemviaSr(void) :
 //input
-        m_nCells(-1), m_cellWidth(-1), m_soiLayers(-1), m_sedimentYield(NULL), m_nperco(-1), m_phoskd(-1), m_pperco(-1),
-        m_qtile(-1), m_nSoilLayers(NULL), m_anion_excl(NULL), m_isep_opt(-1), m_ldrain(NULL), m_dis_stream(NULL), m_surfr(NULL), m_flat(NULL),
+        m_nCells(-1), m_cellWidth(-1), m_soiLayers(-1), m_sedimentYield(NULL), m_nperco(-1), m_phoskd(-1), m_pperco(-1), m_cod_n(-1), 
+		m_cod_k(-1), m_qtile(-1), m_nSoilLayers(NULL), m_anion_excl(NULL), m_isep_opt(-1), m_ldrain(NULL), m_dis_stream(NULL), m_surfr(NULL), m_flat(NULL),
         m_sol_perco(NULL), m_sol_wsatur(NULL), m_sol_crk(NULL), m_sol_bd(NULL), m_sol_z(NULL), m_sol_thick(NULL),
         m_sol_om(NULL), m_flowOutIndex(NULL), m_nSubbasins(-1), m_subbasin(NULL), m_subbasinsInfo(NULL), m_streamLink(NULL),
         //output
@@ -171,7 +171,15 @@ bool NutrientRemviaSr::CheckInputData()
     if (this->m_nperco <= 0)
     {
         throw ModelException(MID_NUTRMV, "CheckInputData", "The nitrate percolation coefficient can not be less than zero.");
-    }
+	}
+	if (this->m_cod_n <= 0)
+	{
+		throw ModelException(MID_NUTRMV, "CheckInputData", "The m_cod_n can not be less than zero.");
+	}
+	if (this->m_cod_k <= 0)
+	{
+		throw ModelException(MID_NUTRMV, "CheckInputData", "The m_cod_k can not be less than zero.");
+	}
     if (this->m_flat == NULL)
     {
         throw ModelException(MID_NUTRMV, "CheckInputData", "The lateral flow in soil layer data can not be NULL.");
@@ -242,7 +250,9 @@ void NutrientRemviaSr::SetValue(const char *key, float value)
     else if (StringMatch(sk, VAR_NPERCO)) { this->m_nperco = value; }
     else if (StringMatch(sk, VAR_PPERCO)) { this->m_pperco = value; }
     else if (StringMatch(sk, VAR_PHOSKD)) { this->m_phoskd = value; }
-    else if (StringMatch(sk, VAR_ISEP_OPT)) { this->m_isep_opt = value; }
+	else if (StringMatch(sk, VAR_ISEP_OPT)) { this->m_isep_opt = value; }
+	else if (StringMatch(sk, VAR_COD_N)) { this->m_cod_n = value; }
+	else if (StringMatch(sk, VAR_COD_K)) { this->m_cod_k = value; }
 	else if (StringMatch(sk, VAR_WSHD_PLCH)) m_wshd_plch = value;
     else
     {
@@ -523,15 +533,12 @@ void NutrientRemviaSr::NitrateLoss()
             {
                 enratio = 3.5f;
             }
-
             // calculate organic carbon loading to main channel
             float org_c = (m_sol_om[i][0] * 0.58f / 100.f) * enratio * m_sedimentYield[i] * 1000.f;
             // calculate carbonaceous biological oxygen demand (CBOD) and COD(transform from CBOD)
             float cbod  = 2.7f * org_c / (qdr * m_cellWidth * m_cellWidth * 0.0001f);
             // calculate COD
-            float n = 3.75f; // Conversion factor 1~6.5
-            float k = 0.15f; // Reaction coefficient 0.1~0.2
-            m_cod[i] = n * (cbod * (1.f - exp(-5.f * k)));
+            m_cod[i] = m_cod_n * (cbod * (1.f - exp(-5.f * m_cod_k)));
 			m_cod[i] = m_surfr[i] / 1000.f * m_cod[i] * 10.f;	// mg/L converted to kg/ha
 
             /*
@@ -563,7 +570,7 @@ void NutrientRemviaSr::NitrateLoss()
             m_chl_a[i] = 0.f;
             m_cod[i] = 0.f;
             //m_doxq[i] = 0.f;
-        }
+		}
     }
 }
 

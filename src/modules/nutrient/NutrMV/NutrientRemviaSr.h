@@ -60,14 +60,19 @@ private:
     /// input data
     /// drainage tile flow in soil profile
     float m_qtile;
-    /// distribution of soil loss caused by water erosion
-    float *m_sedimentYield;
     /// Phosphorus soil partitioning coefficient
     float m_phoskd;
     /// phosphorus percolation coefficient (0-1)
     float m_pperco;
     /// nitrate percolation coefficient (0-1)
     float m_nperco;
+	/// Conversion factor
+	float m_cod_n;
+	/// Reaction coefficient
+	float m_cod_k;
+
+    /// distribution of soil loss caused by water erosion
+    float *m_sedimentYield;
     // fraction of porosity from which anions are excluded
     float *m_anion_excl;
     // distribution of surface runoff generated
