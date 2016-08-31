@@ -118,7 +118,8 @@ public:
 
     //! get start time \a time_t
 	time_t getStartTime(){return m_startTime;};
-
+	//! set start time \a time_t
+	void setStartTime(time_t &st){m_startTime = st;}
     //! End time string
     string EndTime;
     //! End time  \a time_t
@@ -126,7 +127,8 @@ public:
 
     //! Get end time  \a time_t
 	time_t getEndTime(){return m_endTime;};
-
+	//! set end time \a time_t
+	void setEndTime(time_t &st){m_endTime = st;}
     //! file suffix, e.g., txt, tif, asc, etc.
     string Suffix;
     //! output filename without suffix
