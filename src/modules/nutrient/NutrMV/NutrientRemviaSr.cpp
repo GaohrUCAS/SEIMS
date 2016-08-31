@@ -1,8 +1,3 @@
-/*
- * \author Huiran Gao
- * \date May 2016
- */
-
 #include <iostream>
 #include "NutrientRemviaSr.h"
 #include "MetadataInfo.h"
@@ -26,7 +21,6 @@ NutrientRemviaSr::NutrientRemviaSr(void) :
 		m_latno3ToCh(NULL), m_sur_no3ToCh(NULL), m_sur_codToCh(NULL), m_sur_solpToCh(NULL), m_perco_n_gw(NULL), m_perco_p_gw(NULL),
         m_sol_solp(NULL), m_cod(NULL), m_chl_a(NULL) //,m_doxq(), m_soxy()
 {
-
 }
 
 NutrientRemviaSr::~NutrientRemviaSr(void)
@@ -49,7 +43,7 @@ NutrientRemviaSr::~NutrientRemviaSr(void)
 
 void NutrientRemviaSr::SumBySubbasin()
 {
-	for(int subi = 1; subi <= m_nSubbasins; subi++)
+	for(int subi = 0; subi <= m_nSubbasins; subi++)
 	{
 		m_sur_no3ToCh[subi] = 0.f;
 		m_sur_solpToCh[subi] = 0.f;
@@ -66,17 +60,11 @@ void NutrientRemviaSr::SumBySubbasin()
 		//add today's flow
 		int subi = (int) m_subbasin[i];
 		if (m_nSubbasins == 1)
-		{
 			subi = 1;
-		}
 		else if (subi >= m_nSubbasins + 1)
-		{
-			ostringstream oss;
-			oss << subi;
-			throw ModelException(MID_NUTRSED, "Execute", "The subbasin " + oss.str() + " is invalid.");
-		}
+			throw ModelException(MID_NUTRSED, "Execute", "The subbasin ID " + ValueToString(subi) + " is invalid.");
 
-		m_sur_no3ToCh[subi] += m_surqno3[i] * cellArea; // kg
+		m_sur_no3ToCh[subi] += m_surqno3[i] * cellArea; // kg/ha * ha = kg
 		m_sur_solpToCh[subi] += m_surqsolp[i] * cellArea;
 		m_sur_codToCh[subi] += m_cod[i] * cellArea;
 		m_perco_n_gw[subi] += m_perco_n[i] * cellArea;
@@ -112,7 +100,6 @@ bool NutrientRemviaSr::CheckInputSize(const char *key, int n)
             m_nCells = n;
         } else
         {
-            //StatusMsg("Input data for "+string(key) +" is invalid. All the input data should have same size.");
             ostringstream oss;
             oss << "Input data for " + string(key) << " is invalid with size: " << n << ". The origin size is " <<
             m_nCells << ".\n";
@@ -415,7 +402,7 @@ void NutrientRemviaSr::NitrateLoss()
 
             if (k == 0)
             {
-                m_surqno3[i] = m_surfr[i] * cosurf;
+                m_surqno3[i] = m_surfr[i] * cosurf; // kg/ha
                 m_surqno3[i] = min(m_surqno3[i], m_sol_no3[i][k]);
                 m_sol_no3[i][k] = m_sol_no3[i][k] - m_surqno3[i];
             }
@@ -462,7 +449,7 @@ void NutrientRemviaSr::NitrateLoss()
 			//if (i == 200)
 			//	cout<<"sol_no3: "<<m_sol_no3[i][k]<<", percnN: "<<percnlyr<<endl;
         }
-
+		// TODO, lateral nutrient move should be calculated according to SSR_DA module. by LJ.
         // calculate nitrate leaching from soil profile
         m_perco_n[i] = percnlyr; // kg/ha
         float nloss = 0.f;
@@ -484,7 +471,6 @@ void NutrientRemviaSr::NitrateLoss()
         wtmp = wtmp + 273.15f;    // deg C to deg K
         // water in cell
         float qdr = 0.f;
-        //qdr = m_surfr[i] + m_flat[i][0] + m_qtile + m_gw_q[i];
 		qdr = m_surfr[i] + m_flat[i][0] + m_qtile;
         if (qdr > 1.e-4f)
         {
@@ -566,15 +552,8 @@ void NutrientRemviaSr::PhosphorusLoss()
 
     for (int i = 0; i < m_nCells; i++)
     {
-        // mg/kg => kg/ha
-//                     float *sol_thick = new float(m_nSoilLayers[i]);
-//                     sol_thick[0] = m_sol_z[i][0];
-//                     for (int k = 1; k < m_nSoilLayers[i]; k++)
-//                     {
-//                         sol_thick[k] = m_sol_z[k] - m_sol_z[k - 1];
-//                     }
-        float wt1 = m_sol_bd[i][0] * m_sol_thick[i][0] / 100.f;
-        float conv_wt = 1.e6f * wt1;
+        float wt1 = m_sol_bd[i][0] * m_sol_thick[i][0] / 100.f;// mg/kg => kg/ha
+        float conv_wt = 1.e6f * wt1; // kg/kg => kg/ha
 
         // amount of P leached from soil layer (vap)
         float vap = 0.f;
@@ -692,9 +671,7 @@ void NutrientRemviaSr::Get1DData(const char *key, int *n, float **data)
 		*n = m_nSubbasins + 1;
 	}
     else
-        throw ModelException("NutRemv", "GetValue",
-                                "Parameter " + sk + " does not exist. Please contact the module developer.");
-                
+        throw ModelException("NutRemv", "GetValue", "Parameter " + sk + " does not exist.");                
 }
 void NutrientRemviaSr::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
 {
