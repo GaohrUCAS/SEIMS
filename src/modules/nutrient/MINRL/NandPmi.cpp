@@ -200,6 +200,7 @@ void NandPim::initialOutputs()
 			m_sol_rsd[i][0] = m_sol_cov[i];
 	}
 	// initial input soil chemical in first run
+	if(m_sol_no3 == NULL) Initialize2DArray(m_nCells, m_soilLayers, m_sol_no3, 0.f);
 	if(m_sol_fon == NULL || m_sol_fop == NULL || m_sol_aorgn == NULL || 
 		m_sol_actp == NULL || m_sol_stap == NULL) 
 	{
@@ -224,7 +225,7 @@ void NandPim::initialOutputs()
 			wt1 = m_sol_bd[i][k] * m_sol_thick[i][k] / 100.f;
 			// kg/kg => kg/ha
 			conv_wt = 1.e6f * wt1;
-
+			
 			/// if m_sol_no3 is not provided, then initialize it.
 			if (m_sol_no3[i][k] <= 0.f) 
 			{
@@ -233,6 +234,8 @@ void NandPim::initialOutputs()
 				zdst = exp(-m_sol_z[i][k] / 1000.f);
 				m_sol_no3[i][k] = 10.f * zdst * 0.7f;
 				m_sol_no3[i][k] *= wt1;	// mg/kg => kg/ha
+
+				//if(k == 0) outfile << m_sol_no3[i][k];
 			}
 			/// if m_sol_orgn is not provided, then initialize it.
 			if (m_sol_orgn[i][k] <=0.f)
