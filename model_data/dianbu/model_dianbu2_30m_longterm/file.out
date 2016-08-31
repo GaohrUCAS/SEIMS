@@ -135,3 +135,5 @@ NutrientTransport	CH_TN	total nitrogen amount in reach	kg	NONE	2013-01-01 00:00	
 NutrientTransport	CH_TNConc	total nitrogen concentration in reach	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CH_TNConc.txt	1
 NutrientTransport	CH_TP	total phosphorus amount in reach	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CH_TP.txt	1
 NutrientTransport	CH_TPConc	total phosphorus concentration in reach	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CH_TPConc.txt	1
+NutrientTransport	GWNO3	nitrate N concentration in groundwater	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	ALL	GWNO3.txt	1
+NutrientTransport	GWMINP	soluble P concentration in groundwater	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	ALL	GWMINP.txt	1

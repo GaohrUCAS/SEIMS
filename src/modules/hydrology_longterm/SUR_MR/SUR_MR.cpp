@@ -96,7 +96,7 @@ void SUR_MR::initialOutputs()
 #pragma omp parallel for
         for (int i = 0; i < m_nCells; i++)
         {
-			Initialize1DArray(m_nSoilLayers, m_soilStorage[i], 0.f);
+			Initialize1DArray(m_nSoilLayers, m_soilStorage[i], NODATA_VALUE);
             m_pe[i] = 0.f;
             m_infil[i] = 0.f;
 			m_soilStorageProfile[i] = 0.f;
@@ -204,6 +204,10 @@ int SUR_MR::Execute()
         }
 		/// if m_infil > 0., m_soilStorage need to be updated here. 
 		/// But currently, this is implemented in percolation modules. 		
+		//if (i == 200)
+		//{
+		//	cout<<"netRain: "<<m_pNet[i]<<", depStrg: "<<m_sd[i]<<", infil: "<<m_infil[i]<<", surfq: "<<m_pe[i]<<endl;
+		//}
     }
     return 0;
 }
