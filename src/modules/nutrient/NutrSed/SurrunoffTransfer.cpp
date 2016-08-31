@@ -142,12 +142,7 @@ void SurrunoffTransfer::Set1DData(const char *key, int n, float *data)
 	if (StringMatch(sk, VAR_SUBBSN))
 		m_subbasin = data;
     else if (StringMatch(sk, VAR_SED_OL))
-    {
         this->m_sedimentYield = data;
-		// convert kg to ton
-		for (int i = 0; i < n; i++)
-			m_sedimentYield[i] /= 1000.f;
-    }
 	else if (StringMatch(sk, VAR_SOILLAYERS))
 	{
 		m_nSoilLayers = data;
@@ -200,7 +195,7 @@ void SurrunoffTransfer::initialOutputs()
 			// CREAMS method for calculating enrichment ratio
 			float cy = 0.f;
 			// Calculate sediment calculations, equation 4:2.2.3 in SWAT Theory 2009, p272
-			cy = 0.1f * m_sedimentYield[i] / (m_cellWidth * m_cellWidth * 0.0001f * m_surfr[i] + 1.e-6f);
+			cy = 0.1f * m_sedimentYield[i] / (m_cellWidth * m_cellWidth * 0.0001f * m_surfr[i] + 1.e-6f) / 1000.f;
 			if (cy > 1.e-6f)
 			{
 				m_enratio[i] = 0.78f * pow(cy, -0.2468f);
@@ -299,7 +294,7 @@ void SurrunoffTransfer::OrgnRemoveinSr(int i)
         float concn = 0.f;
         concn = orgninfl * m_enratio[i] / wt;
         //Calculate the amount of organic nitrogen transported with sediment to the stream, equation 4:2.2.1 in SWAT Theory 2009, p271
-        m_sedorgn[i] = 0.001f * concn * m_sedimentYield[i] / (m_cellWidth * m_cellWidth * m_nCells * 0.0001f);	// * 0.0001f, m2 -> ha
+        m_sedorgn[i] = 0.001f * concn * m_sedimentYield[i] / 1000.f / (m_cellWidth * m_cellWidth * m_nCells * 0.0001f);	// * 0.0001f, m2 -> ha
         //update soil nitrogen pools
         if (orgninfl > 1.e-6f)
         {
@@ -349,7 +344,7 @@ void SurrunoffTransfer::OrgpAttachedtoSed(int i)
         float concp = 0.f;
         concp = sol_attp * m_enratio[i] / wt;
         //total amount of P removed in sediment erosion (sedp)
-        float sedp = 0.001f * concp * m_sedimentYield[i] / (m_cellWidth * m_cellWidth) / 10000.f;
+        float sedp = 0.001f * concp * m_sedimentYield[i] / 1000.f / (m_cellWidth * m_cellWidth) / 10000.f;
         m_sedorgp[i] = sedp * sol_attp_o;
         m_sedminpa[i] = sedp * sol_attp_a;
         m_sedminps[i] = sedp * sol_attp_s;
