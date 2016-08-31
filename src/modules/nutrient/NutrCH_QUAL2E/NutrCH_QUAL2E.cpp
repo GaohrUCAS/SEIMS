@@ -658,7 +658,7 @@ void NutrCH_QUAL2E::RouteOut(int i)
 	m_chOutAlgae[i] = m_chAlgae[i] * outFraction;
 	m_chOutChlora[i] = m_chChlora[i] * outFraction;
 	/// total N and total P
-	m_chOutTN[i] = m_chOutOrgN[i] + m_chOutNH4[i] + m_chOutNO2[i];
+	m_chOutTN[i] = m_chOutOrgN[i] + m_chOutNH4[i] + m_chOutNO3[i] + m_chOutNO2[i];
 	m_chOutTP[i] = m_chOutOrgP[i] + m_chOutSolP[i];
 
 	// kg ==> mg/L

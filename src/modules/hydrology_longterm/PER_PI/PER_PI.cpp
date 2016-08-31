@@ -64,7 +64,7 @@ int PER_PI::Execute()
                 }
 
                 m_perc[i][j] = k * m_dt / 3600.f;  /// mm
-				
+
                 if (swater - m_perc[i][j] > maxSoilWater)
                     m_perc[i][j] = swater - maxSoilWater;
                 else if (swater - m_perc[i][j] < fcSoilWater)
@@ -89,6 +89,7 @@ int PER_PI::Execute()
 				for (int j = 0; j < (int)m_nSoilLayers[i]; j++)
 					m_perc[i][j] = 0.f;
 			}
+
 			/// update total soil water content
 			m_soilStorageProfile[i] = 0.f;
 			for (int ly = 0; ly < (int)m_nSoilLayers[i]; ly++)

@@ -195,12 +195,14 @@ int NutrientinGroundwater::Execute()
 {
     if (!this->CheckInputData())
 		return -1;
-    initialOutputs();
+	initialOutputs();
+
 	for(vector<int>::iterator iter=m_subbasinIDs.begin(); iter != m_subbasinIDs.end(); iter++)
     {
 		int id = *iter;
 		// gw no3 to channel
 		float xx = m_gw_q[id] * m_TimeStep;	//m3
+		//if(id == 1) cout << m_gw_q[id] << "\n";
 		m_no3gwToCh[id] = m_gwno3Con[id] * xx / 1000.f;	// g/m3 * m3 / 1000 = kg
 		m_minpgwToCh[id] = m_gwminpCon[id] * xx / 1000.f;
 
@@ -223,9 +225,11 @@ int NutrientinGroundwater::Execute()
 
 		// update concentration
 		float gwVol = subArea * m_gwStor[id] / 1000.f;//m3
-		m_gwno3Con[id] += m_perco_no3_gw[id] * 1000.f / gwVol;
+		m_gwno3Con[id] += m_perco_no3_gw[id]* 1000.f / gwVol;
 		m_gwminpCon[id] += m_perco_solp_gw[id] * 1000.f / gwVol;
-    }
+		//cout << m_gwno3Con[id] << ", " << m_perco_no3_gw[id] << ",   ";
+		//cout << m_sol_no3[0][0] << "\n";
+	}
     return 0;
 }
 

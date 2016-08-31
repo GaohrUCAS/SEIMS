@@ -75,7 +75,6 @@ void NutrientRemviaSr::SumBySubbasin()
 			oss << subi;
 			throw ModelException(MID_NUTRSED, "Execute", "The subbasin " + oss.str() + " is invalid.");
 		}
-
 		m_sur_no3ToCh[subi] += m_surqno3[i] * cellArea;
 		m_sur_solpToCh[subi] += m_surqsolp[i] * cellArea;
 		m_sur_codToCh[subi] += m_cod[i] * cellArea;
@@ -84,6 +83,7 @@ void NutrientRemviaSr::SumBySubbasin()
 		if(m_streamLink[i] > 0)
 			m_latno3ToCh[subi] += m_latno3[i];
 	}
+	//cout << m_perco_n[2] << "\n";
 
 	// sum all the subbasins and put the sum value in the zero-index of the array
 	for (int i = 1; i < m_nSubbasins + 1; i++)
@@ -401,7 +401,7 @@ void NutrientRemviaSr::NitrateLoss()
                         vno3 = m_sol_no3[i][k] * (1.f - exp(ww));
                         if (mw > 1.e-10f)
                             con = max(vno3 / mw, 0.f);
-
+						
                         // calculate nitrate in surface runoff
                         // concentration of nitrate in surface runoff (cosurf)
                         float cosurf = 0.f;
@@ -414,7 +414,7 @@ void NutrientRemviaSr::NitrateLoss()
                         {
                             m_surqno3[i] = m_surfr[i] * cosurf;
                             m_surqno3[i] = min(m_surqno3[i], m_sol_no3[i][k]);
-                            m_sol_no3[i][k] = m_sol_no3[i][k] - m_surqno3[i];
+							m_sol_no3[i][k] = m_sol_no3[i][k] - m_surqno3[i];
                         }
 
                         // calculate nitrate in tile flow
@@ -451,13 +451,14 @@ void NutrientRemviaSr::NitrateLoss()
 
                         // calculate nitrate in percolate
                         percnlyr = 0.f;
-                        percnlyr = con * m_sol_perco[i][k];
+						percnlyr = con * m_sol_perco[i][k];
                         percnlyr = min(percnlyr, m_sol_no3[i][k]);
                         m_sol_no3[i][k] = m_sol_no3[i][k] - percnlyr;
                     }
 
                     // calculate nitrate leaching from soil profile
                     m_perco_n[i] = percnlyr;
+					//cout <<  m_perco_n[i] << ", ";
                     float nloss = 0.f;
                     // average distance to the stream(m), default is 35m.
                     float dis_stream = 35.f;
@@ -608,7 +609,6 @@ void NutrientRemviaSr::NitrateLoss()
 							m_sol_solp[i][k+1] += vap;//leach to next layer
 						else
 							m_perco_p[i] = vap;//leach to groundwater
-                        //}
                     }
                     //m_percp[i] = vap
                     // summary calculation
