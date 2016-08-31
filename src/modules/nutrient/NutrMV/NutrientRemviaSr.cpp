@@ -281,13 +281,8 @@ void NutrientRemviaSr::Set1DData(const char *key, int n, float *data)
 		m_sol_crk = data; 
 	else if (StringMatch(sk, VAR_SOILLAYERS)) 
 		m_nSoilLayers = data; 
-    else if (StringMatch(sk, VAR_SED_OL)) 
-	{ 
-		this->m_sedimentYield = data; 
-		// convert kg to ton
-		for (int i = 0; i < n; i++)
-			m_sedimentYield[i] /= 1000.f;
-	}
+    else if (StringMatch(sk, VAR_SED_OL))
+		this->m_sedimentYield = data;
 	else if (StringMatch(sk, Tag_FLOWOUT_INDEX_D8))
 		m_flowOutIndex = data;
     else if (StringMatch(sk, VAR_SEDORGN)) 
@@ -518,10 +513,12 @@ void NutrientRemviaSr::NitrateLoss()
             {
                 m_sedimentYield[i] = 0.f;
             }
+			//if(i == 0) cout << m_sedimentYield[i] << ", \n";
+
             // CREAMS method for calculating enrichment ratio
             float cy = 0.f;
             // Calculate sediment, equation 4:2.2.3 in SWAT Theory 2009, p272
-            cy = 0.1f * m_sedimentYield[i] / (m_cellWidth * m_cellWidth * 0.0001f * m_surfr[i] + 1e-6f);
+            cy = 0.1f * m_sedimentYield[i] / (m_cellWidth * m_cellWidth * 0.0001f * m_surfr[i] + 1e-6f) / 1000.f;
             if (cy > 1e-6f)
             {
                 enratio = 0.78f * pow(cy, -0.2468f);
@@ -534,7 +531,7 @@ void NutrientRemviaSr::NitrateLoss()
                 enratio = 3.5f;
             }
             // calculate organic carbon loading to main channel
-            float org_c = (m_sol_om[i][0] * 0.58f / 100.f) * enratio * m_sedimentYield[i] * 1000.f;
+            float org_c = (m_sol_om[i][0] * 0.58f / 100.f) * enratio * m_sedimentYield[i];
             // calculate carbonaceous biological oxygen demand (CBOD) and COD(transform from CBOD)
             float cbod  = 2.7f * org_c / (qdr * m_cellWidth * m_cellWidth * 0.0001f);
             // calculate COD
