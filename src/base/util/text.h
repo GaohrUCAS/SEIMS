@@ -590,6 +590,8 @@
 #define VAR_CO2HI "CO2HI"
 #define VAR_COD_CH "codToCh"
 #define VAR_COD "cod"
+#define VAR_COD_N "cod_n"
+#define VAR_COD_K "cod_k"
 #define VAR_COND_MAX "Cond_max"                       /// "Maximum automata's conductance"
 #define VAR_COND_RATE "Cond_rate"                     /// Rate of decline in automata's conductance per unit increase in vapor pressure deficit
 #define VAR_CONDUCT "Conductivity"
@@ -1117,6 +1119,8 @@
 #define DESC_CO2HI "elevated CO2 atmospheric concentration corresponding the 2nd point on the radiation use efficiency curve"
 #define DESC_COD "carbonaceous oxygen demand of surface runoff"
 #define DESC_COD_CH "carbonaceous oxygen demand loading to reach"
+#define DESC_COD_N "Conversion factor"
+#define DESC_COD_K "Reaction coefficient"
 #define DESC_CONDRATE "Rate of decline in stomatal conductance per unit increase in vapor pressure deficit"
 #define DESC_CONDUCT "saturation hydraulic conductivity"
 #define DESC_CONV_WT "factor which converts kg/kg soil to kg/ha"
