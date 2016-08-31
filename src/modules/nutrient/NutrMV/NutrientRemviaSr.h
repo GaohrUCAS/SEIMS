@@ -116,7 +116,7 @@ private:
     float *m_perco_n;
 	/// amount of solute P percolating past bottom of soil profile
 	float *m_perco_p;
-    /// amount of nitrate transported with surface runoff
+    /// amount of nitrate transported with surface runoff, kg/ha
     float *m_surqno3;
     /// amount of soluble phosphorus in surface runoff
     float *m_surqsolp;
@@ -188,7 +188,7 @@ private:
     * \brief Calculates the amount of phosphorus lost from the soil
     *        profile in runoff and the movement of soluble phosphorus from the first
     *        to the second layer via percolation.
-    *
+    *		 reWrite from solp.f of SWAT
     * \return void
     */
     void PhosphorusLoss();

@@ -1569,6 +1569,7 @@ int MGTOpt_SWAT::Execute()
             }
         }
     }
+	//cout<<"PLTMGT_SWAT, cell id 2805, sol_no3[0]: "<<m_soilNO3[2805][0]<<endl;
     return 0;
 }
 

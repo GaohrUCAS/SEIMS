@@ -150,6 +150,7 @@ int NPS_Management::Execute()
 			}
 		}
 	}
+	//cout<<"NPSMGT, cell id 2805, sol_no3[0]: "<<m_sol_no3[2805][0]<<endl;
     return true;
 }
 
