@@ -78,6 +78,8 @@ private:
     float *m_ldrain;
     /// crack volume potential of soil
     float *m_sol_crk;
+	/// distance to the stream
+	float *m_dis_stream;
     /// amount of water held in the soil layer at saturation
     float **m_sol_wsatur;
 

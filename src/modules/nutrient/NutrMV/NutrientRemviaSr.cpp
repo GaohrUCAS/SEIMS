@@ -13,7 +13,7 @@ using namespace std;
 NutrientRemviaSr::NutrientRemviaSr(void) :
 //input
         m_nCells(-1), m_cellWidth(-1), m_soiLayers(-1), m_sedimentYield(NULL), m_nperco(-1), m_phoskd(-1), m_pperco(-1),
-        m_qtile(-1), m_nSoilLayers(NULL), m_anion_excl(NULL), m_isep_opt(-1), m_ldrain(NULL), m_surfr(NULL), m_flat(NULL),
+        m_qtile(-1), m_nSoilLayers(NULL), m_anion_excl(NULL), m_isep_opt(-1), m_ldrain(NULL), m_dis_stream(NULL), m_surfr(NULL), m_flat(NULL),
         m_sol_perco(NULL), m_sol_wsatur(NULL), m_sol_crk(NULL), m_sol_bd(NULL), m_sol_z(NULL), m_sol_thick(NULL),
         m_sol_om(NULL), m_flowOutIndex(NULL), m_nSubbasins(-1), m_subbasin(NULL), m_subbasinsInfo(NULL), m_streamLink(NULL),
         //output
@@ -72,6 +72,7 @@ void NutrientRemviaSr::SumBySubbasin()
 		if(m_streamLink[i] > 0)
 			m_latno3ToCh[subi] += m_latno3[i];
 	}
+	//cout << m_perco_n[2] << "\n";
 
 	// sum all the subbasins and put the sum value in the zero-index of the array
 	for (int i = 1; i < m_nSubbasins + 1; i++)
@@ -146,7 +147,11 @@ bool NutrientRemviaSr::CheckInputData()
     //if (this->m_ldrain == NULL)
     //{
     //    throw ModelException(MID_NUTRMV, "CheckInputData", "The soil layer where drainage tile is located can not be NULL.");
-    //}
+	//}
+	if (this->m_dis_stream == NULL)
+	{
+		throw ModelException(MID_NUTRMV, "CheckInputData", "The distance to the stream data can not be NULL.");
+	}
     if (this->m_surfr == NULL)
     {
         throw ModelException(MID_NUTRMV, "CheckInputData", "The distribution of surface runoff generated data can not be NULL.");
@@ -248,6 +253,8 @@ void NutrientRemviaSr::Set1DData(const char *key, int n, float *data)
 		m_anion_excl = data; 
     else if (StringMatch(sk, VAR_LDRAIN)) 
 		m_ldrain = data; 
+	else if (StringMatch(sk, VAR_DISTSTREAM)) 
+		m_dis_stream = data; 
     else if (StringMatch(sk, VAR_SOL_CRK)) 
 		m_sol_crk = data; 
 	else if (StringMatch(sk, VAR_SOILLAYERS)) 
@@ -323,6 +330,7 @@ void NutrientRemviaSr::initialOutputs()
     if (m_flat == NULL) { Initialize2DArray(m_nCells, m_soiLayers, m_flat, 0.0001f); }
     if (m_sol_perco == NULL) { Initialize2DArray(m_nCells, m_soiLayers, m_sol_perco, 0.0001f); }
     if (m_ldrain == NULL) { Initialize1DArray(m_nCells, m_ldrain, -1.f); }
+	//if (m_dis_stream == NULL) { Initialize1DArray(m_nCells, m_dis_stream, 0.f); }
     m_qtile = 0.0001f;
 }
 
@@ -353,7 +361,6 @@ void NutrientRemviaSr::NitrateLoss()
 	//#pragma omp parallel for
 	//did not use parallel computing to avoid several cells flow into the same downstream cell
 
-				
     for (int i = 0; i < m_nCells; i++)
     {
 		m_latno3[i] = 0.f;
@@ -406,7 +413,7 @@ void NutrientRemviaSr::NitrateLoss()
                 m_surqno3[i] = min(m_surqno3[i], m_sol_no3[i][k]);
                 m_sol_no3[i][k] = m_sol_no3[i][k] - m_surqno3[i];
             }
-
+			//if(i == 0) cout << m_surqno3[i] << ", ";
             // calculate nitrate in tile flow
             if (m_ldrain[i] == k)
             {
@@ -454,8 +461,8 @@ void NutrientRemviaSr::NitrateLoss()
         m_perco_n[i] = percnlyr; // kg/ha
         float nloss = 0.f;
         // average distance to the stream(m), default is 35m.
-        float dis_stream = 35.f;
-        nloss = (2.18f * dis_stream - 8.63f) / 100.f;
+        //float dis_stream = 35.f;
+        nloss = (2.18f * m_dis_stream[i] - 8.63f) / 100.f;
         nloss = min(1.f, max(0.f, nloss));
         m_latno3[i] = (1.f - nloss) * m_latno3[i];
 
