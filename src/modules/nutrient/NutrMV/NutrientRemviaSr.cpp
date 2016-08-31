@@ -76,17 +76,14 @@ void NutrientRemviaSr::SumBySubbasin()
 			throw ModelException(MID_NUTRSED, "Execute", "The subbasin " + oss.str() + " is invalid.");
 		}
 
-
 		m_sur_no3ToCh[subi] += m_surqno3[i] * cellArea;
 		m_sur_solpToCh[subi] += m_surqsolp[i] * cellArea;
 		m_sur_codToCh[subi] += m_cod[i] * cellArea;
 		m_perco_n_gw[subi] += m_perco_n[i] * cellArea;
 		m_perco_p_gw[subi] += m_perco_p[i] * cellArea;
-
 		if(m_streamLink[i] > 0)
 			m_latno3ToCh[subi] += m_latno3[i];
 	}
-
 
 	// sum all the subbasins and put the sum value in the zero-index of the array
 	for (int i = 1; i < m_nSubbasins + 1; i++)
@@ -313,22 +310,19 @@ void NutrientRemviaSr::initialOutputs()
         throw ModelException(MID_NUTRMV, "CheckInputData", "The dimension of the input data can not be less than zero.");
     }
     // allocate the output variables
-    if (m_latno3 == NULL)
-    {
-		Initialize1DArray(m_nCells, m_latno3, 0.f);
-		Initialize1DArray(m_nCells, m_perco_n, 0.f);
-		Initialize1DArray(m_nCells, m_perco_p, 0.f);
-		Initialize1DArray(m_nCells, m_surqno3, 0.f);
-		Initialize1DArray(m_nCells, m_surqsolp, 0.f);
+	if (m_latno3 == NULL) Initialize1DArray(m_nCells, m_latno3, 0.f);
+	if (m_perco_n == NULL) Initialize1DArray(m_nCells, m_perco_n, 0.f);
+	if (m_perco_p == NULL) Initialize1DArray(m_nCells, m_perco_p, 0.f);
+	if (m_surqno3 == NULL) Initialize1DArray(m_nCells, m_surqno3, 0.f);
+	if (m_surqsolp == NULL) Initialize1DArray(m_nCells, m_surqsolp, 0.f);
 
-		Initialize1DArray(m_nSubbasins+1, m_latno3ToCh, 0.f);
-		Initialize1DArray(m_nSubbasins+1, m_sur_no3ToCh, 0.f);
-		Initialize1DArray(m_nSubbasins+1, m_sur_solpToCh, 0.f);
-		Initialize1DArray(m_nSubbasins+1, m_sur_codToCh, 0.f);
-		Initialize1DArray(m_nSubbasins+1, m_perco_n_gw, 0.f);
-		Initialize1DArray(m_nSubbasins+1, m_perco_p_gw, 0.f);
+	if (m_latno3ToCh == NULL) Initialize1DArray(m_nSubbasins+1, m_latno3ToCh, 0.f);
+	if (m_sur_no3ToCh == NULL) Initialize1DArray(m_nSubbasins+1, m_sur_no3ToCh, 0.f);
+	if (m_sur_solpToCh == NULL) Initialize1DArray(m_nSubbasins+1, m_sur_solpToCh, 0.f);
+	if (m_sur_codToCh == NULL) Initialize1DArray(m_nSubbasins+1, m_sur_codToCh, 0.f);
+	if (m_perco_n_gw == NULL) Initialize1DArray(m_nSubbasins+1, m_perco_n_gw, 0.f);
+	if (m_perco_p_gw == NULL) Initialize1DArray(m_nSubbasins+1, m_perco_p_gw, 0.f);
 
-    }
     if (m_cod == NULL)
     {
 		Initialize1DArray(m_nCells, m_cod, 0.f);

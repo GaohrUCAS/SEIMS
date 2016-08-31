@@ -208,7 +208,7 @@ void NandPim::initialOutputs()
 		Initialize2DArray(m_nCells, m_soilLayers, m_sol_aorgn, 0.f);
 		Initialize2DArray(m_nCells, m_soilLayers, m_sol_actp, 0.f);
 		Initialize2DArray(m_nCells, m_soilLayers, m_sol_stap, 0.f);
-				
+
 #pragma omp parallel for
 	 for (int i = 0; i < m_nCells; i++)
 	 {
