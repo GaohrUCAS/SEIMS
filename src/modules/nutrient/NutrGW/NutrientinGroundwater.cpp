@@ -217,7 +217,7 @@ int NutrientinGroundwater::Execute()
 		float gwVol = subArea * m_gwStor[id] / 1000.f;//m3, memo, this m_gwStor is the resulted status of the current time step
 		m_gwno3Con[id] += (m_perco_no3_gw[id] - m_no3gwToCh[id]) * 1000.f / gwVol;
 		m_gwminpCon[id] += (m_perco_solp_gw[id] - m_minpgwToCh[id]) * 1000.f / gwVol;
-		//cout << m_gwno3Con[id] << ", " << m_perco_no3_gw[id] << ",   ";
+		cout << m_gwno3Con[id] << ", " << m_perco_no3_gw[id] << ",   ";
 		//cout << m_sol_no3[0][0] << "\n";
     }
 	//cout<<"NUTRGW, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
