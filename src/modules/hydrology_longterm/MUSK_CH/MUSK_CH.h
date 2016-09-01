@@ -14,6 +14,11 @@
 #include <cmath>
 #include <map>
 #include <vector>
+#include <cmath>
+#include <iostream>
+#include <set>
+#include <sstream>
+#include <algorithm> 
 #include "SimulationModule.h"
 #include "Scenario.h"
 using namespace std;
