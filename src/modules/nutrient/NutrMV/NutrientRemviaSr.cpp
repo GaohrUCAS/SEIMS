@@ -44,6 +44,7 @@ NutrientRemviaSr::~NutrientRemviaSr(void)
 
 void NutrientRemviaSr::SumBySubbasin()
 {
+	// reset to zero
 	for(int subi = 0; subi <= m_nSubbasins; subi++)
 	{
 		m_sur_no3ToCh[subi] = 0.f;
@@ -350,13 +351,23 @@ int NutrientRemviaSr::Execute()
     }
     initialOutputs();
     // compute nitrate movement leaching
+	cout<<"NUTRMV-exec, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
     NitrateLoss();
+	cout<<"NUTRMV-loss, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
     // compute phosphorus movement
     PhosphorusLoss();
 	// compute chl-a, CBOD and dissolved oxygen loadings
 	SubbasinWaterQuality();
 	// sum by sub-basin
 	SumBySubbasin();
+	for (int i = 1; i <= m_nSubbasins; i++){
+		cout<<"surNo3ToCh: "<<m_sur_no3ToCh[i]<<", ";
+	}
+	cout<<endl;
+	for (int i = 1; i <= m_nSubbasins; i++){
+		cout<<"percoNToCh: "<<m_perco_n_gw[i]<<", ";
+	}
+	cout<<endl;
     return 0;
 }
 
@@ -440,6 +451,7 @@ void NutrientRemviaSr::NitrateLoss()
 				m_sol_no3[i][k] -= percnlyr;
 			}
 			// calculate nitrate leaching from soil profile
+			m_perco_n[i] = 0;
 			m_perco_n[i] = percnlyr; // kg/ha
 
 			// I think these should be removed, because the lost nitrate

@@ -354,16 +354,38 @@ extern bool StrEqualIgnoreCase(const char *, const char *);
 extern bool StringMatch(string text1, string text2);
 
 /*!
- * \brief Sum of a double array
+ * \brief Sum of a numeric array
  *
- * Get sum value of a double array with size n.
+ * Get sum value of a double array with size row.
  *
- * \param[in] a,n
+ * \param[in] row
+ * \param[in] data
  * \return sum
- * \sa StrEqualIgnoreCase()
  */
-extern double Sum(double *a, int n);
+template<typename T>
+T Sum(int row, T *&data)
+{
+	T tmp = 0;
+#pragma omp parallel for reduction(+:tmp)
+	for (int i = 0; i < row; i++)
+	{
+		tmp += data[i];
+	}
+	return tmp;
+}
 
+template<typename T>
+T Sum(int row, int *&idx, T *&data)
+{
+	T tmp = 0;
+#pragma omp parallel for reduction(+:tmp)
+	for (int i = 0; i < row; i++)
+	{
+		int j = idx[i];
+		tmp += data[j];
+	}
+	return tmp;
+}
 /*!
  * \brief Trim given string's heading and tailing by "<space>,\n,\t,\r"
  *

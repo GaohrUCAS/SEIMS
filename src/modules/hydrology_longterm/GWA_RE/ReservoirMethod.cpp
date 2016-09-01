@@ -64,9 +64,10 @@ int ReservoirMethod::Execute()
 		int curCellsNum = curSub->getCellCount();
 		int *curCells = curSub->getCells();
 		float perco = 0.f;
-		int index = 0;
+#pragma omp parallel for reduction(+:perco)
 		for (int i = 0; i < curCellsNum; i++)
 		{
+			int index = 0;
 			index = curCells[i];
 			perco += m_perc[index][(int)m_soilLayers[index]-1];
 		}
@@ -85,20 +86,25 @@ int ReservoirMethod::Execute()
 		float fED = 0.f;
 		float fES = 0.f;
 		float plantEP = 0.f;
-		for (int i = 0; i < curCellsNum; i++)
-		{
-			index = curCells[i];
-			fPET += m_D_PET[index];
-			fEI += m_D_EI[index];
-			fED += m_D_ED[index];
-			fES += m_D_ES[index];
-			plantEP += m_plantEP[index];
-		}
-		fPET /= curCellsNum;
-		fEI /= curCellsNum;
-		fED /= curCellsNum;
-		fES /= curCellsNum;
-		plantEP /= curCellsNum;
+		fPET = Sum(curCellsNum, curCells, m_D_PET) / curCellsNum;
+		fEI = Sum(curCellsNum, curCells, m_D_EI) / curCellsNum;
+		fED = Sum(curCellsNum, curCells, m_D_ED) / curCellsNum;
+		fES = Sum(curCellsNum, curCells, m_D_ES) / curCellsNum;
+		plantEP = Sum(curCellsNum, curCells, m_plantEP) / curCellsNum;
+		//for (int i = 0; i < curCellsNum; i++)
+		//{
+		//	int index = curCells[i];
+		//	fPET += m_D_PET[index];
+		//	fEI += m_D_EI[index];
+		//	fED += m_D_ED[index];
+		//	fES += m_D_ES[index];
+		//	plantEP += m_plantEP[index];
+		//}
+		//fPET /= curCellsNum;
+		//fEI /= curCellsNum;
+		//fED /= curCellsNum;
+		//fES /= curCellsNum;
+		//plantEP /= curCellsNum;
 
 		curSub->setPET(fPET);
 

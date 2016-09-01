@@ -1,11 +1,9 @@
-#include <iostream>
 #include "NutrientinGroundwater.h"
-#include "MetadataInfo.h"
 #include <cmath>
+#include <iostream>
 #include <fstream>
-#include "ModelException.h"
-#include "util.h"
 #include <omp.h>
+#include "util.h"
 
 using namespace std;
 
@@ -166,13 +164,6 @@ void NutrientinGroundwater::initialOutputs()
     if (this->m_nCells <= 0)
         throw ModelException(MID_NUTRGW, "CheckInputData",
                              "The dimension of the input data can not be less than zero.");
-
-// 	if (m_gwno3Con == NULL)
-// 	{
-// 		Initialize1DArray(m_nSubbasins+1, m_gwno3Con, 6.f);
-// 		Initialize1DArray(m_nSubbasins+1, m_gwminpCon, 0.2f);
-// 	}
-
     // allocate the output variables
 	if (m_no3gwToCh == NULL)
 	{
@@ -184,8 +175,7 @@ void NutrientinGroundwater::initialOutputs()
 
 int NutrientinGroundwater::Execute()
 {
-    if (!this->CheckInputData())
-		return -1;
+    if (!this->CheckInputData()) return -1;
 	initialOutputs();
 
 	for(vector<int>::iterator iter=m_subbasinIDs.begin(); iter != m_subbasinIDs.end(); iter++)
@@ -193,10 +183,11 @@ int NutrientinGroundwater::Execute()
 		int id = *iter;
 		// gw no3 to channel
 		float xx = m_gw_q[id] * m_TimeStep;	//m3
-		//if(id == 1) cout << m_gw_q[id] << "\n";
+		cout<<"subID: "<<id<<", gwQ: "<<m_gw_q[id] << ", ";
 		m_no3gwToCh[id] = m_gwno3Con[id] * xx / 1000.f;	// g/m3 * m3 / 1000 = kg
 		m_minpgwToCh[id] = m_gwminpCon[id] * xx / 1000.f;
-
+		cout<<"subID: "<<id<<", gwno3Con: "<<m_gwno3Con[id] << ", ";
+		cout<<"subID: "<<id<<", no3gwToCh: "<<m_no3gwToCh[id] << ", ";
 		// gw no3 loss through revep
 		Subbasin *subbasin = m_subbasinsInfo->GetSubbasinByID(id);
 		float subArea = subbasin->getCellCount() * m_cellWidth * m_cellWidth;	//m2
@@ -217,9 +208,9 @@ int NutrientinGroundwater::Execute()
 		float gwVol = subArea * m_gwStor[id] / 1000.f;//m3, memo, this m_gwStor is the resulted status of the current time step
 		m_gwno3Con[id] += (m_perco_no3_gw[id] - m_no3gwToCh[id]) * 1000.f / gwVol;
 		m_gwminpCon[id] += (m_perco_solp_gw[id] - m_minpgwToCh[id]) * 1000.f / gwVol;
-		// cout << m_gwno3Con[id] << ", " << m_perco_no3_gw[id] << ",   ";
-		//cout << m_sol_no3[0][0] << "\n";
+		cout<<"subID: "<<id<<", percoNo3: "<<m_perco_no3_gw[id]<<", gwStorage: "<<m_gwStor[id]<<", new gwno3Con: "<<m_gwno3Con[id] << ", ";
     }
+	cout<<endl;
 	//cout<<"NUTRGW, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
     return 0;
 }

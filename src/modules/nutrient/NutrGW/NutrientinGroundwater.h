@@ -5,12 +5,11 @@
  */
 
 #pragma once
-#ifndef SEIMS_NutRemv_PARAMS_INCLUDE
-#define SEIMS_NutRemv_PARAMS_INCLUDE
 
 #include <string>
 #include "api.h"
 #include "SimulationModule.h"
+#include "ModelException.h"
 
 using namespace std;
 /** \defgroup NutGW
@@ -117,10 +116,3 @@ private:
     void initialOutputs();
 
 };
-
-#endif
-
-
-
-
-

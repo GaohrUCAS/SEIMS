@@ -529,13 +529,13 @@ void MUSK_CH::GetCoefficients(float reachLength, float v0, MuskWeights &weights)
 void MUSK_CH::ChannelFlow(int i)
 {
     float st0 = m_chStorage[i];
-    float qiSub = 0.f;
+    float qiSub = 0.f; /// interflow flow
     if (m_qiSub != NULL && m_qiSub[i] >= 0.f)
         qiSub = m_qiSub[i];
-    float qgSub = 0.f;
+    float qgSub = 0.f; /// groundwater flow
     if (m_qgSub != NULL && m_qgSub[i] >= 0.f)
         qgSub = m_qgSub[i];
-	float ptSub = 0.f;
+	float ptSub = 0.f; /// point sources flow
 	if (m_ptSub != NULL && m_ptSub[i] >= 0.f)
 		ptSub = m_ptSub[i];
     //////////////////////////////////////////////////////////////////////////
