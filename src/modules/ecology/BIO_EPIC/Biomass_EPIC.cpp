@@ -865,7 +865,7 @@ int Biomass_EPIC::Execute()
 {
     CheckInputData();
     initialOutputs();
-//#pragma omp parallel for
+#pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
     {
 		/// calculate albedo in current day, albedo.f of SWAT
