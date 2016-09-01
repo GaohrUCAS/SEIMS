@@ -101,8 +101,6 @@ int NPS_Management::Execute()
 		/// 2 Loop the management operations by sequence
 		vector<int> tmpArealFieldIDs = it->second->GetArealSrcIDs();
 		vector<int> tmpMgtSeqs = it->second->GetArealSrcMgtSeqs();
-		//map<int, ArealSourceMgtParams *> tmpMgtParams = it->second->GetArealSrcMgtMap();
-		//map<int, ArealSourceLocations *> tmpArealLocsMap = it->second->GetArealSrcLocsMap();
 		for (vector<int>::iterator mgtSeqIter = tmpMgtSeqs.begin(); mgtSeqIter != tmpMgtSeqs.end(); mgtSeqIter++)
 		{
 			ArealSourceMgtParams *tmpMgtParams = it->second->GetArealSrcMgtMap().at(*mgtSeqIter);
@@ -150,7 +148,7 @@ int NPS_Management::Execute()
 			}
 		}
 	}
-	//cout<<"NPSMGT, cell id 2805, sol_no3[0]: "<<m_sol_no3[2805][0]<<endl;
+	//cout<<"NPSMGT, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
     return true;
 }
 

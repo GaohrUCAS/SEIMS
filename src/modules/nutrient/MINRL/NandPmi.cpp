@@ -342,7 +342,7 @@ int NandPim::Execute()
         //Calculate P flux between the labile, active mineral and stable mineral P pools
         CalculatePflux(i);
     }
-	//cout<<"MINRL, cell id 2805, sol_no3[0]: "<<m_sol_no3[2805][0]<<endl;
+	//cout<<"MINRL, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
     return 0;
 }
 

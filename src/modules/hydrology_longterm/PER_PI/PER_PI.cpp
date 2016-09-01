@@ -33,15 +33,15 @@ int PER_PI::Execute()
     CheckInputData();
 	initialOutputs();
     
-//#pragma omp parallel for
+#pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
     {
-        float k = 0.f, swater = 0.f, maxSoilWater = 0.f, fcSoilWater = 0.f;
         /// firstly, assume all infiltrated water is added to the first soil layer.
 		m_soilStorage[i][0] += m_infil[i];
 		/// secondly, model water percolation across layers
         for (int j = 0; j < (int)m_nSoilLayers[i]; j++)
         {
+			float k = 0.f, swater = 0.f, maxSoilWater = 0.f, fcSoilWater = 0.f;
             // for the upper two layers, soil may be frozen
             // No movement if soil moisture is below field capacity
             if (j == 0 && m_soilT[i] <= m_frozenT) 
@@ -58,10 +58,10 @@ int PER_PI::Execute()
                 else
                 {
                     float dcIndex = 2.f / m_poreIndex[i][j] + 3.f; // pore disconnectedness index
-					k = m_ks[i][j] * pow(swater / maxSoilWater, dcIndex);
+					k = m_ks[i][j] * pow(swater / maxSoilWater, dcIndex); // mm/h
                 }
 
-                m_perc[i][j] = k * m_dt / 3600.f;  /// mm
+                m_perc[i][j] = k * m_dt / 3600.f;  // mm
 
                 if (swater - m_perc[i][j] > maxSoilWater)
                     m_perc[i][j] = swater - maxSoilWater;
@@ -84,7 +84,6 @@ int PER_PI::Execute()
             }
 			else
 			{
-				// for (int j = 0; j < (int)m_nSoilLayers[i]; j++)
 				m_perc[i][j] = 0.f;
 			}
 			//if (i == 200)
@@ -108,10 +107,8 @@ void PER_PI::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
     *nRows = m_nCells;
     *nCols = m_soilLayers;
     if (StringMatch(sk, VAR_PERCO)) *data = m_perc;
-	//else if (StringMatch(sk, VAR_SOL_ST)) *data = m_soilStorage;
     else
-        throw ModelException(MID_PER_PI, "Get2DData", "Output " + sk
-                                                      + " does not exist. Please contact the module developer.");
+        throw ModelException(MID_PER_PI, "Get2DData", "Output " + sk + " does not exist.");
 }
 
 void PER_PI::Set1DData(const char *key, int nRows, float *data)
@@ -125,9 +122,7 @@ void PER_PI::Set1DData(const char *key, int nRows, float *data)
 	else if (StringMatch(sk, VAR_SOILLAYERS)) m_nSoilLayers = data;
 	else if (StringMatch(sk, VAR_SOL_SW)) m_soilStorageProfile = data;
     else
-        throw ModelException(MID_PER_PI, "Set1DData",
-                             "Parameter " + sk +
-                             " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_PER_PI, "Set1DData", "Parameter " + sk + " does not exist.");
 }
 
 void PER_PI::Set2DData(const char *key, int nrows, int ncols, float **data)
@@ -144,8 +139,7 @@ void PER_PI::Set2DData(const char *key, int nrows, int ncols, float **data)
     else if (StringMatch(sk, VAR_POREID)) m_poreIndex = data;
     else if (StringMatch(sk, VAR_SOL_ST)) m_soilStorage = data;
     else
-        throw ModelException(MID_PER_PI, "Set2DData",
-                             "Parameter " + sk + " does not exist. Please contact the module developer.");
+        throw ModelException(MID_PER_PI, "Set2DData", "Parameter " + sk + " does not exist.");
 }
 
 void PER_PI::SetValue(const char *key, float data)
@@ -155,9 +149,7 @@ void PER_PI::SetValue(const char *key, float data)
     else if (StringMatch(s, VAR_T_SOIL)) m_frozenT = data;
     else if (StringMatch(s, VAR_OMP_THREADNUM))omp_set_num_threads((int) data);
     else
-        throw ModelException(MID_PER_PI, "SetValue",
-                             "Parameter " + s +
-                             " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_PER_PI, "SetValue", "Parameter " + s + " does not exist.");
 }
 
 bool PER_PI::CheckInputData()
