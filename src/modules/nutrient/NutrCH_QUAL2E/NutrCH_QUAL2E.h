@@ -120,6 +120,11 @@ private:
     float m_mumax;
     /// algal respiration rate at 20 deg C (1/day)
     float m_rhoq;
+	/// Conversion factor
+	float m_cod_n;
+	/// Reaction coefficient
+	float m_cod_k;
+
 	/// stream link
 	float *m_streamLink;
 	/// soil temperature (deg C)
