@@ -569,7 +569,7 @@ int NutrCH_QUAL2E::Execute()
         // So parallelization can be done here.
 		int reachNum = it->second.size();
 		// the size of m_reachLayers (map) is equal to the maximum stream order
-//#pragma omp parallel for
+#pragma omp parallel for
 		for (int i = 0; i < reachNum; ++i)
 		{
             // index in the array
@@ -579,8 +579,8 @@ int NutrCH_QUAL2E::Execute()
 			RouteOut(reachIndex);
         }
 	}
-	cout<<"NUTR_QUAL2E, surNO3ToCh: "<<m_surNO3ToCh[2]<<", gwno3ToCh: "<<m_gwNO3ToCh[2]<<", ptNo3ToCh: "<<m_ptNO3ToCh[2]
-	<<", chOutNO3: "<<m_chOutNO3[2]<<", chOutNO3Conc: "<<m_chOutTNConc[2]<<", TN: "<<m_chOutTN[2]<<", TNConc: "<<m_chOutTNConc[2]<<endl;
+	//cout<<"NUTR_QUAL2E, surNO3ToCh: "<<m_surNO3ToCh[2]<<", gwno3ToCh: "<<m_gwNO3ToCh[2]<<", ptNo3ToCh: "<<m_ptNO3ToCh[2]
+	//<<", chOutNO3: "<<m_chOutNO3[2]<<", chOutNO3Conc: "<<m_chOutTNConc[2]<<", TN: "<<m_chOutTN[2]<<", TNConc: "<<m_chOutTNConc[2]<<endl;
     return 0;
 }
 

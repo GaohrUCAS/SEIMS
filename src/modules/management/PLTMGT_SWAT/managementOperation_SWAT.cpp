@@ -1612,16 +1612,6 @@ void MGTOpt_SWAT::Get1DData(const char *key, int *n, float **data)
 void MGTOpt_SWAT::initialOutputs()
 {
     m_cellArea = m_cellWidth * m_cellWidth / 10000.f; // unit: ha
-//    if (m_nSub <= 0)  /// replaced by SetSubbasins
-//    {
-//#pragma omp parallel for
-//        for (int i = 0; i < this->m_nCells; i++)
-//        {
-//            m_nCellsSubbsn[int(this->m_subBsnID[i])] += 1;
-//            m_nAreaSubbsn[int(this->m_subBsnID[i])] += m_cellArea;
-//        }
-//        this->m_nSub = m_nCellsSubbsn.size();
-//    }
 	/// figure out all the management codes, and initialize the corresponding variables, aimed to save memory. By LJ
 	if (m_initialized) return;
 	vector<int> definedMgtCodes;

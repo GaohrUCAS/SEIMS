@@ -734,7 +734,7 @@ void Biomass_EPIC::PlantNitrogenUptake(int i)
     for (int l = 0; l < m_nSoilLayers[i]; l++)
     {
 		if (ir > 0)
-			return;
+			break;
         float gx = 0.f;
         if (m_soilRD <= m_soilDepth[i][l])
         {
@@ -757,8 +757,8 @@ void Biomass_EPIC::PlantNitrogenUptake(int i)
         PlantNitrogenFixed(i);
     m_plantUpTkN[i] += m_fixN[i];
     m_plantN[i] += m_plantUpTkN[i];
-	if (m_plantN[i] > 0.f)
-		cout<<"cell ID: "<<i<<", plantN: "<<m_plantN[i]<<endl;
+	//if (m_plantN[i] > 0.f)
+	//	cout<<"cell ID: "<<i<<", plantN: "<<m_plantN[i]<<endl;
     /// compute nitrogen stress
     if (FloatEqual(m_landCoverCls[i], 1.f) || FloatEqual(m_landCoverCls[i], 2.f) ||
         FloatEqual(m_landCoverCls[i], 3.f))

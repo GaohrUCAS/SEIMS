@@ -58,7 +58,8 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddParameter(VAR_SUBBSN, UNIT_NON_DIM, DESC_SUBBSN, Source_ParameterDB, DT_Raster1D);
 	mdi.AddParameter(VAR_SUBBASIN_PARAM, UNIT_NON_DIM, DESC_SUBBASIN_PARAM, Source_ParameterDB, DT_Subbasin);
 	mdi.AddParameter(VAR_STREAM_LINK, UNIT_NON_DIM, DESC_STREAM_LINK, Source_ParameterDB, DT_Raster1D);
-
+	// for subsurface routing
+	mdi.AddParameter(Tag_ROUTING_LAYERS, UNIT_NON_DIM, DESC_ROUTING_LAYERS, Source_ParameterDB, DT_Array2D);
     // set input from other modules
     mdi.AddInput(VAR_WSHD_PLCH, UNIT_CONT_KGHA, DESC_WSHD_PLCH, Source_Module, DT_Single);
 	//surface related inputs

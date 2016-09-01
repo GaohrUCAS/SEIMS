@@ -3,12 +3,6 @@
 #include "ModelException.h"
 #include "util.h"
 #include <omp.h>
-#include <cmath>
-#include <iostream>
-#include <set>
-#include <sstream>
-#include <algorithm> 
-#include <omp.h>
 
 using namespace std;
 
@@ -144,13 +138,13 @@ void  MUSK_CH::initialOutputs()
                 qgSub = m_qgSub[i];
             m_seepage[i] = 0.f;
             m_bankStorage[i] = m_Bnk0 * m_chLen[i];
-			m_chStorage[i] = m_Chs0_perc * m_chWTdepth[i] * m_chWidth[i] * m_chLen[i];
+			m_chWTdepth[i] = m_chDepth[i] * m_Chs0_perc;
+			m_chStorage[i] = m_chWTdepth[i] * m_chWidth[i] * m_chLen[i];
             m_qIn[i] = 0.f;
             m_qOut[i] = m_qsSub[i] + qiSub + qgSub;
             m_qsCh[i] = m_qsSub[i];
             m_qiCh[i] = qiSub;
             m_qgCh[i] = qgSub;
-            m_chWTdepth[i] = 0.f;
         }
     }
 	/// initialize point source loadings
@@ -206,10 +200,10 @@ int MUSK_CH::Execute()
     {
         // There are not any flow relationship within each routing layer.
         // So parallelization can be done here.
-        int nReaches = it->second.size();
+        int reachNum = it->second.size();
         // the size of m_reachLayers (map) is equal to the maximum stream order
 #pragma omp parallel for
-        for (int i = 0; i < nReaches; ++i)
+        for (int i = 0; i < reachNum; ++i)
         {
             int reachIndex = it->second[i]; // index in the array
             ChannelFlow(reachIndex);
@@ -255,41 +249,6 @@ bool MUSK_CH::CheckInputSize(const char *key, int n)
     return true;
 }
 
-//bool MUSK_CH::CheckInputSizeChannel(const char* key, int n)
-//{
-//	if(n <= 0)
-//	{
-//		//StatusMsg("Input data for "+string(key) +" is invalid. The size could not be less than zero.");
-//		return false;
-//	}
-//	if(m_chNumber != n)
-//	{
-//		if(m_chNumber <=0) m_chNumber = n;
-//		else
-//		{
-//			//StatusMsg("Input data for "+string(key) +" is invalid. All the input data should have same size.");
-//			return false;
-//		}
-//	}
-//
-//	return true;
-//}
-
-//void MUSK_CH::GetValue(const char* key, float* value)
-//{
-//	string sk(key);
-//	if (StringMatch(sk, VAR_QOUTLET))
-//	{
-//		map<int, vector<int> >::iterator it = m_reachLayers.end();
-//		it--;
-//		int reachId = it->second[0];
-//		int iLastCell = m_reachs[reachId].size() - 1;
-//		*value = m_qCh[reachId][iLastCell];
-//		//*value = m_hToChannel[m_idOutlet];
-//		//*value = m_qsSub[m_idOutlet];
-//		//*value = m_qsSub[m_idOutlet] + m_qCh[reachId][iLastCell];
-//	}
-//}
 //! Set value of the module
 void MUSK_CH::SetValue(const char *key, float value)
 {
@@ -311,7 +270,7 @@ void MUSK_CH::SetValue(const char *key, float value)
 	else if (StringMatch(sk, VAR_MSK_CO1))m_co1 = value;
 	else if (StringMatch(sk, VAR_GWRQ))m_deepGroundwater = value;
     else
-        throw ModelException(MID_MUSK_CH, "SetValue", "Parameter " + sk + " does not exist in current module.");
+        throw ModelException(MID_MUSK_CH, "SetValue", "Parameter " + sk + " does not exist.");
 }
 
 //! Set 1D data
