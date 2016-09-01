@@ -112,9 +112,9 @@ int ReservoirMethod::Execute()
 		//if (perco >= 0.01f)
 		//{
 			revap = (fPET - fEI - fED - fES - plantEP) * m_gwStore[subID] / m_GWMAX;
-			if (revap != revap)
-				cout <<"fPET: "<<fPET<<", fEI: "<<fEI<<", fED: "<<fED<<", fES: "<<fES<<", plantEP: "<<plantEP
-				<<"gwStore: "<<m_gwStore[subID]<<endl;
+// 			if (revap != revap)
+// 				cout <<"fPET: "<<fPET<<", fEI: "<<fEI<<", fED: "<<fED<<", fES: "<<fES<<", plantEP: "<<plantEP
+// 				<<"gwStore: "<<m_gwStore[subID]<<endl;
 			revap = max(revap, 0.f);
 			revap = min(revap, perco);
 		//}

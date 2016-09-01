@@ -456,10 +456,11 @@ void Biomass_EPIC::initialOutputs()
 		Initialize1DArray(m_nCells, m_frStrsWa, 1.f);
 	if (m_biomassDelta == NULL)
 		Initialize1DArray(m_nCells, m_biomassDelta, 0.f);
-	if (m_biomass == NULL && m_initBiomass != NULL)
-		Initialize1DArray(m_nCells, m_biomass, m_initBiomass);
-	else
-		Initialize1DArray(m_nCells, m_biomass, 0.f);
+	if (m_biomass == NULL)
+		if (m_initBiomass != NULL)
+			Initialize1DArray(m_nCells, m_biomass, m_initBiomass);
+		else
+			Initialize1DArray(m_nCells, m_biomass, 0.f);
 }
 
 void Biomass_EPIC::DistributePlantET(int i)
@@ -576,7 +577,9 @@ void Biomass_EPIC::AdjustPlantGrowth(int i)
         delg = (m_tMean[i] - m_tBase[i]) / m_PHUPlt[i];
     if (delg < 0.f)
         delg = 0.f;
-    m_frPHUacc[i] += delg;
+	m_frPHUacc[i] += delg;
+	//if(i == 5) cout << m_biomassDelta[i] << ", \n";
+	//if(i == 0) cout << m_frPHUacc[i] << ", \n";
     /// If plant hasn't reached maturity
     if (m_frPHUacc[i] <= 1.f)
     {
@@ -638,7 +641,7 @@ void Biomass_EPIC::AdjustPlantGrowth(int i)
         if (reg < 0.f) reg = 0.f;
         if (reg > 1.f) reg = 1.f;
         //// TODO bio_targ in SWAT is not incorporated in SEIMS.
-        m_biomass[i] += m_biomassDelta[i] * reg;
+		m_biomass[i] += m_biomassDelta[i] * reg;
         float rto = 1.f;
         if (idc == CROP_IDC_TREES)
         {
@@ -651,7 +654,8 @@ void Biomass_EPIC::AdjustPlantGrowth(int i)
             else
                 rto = 1.f;
         }
-        m_biomass[i] = max(m_biomass[i], 0.f);
+		m_biomass[i] = max(m_biomass[i], 0.f);
+		//if(i == 5) cout << m_biomass[i] << ", \n";
         /// 7. calculate fraction of total biomass that is in the roots
         float m_rootShootRatio1 = 0.4f;
         float m_rootShootRatio2 = 0.2f;
