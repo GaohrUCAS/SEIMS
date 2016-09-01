@@ -144,7 +144,6 @@ void  MUSK_CH::initialOutputs()
                 qgSub = m_qgSub[i];
             m_seepage[i] = 0.f;
             m_bankStorage[i] = m_Bnk0 * m_chLen[i];
-            //m_chStorage[i] = m_Chs0 * m_chLen[i];
 			m_chStorage[i] = m_Chs0_perc * m_chWTdepth[i] * m_chWidth[i] * m_chLen[i];
             m_qIn[i] = 0.f;
             m_qOut[i] = m_qsSub[i] + qiSub + qgSub;
@@ -216,9 +215,6 @@ int MUSK_CH::Execute()
             ChannelFlow(reachIndex);
         }
     }
-    //Test outlet discharge, By LJ
-    //int iOutlet = m_reachLayers.rbegin()->second[0];
-    //cout<<iOutlet << "," << m_qOut[iOutlet]<<endl;
     return 0;
 }
 

@@ -21,7 +21,7 @@ MGTOpt_SWAT::MGTOpt_SWAT(void) : m_nCells(-1), m_nSub(-1), m_soilLayers(-1),
                                  m_soilNH3(NULL), m_soilNO3(NULL), m_soilStableOrgN(NULL),
                                  m_soilOrgP(NULL), m_soilSolP(NULL),
         /// Plant operation related parameters
-                                 m_landuseLookup(NULL), m_landuseNum(-1), m_CN2(NULL), m_igro(NULL),
+                                 m_landuseLookup(NULL), m_landuseNum(-1), m_CN2(NULL), m_igro(NULL),m_landCoverCls(NULL),
                                  m_HarvestIdxTarg(NULL), m_BiomassTarg(NULL), m_curYearMat(NULL),
                                  m_wtrStrsYF(NULL), m_LAIDay(NULL), m_phuBase(NULL), m_phuAcc(NULL), m_phuPlant(NULL),
                                  m_dormFlag(NULL), m_havstIdx(NULL), m_havstIdxAdj(NULL),
@@ -199,7 +199,8 @@ void MGTOpt_SWAT::Set1DData(const char *key, int n, float *data)
     if (StringMatch(sk, VAR_SUBBSN)) m_subBsnID = data;
     else if (StringMatch(sk, VAR_MGT_FIELD)) m_mgtFields = data;
     else if (StringMatch(sk, VAR_LANDUSE)) m_landUse = data;
-    else if (StringMatch(sk, VAR_LANDCOVER)) m_landCover = data;
+	else if (StringMatch(sk, VAR_LANDCOVER)) m_landCover = data;
+	else if (StringMatch(sk, VAR_IDC)) m_landCoverCls = data;
         /// Soil related parameters from MongoDB
     else if (StringMatch(sk, VAR_SOILLAYERS)) m_nSoilLayers = data;
     else if (StringMatch(sk, VAR_SOL_ZMX)) m_soilZMX = data;
@@ -397,6 +398,8 @@ bool MGTOpt_SWAT::CheckInputData(void)
         throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Summary amount water in field capacity must not be NULL");
     if (m_CN2 == NULL) throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "CN2 value must not be NULL");
     if (m_igro == NULL) throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Plant growth code must not be NULL");
+	if (m_landCoverCls == NULL)
+		throw ModelException(MID_BIO_EPIC, "CheckInputData", "The land cover/plant classification can not be NULL.");
     if (m_curYearMat == NULL)
         throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Current growth year must not be NULL");
     if (m_wtrStrsYF == NULL)
@@ -504,8 +507,6 @@ bool MGTOpt_SWAT::GetOperationCode(int i, int &factoryID, vector<int> &nOps)
 	if (tmpOperations.find(opCode) != tmpOperations.end())
 	{
 		PlantManagementOperation *tmpOperation = tmpOperations.at(opCode);
-    //for (vector<int>::iterator seqIter = tmpOpSeqences.begin(); seqIter != tmpOpSeqences.end(); seqIter++)
-    //{
         /// *seqIter is calculated by: seqNo. * 1000 + operationCode
         bool dateDepent = false, huscDepent = false;
         /// If operation applied date (month and day) are defined
@@ -539,7 +540,6 @@ bool MGTOpt_SWAT::GetOperationCode(int i, int &factoryID, vector<int> &nOps)
         }
         /// The operation will be applied either date or HUSC are satisfied,
         /// and also in case of repeated run
-        // if ((dateDepent || huscDepent) && *seqIter > m_doneOpSequence[i])
 		if (dateDepent || huscDepent)
         {
             nOps.push_back(opCode);
@@ -636,10 +636,12 @@ void MGTOpt_SWAT::ExecutePlantOperation(int i, int &factoryID, int nOp)
     m_havstIdxAdj[i] = 0.f;
     m_oLAI[i] = 0.f;
     m_frRoot[i] = 0.f;
-	/// update t_base for the new plant in order to calculate phuAcc. by LJ
+	/// update crop-related parameters in order to calculate phuAcc. by LJ
 	if (m_cropLookupMap.find(newPlantID) == m_cropLookupMap.end())
 		throw ModelException(MID_PLTMGT_SWAT, "ExecutePlantOperation", "The new plant ID: "+ ValueToString(newPlantID)+
 		"is not prepared in cropLookup table!");
+	// update IDC
+	m_landCoverCls[i] = m_cropLookupMap.at(newPlantID)[CROP_PARAM_IDX_IDC];
 	m_tBase[i] = m_cropLookupMap.at(newPlantID)[CROP_PARAM_IDX_T_BASE];
     /// initialize transplant variables
     if (curOperation->LAIInit() > 0.f)
@@ -1535,7 +1537,7 @@ int MGTOpt_SWAT::Execute()
 #pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
     {
-        int curFactoryID;
+        int curFactoryID = -1;
         vector<int> curOps;
 		//if (i == 987){
 		//	ofstream fs;
@@ -1569,7 +1571,7 @@ int MGTOpt_SWAT::Execute()
             }
         }
     }
-	//cout<<"PLTMGT_SWAT, cell id 2805, sol_no3[0]: "<<m_soilNO3[2805][0]<<endl;
+	//cout<<"PLTMGT_SWAT, cell id 5878, sol_no3[0]: "<<m_soilNO3[5878][0]<<endl;
     return 0;
 }
 

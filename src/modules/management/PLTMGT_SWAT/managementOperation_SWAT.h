@@ -125,6 +125,8 @@ private:
     float *m_CN2;
     /// plant growth code, 0 or 1
     float *m_igro;
+	/// land cover/crop  classification:1-7, i.e., IDC
+	float *m_landCoverCls;
     /// Harvest index target, defined in plant operation and used in harvest/kill operation
     float *m_HarvestIdxTarg;
     /// Biomass target

@@ -36,17 +36,16 @@ Biomass_EPIC::Biomass_EPIC(void) : m_nCells(-1), m_nClimDataYrs(-1), m_co2(NODAT
                                    m_plantUpTkP(NULL), m_plantN(NULL), m_plantP(NULL), m_frPlantP(NULL),
                                    m_NO3Defic(NULL), m_frStrsAe(NULL), m_frStrsN(NULL), m_frStrsP(NULL),
                                    m_frStrsTmp(NULL), m_frStrsWa(NULL),
-                                   m_biomassDelta(NULL), m_biomass(NULL), m_albedo(NULL)
+                                   m_biomassDelta(NULL), m_biomass(NULL), m_albedo(NULL),
+								   // parameters not allowed to modify
+								   ubw(10.f), uobw(NODATA_VALUE)
 {
-    uobw = 0.f;
-    ubw = 10.f; /// the uptake distribution for water is hardwired, users are not allowed to modify
-    uobw = PGCommon::getNormalization(ubw);
 }
 
 Biomass_EPIC::~Biomass_EPIC(void)
 {
-	if(m_sol_cov != NULL) Release1DArray(m_sol_cov);
-	if(m_sol_rsd != NULL) Release2DArray(m_nCells, m_sol_rsd);
+	if (m_sol_cov != NULL) Release1DArray(m_sol_cov);
+	if (m_sol_rsd != NULL) Release2DArray(m_nCells, m_sol_rsd);
     if (m_LAIDay != NULL) Release1DArray(m_LAIDay);
 	if (m_LAIYrMax != NULL) Release1DArray(m_LAIYrMax);
 	if (m_frPHUacc != NULL) Release1DArray(m_frPHUacc);
@@ -85,9 +84,7 @@ void Biomass_EPIC::SetValue(const char *key, float data)
     else if (StringMatch(sk, VAR_NFIXCO)) m_NFixCoef = data;
     else if (StringMatch(sk, VAR_NFIXMX)) m_NFixMax = data;
     else
-        throw ModelException(MID_BIO_EPIC, "SetValue", "Parameter " + sk
-                                                       +
-                                                       " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_BIO_EPIC, "SetValue", "Parameter " + sk + " does not exist.");
 }
 
 bool Biomass_EPIC::CheckInputSize(const char *key, int n)
@@ -169,8 +166,7 @@ void Biomass_EPIC::Set1DData(const char *key, int n, float *data)
     else if (StringMatch(sk, VAR_CHT)) m_cht = data;
     else if (StringMatch(sk, VAR_DORMI)) m_dormFlag = data;
     else
-        throw ModelException(MID_BIO_EPIC, "Set1DData", "Parameter " + sk +
-                                                        " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_BIO_EPIC, "Set1DData", "Parameter " + sk + " does not exist.");
 }
 
 bool Biomass_EPIC::CheckInputSize2D(const char *key, int n, int col)
@@ -258,16 +254,14 @@ bool Biomass_EPIC::CheckInputData(void)
     if (m_totSoilSat == NULL)
         throw ModelException(MID_BIO_EPIC, "CheckInputData",
                              "The amount of water held in soil profile at saturation can not be NULL.");
-    //if (m_sol_cov == NULL)
-    //    throw ModelException(MID_BIO_EPIC, "CheckInputData", "The amount of residue in soil surface can not be NULL.");
     if (m_PET == NULL) throw ModelException(MID_BIO_EPIC, "CheckInputData", "The PET can not be NULL.");
     if (m_VPD == NULL)
         throw ModelException(MID_BIO_EPIC, "CheckInputData", "The Vapor pressure deficit can not be NULL.");
     if (m_ppt == NULL) throw ModelException(MID_BIO_EPIC, "CheckInputData", "The potential plant et can not be NULL.");
     if (m_soilESDay == NULL)
         throw ModelException(MID_BIO_EPIC, "CheckInputData", "The actual soil et can not be NULL.");
-	//if (this->m_sol_rsdin == NULL)
-	//	throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_rsdin can not be NULL.");
+	if (this->m_sol_rsdin == NULL)
+		throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_rsdin can not be NULL.");
     if (m_igro == NULL)
         throw ModelException(MID_BIO_EPIC, "CheckInputData", "The land cover status code can not be NULL.");
     if (m_landCoverCls == NULL)
@@ -362,9 +356,6 @@ bool Biomass_EPIC::CheckInputData(void)
 		throw ModelException(MID_BIO_EPIC, "CheckInputData", "The soil depth data can not be NULL.");
 	if (m_soilThick == NULL)
 		throw ModelException(MID_BIO_EPIC, "CheckInputData", "The soil thickness data can not be NULL.");
-    //if (m_soilRsd == NULL)
-    //    throw ModelException(MID_BIO_EPIC, "CheckInputData",
-    //                         "The organic matter in the soil classified as residue can not be NULL.");
     if (m_soilAWC == NULL)
         throw ModelException(MID_BIO_EPIC, "CheckInputData",
                              "The water available to plants in soil layer at field capacity can not be NULL.");
@@ -375,12 +366,16 @@ bool Biomass_EPIC::CheckInputData(void)
                              "The nitrogen stored in the nitrate pool in soil layer can not be NULL.");
     if (m_soilPsol == NULL)
         throw ModelException(MID_BIO_EPIC, "CheckInputData", "The phosphorus stored in solution can not be NULL.");
-
     return true;
 }
 
 void Biomass_EPIC::initialOutputs()
 {
+	if (FloatEqual(uobw, NODATA_VALUE)){
+		ubw = 10.f; /// the uptake distribution for water is hardwired, users are not allowed to modify
+		uobw = 0.f;
+		uobw = PGCommon::getNormalization(ubw);
+	}
 	if(m_albedo == NULL) Initialize1DArray(m_nCells, m_albedo, 0.f);
 	if(m_sol_cov == NULL || m_sol_rsd == NULL)
 	{
@@ -392,7 +387,8 @@ void Biomass_EPIC::initialOutputs()
 	}
     if (m_LAIDay == NULL && m_initLAI != NULL)
 		Initialize1DArray(m_nCells, m_LAIDay, m_initLAI);
-
+	else
+		Initialize1DArray(m_nCells, m_LAIDay, 0.f);
     if (m_LAIYrMax == NULL)
     {
         m_LAIYrMax = new float[m_nCells];
@@ -418,11 +414,12 @@ void Biomass_EPIC::initialOutputs()
 	if (m_oLAI == NULL)
 		Initialize1DArray(m_nCells, m_oLAI, 0.f);
     if (m_lastSoilRootDepth == NULL)
-    {
-        m_lastSoilRootDepth = new float[m_nCells];
-        for (int i = 0; i < m_nCells; i++)
-            m_lastSoilRootDepth[i] = 10.f;  /// TODO, check it out
-    }
+		Initialize1DArray(m_nCells, m_lastSoilRootDepth, 10.f);
+    //{
+    //    m_lastSoilRootDepth = new float[m_nCells];
+    //    for (int i = 0; i < m_nCells; i++)
+    //        m_lastSoilRootDepth[i] = 10.f;  /// TODO, check it out
+    //}
 	if(m_plantEPDay == NULL)
 		Initialize1DArray(m_nCells, m_plantEPDay, 0.f);
 	if (m_frRoot == NULL)
@@ -441,7 +438,6 @@ void Biomass_EPIC::initialOutputs()
 		Initialize1DArray(m_nCells, m_frPlantN, 0.f);
 	if (m_frPlantP == NULL)
 		Initialize1DArray(m_nCells, m_frPlantP, 0.f);
-   
 
 	if(m_NO3Defic == NULL)
 		Initialize1DArray(m_nCells, m_NO3Defic, 0.f);
@@ -457,18 +453,22 @@ void Biomass_EPIC::initialOutputs()
 		Initialize1DArray(m_nCells, m_frStrsWa, 0.f);
 	if (m_biomassDelta == NULL)
 		Initialize1DArray(m_nCells, m_biomassDelta, 0.f);
-	if (m_biomass == NULL)
+	if (m_biomass == NULL && m_initBiomass != NULL)
 		Initialize1DArray(m_nCells, m_biomass, m_initBiomass);
+	else
+		Initialize1DArray(m_nCells, m_biomass, 0.f);
 }
 
 void Biomass_EPIC::DistributePlantET(int i)
-{/// swu.f of SWAT
+{	/// swu.f of SWAT
     float sum = 0.f, sump = 0.f, gx = 0.f;
     /// fraction of water uptake by plants achieved
     /// where the reduction is caused by low water content
     float reduc = 0.f;
     /// water uptake by plants in each soil layer
-    float *wuse = new float[(int) m_nSoilLayers[i]];
+    //float *wuse = new float[(int) m_nSoilLayers[i]];
+	float *wuse(NULL);
+	Initialize1DArray((int) m_nSoilLayers[i], wuse, 0.f);
     /// water uptake by plants from all layers
     float xx = 0.f;
     int ir = -1;
@@ -490,10 +490,14 @@ void Biomass_EPIC::DistributePlantET(int i)
         gx = 0.f;
         ir = 0;
         sump = 0.f;
-        for (int j = 0; j < (int) m_nSoilLayers[i]; j++)
-            wuse[j] = 0.f;
+        //for (int j = 0; j < (int) m_nSoilLayers[i]; j++)
+        //    wuse[j] = 0.f;
         xx = 0.f;
     }
+	// update soil storage profile just in case
+	m_soilStorageProfile[i] = 0.f;
+	for (int ly = 0; ly < (int) m_nSoilLayers[i]; ly++)
+		m_soilStorageProfile[i] += m_soilStorage[i][ly];
     /// compute aeration stress
     if (m_soilStorageProfile[i] > m_totSoilAWC[i]) // mm
     {
@@ -529,7 +533,7 @@ void Biomass_EPIC::DistributePlantET(int i)
             reduc = exp(5.f * (4.f * m_soilStorage[i][j] / m_soilAWC[i][j] - 1.f));
         else
             reduc = 1.f;
-        reduc = 1.f;  ///// Is SWAT wrong here? by LJ
+        // reduc = 1.f;  /// TODO, Is SWAT wrong here? by LJ
         wuse[j] *= reduc;
         if (m_soilStorage[i][j] < wuse[j])
             wuse[j] = m_soilStorage[i][j];
@@ -538,8 +542,8 @@ void Biomass_EPIC::DistributePlantET(int i)
     }
     /// update total soil water in profile
     m_soilStorageProfile[i] = 0.f;
-    for (int j = 0; j < m_nSoilLayers[i]; j++)
-        m_soilStorageProfile[i] += m_soilStorage[i][j];
+    for (int ly = 0; ly < (int)m_nSoilLayers[i]; ly++)
+        m_soilStorageProfile[i] += m_soilStorage[i][ly];
     m_frStrsWa[i] = xx / m_ppt[i];
     m_plantEPDay[i] = xx;
 }
@@ -602,12 +606,15 @@ void Biomass_EPIC::AdjustPlantGrowth(int i)
             beadj = max(beadj, 0.27f * m_BIOE[i]);
         }
         m_biomassDelta[i] = max(0.f, beadj * activeRadiation);
-        /// 4. Calculate plant uptake of N and P to make sure no plant N and P uptake under temperature, water and aeration stress
-        float reg = min(min(m_frStrsWa[i], m_frStrsTmp[i]),
-                        m_frStrsAe[i]);   /// m_frStrsWa and m_frStrsAe are from DistributePlantET()
+        /// 4. Calculate plant uptake of N and P to make sure no plant N and P uptake under temperature, water and aeration stress   
+		/// m_frStrsWa and m_frStrsAe are derived from DistributePlantET()
+		if (m_frStrsWa[i] > 0.f || m_frStrsTmp[i] > 0.f || m_frStrsAe[i] > 0.f)
+			cout<<"stress greater than 0."<<endl;
+        float reg = min(min(m_frStrsWa[i], m_frStrsTmp[i]), m_frStrsAe[i]);
         reg = min(reg, 0.f);
         if (reg > 0.)
         {
+			cout<<"Begin Uptake N and P"<<endl;
             /// call nup to calculates plant nitrogen uptake
             PlantNitrogenUptake(i);
             /// call npup to calculates plant phosphorus uptake
@@ -747,7 +754,8 @@ void Biomass_EPIC::PlantNitrogenUptake(int i)
         PlantNitrogenFixed(i);
     m_plantUpTkN[i] += m_fixN[i];
     m_plantN[i] += m_plantUpTkN[i];
-
+	if (m_plantN[i] > 0.f)
+		cout<<"cell ID: "<<i<<", plantN: "<<m_plantN[i]<<endl;
     /// compute nitrogen stress
     if (FloatEqual(m_landCoverCls[i], 1.f) || FloatEqual(m_landCoverCls[i], 2.f) ||
         FloatEqual(m_landCoverCls[i], 3.f))
@@ -854,7 +862,7 @@ int Biomass_EPIC::Execute()
 {
     CheckInputData();
     initialOutputs();
-#pragma omp parallel for
+//#pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
     {
 		/// calculate albedo in current day, albedo.f of SWAT
@@ -868,18 +876,18 @@ int Biomass_EPIC::Execute()
 		}
 		else
 			m_albedo[i] = 0.8f;
+		/// reWrite from plantmod.f of SWAT
         /// calculate residue on soil surface for current day
-        m_sol_cov[i] = 0.8f * m_biomass[i] + m_sol_rsd[i][0];
-        m_sol_cov[i] = max(m_sol_cov[i], 0.f);
+        m_sol_cov[i] = max(0.8f * m_biomass[i] + m_sol_rsd[i][0], 0.f);
         if (FloatEqual(m_igro[i], 1.f))            /// land cover growing
         {
-            DistributePlantET(i);                        /// swu.f
+            DistributePlantET(i);                  /// swu.f
             if (FloatEqual(m_dormFlag[i], 0.f))    /// plant will not undergo stress if dormant
-                AdjustPlantGrowth(i);                    /// plantmod.f
-            CheckDormantStatus(i);                /// dormant.f
+                AdjustPlantGrowth(i);              /// plantmod.f
+            CheckDormantStatus(i);                 /// dormant.f
         }
     }
-	//cout<<"BIO_EPIC, cell id 2805, sol_no3[0]: "<<m_soilNO3[2805][0]<<endl;
+	//cout<<"BIO_EPIC, cell id 5878, sol_no3[0]: "<<m_soilNO3[5878][0]<<endl;
     return 0;
 }
 
