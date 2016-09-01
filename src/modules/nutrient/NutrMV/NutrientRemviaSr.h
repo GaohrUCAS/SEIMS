@@ -99,7 +99,15 @@ private:
 
 	/// flow out index
 	float *m_flowOutIndex;
-
+	/**
+    *	@brief Routing layers according to the flow direction
+    *
+    *	There are not flow relationships within each layer.
+    *	The first element in each layer is the number of cells in the layer
+    */
+    float **m_routingLayers;
+	/// number of routing layers
+    int m_nRoutingLayers;
     /// amount of organic nitrogen in surface runoff
     float *m_sedorgn;
     /// average air temperature
@@ -179,8 +187,10 @@ private:
 
     /*!
     * \brief Calculate the loss of nitrate via surface runoff, lateral flow, tile flow, and percolation out of the profile.
-    *
-    * \return void
+     * mainly rewrited from nlch.f of SWAT
+	 * 1. nitrate loss with surface flow
+	 * 2. nitrate loss with subsurface flow (routing considered)
+	 * 3. nitrate loss with percolation
     */
     void NitrateLoss();
 
@@ -188,11 +198,14 @@ private:
     * \brief Calculates the amount of phosphorus lost from the soil
     *        profile in runoff and the movement of soluble phosphorus from the first
     *        to the second layer via percolation.
-    *		 reWrite from solp.f of SWAT
-    * \return void
+    *		 rewrite from solp.f of SWAT
     */
     void PhosphorusLoss();
-
+	/*
+	 * \brief compute loadings of chlorophyll-a, BOD, and dissolved oxygen to the main channel
+	 *        rewrite from subwq.f of SWAT
+	 */
+	void SubbasinWaterQuality();
     /*!
     * \brief Calculate enrichment ratio.
      *

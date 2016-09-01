@@ -456,10 +456,11 @@ void Biomass_EPIC::initialOutputs()
 		Initialize1DArray(m_nCells, m_frStrsWa, 1.f);
 	if (m_biomassDelta == NULL)
 		Initialize1DArray(m_nCells, m_biomassDelta, 0.f);
-	if (m_biomass == NULL && m_initBiomass != NULL)
-		Initialize1DArray(m_nCells, m_biomass, m_initBiomass);
-	else
-		Initialize1DArray(m_nCells, m_biomass, 0.f);
+	if (m_biomass == NULL)
+		if (m_initBiomass != NULL)
+			Initialize1DArray(m_nCells, m_biomass, m_initBiomass);
+		else
+			Initialize1DArray(m_nCells, m_biomass, 0.f);
 }
 
 void Biomass_EPIC::DistributePlantET(int i)
@@ -576,7 +577,8 @@ void Biomass_EPIC::AdjustPlantGrowth(int i)
         delg = (m_tMean[i] - m_tBase[i]) / m_PHUPlt[i];
     if (delg < 0.f)
         delg = 0.f;
-    m_frPHUacc[i] += delg;
+	m_frPHUacc[i] += delg;
+	//if(i == 5) cout << m_biomassDelta[i] << ", \n";
 	//if(i == 0) cout << m_frPHUacc[i] << ", \n";
     /// If plant hasn't reached maturity
     if (m_frPHUacc[i] <= 1.f)
@@ -639,7 +641,7 @@ void Biomass_EPIC::AdjustPlantGrowth(int i)
         if (reg < 0.f) reg = 0.f;
         if (reg > 1.f) reg = 1.f;
         //// TODO bio_targ in SWAT is not incorporated in SEIMS.
-        m_biomass[i] += m_biomassDelta[i] * reg;
+		m_biomass[i] += m_biomassDelta[i] * reg;
         float rto = 1.f;
         if (idc == CROP_IDC_TREES)
         {
@@ -652,8 +654,8 @@ void Biomass_EPIC::AdjustPlantGrowth(int i)
             else
                 rto = 1.f;
         }
-        m_biomass[i] = max(m_biomass[i], 0.f);
-		//if(i == 0) cout << m_biomass[i] << ", \n";
+		m_biomass[i] = max(m_biomass[i], 0.f);
+		//if(i == 5) cout << m_biomass[i] << ", \n";
         /// 7. calculate fraction of total biomass that is in the roots
         float m_rootShootRatio1 = 0.4f;
         float m_rootShootRatio2 = 0.2f;
@@ -759,8 +761,8 @@ void Biomass_EPIC::PlantNitrogenUptake(int i)
         PlantNitrogenFixed(i);
     m_plantUpTkN[i] += m_fixN[i];
     m_plantN[i] += m_plantUpTkN[i];
-// 	if (m_plantN[i] > 0.f)
-// 		cout<<"cell ID: "<<i<<", plantN: "<<m_plantN[i]<<endl;
+	//if (m_plantN[i] > 0.f)
+	//	cout<<"cell ID: "<<i<<", plantN: "<<m_plantN[i]<<endl;
     /// compute nitrogen stress
     if (FloatEqual(m_landCoverCls[i], 1.f) || FloatEqual(m_landCoverCls[i], 2.f) ||
         FloatEqual(m_landCoverCls[i], 3.f))
@@ -884,7 +886,6 @@ int Biomass_EPIC::Execute()
 		/// reWrite from plantmod.f of SWAT
         /// calculate residue on soil surface for current day
         m_sol_cov[i] = max(0.8f * m_biomass[i] + m_sol_rsd[i][0], 0.f);
-		//if(i == 0) cout << m_igro[i] << ", \n";
         if (FloatEqual(m_igro[i], 1.f))            /// land cover growing
         {
             DistributePlantET(i);                  /// swu.f

@@ -16,6 +16,7 @@ NutrientRemviaSr::NutrientRemviaSr(void) :
 		m_cod_k(-1), m_qtile(-1), m_nSoilLayers(NULL), m_anion_excl(NULL), m_isep_opt(-1), m_ldrain(NULL), m_dis_stream(NULL), m_surfr(NULL), m_flat(NULL),
         m_sol_perco(NULL), m_sol_wsatur(NULL), m_sol_crk(NULL), m_sol_bd(NULL), m_sol_z(NULL), m_sol_thick(NULL),
         m_sol_om(NULL), m_flowOutIndex(NULL), m_nSubbasins(-1), m_subbasin(NULL), m_subbasinsInfo(NULL), m_streamLink(NULL),
+		m_routingLayers(NULL), m_nRoutingLayers(-1),
         //output
         m_latno3(NULL), m_perco_n(NULL),m_perco_p(NULL), m_surqno3(NULL), m_sol_no3(NULL), m_surqsolp(NULL), m_wshd_plch(-1),
 		m_latno3ToCh(NULL), m_sur_no3ToCh(NULL), m_sur_codToCh(NULL), m_sur_solpToCh(NULL), m_perco_n_gw(NULL), m_perco_p_gw(NULL),
@@ -245,8 +246,7 @@ void NutrientRemviaSr::SetValue(const char *key, float value)
 	else if (StringMatch(sk, VAR_WSHD_PLCH)) m_wshd_plch = value;
     else
     {
-        throw ModelException(MID_NUTRMV, "SetValue", "Parameter " + sk +
-                                                    " does not exist. Please contact the module developer.");
+        throw ModelException(MID_NUTRMV, "SetValue", "Parameter " + sk + " does not exist.");
     }
 }
 
@@ -284,9 +284,14 @@ void NutrientRemviaSr::Set1DData(const char *key, int n, float *data)
 
 void NutrientRemviaSr::Set2DData(const char *key, int nRows, int nCols, float **data)
 {
+	string sk(key);
+	if (StringMatch(sk, Tag_ROUTING_LAYERS))
+	{
+		m_nRoutingLayers = nRows;
+		m_routingLayers = data;
+		return;
+	}
     if (!this->CheckInputSize(key, nRows)) return;
-    string sk(key);
-
 	m_soiLayers = nCols;
     if (StringMatch(sk, VAR_SSRU)) { m_flat = data; }
     else if (StringMatch(sk, VAR_SOL_NO3)) { m_sol_no3 = data; }
@@ -334,7 +339,6 @@ void NutrientRemviaSr::initialOutputs()
     if (m_flat == NULL) { Initialize2DArray(m_nCells, m_soiLayers, m_flat, 0.0001f); }
     if (m_sol_perco == NULL) { Initialize2DArray(m_nCells, m_soiLayers, m_sol_perco, 0.0001f); }
     if (m_ldrain == NULL) { Initialize1DArray(m_nCells, m_ldrain, -1.f); }
-	//if (m_dis_stream == NULL) { Initialize1DArray(m_nCells, m_dis_stream, 0.f); }
     m_qtile = 0.0001f;
 }
 
@@ -345,240 +349,115 @@ int NutrientRemviaSr::Execute()
         return false;
     }
     initialOutputs();
-	//cout<<"NUTRMV-exec, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
-    //Calculate the loss of nitrate via surface runoff, lateral flow, tile flow, and percolation out of the profile.
+    // compute nitrate movement leaching
     NitrateLoss();
-	//cout<<"NUTRMV-loss, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
-    // Calculates the amount of phosphorus lost from the soil.
+    // compute phosphorus movement
     PhosphorusLoss();
+	// compute chl-a, CBOD and dissolved oxygen loadings
+	SubbasinWaterQuality();
 	// sum by sub-basin
 	SumBySubbasin();
-	//cout<<"NUTRMV-end, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
     return 0;
 }
 
 void NutrientRemviaSr::NitrateLoss()
 {
-    //float *tileno3;
-	//#pragma omp parallel for
-	//did not use parallel computing to avoid several cells flow into the same downstream cell
+	for (int iLayer = 0; iLayer < m_nRoutingLayers; iLayer++)
+	{
+		// There are not any flow relationship within each routing layer.
+		// So parallelization can be done here.
+		int nCells = (int) m_routingLayers[iLayer][0];
+#pragma omp parallel for
+		for (int iCell = 1; iCell <= nCells; iCell++)
+		{
+			int i = (int) m_routingLayers[iLayer][iCell]; // cell ID
+			float percnlyr = 0.f;
+			m_latno3[i] = 0.f;
+			for (int k = 0; k < (int)m_nSoilLayers[i]; k++)
+			{
+				// add nitrate leached from layer above (kg/ha)
+				m_sol_no3[i][k] = m_sol_no3[i][k] + percnlyr;
+				if (m_sol_no3[i][k] < 1.e-6f) 
+					m_sol_no3[i][k] = 0.f;
+				// determine concentration of nitrate in mobile water
+				float sro = 0.f;// surface runoff generated (sro)
+				float mw = 0.f;// amount of mobile water in the layer (mw)
+				float vno3 = 0.f; // kg/ha
+				float con = 0.f;  // 100 mg/L
+				float ww = 0.f;
 
-	/// debug code ///
-	// define temporary variables to store the maximum values
-	//int tmpCellID = -1;
-	//float tmpSolNo3 = 0.f, tmpSurq = 0.f, tmpCoef = 0.f;
-	//float tmpSurqNo3 = NODATA_VALUE;
-	/// end debug code ///
-    for (int i = 0; i < m_nCells; i++)
-    {
-		//percnlyr nitrate moved to next lower layer with percolation (kg/ha)
-		float percnlyr = 0.f;
-		float ssfnlyr = 0.f;
+				if (k == 0)
+					sro = m_surfr[i];
+				else
+					sro = 0.f;
+				if (m_ldrain[i] == k)
+					mw += m_qtile;
 
-		m_latno3[i] = 0.f;
-        for (int k = 0; k < m_nSoilLayers[i]; k++)
-        {
-            //add nitrate moved from layer above
-            m_sol_no3[i][k] = m_sol_no3[i][k] + percnlyr;
-            if (m_sol_no3[i][k] < 1.e-6f)
-                m_sol_no3[i][k] = 0.f;
+				// Calculate the concentration of nitrate in the mobile water (con),
+				// equation 4:2.1.2, 4:2.1.3 and 4:2.1.4 in SWAT Theory 2009, p269
+				mw = m_sol_perco[i][k] + sro + m_flat[i][k] + 1.e-10f;
+				ww = -mw / ((1.f - m_anion_excl[i]) * m_sol_wsatur[i][k]);
+				vno3 = m_sol_no3[i][k] * (1.f - exp(ww)); // kg/ha
+				if (mw > 1.e-10f)
+					con = max(vno3 / mw, 0.f); // kg/ha/mm = 100 mg/L
+				// calculate nitrate in surface runoff
+				// concentration of nitrate in surface runoff (cosurf)
+				float cosurf = 0.f;
+				if (m_isep_opt == 2)
+					cosurf = 1.f * con; // N percolation does not apply to failing septic place;
+				else
+					cosurf = m_nperco * con;
+				if (k == 0)
+				{
+					m_surqno3[i] = m_surfr[i] * cosurf; // kg/ha
+					m_surqno3[i] = min(m_surqno3[i], m_sol_no3[i][k]);
+					m_sol_no3[i][k] -= m_surqno3[i];
+				}
+				// calculate nitrate in tile flow, TODO
+				if (m_ldrain[i] == k)
+				{
+				}
+				// nitrate moved with subsuface flow (kg/ha)
+				float ssfnlyr = 0.f;
+				// calculate nitrate in lateral flow
+				// nitrate transported in lateral flow from layer (ssfnlyr)
+				if (k == 1)
+					ssfnlyr = cosurf * m_flat[i][k];
+				else
+					ssfnlyr = con * m_flat[i][k]; // 100 mg/L * mm = kg/ha
+				ssfnlyr = min(ssfnlyr, m_sol_no3[i][k]);
+				m_latno3[i] += ssfnlyr;
+				// move the lateral no3 flow to the downslope cell (routing considered)
+				m_sol_no3[i][k] -= ssfnlyr;
+				int idDownSlope = (int)m_flowOutIndex[i];
+				if (idDownSlope >= 0)
+					m_sol_no3[idDownSlope][k] += ssfnlyr;
+				
+				// calculate nitrate in percolate
+				percnlyr = 0.f;
+				percnlyr = con * m_sol_perco[i][k];
+				percnlyr = min(percnlyr, m_sol_no3[i][k]);
+				m_sol_no3[i][k] -= percnlyr;
+			}
+			// calculate nitrate leaching from soil profile
+			m_perco_n[i] = percnlyr; // kg/ha
 
-            // determine concentration of nitrate in mobile water
-            // surface runoff generated (sro)
-            float sro = 0.f;
-            // amount of mobile water in the layer (mw)
-            float mw = 0.f;
-            float vno3 = 0.f;
-            float con = 0.f;
-            float ww = 0.f;
-
-            if (k == 0)
-                sro = m_surfr[i];
-            else
-                sro = 0.f;
-            if (m_ldrain[i] == k)
-                mw = mw + m_qtile;
-
-            // Calculate the concentration of nitrate in the mobile water (con),
-            // equation 4:2.1.2, 4:2.1.3 and 4:2.1.4 in SWAT Theory 2009, p269
-            mw = m_sol_perco[i][k] + sro + m_flat[i][k] + 1.e-10f;
-            ww = -mw / ((1.f - m_anion_excl[i]) * m_sol_wsatur[i][k]);
-            vno3 = m_sol_no3[i][k] * (1.f - exp(ww)); // kg/ha
-            if (mw > 1.e-10f)
-                con = max(vno3 / mw, 0.f); // kg/ha/mm = 100 mg/L
-			//if (i == 5878)
-			//{
-			//	cout<<"perco watere: "<<m_sol_perco[i][k]<<", mv: "<<mw<<", ww: "<<ww<<", vno3: "<<vno3<<",con: "<<con<<endl;
-			//}
-            // calculate nitrate in surface runoff
-            // concentration of nitrate in surface runoff (cosurf)
-            float cosurf = 0.f;
-            if (m_isep_opt == 2)
-                cosurf = 1.f * con; // N percolation does not apply to failing septic place;
-            else
-                cosurf = m_nperco * con;
-
-            if (k == 0)
-            {
-                m_surqno3[i] = m_surfr[i] * cosurf; // kg/ha
-                m_surqno3[i] = min(m_surqno3[i], m_sol_no3[i][k]);
-				//if (m_surqno3[i] > tmpSurqNo3){
-				//	//cout<<"sol_no3: "<<m_sol_no3[i][k]<<", surq: "<<m_surfr[i]<<", cosurf: "<<cosurf<<", surqno3: "<<m_surqno3[i]<<endl;
-				//	tmpSurqNo3 = m_surqno3[i];
-				//	tmpCellID = i;
-				//	tmpCoef = cosurf;
-				//	tmpSurq = m_surfr[i];
-				//	tmpSolNo3 = m_sol_no3[i][k];
-				//}
-				//if (i == 5878)
-				//	cout<<"NUTRMV-in loss, cell id: 5878, sol_no3: "<<m_sol_no3[i][k]<<", cosurf: "<<cosurf<<", surq: "<<m_surfr[i]<<",surqno3: "<<m_surqno3[i]<<endl;
-                m_sol_no3[i][k] = m_sol_no3[i][k] - m_surqno3[i];
-            }
-			//if(i == 0) cout << m_surqno3[i] << ", ";
-            // calculate nitrate in tile flow
-            if (m_ldrain[i] == k)
-            {
-                // m_alph_e[i] = exp(-1./(m_n_lag[i] + 1.e-6))
-                // ww1 = -1./ ((1. - m_anion_excl[i]) * m_sol_wsatur[i])
-                // m_vno3_c = m_sol_no3[i][k] * (1. - exp(ww1))
-                // if (total_no3 > 1.001) {
-                //	 tno3ln = n_lnco[i] * (log(total_no3)) ** m_n_ln[i]
-                // else
-                //	 tno3ln = 0.
-                // }
-                // vno3_c = tno3ln * (1. - Exp(ww1))
-                // co_p[i] = co_p[i] * (1. - alph_e[i]) + vno3_c * alph_e[i]
-                //tileno3[i] = con * m_qtile;
-                //tileno3[i] = min(tileno3[i], m_sol_no3[i][k]);
-                //m_sol_no3[i][k] = m_sol_no3[i][k] - tileno3[i];
-            }
-            // calculate nitrate in lateral flow
-            // nitrate transported in lateral flow from layer (ssfnlyr)
-                        
-            if (k == 1)
-                ssfnlyr = cosurf * m_flat[i][k];
-            else
-                ssfnlyr = con * m_flat[i][k]; // 100 mg/L * mm = kg/ha
-            ssfnlyr = min(ssfnlyr, m_sol_no3[i][k]);
-            m_latno3[i] += ssfnlyr;
-			//move the lateral no3 flow to the downslope cell
-            m_sol_no3[i][k] = m_sol_no3[i][k] - ssfnlyr;
-			int idDownSlope = (int)m_flowOutIndex[i];
-			if (idDownSlope >= 0)
-				m_sol_no3[idDownSlope][k] += ssfnlyr;
-
-            // calculate nitrate in percolate
-			//if (i == 200)
-			//	cout<<"old sol_no3: "<<m_sol_no3[i][k]<<", ";
-            percnlyr = 0.f;
-            percnlyr = con * m_sol_perco[i][k];
-            percnlyr = min(percnlyr, m_sol_no3[i][k]);
-            m_sol_no3[i][k] = m_sol_no3[i][k] - percnlyr;
-        }
-		// TODO, lateral nutrient move should be calculated according to SSR_DA module. by LJ.
-        // calculate nitrate leaching from soil profile
-        m_perco_n[i] = percnlyr; // kg/ha
-        float nloss = 0.f;
-        // average distance to the stream(m), default is 35m.
-        //float dis_stream = 35.f;
-        nloss = (2.18f * m_dis_stream[i] - 8.63f) / 100.f;
-        nloss = min(1.f, max(0.f, nloss));
-        m_latno3[i] = (1.f - nloss) * m_latno3[i];
-
-        // calculate CBOD, COD, Chl_a, doxq and soxy
-        // calculate water temperature
-        // SWAT manual 2.3.13
-        float wtmp = 0.f;
-        wtmp = 5.f + 0.75f * m_tmean[i];
-        if (wtmp <= 0.1)
-        {
-            wtmp = 0.1f;
-        }
-        wtmp = wtmp + 273.15f;    // deg C to deg K
-        // water in cell
-        float qdr = 0.f;
-		qdr = m_surfr[i] + m_flat[i][0] + m_qtile;
-        if (qdr > 1.e-4f)
-        {
-            // kilo moles of phosphorus in nutrient loading to main channel (tp)
-            float tp = 0.f;
-            tp = 100.f * (m_sedorgn[i] + m_surqno3[i]) / qdr;   //100*kg/ha/mm = ppm
-            // regional adjustment on sub chla_a loading
-            float chla_subco = 40.f;
-            m_chl_a[i] = chla_subco * tp;
-            m_chl_a[i] = m_chl_a[i] / 1000.f;  // um/L to mg/L
-
-            // calculate enrichment ratio
-            float enratio;
-            if (m_sedimentYield[i] < 1e-4)
-            {
-                m_sedimentYield[i] = 0.f;
-            }
-			//if(i == 0) cout << m_sedimentYield[i] << ", \n";
-
-            // CREAMS method for calculating enrichment ratio
-            float cy = 0.f;
-            // Calculate sediment, equation 4:2.2.3 in SWAT Theory 2009, p272
-            cy = 0.1f * m_sedimentYield[i] / (m_cellWidth * m_cellWidth * 0.0001f * m_surfr[i] + 1e-6f) / 1000.f;
-            if (cy > 1e-6f)
-            {
-                enratio = 0.78f * pow(cy, -0.2468f);
-            } else
-            {
-                enratio = 0.f;
-            }
-            if (enratio > 3.5)
-            {
-                enratio = 3.5f;
-            }
-            // calculate organic carbon loading to main channel
-            float org_c = (m_sol_om[i][0] * 0.58f / 100.f) * enratio * m_sedimentYield[i] / 1000.f;
-            // calculate carbonaceous biological oxygen demand (CBOD) and COD(transform from CBOD)
-            float cbod  = 2.7f * org_c / (qdr * m_cellWidth * m_cellWidth * 0.0001f);
-            // calculate COD
-            m_cod[i] = m_cod_n * (cbod * (1.f - exp(-5.f * m_cod_k)));
-			m_cod[i] = m_surfr[i] / 1000.f * m_cod[i] * 10.f;	// mg/L converted to kg/ha
-
-            /*
-            // calculate dissolved oxygen saturation concentration (soxy)
-            float soxy = 0.f;
-            float ww = 0.f;
-            float xx = 0.f;
-            float yy = 0.f;
-            float zz = 0.f;
-            ww = -139.34410 + (1.575701E05 / wtmp);
-            xx = 6.642308E07 /pow (wtmp, 2);
-            yy = 1.243800E10 /pow (wtmp, 3);
-            zz = 8.621949E11 / pow(wtmp, 4);
-            m_soxy[i] = exp(ww - xx + yy - zz);
-            if (soxy < 0.) {
-                soxy = 0.f;
-            }
-            // calculate actual dissolved oxygen concentration
-            m_doxq[i] = soxy * exp(-0.1 * cbod);
-            if (m_doxq[i] < 0.) {
-                m_doxq[i] = 0.f;
-            }
-            if (m_doxq[i] > soxy) {
-                m_doxq[i] = soxy;
-            }
-            */
-        } else
-        {
-            m_chl_a[i] = 0.f;
-            m_cod[i] = 0.f;
-            //m_doxq[i] = 0.f;
+			// I think these should be removed, because the lost nitrate
+			// have been added to it's downslope cell. by LJ
+			//float nloss = 0.f;
+			//nloss = (2.18f * m_dis_stream[i] - 8.63f) / 100.f;
+			//nloss = min(1.f, max(0.f, nloss));
+			//m_latno3[i] = (1.f - nloss) * m_latno3[i];
 		}
-    }
-	//cout<<"NUTRMV-in loss, cell id: "<<tmpCellID<<", sol_no3: "<<tmpSolNo3<<", surq: "<<tmpSurq<<", cosurf: "<<tmpCoef<<", surqno3: "<<tmpSurqNo3<<endl;
+	}
 }
 
 void NutrientRemviaSr::PhosphorusLoss()
 {
-
+#pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
     {
-        float wt1 = m_sol_bd[i][0] * m_sol_thick[i][0] / 100.f;// mg/kg => kg/ha
+        float wt1 = m_sol_bd[i][0] * m_sol_thick[i][0] / 100.f; // mg/kg => kg/ha
         float conv_wt = 1.e6f * wt1; // kg/kg => kg/ha
 
         // amount of P leached from soil layer (vap)
@@ -622,19 +501,80 @@ void NutrientRemviaSr::PhosphorusLoss()
 				m_perco_p[i] = vap;//leach to groundwater
             //}
         }
-        //m_percp[i] = vap
         // summary calculation
         m_wshd_plch = m_wshd_plch + vap * (1 / m_nCells);
     }
+}
+
+void NutrientRemviaSr::SubbasinWaterQuality()
+{
+#pragma omp parallel for
+	for (int i = 0; i < m_nCells; i++)
+	{
+		// calculate water temperature
+		// Stefan and Preudhomme. 1993.  Stream temperature estimation
+		// from air temperature.  Water Res. Bull. p. 27-45
+		// SWAT manual 2.3.13
+		float wtmp = 0.f;
+		wtmp = 5.f + 0.75f * m_tmean[i];
+		if (wtmp <= 0.1) wtmp = 0.1f;
+		wtmp = wtmp + 273.15f;    // deg C to deg K
+		// water in cell
+		float qdr = 0.f;
+		qdr = m_surfr[i] + m_flat[i][0] + m_qtile;
+		if (qdr > 1.e-4f)
+		{
+			// kilo moles of phosphorus in nutrient loading to main channel (tp)
+			float tp = 0.f;
+			tp = 100.f * (m_sedorgn[i] + m_surqno3[i]) / qdr;   //100*kg/ha/mm = ppm
+			// regional adjustment on sub chla_a loading
+			float chla_subco = 40.f;
+			m_chl_a[i] = chla_subco * tp;
+			m_chl_a[i] = m_chl_a[i] / 1000.f;  // um/L to mg/L
+
+			// calculate enrichment ratio
+			float enratio;
+			if (m_sedimentYield[i] < 1e-4)
+			{
+				m_sedimentYield[i] = 0.f;
+			}
+			// CREAMS method for calculating enrichment ratio, enrsb.f of SWAT
+			float cy = 0.f;
+			// Calculate sediment, equation 4:2.2.3 in SWAT Theory 2009, p272
+			cy = 0.1f * m_sedimentYield[i] / (m_cellWidth * m_cellWidth * 0.0001f * m_surfr[i] + 1e-6f) / 1000.f;
+			if (cy > 1e-6f)
+			{
+				enratio = 0.78f * pow(cy, -0.2468f);
+			} else
+			{
+				enratio = 0.f;
+			}
+			if (enratio > 3.5)
+			{
+				enratio = 3.5f;
+			}
+			// calculate organic carbon loading to main channel
+			float org_c = (m_sol_om[i][0] * 0.58f / 100.f) * enratio * m_sedimentYield[i] / 1000.f;
+			// calculate carbonaceous biological oxygen demand (CBOD) and COD(transform from CBOD)
+			float cbod  = 2.7f * org_c / (qdr * m_cellWidth * m_cellWidth * 0.0001f);
+			// calculate COD
+			m_cod[i] = m_cod_n * (cbod * (1.f - exp(-5.f * m_cod_k)));
+			m_cod[i] = m_surfr[i] / 1000.f * m_cod[i] * 10.f;	// mg/L converted to kg/ha
+		} else
+		{
+			m_chl_a[i] = 0.f;
+			m_cod[i] = 0.f;
+		}
+	}
 }
 
 void NutrientRemviaSr::GetValue(const char *key, float *value)
 {
     string sk(key);
     if (StringMatch(sk, VAR_WSHD_PLCH))
-    {
-        *value = this->m_wshd_plch;
-    }
+		*value = this->m_wshd_plch;
+	else
+		throw ModelException(MID_NUTRMV, "GetValue", "Parameter " + sk + " does not exist."); 
 }
 
 void NutrientRemviaSr::Get1DData(const char *key, int *n, float **data)
@@ -697,7 +637,7 @@ void NutrientRemviaSr::Get1DData(const char *key, int *n, float **data)
 		*n = m_nSubbasins + 1;
 	}
     else
-        throw ModelException("NutRemv", "GetValue", "Parameter " + sk + " does not exist.");                
+        throw ModelException(MID_NUTRMV, "Get1DData", "Parameter " + sk + " does not exist.");                
 }
 void NutrientRemviaSr::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
 {
@@ -713,5 +653,5 @@ void NutrientRemviaSr::Get2DData(const char *key, int *nRows, int *nCols, float 
         *data = this->m_sol_solp;
     }
     else
-        throw ModelException("NutRemv", "Get2DData", "Output " + sk+" does not exist.");
+        throw ModelException(MID_NUTRMV, "Get2DData", "Output " + sk+" does not exist.");
 }

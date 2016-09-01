@@ -476,7 +476,7 @@
 /// Nutrient remove
 #define MCLS_NutRemv "Nutrient remove"
 #define MCLSDESC_NutRemv "Simulates the loss of nitrate and phosphorus via surface runoff"
-#define MID_NUTRMV "NutRemv"
+#define MID_NUTRMV "NutrMV"
 #define MDESC_NUTRMV "Simulates the loss of nitrate and phosphorus via surface runoff"
 /// Nutrient routing
 #define MID_SSR_NUTR				"SSR_NUTR"
