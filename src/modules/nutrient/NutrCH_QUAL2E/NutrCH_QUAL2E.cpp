@@ -17,7 +17,7 @@ NutrCH_QUAL2E::NutrCH_QUAL2E(void) :
 //input
         m_nCells(-1), m_dt(-1), m_qUpReach(0.f), m_rnum1(0.f), igropt(-1),
         m_ai0(-1.f), m_ai1(-1.f), m_ai2(-1.f), m_ai3(-1.f), m_ai4(-1.f), m_ai5(-1.f), 
-		m_ai6(-1.f), m_lambda0(-1.f), m_lambda1(-1.f), m_lambda2(-1.f),
+		m_ai6(-1.f), m_lambda0(-1.f), m_lambda1(-1.f), m_lambda2(-1.f), m_cod_n(-1), m_cod_k(-1), 
         m_k_l(-1.f), m_k_n(-1.f), m_k_p(-1.f), m_p_n(-1.f), tfact(-1.f), m_mumax(-1.f), m_rhoq(-1.f), m_streamLink(NULL),
         m_daylen(NULL), m_sra(NULL), m_bankStorage(NULL), m_qOutCh(NULL), m_chStorage(NULL), m_chWTdepth(NULL), m_chTemp(NULL),
         m_latNO3ToCh(NULL), m_surNO3ToCh(NULL), m_surSolPToCh(NULL), m_gwNO3ToCh(NULL),
@@ -186,6 +186,8 @@ bool NutrCH_QUAL2E::CheckInputData()
 	CHECK_POSITIVE(MID_NUTRCH_QUAL2E, m_qUpReach, "m_qUpReach")
 	CHECK_POSITIVE(MID_NUTRCH_QUAL2E, m_rnum1, "m_rnum1")
 	CHECK_POSITIVE(MID_NUTRCH_QUAL2E, igropt, "igropt")
+	CHECK_POSITIVE(MID_NUTRCH_QUAL2E, m_cod_n, "m_cod_n")
+	CHECK_POSITIVE(MID_NUTRCH_QUAL2E, m_cod_k, "m_cod_k")
 	CHECK_POSITIVE(MID_NUTRCH_QUAL2E, m_ai0, "m_ai0")
 	CHECK_POSITIVE(MID_NUTRCH_QUAL2E, m_ai1, "m_ai1")
 	CHECK_POSITIVE(MID_NUTRCH_QUAL2E, m_ai2, "m_ai2")
@@ -232,7 +234,9 @@ void NutrCH_QUAL2E::SetValue(const char *key, float value)
 	else if (StringMatch(sk, Tag_ChannelTimeStep)) { m_dt = (int) value; }
     else if (StringMatch(sk, VAR_QUPREACH)) { m_qUpReach = value; }
     else if (StringMatch(sk, VAR_RNUM1)) { m_rnum1 = value; }
-    else if (StringMatch(sk, VAR_IGROPT)) { igropt = (int) value; }
+	else if (StringMatch(sk, VAR_IGROPT)) { igropt = (int) value; }
+	else if (StringMatch(sk, VAR_COD_N)) { m_cod_n = value; }
+	else if (StringMatch(sk, VAR_COD_K)) { m_cod_k = value; }
     else if (StringMatch(sk, VAR_AI0)) { m_ai0 = value; }
     else if (StringMatch(sk, VAR_AI1)) { m_ai1 = value; }
     else if (StringMatch(sk, VAR_AI2)) { m_ai2 = value; }
@@ -1036,9 +1040,7 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	m_chChlora[i] = m_chAlgae[i] * m_ai0;
 
 	/// CBOD convert to COD, (still call it CBOD here...)
-	float n = 3.75f; // Conversion factor 1~6.5
-	float k = 0.15f; // Reaction coefficient 0.1~0.2
-	m_chCOD[i] = n * (m_chCOD[i] * (1.f - exp(-5.f * k)));
+	m_chCOD[i] = m_cod_n * (m_chCOD[i] * (1.f - exp(-5.f * m_cod_k)));
 }
 
 float NutrCH_QUAL2E::corTempc(float r20, float thk, float tmp)
