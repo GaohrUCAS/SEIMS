@@ -48,7 +48,7 @@ private:
     int m_nCells;
     /// threshold soil freezing temperature
     float m_frozenT;
-    /// saturated conductivity
+    /// saturated conductivity, mm/h
     float **m_ks;
     ///// soil porosity
     //float **m_porosity;

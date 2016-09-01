@@ -345,15 +345,15 @@ int NutrientRemviaSr::Execute()
         return false;
     }
     initialOutputs();
-	//cout<<"NUTRMV-exec, cell id 2805, sol_no3[0]: "<<m_sol_no3[2805][0]<<endl;
+	//cout<<"NUTRMV-exec, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
     //Calculate the loss of nitrate via surface runoff, lateral flow, tile flow, and percolation out of the profile.
     NitrateLoss();
-	//cout<<"NUTRMV-loss, cell id 2805, sol_no3[0]: "<<m_sol_no3[2805][0]<<endl;
+	//cout<<"NUTRMV-loss, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
     // Calculates the amount of phosphorus lost from the soil.
     PhosphorusLoss();
 	// sum by sub-basin
 	SumBySubbasin();
-	//cout<<"NUTRMV-end, cell id 2805, sol_no3[0]: "<<m_sol_no3[2805][0]<<endl;
+	//cout<<"NUTRMV-end, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
     return 0;
 }
 
@@ -406,7 +406,7 @@ void NutrientRemviaSr::NitrateLoss()
             vno3 = m_sol_no3[i][k] * (1.f - exp(ww)); // kg/ha
             if (mw > 1.e-10f)
                 con = max(vno3 / mw, 0.f); // kg/ha/mm = 100 mg/L
-			//if (i == 2805)
+			//if (i == 5878)
 			//{
 			//	cout<<"perco watere: "<<m_sol_perco[i][k]<<", mv: "<<mw<<", ww: "<<ww<<", vno3: "<<vno3<<",con: "<<con<<endl;
 			//}
@@ -430,8 +430,8 @@ void NutrientRemviaSr::NitrateLoss()
 				//	tmpSurq = m_surfr[i];
 				//	tmpSolNo3 = m_sol_no3[i][k];
 				//}
-				//if (i == 2805)
-				//	cout<<"NUTRMV-in loss, cell id: 2805, sol_no3: "<<m_sol_no3[i][k]<<", cosurf: "<<cosurf<<", surq: "<<m_surfr[i]<<",surqno3: "<<m_surqno3[i]<<endl;
+				//if (i == 5878)
+				//	cout<<"NUTRMV-in loss, cell id: 5878, sol_no3: "<<m_sol_no3[i][k]<<", cosurf: "<<cosurf<<", surq: "<<m_surfr[i]<<",surqno3: "<<m_surqno3[i]<<endl;
                 m_sol_no3[i][k] = m_sol_no3[i][k] - m_surqno3[i];
             }
 			//if(i == 0) cout << m_surqno3[i] << ", ";

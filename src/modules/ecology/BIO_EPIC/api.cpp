@@ -75,7 +75,8 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.AddParameter(VAR_MAT_YRS, UNIT_YEAR, DESC_MAT_YRS, Source_ParameterDB, DT_Raster1D);
     mdi.AddParameter(VAR_T_BASE, UNIT_TEMP_DEG, DESC_T_BASE, Source_ParameterDB, DT_Raster1D);
     mdi.AddParameter(VAR_T_OPT, UNIT_TEMP_DEG, DESC_T_OPT, Source_ParameterDB, DT_Raster1D);
-    mdi.AddParameter(VAR_WAVP, UNIT_RAD_USE_EFFI, DESC_WAVP, Source_ParameterDB, DT_Raster1D);
+	mdi.AddParameter(VAR_WAVP, UNIT_RAD_USE_EFFI, DESC_WAVP, Source_ParameterDB, DT_Raster1D);
+	mdi.AddParameter(VAR_SOL_RSDIN, UNIT_CONT_KGHA, DESC_SOL_RSDIN, Source_ParameterDB, DT_Raster1D);
     /// Management related parameters, may saved as DT_Array2D with ICNUM as index. IF not provided, these should be initialized in intialOutputs()
     mdi.AddParameter(VAR_IGRO, UNIT_NON_DIM, DESC_IGRO, Source_ParameterDB, DT_Raster1D);
     mdi.AddParameter(VAR_EPCO, UNIT_NON_DIM, DESC_EPCO, Source_ParameterDB, DT_Raster1D);
@@ -102,7 +103,6 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.AddInput(VAR_PPT, UNIT_DEPTH_MM, DESC_PPT, Source_Module, DT_Raster1D);/// maximum plant et
     mdi.AddInput(VAR_SOET, UNIT_DEPTH_MM, DESC_SOET, Source_Module, DT_Raster1D);/// actual soil evaporation
     mdi.AddInput(VAR_SNAC, UNIT_DEPTH_MM, DESC_SNAC, Source_Module, DT_Raster1D);
-	mdi.AddParameter(VAR_SOL_RSDIN, UNIT_CONT_KGHA, DESC_SOL_RSDIN, Source_ParameterDB, DT_Raster1D);
 
 	mdi.AddInput(VAR_SOL_COV, UNIT_CONT_KGHA, DESC_SOL_COV, Source_Module_Optional, DT_Raster1D);
 	mdi.AddInput(VAR_SOL_RSD, UNIT_CONT_KGHA, DESC_SOL_RSD, Source_Module_Optional, DT_Raster2D);
