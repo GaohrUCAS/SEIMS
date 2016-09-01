@@ -608,13 +608,13 @@ void Biomass_EPIC::AdjustPlantGrowth(int i)
         m_biomassDelta[i] = max(0.f, beadj * activeRadiation);
         /// 4. Calculate plant uptake of N and P to make sure no plant N and P uptake under temperature, water and aeration stress   
 		/// m_frStrsWa and m_frStrsAe are derived from DistributePlantET()
-		if (m_frStrsWa[i] > 0.f || m_frStrsTmp[i] > 0.f || m_frStrsAe[i] > 0.f)
-			cout<<"stress greater than 0."<<endl;
+// 		if (m_frStrsWa[i] > 0.f || m_frStrsTmp[i] > 0.f || m_frStrsAe[i] > 0.f)
+// 			cout<<"stress greater than 0."<<endl;
         float reg = min(min(m_frStrsWa[i], m_frStrsTmp[i]), m_frStrsAe[i]);
         reg = min(reg, 0.f);
         if (reg > 0.)
         {
-			cout<<"Begin Uptake N and P"<<endl;
+			//cout<<"Begin Uptake N and P"<<endl;
             /// call nup to calculates plant nitrogen uptake
             PlantNitrogenUptake(i);
             /// call npup to calculates plant phosphorus uptake
@@ -754,8 +754,8 @@ void Biomass_EPIC::PlantNitrogenUptake(int i)
         PlantNitrogenFixed(i);
     m_plantUpTkN[i] += m_fixN[i];
     m_plantN[i] += m_plantUpTkN[i];
-	if (m_plantN[i] > 0.f)
-		cout<<"cell ID: "<<i<<", plantN: "<<m_plantN[i]<<endl;
+// 	if (m_plantN[i] > 0.f)
+// 		cout<<"cell ID: "<<i<<", plantN: "<<m_plantN[i]<<endl;
     /// compute nitrogen stress
     if (FloatEqual(m_landCoverCls[i], 1.f) || FloatEqual(m_landCoverCls[i], 2.f) ||
         FloatEqual(m_landCoverCls[i], 3.f))

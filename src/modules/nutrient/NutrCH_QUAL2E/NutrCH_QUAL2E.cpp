@@ -579,8 +579,8 @@ int NutrCH_QUAL2E::Execute()
 			RouteOut(reachIndex);
         }
 	}
-	cout<<"NUTR_QUAL2E, surNO3ToCh: "<<m_surNO3ToCh[2]<<", gwno3ToCh: "<<m_gwNO3ToCh[2]<<", ptNo3ToCh: "<<m_ptNO3ToCh[2]
-	<<", chOutNO3: "<<m_chOutNO3[2]<<", chOutNO3Conc: "<<m_chOutTNConc[2]<<", TN: "<<m_chOutTN[2]<<", TNConc: "<<m_chOutTNConc[2]<<endl;
+// 	cout<<"NUTR_QUAL2E, surNO3ToCh: "<<m_surNO3ToCh[2]<<", gwno3ToCh: "<<m_gwNO3ToCh[2]<<", ptNo3ToCh: "<<m_ptNO3ToCh[2]
+// 	<<", chOutNO3: "<<m_chOutNO3[2]<<", chOutNO3Conc: "<<m_chOutTNConc[2]<<", TN: "<<m_chOutTN[2]<<", TNConc: "<<m_chOutTNConc[2]<<endl;
     return 0;
 }
 
