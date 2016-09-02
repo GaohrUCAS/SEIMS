@@ -18,7 +18,7 @@ NutrientRemviaSr::NutrientRemviaSr(void) :
         m_sol_om(NULL), m_flowOutIndex(NULL), m_nSubbasins(-1), m_subbasin(NULL), m_subbasinsInfo(NULL), m_streamLink(NULL),
 		m_routingLayers(NULL), m_nRoutingLayers(-1),
         //output
-        m_latno3(NULL), m_perco_n(NULL),m_perco_p(NULL), m_surqno3(NULL), m_sol_no3(NULL), m_surqsolp(NULL), m_wshd_plch(-1),
+        m_latno3(NULL), m_perco_n(NULL), m_perco_p(NULL), m_surqno3(NULL), m_sol_no3(NULL), m_surqsolp(NULL), m_wshd_plch(-1),
 		m_latno3ToCh(NULL), m_sur_no3ToCh(NULL), m_sur_codToCh(NULL), m_sur_solpToCh(NULL), m_perco_n_gw(NULL), m_perco_p_gw(NULL),
         m_sol_solp(NULL), m_cod(NULL), m_chl_a(NULL) //,m_doxq(), m_soxy()
 {
@@ -377,7 +377,7 @@ void NutrientRemviaSr::NitrateLoss()
 			{
 				// add nitrate leached from layer above (kg/ha)
 				m_sol_no3[i][k] = m_sol_no3[i][k] + percnlyr;
-				if (m_sol_no3[i][k] < 1.e-6f) 
+				if (m_sol_no3[i][k] < 1.e-6f)
 					m_sol_no3[i][k] = 0.f;
 				// determine concentration of nitrate in mobile water
 				float sro = 0.f;// surface runoff generated (sro)
@@ -438,6 +438,7 @@ void NutrientRemviaSr::NitrateLoss()
 				percnlyr = con * m_sol_perco[i][k];
 				percnlyr = min(percnlyr, m_sol_no3[i][k]);
 				m_sol_no3[i][k] -= percnlyr;
+				//if(i == 0 && k == 0) cout << percnlyr << ", \n";
 			}
 			// calculate nitrate leaching from soil profile
 			m_perco_n[i] = percnlyr; // kg/ha
