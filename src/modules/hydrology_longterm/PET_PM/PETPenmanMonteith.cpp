@@ -149,24 +149,6 @@ void PETPenmanMonteith::initialOutputs()
 	if(this->m_phuBase == NULL) Initialize1DArray(m_nCells, m_phuBase, 0.f);
 	if(this->m_pet == NULL) Initialize1DArray(m_nCells, m_pet, 0.f);
 	if(this->m_ppt == NULL) Initialize1DArray(m_nCells, m_ppt, 0.f);
-//    if (NULL == m_pet)
-//    {
-//        this->m_dayLen = new float[this->m_nCells];
-//        this->m_pet = new float[this->m_nCells];
-//        this->m_ppt = new float[this->m_nCells];
-//        this->m_vpd = new float[this->m_nCells];
-//        this->m_phuBase = new float[this->m_nCells];
-//#pragma omp parallel for
-//        for (int i = 0; i < m_nCells; i++)
-//        {
-//            m_dayLen[i] = 0.f;
-//            m_pet[i] = 0.f;
-//            m_ppt[i] = 0.f;
-//            m_vpd[i] = 0.f;
-//            m_phuBase[i] = 0.f;
-//        }
-//    }
-
     if (NULL == m_vpd2) this->m_vpd2 = new float[this->m_nCells];
 #pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
