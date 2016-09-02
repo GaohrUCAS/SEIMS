@@ -37,7 +37,8 @@ int PER_PI::Execute()
     for (int i = 0; i < m_nCells; i++)
     {
         /// firstly, assume all infiltrated water is added to the first soil layer.
-		m_soilStorage[i][0] += m_infil[i];
+		// this step is removed to surface runoff and infiltration module. by LJ, 2016-9-2
+		//m_soilStorage[i][0] += m_infil[i]; 
 		/// secondly, model water percolation across layers
         for (int j = 0; j < (int)m_nSoilLayers[i]; j++)
         {
@@ -49,9 +50,19 @@ int PER_PI::Execute()
 			swater = m_soilStorage[i][j];
 			maxSoilWater = m_sat[i][j];
 			fcSoilWater = m_fc[i][j];
+			bool percAllowed = true;
 			
-            if (swater > fcSoilWater)
+			if (j < (int)m_nSoilLayers[i] -1 ){
+				float nextSoilWater = 0.f;
+				nextSoilWater = m_soilStorage[i][j+1];
+				if (nextSoilWater >= m_fc[i][j+1])
+					percAllowed = false;
+			}
+            if (swater > fcSoilWater && percAllowed)
             {
+				//if (i == 1762)
+				//	cout<<"PER_PI, layer: "<<j<<", swater: "<<swater<<", max: "<<maxSoilWater<<", fc: "<<fcSoilWater<<endl;
+			
                 //the moisture content can exceed the porosity in the way the algorithm is implemented
                 if (swater > maxSoilWater)
                     k = m_ks[i][j];
@@ -63,16 +74,18 @@ int PER_PI::Execute()
 
                 m_perc[i][j] = k * m_dt / 3600.f;  // mm
 
-                if (swater - m_perc[i][j] > maxSoilWater)
-                    m_perc[i][j] = swater - maxSoilWater;
-                else if (swater - m_perc[i][j] < fcSoilWater)
-                    m_perc[i][j] = swater - fcSoilWater;
-
+                //if (swater - m_perc[i][j] > maxSoilWater)
+                //    m_perc[i][j] = swater - maxSoilWater;
+                //else if (swater - m_perc[i][j] < fcSoilWater)
+                //    m_perc[i][j] = swater - fcSoilWater;
+				if (swater - m_perc[i][j] < fcSoilWater)
+					m_perc[i][j] = swater - fcSoilWater;
+				if (m_perc[i][j] < 0.f)
+					m_perc[i][j] = 0.f;
                 //Adjust the moisture content in the current layer, and the layer immediately below it
                 m_soilStorage[i][j] -= m_perc[i][j];
                 if (j < m_nSoilLayers[i] - 1)
                     m_soilStorage[i][j + 1] += m_perc[i][j];
-
 				
                 //if (m_soilStorage[i][j] != m_soilStorage[i][j] || m_soilStorage[i][j] < 0.f)
                 //{
@@ -86,11 +99,13 @@ int PER_PI::Execute()
 			{
 				m_perc[i][j] = 0.f;
 			}
-			//if (i == 200)
-			//{
-			//	cout<<"infil: "<<m_infil[i]<<", perco: "<<m_perc[i][j]<<", soilStorage: "<<m_soilStorage[i][j]<<endl;
-			//}
+			
 		}
+		//if (i == 1762)
+		//{
+		//	for (int j = 0; j < (int)m_nSoilLayers[i]; j++)
+		//		cout<<"after, infil: "<<m_infil[i]<<", perco: "<<m_perc[i][j]<<", soilStorage: "<<m_soilStorage[i][j]<<endl;
+		//}
 		/// update total soil water content
 		m_soilStorageProfile[i] = 0.f;
 		for (int ly = 0; ly < (int)m_nSoilLayers[i]; ly++){

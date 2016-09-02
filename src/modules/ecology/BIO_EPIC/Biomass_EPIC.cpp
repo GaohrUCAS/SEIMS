@@ -456,11 +456,12 @@ void Biomass_EPIC::initialOutputs()
 		Initialize1DArray(m_nCells, m_frStrsWa, 1.f);
 	if (m_biomassDelta == NULL)
 		Initialize1DArray(m_nCells, m_biomassDelta, 0.f);
-	if (m_biomass == NULL)
+	if (m_biomass == NULL){
 		if (m_initBiomass != NULL)
 			Initialize1DArray(m_nCells, m_biomass, m_initBiomass);
 		else
 			Initialize1DArray(m_nCells, m_biomass, 0.f);
+	}
 }
 
 void Biomass_EPIC::DistributePlantET(int i)
@@ -550,6 +551,7 @@ void Biomass_EPIC::DistributePlantET(int i)
 		m_frStrsWa[i] = xx / m_ppt[i];
 		m_plantEPDay[i] = xx;
 	}
+	Release1DArray(wuse);
 }
 
 void Biomass_EPIC::CalTempStress(int i)
@@ -889,8 +891,8 @@ int Biomass_EPIC::Execute()
         if (FloatEqual(m_igro[i], 1.f))            /// land cover growing
         {
             DistributePlantET(i);                  /// swu.f
-            if (FloatEqual(m_dormFlag[i], 0.f))    /// plant will not undergo stress if dormant
-                AdjustPlantGrowth(i);              /// plantmod.f
+            //if (FloatEqual(m_dormFlag[i], 0.f))    /// plant will not undergo stress if dormant
+            //    AdjustPlantGrowth(i);              /// plantmod.f
             CheckDormantStatus(i);                 /// dormant.f
         }
     }
