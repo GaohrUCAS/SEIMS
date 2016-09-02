@@ -99,31 +99,9 @@ def GenerateDelta_s(filepath):
     velR = ReadRaster(velocity)
     vel_data = velR.data
 
-    # ds = gdal.Open(streamlink)
-    # band = ds.GetRasterBand(1)
-    # strlk_data = band.ReadAsArray()
-    # ds = gdal.Open(radius)
-    # band = ds.GetRasterBand(1)
-    # rad_data = band.ReadAsArray()
-    # ds = gdal.Open(slope)
-    # band = ds.GetRasterBand(1)
-    # slo_data = band.ReadAsArray()
-    # ds = gdal.Open(velocity)
-    # band = ds.GetRasterBand(1)
-    # vel_data = band.ReadAsArray()
-
     xsize = strlkR.nCols
     ysize = strlkR.nRows
     noDataValue = strlkR.noDataValue
-    # cellsize = strlkR.dx
-
-    # xsize = band.XSize
-    # ysize = band.YSize
-    # noDataValue = band.GetNoDataValue()
-    # geotransform = ds.GetGeoTransform()
-    # srs = osr.SpatialReference()
-    # srs.ImportFromWkt(ds.GetProjection())
-    # cellsize = geotransform[1]
 
     # weight = numpy.zeros((ysize, xsize))
     delta_s = numpy.zeros((ysize, xsize))

@@ -103,11 +103,7 @@ private:
     *	@return bool The validity of the dimension
     */
     bool CheckInputSize(const char *, int n);
-	/*
-	 * \brief ReSet to initial values.
-	 * \deprecated Since the reset is done in constructor, this function should be removed.
-	 */
-    void clearInputs(void);
+
 	/*
 	 * \brief initial outputs as default values
 	 */
