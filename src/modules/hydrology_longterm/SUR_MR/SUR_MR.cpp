@@ -96,7 +96,7 @@ void SUR_MR::initialOutputs()
 #pragma omp parallel for
         for (int i = 0; i < m_nCells; i++)
         {
-			Initialize1DArray(m_nSoilLayers, m_soilStorage[i], 0.f);
+			Initialize1DArray(m_nSoilLayers, m_soilStorage[i], NODATA_VALUE);
             m_pe[i] = 0.f;
             m_infil[i] = 0.f;
 			m_soilStorageProfile[i] = 0.f;
@@ -153,6 +153,12 @@ int SUR_MR::Execute()
             //    por += m_porosity[i][j] * m_soilThick[i][j]; /// unit can be seen as mm H2O 
             //}
             // float smFraction = min(sm / por, 1.f);
+
+			/// update total soil water content
+			m_soilStorageProfile[i] = 0.f;
+			for (int ly = 0; ly < (int)m_soilLayers[i]; ly++){
+				m_soilStorageProfile[i] += m_soilStorage[i][ly];
+			}
 			float smFraction = min(m_soilStorageProfile[i]/m_sol_sumsat[i], 1.f);
             // for frozen soil, no infiltration will occur
             if (m_soilTemp[i] <= m_tFrozen && smFraction >= m_sFrozen)
@@ -202,8 +208,15 @@ int SUR_MR::Execute()
             m_pe[i] = 0.f;
             m_infil[i] = 0.f;
         }
-		/// if m_infil > 0., m_soilStorage need to be updated here. 
-		/// But currently, this is implemented in percolation modules. 		
+		/// if m_infil > 0., m_soilStorage need to be updated here. By LJ, 2016-9-2
+		if (m_infil[i] > 0.f)
+		{
+			m_soilStorage[i][0] += m_infil[i];
+		}
+		//if (i == 200)
+		//{
+		//	cout<<"netRain: "<<m_pNet[i]<<", depStrg: "<<m_sd[i]<<", infil: "<<m_infil[i]<<", surfq: "<<m_pe[i]<<endl;
+		//}
     }
     return 0;
 }
@@ -238,9 +251,7 @@ void SUR_MR::SetValue(const char *key, float value)
     else if (StringMatch(sk, VAR_P_MAX))m_pMax = value;
     else if (StringMatch(sk, VAR_S_FROZEN))m_sFrozen = value;
     else
-        throw ModelException(MID_SUR_MR, "SetValue", "Parameter " + sk
-                                                     +
-                                                     " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_SUR_MR, "SetValue", "Parameter " + sk + " does not exist.");
 }
 
 void SUR_MR::Set1DData(const char *key, int n, float *data)
@@ -259,8 +270,7 @@ void SUR_MR::Set1DData(const char *key, int n, float *data)
     //else if (StringMatch(sk, VAR_SNAC))m_snowAccu = data;
     //else if (StringMatch(sk, VAR_SNME))m_snowMelt = data;
     else
-        throw ModelException(MID_SUR_MR, "Set1DData", "Parameter " + sk +
-                                                      " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_SUR_MR, "Set1DData", "Parameter " + sk + " does not exist.");
 }
 
 void SUR_MR::Set2DData(const char *key, int nrows, int ncols, float **data)
@@ -273,8 +283,7 @@ void SUR_MR::Set2DData(const char *key, int nrows, int ncols, float **data)
 	//else if (StringMatch(sk, VAR_SOILTHICK))m_soilThick = data;
     //else if (StringMatch(sk, VAR_POROST))m_porosity = data;
     else
-        throw ModelException(MID_SUR_MR, "Set2DData", "Parameter " + sk
-                                                      + " does not exist. Please contact the module developer.");
+        throw ModelException(MID_SUR_MR, "Set2DData", "Parameter " + sk + " does not exist.");
 }
 
 void SUR_MR::Get1DData(const char *key, int *n, float **data)
@@ -285,8 +294,7 @@ void SUR_MR::Get1DData(const char *key, int *n, float **data)
     else if (StringMatch(sk, VAR_EXCP)) *data = m_pe; // excess precipitation
 	else if (StringMatch(sk, VAR_SOL_SW)) *data = m_soilStorageProfile;
     else
-        throw ModelException(MID_SUR_MR, "Get1DData", "Result " + sk +
-                                                      " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_SUR_MR, "Get1DData", "Result " + sk + " does not exist.");
     *n = m_nCells;
 }
 
@@ -299,6 +307,5 @@ void SUR_MR::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
     if (StringMatch(sk, VAR_SOL_ST))
         *data = m_soilStorage;
     else
-        throw ModelException(MID_SUR_MR, "Get2DData", "Output " + sk
-                                                      + " does not exist. Please contact the module developer.");
+        throw ModelException(MID_SUR_MR, "Get2DData", "Output " + sk + " does not exist.");
 }

@@ -14,6 +14,11 @@
 #include <cmath>
 #include <map>
 #include <vector>
+#include <cmath>
+#include <iostream>
+#include <set>
+#include <sstream>
+#include <algorithm> 
 #include "SimulationModule.h"
 #include "Scenario.h"
 using namespace std;
@@ -97,7 +102,10 @@ private:
     /// initial bank storage per meter of reach length (m3/m)
     float m_Bnk0;
     /// initial channel storage per meter of reach length (m3/m)
-    float m_Chs0;
+    //float m_Chs0;
+	
+	/// initial percentage of channel volume
+	float m_Chs0_perc;
     /// the initial volume of transmission loss to the deep aquifer over the time interval (m3/s)
     float m_Vseep0;
     /// bank flow recession constant

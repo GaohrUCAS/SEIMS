@@ -11,7 +11,7 @@ using namespace std;
 MGTOpt_SWAT::MGTOpt_SWAT(void) : m_nCells(-1), m_nSub(-1), m_soilLayers(-1),
                                  m_cellWidth(NODATA_VALUE), m_cellArea(NODATA_VALUE),
         /// add parameters from MongoDB
-                                 m_subBsnID(NULL), m_landUse(NULL), m_landCover(NULL), m_mgtFields(NULL),
+                                 m_subBsnID(NULL), m_landUse(NULL), m_landCover(NULL), m_mgtFields(NULL),m_tBase(NULL),
         /// Soil related parameters from MongoDB
                                  m_nSoilLayers(NULL), m_soilDepth(NULL), m_soilThick(NULL), m_soilZMX(NULL),
                                  m_soilBD(NULL), m_soilSumFC(NULL), m_soilN(NULL), m_soilCarbon(NULL), 
@@ -21,7 +21,7 @@ MGTOpt_SWAT::MGTOpt_SWAT(void) : m_nCells(-1), m_nSub(-1), m_soilLayers(-1),
                                  m_soilNH3(NULL), m_soilNO3(NULL), m_soilStableOrgN(NULL),
                                  m_soilOrgP(NULL), m_soilSolP(NULL),
         /// Plant operation related parameters
-                                 m_landuseLookup(NULL), m_landuseNum(-1), m_CN2(NULL), m_igro(NULL),
+                                 m_landuseLookup(NULL), m_landuseNum(-1), m_CN2(NULL), m_igro(NULL),m_landCoverCls(NULL),
                                  m_HarvestIdxTarg(NULL), m_BiomassTarg(NULL), m_curYearMat(NULL),
                                  m_wtrStrsYF(NULL), m_LAIDay(NULL), m_phuBase(NULL), m_phuAcc(NULL), m_phuPlant(NULL),
                                  m_dormFlag(NULL), m_havstIdx(NULL), m_havstIdxAdj(NULL),
@@ -199,11 +199,13 @@ void MGTOpt_SWAT::Set1DData(const char *key, int n, float *data)
     if (StringMatch(sk, VAR_SUBBSN)) m_subBsnID = data;
     else if (StringMatch(sk, VAR_MGT_FIELD)) m_mgtFields = data;
     else if (StringMatch(sk, VAR_LANDUSE)) m_landUse = data;
-    else if (StringMatch(sk, VAR_LANDCOVER)) m_landCover = data;
+	else if (StringMatch(sk, VAR_LANDCOVER)) m_landCover = data;
+	else if (StringMatch(sk, VAR_IDC)) m_landCoverCls = data;
         /// Soil related parameters from MongoDB
     else if (StringMatch(sk, VAR_SOILLAYERS)) m_nSoilLayers = data;
     else if (StringMatch(sk, VAR_SOL_ZMX)) m_soilZMX = data;
-    else if (StringMatch(sk, VAR_SOL_SUMAWC)) m_soilSumFC = data;
+	else if (StringMatch(sk, VAR_SOL_SUMAWC)) m_soilSumFC = data;
+	else if (StringMatch(sk, VAR_T_BASE)) m_tBase = data;
         ///  Plant operation related parameters
     else if (StringMatch(sk, VAR_CN2)) m_CN2 = data;
     else if (StringMatch(sk, VAR_HVSTI)) m_havstIdx = data;
@@ -387,6 +389,7 @@ bool MGTOpt_SWAT::CheckInputData(void)
     if (m_landUse == NULL) throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Landuse must not be NULL");
     if (m_landCover == NULL) throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Landcover must not be NULL");
     if (m_mgtFields == NULL) throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Management fields must not be NULL");
+	if (m_tBase == NULL) throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Base or minimum temperature for plant growth must not be NULL");
     if (m_nSoilLayers == NULL)
         throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Soil layeres number must not be NULL");
     if (m_soilZMX == NULL)
@@ -395,6 +398,8 @@ bool MGTOpt_SWAT::CheckInputData(void)
         throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Summary amount water in field capacity must not be NULL");
     if (m_CN2 == NULL) throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "CN2 value must not be NULL");
     if (m_igro == NULL) throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Plant growth code must not be NULL");
+	if (m_landCoverCls == NULL)
+		throw ModelException(MID_BIO_EPIC, "CheckInputData", "The land cover/plant classification can not be NULL.");
     if (m_curYearMat == NULL)
         throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Current growth year must not be NULL");
     if (m_wtrStrsYF == NULL)
@@ -490,38 +495,55 @@ bool MGTOpt_SWAT::GetOperationCode(int i, int &factoryID, vector<int> &nOps)
     /// 3. Figure out if any management operation should be applied, i.e., find sequence IDs (nOps)
     vector<int> tmpOpSeqences = m_mgtFactory[factoryID]->GetOperationSequence();
     map < int, PlantManagementOperation * > tmpOperations = m_mgtFactory[factoryID]->GetOperations();
-    for (vector<int>::iterator seqIter = tmpOpSeqences.begin(); seqIter != tmpOpSeqences.end(); seqIter++)
-    {
+	// get the next should be done sequence number
+	int curSeq = m_doneOpSequence[i];
+	int nextSeq = -1;
+	if (curSeq == -1 || curSeq == tmpOpSeqences.size()-1)
+		nextSeq = 0;
+	else
+		nextSeq = curSeq + 1;
+	int opCode = tmpOpSeqences[nextSeq];
+	// figure out the nextSeq is satisfied or not.
+	if (tmpOperations.find(opCode) != tmpOperations.end())
+	{
+		PlantManagementOperation *tmpOperation = tmpOperations.at(opCode);
         /// *seqIter is calculated by: seqNo. * 1000 + operationCode
         bool dateDepent = false, huscDepent = false;
         /// If operation applied date (month and day) are defined
-        if (tmpOperations[*seqIter]->GetMonth() != 0 && tmpOperations[*seqIter]->GetDay() != 0)
+		if (tmpOperation->GetMonth() != 0 && tmpOperation->GetDay() != 0)
         {
             struct tm dateInfo;
             LocalTime(m_date, &dateInfo);
-            if (dateInfo.tm_mon == tmpOperations[*seqIter]->GetMonth() &&
-                dateInfo.tm_mday == tmpOperations[*seqIter]->GetDay())
+            if (dateInfo.tm_mon == tmpOperation->GetMonth() &&
+                dateInfo.tm_mday == tmpOperation->GetDay())
                 dateDepent = true;
         }
         /// If husc is defined
-        if (tmpOperations[*seqIter]->GetHUFraction() >= 0.f)
+        if (tmpOperation->GetHUFraction() >= 0.f)
         {
             float aphu; /// fraction of total heat units accumulated
-            if (FloatEqual(m_igro[i], 0.f))
-                aphu = m_phuBase[i];
-            else
-                aphu = m_phuAcc[i];
-            if (FloatEqual(m_dormFlag[i], 1.f))
-                aphu = NODATA_VALUE;
-            if (aphu >= tmpOperations[*seqIter]->GetHUFraction())
-                huscDepent = true;
+			if (FloatEqual(m_dormFlag[i], 1.f))
+				aphu = NODATA_VALUE;
+			else{
+				if (tmpOperation->UseBaseHUSC() && FloatEqual(m_igro[i], 0.f)) // use base hu
+				{
+					aphu = m_phuBase[i];
+					if (aphu >= tmpOperation->GetHUFraction())
+						huscDepent = true;
+				}
+				else{ // use accumulated plant hu
+					aphu = m_phuAcc[i];
+					if (aphu >= tmpOperation->GetHUFraction())
+						huscDepent = true;
+				}
+			}
         }
         /// The operation will be applied either date or HUSC are satisfied,
         /// and also in case of repeated run
-        if ((dateDepent || huscDepent) && *seqIter > m_doneOpSequence[i])
+		if (dateDepent || huscDepent)
         {
-            nOps.push_back(*seqIter);
-            m_doneOpSequence[i] = *seqIter; /// update value
+            nOps.push_back(opCode);
+            m_doneOpSequence[i] = nextSeq; /// update value
         }
     }
     if (nOps.empty()) return false;
@@ -601,7 +623,8 @@ void MGTOpt_SWAT::ExecutePlantOperation(int i, int &factoryID, int nOp)
     m_HarvestIdxTarg[i] = curOperation->HITarg();
     m_BiomassTarg[i] = curOperation->BIOTarg(); /// kg/ha
     m_curYearMat[i] = curOperation->CurYearMaturity();
-    m_landCover[i] = curOperation->PlantID();
+	int newPlantID = curOperation->PlantID();
+    m_landCover[i] = newPlantID;
     m_phuPlant[i] = curOperation->HeatUnits();
     m_dormFlag[i] = 0.f;
     m_phuAcc[i] = 0.f;
@@ -613,7 +636,13 @@ void MGTOpt_SWAT::ExecutePlantOperation(int i, int &factoryID, int nOp)
     m_havstIdxAdj[i] = 0.f;
     m_oLAI[i] = 0.f;
     m_frRoot[i] = 0.f;
-
+	/// update crop-related parameters in order to calculate phuAcc. by LJ
+	if (m_cropLookupMap.find(newPlantID) == m_cropLookupMap.end())
+		throw ModelException(MID_PLTMGT_SWAT, "ExecutePlantOperation", "The new plant ID: "+ ValueToString(newPlantID)+
+		"is not prepared in cropLookup table!");
+	// update IDC
+	m_landCoverCls[i] = m_cropLookupMap.at(newPlantID)[CROP_PARAM_IDX_IDC];
+	m_tBase[i] = m_cropLookupMap.at(newPlantID)[CROP_PARAM_IDX_T_BASE];
     /// initialize transplant variables
     if (curOperation->LAIInit() > 0.f)
     {
@@ -1355,18 +1384,18 @@ void MGTOpt_SWAT::ExecuteKillOperation(int i, int &factoryID, int nOp)
         m_soilFreshOrgP[i][l] += rtfr[l] * m_plantP[i] * m_frRoot[i];
     }
     /// reset variables
-    m_igro[i] = 0;
-    m_dormFlag[i] = 0;
-    m_biomass[i] = 0.;
-    m_frRoot[i] = 0.;
-    m_plantN[i] = 0.;
-    m_plantP[i] = 0.;
-    m_frStrsWa[i] = 1.;
-    m_LAIDay[i] = 0.;
-    m_havstIdxAdj[i] = 0.;
-    delete[] rtfr;
-    //m_phuBase[i] = 0.; /// TODO, I think m_phuBase should not stop! By LJ
-    m_phuAcc[i] = 0.;
+    m_igro[i] = 0.f;
+    m_dormFlag[i] = 0.f;
+    m_biomass[i] = 0.f;
+    m_frRoot[i] = 0.f;
+    m_plantN[i] = 0.f;
+    m_plantP[i] = 0.f;
+    m_frStrsWa[i] = 1.f;
+    m_LAIDay[i] = 0.f;
+    m_havstIdxAdj[i] = 0.f;
+    Release1DArray(rtfr);
+    //m_phuBase[i] = 0.f; /// TODO, I think m_phuBase should not stop! By LJ
+    m_phuAcc[i] = 0.f;
 }
 
 void MGTOpt_SWAT::ExecuteGrazingOperation(int i, int &factoryID, int nOp)
@@ -1508,18 +1537,42 @@ int MGTOpt_SWAT::Execute()
 #pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
     {
-        int curFactoryID;
+        int curFactoryID = -1;
         vector<int> curOps;
+		//if (i == 987){
+		//	ofstream fs;
+		//	utils util;
+		//	string filename = "E:\\code\\Hydro\\SEIMS\\model_data\\dianbu\\model_dianbu2_30m_longterm\\husc.txt";
+		//	fs.open(filename.c_str(), ios::out|ios::app);
+		//	if (fs.is_open())
+		//	{
+		//		fs << util.ConvertToString(&this->m_date) <<", IGRO: "<<m_igro[i]<<", phuBase: "<<m_phuBase[i]<<", phuAcc: "<<m_phuAcc[i]<<", phuPlt: "<<m_phuPlant[i]<< endl;
+		//		fs.close();
+		//	}
+		//}
         if (GetOperationCode(i, curFactoryID, curOps))
         {
             for (vector<int>::iterator it = curOps.begin(); it != curOps.end(); it++)
             {
                 //cout<<curFactoryID<<","<<*it<<endl;
                 ScheduledManagement(i, curFactoryID, *it);
+				/// output for debug, by LJ.
+				//if (i == 987){
+				//	ofstream fs;
+				//	utils util;
+				//	string filename = "E:\\code\\Hydro\\SEIMS\\model_data\\dianbu\\model_dianbu2_30m_longterm\\pltMgt.txt";
+				//	fs.open(filename.c_str(), ios::out|ios::app);
+				//	if (fs.is_open())
+				//	{
+				//		fs << util.ConvertToString(&this->m_date) <<", IGRO: "<<m_igro[i]<<", phuBase: "<<m_phuBase[i]<<", phuAcc: "<<m_phuAcc[i]<<", phuPlt: "<<m_phuPlant[i]<<", optCode: "<<*it<< endl;
+				//		fs.close();
+				//	}
+				//}
             }
         }
     }
-    return true;
+	//cout<<"PLTMGT_SWAT, cell id 5878, sol_no3[0]: "<<m_soilNO3[5878][0]<<endl;
+    return 0;
 }
 
 void MGTOpt_SWAT::Get1DData(const char *key, int *n, float **data)
@@ -1559,16 +1612,6 @@ void MGTOpt_SWAT::Get1DData(const char *key, int *n, float **data)
 void MGTOpt_SWAT::initialOutputs()
 {
     m_cellArea = m_cellWidth * m_cellWidth / 10000.f; // unit: ha
-//    if (m_nSub <= 0)  /// replaced by SetSubbasins
-//    {
-//#pragma omp parallel for
-//        for (int i = 0; i < this->m_nCells; i++)
-//        {
-//            m_nCellsSubbsn[int(this->m_subBsnID[i])] += 1;
-//            m_nAreaSubbsn[int(this->m_subBsnID[i])] += m_cellArea;
-//        }
-//        this->m_nSub = m_nCellsSubbsn.size();
-//    }
 	/// figure out all the management codes, and initialize the corresponding variables, aimed to save memory. By LJ
 	if (m_initialized) return;
 	vector<int> definedMgtCodes;

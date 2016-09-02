@@ -3,18 +3,12 @@
 #include "ModelException.h"
 #include "util.h"
 #include <omp.h>
-#include <cmath>
-#include <iostream>
-#include <set>
-#include <sstream>
-#include <algorithm> 
-#include <omp.h>
 
 using namespace std;
 
 //! Constructor
 MUSK_CH::MUSK_CH(void) : m_dt(-1), m_nreach(-1), m_Kchb(NODATA_VALUE),
-                         m_Kbank(NODATA_VALUE), m_Epch(NODATA_VALUE), m_Bnk0(NODATA_VALUE), m_Chs0(NODATA_VALUE), m_aBank(NODATA_VALUE),
+                         m_Kbank(NODATA_VALUE), m_Epch(NODATA_VALUE), m_Bnk0(NODATA_VALUE), m_Chs0_perc(NODATA_VALUE), m_aBank(NODATA_VALUE),
                          m_bBank(NODATA_VALUE), m_subbasin(NULL), m_qsSub(NULL),
 						 m_reachDownStream(NULL), m_chOrder(NULL), m_chWidth(NULL), 
 						 m_chLen(NULL), m_chDepth(NULL), m_chVel(NULL), m_area(NULL),
@@ -40,7 +34,6 @@ MUSK_CH::~MUSK_CH(void)
     if (m_qOut != NULL) Release1DArray(m_qOut);
     if (m_bankStorage != NULL)Release1DArray(m_bankStorage);
     if (m_seepage != NULL)Release1DArray(m_seepage);
-    if (m_chStorage != NULL)Release1DArray(m_chStorage);
     if (m_qsCh != NULL)Release1DArray(m_qsCh);
     if (m_qiCh != NULL)Release1DArray(m_qiCh);
     if (m_qgCh != NULL)Release1DArray(m_qgCh);
@@ -77,7 +70,7 @@ bool MUSK_CH::CheckInputData(void)
         throw ModelException(MID_MUSK_CH, "CheckInputData", "The parameter: Ep_ch has not been set.");
     if (FloatEqual(m_Bnk0, NODATA_VALUE))
         throw ModelException(MID_MUSK_CH, "CheckInputData", "The parameter: Bnk0 has not been set.");
-    if (FloatEqual(m_Chs0, NODATA_VALUE))
+    if (FloatEqual(m_Chs0_perc, NODATA_VALUE))
         throw ModelException(MID_MUSK_CH, "CheckInputData", "The parameter: Chs0 has not been set.");
     if (FloatEqual(m_aBank, NODATA_VALUE))
         throw ModelException(MID_MUSK_CH, "CheckInputData", "The parameter: A_bnk has not been set.");
@@ -145,13 +138,13 @@ void  MUSK_CH::initialOutputs()
                 qgSub = m_qgSub[i];
             m_seepage[i] = 0.f;
             m_bankStorage[i] = m_Bnk0 * m_chLen[i];
-            m_chStorage[i] = m_Chs0 * m_chLen[i];
+			m_chWTdepth[i] = m_chDepth[i] * m_Chs0_perc;
+			m_chStorage[i] = m_chWTdepth[i] * m_chWidth[i] * m_chLen[i];
             m_qIn[i] = 0.f;
             m_qOut[i] = m_qsSub[i] + qiSub + qgSub;
             m_qsCh[i] = m_qsSub[i];
             m_qiCh[i] = qiSub;
             m_qgCh[i] = qgSub;
-            m_chWTdepth[i] = 0.f;
         }
     }
 	/// initialize point source loadings
@@ -207,18 +200,15 @@ int MUSK_CH::Execute()
     {
         // There are not any flow relationship within each routing layer.
         // So parallelization can be done here.
-        int nReaches = it->second.size();
+        int reachNum = it->second.size();
         // the size of m_reachLayers (map) is equal to the maximum stream order
 #pragma omp parallel for
-        for (int i = 0; i < nReaches; ++i)
+        for (int i = 0; i < reachNum; ++i)
         {
             int reachIndex = it->second[i]; // index in the array
             ChannelFlow(reachIndex);
         }
     }
-    //Test outlet discharge, By LJ
-    //int iOutlet = m_reachLayers.rbegin()->second[0];
-    //cout<<iOutlet << "," << m_qOut[iOutlet]<<endl;
     return 0;
 }
 
@@ -259,41 +249,6 @@ bool MUSK_CH::CheckInputSize(const char *key, int n)
     return true;
 }
 
-//bool MUSK_CH::CheckInputSizeChannel(const char* key, int n)
-//{
-//	if(n <= 0)
-//	{
-//		//StatusMsg("Input data for "+string(key) +" is invalid. The size could not be less than zero.");
-//		return false;
-//	}
-//	if(m_chNumber != n)
-//	{
-//		if(m_chNumber <=0) m_chNumber = n;
-//		else
-//		{
-//			//StatusMsg("Input data for "+string(key) +" is invalid. All the input data should have same size.");
-//			return false;
-//		}
-//	}
-//
-//	return true;
-//}
-
-//void MUSK_CH::GetValue(const char* key, float* value)
-//{
-//	string sk(key);
-//	if (StringMatch(sk, VAR_QOUTLET))
-//	{
-//		map<int, vector<int> >::iterator it = m_reachLayers.end();
-//		it--;
-//		int reachId = it->second[0];
-//		int iLastCell = m_reachs[reachId].size() - 1;
-//		*value = m_qCh[reachId][iLastCell];
-//		//*value = m_hToChannel[m_idOutlet];
-//		//*value = m_qsSub[m_idOutlet];
-//		//*value = m_qsSub[m_idOutlet] + m_qCh[reachId][iLastCell];
-//	}
-//}
 //! Set value of the module
 void MUSK_CH::SetValue(const char *key, float value)
 {
@@ -307,7 +262,7 @@ void MUSK_CH::SetValue(const char *key, float value)
     else if (StringMatch(sk, VAR_K_BANK))m_Kbank = value;
     else if (StringMatch(sk, VAR_EP_CH))m_Epch = value;
     else if (StringMatch(sk, VAR_BNK0))m_Bnk0 = value;
-    else if (StringMatch(sk, VAR_CHS0))m_Chs0 = value;
+    else if (StringMatch(sk, VAR_CHS0_PERC))m_Chs0_perc = value;
     else if (StringMatch(sk, VAR_VSEEP0))m_Vseep0 = value;
     else if (StringMatch(sk, VAR_A_BNK))m_aBank = value;
     else if (StringMatch(sk, VAR_B_BNK))m_bBank = value;
@@ -315,7 +270,7 @@ void MUSK_CH::SetValue(const char *key, float value)
 	else if (StringMatch(sk, VAR_MSK_CO1))m_co1 = value;
 	else if (StringMatch(sk, VAR_GWRQ))m_deepGroundwater = value;
     else
-        throw ModelException(MID_MUSK_CH, "SetValue", "Parameter " + sk + " does not exist in current module.");
+        throw ModelException(MID_MUSK_CH, "SetValue", "Parameter " + sk + " does not exist.");
 }
 
 //! Set 1D data
@@ -481,13 +436,16 @@ void MUSK_CH::SetReaches(clsReaches *reaches)
 	{
 		m_nreach = reaches->GetReachNumber();
 		m_reachId = reaches->GetReachIDs();
-		Initialize1DArray(m_nreach+1,m_reachDownStream, 0.f);
-		Initialize1DArray(m_nreach+1,m_chOrder, 0.f);
-		Initialize1DArray(m_nreach+1,m_chWidth, 0.f);
-		Initialize1DArray(m_nreach+1,m_chLen, 0.f);
-		Initialize1DArray(m_nreach+1,m_chDepth, 0.f);
-		Initialize1DArray(m_nreach+1,m_chVel, 0.f);
-		Initialize1DArray(m_nreach+1,m_area, 0.f);
+		if (m_reachDownStream == NULL)
+		{
+			Initialize1DArray(m_nreach+1,m_reachDownStream, 0.f);
+			Initialize1DArray(m_nreach+1,m_chOrder, 0.f);
+			Initialize1DArray(m_nreach+1,m_chWidth, 0.f);
+			Initialize1DArray(m_nreach+1,m_chLen, 0.f);
+			Initialize1DArray(m_nreach+1,m_chDepth, 0.f);
+			Initialize1DArray(m_nreach+1,m_chVel, 0.f);
+			Initialize1DArray(m_nreach+1,m_area, 0.f);
+		}
 		for (vector<int>::iterator it = m_reachId.begin(); it != m_reachId.end(); it++)
 		{
 			int i = *it;
@@ -574,19 +532,20 @@ void MUSK_CH::GetCoefficients(float reachLength, float v0, MuskWeights &weights)
 void MUSK_CH::ChannelFlow(int i)
 {
     float st0 = m_chStorage[i];
-    float qiSub = 0.f;
+    float qiSub = 0.f; /// interflow flow
     if (m_qiSub != NULL && m_qiSub[i] >= 0.f)
         qiSub = m_qiSub[i];
-    float qgSub = 0.f;
+    float qgSub = 0.f; /// groundwater flow
     if (m_qgSub != NULL && m_qgSub[i] >= 0.f)
         qgSub = m_qgSub[i];
-	float ptSub = 0.f;
+	float ptSub = 0.f; /// point sources flow
 	if (m_ptSub != NULL && m_ptSub[i] >= 0.f)
 		ptSub = m_ptSub[i];
     //////////////////////////////////////////////////////////////////////////
     // first add all the inflow water
     // 1. water from this subbasin
     float qIn = m_qsSub[i] + qiSub + qgSub + ptSub;
+	//if(i == 12) cout << m_qsSub[i] << ", " << qiSub << ", " << qgSub << ", " << ptSub << ", \n";
     // 2. water from upstream reaches
     float qsUp = 0.f;
     float qiUp = 0.f;
@@ -616,7 +575,8 @@ void MUSK_CH::ChannelFlow(int i)
     // 1. transmission losses to deep aquifer, which is lost from the system
     // the unit of kchb is mm/hr
     float seepage = m_Kchb / 1000.f / 3600.f * m_chWidth[i] * m_chLen[i] * m_dt;
-    if (qgSub < 0.001f)
+	//if(i == 12) cout << "qgSub: " << ", " << qgSub << ", \n";
+    if (qgSub < UTIL_ZERO)
     {
         if (m_chStorage[i] > seepage)
         {
@@ -641,8 +601,8 @@ void MUSK_CH::ChannelFlow(int i)
 
     // 2. calculate transmission losses to bank storage
     float dch = m_chStorage[i] / (m_chWidth[i] * m_chLen[i]);
-    float bankInLoss = 2.f * m_Kbank / 1000.f / 3600.f * dch * m_chLen[i] * m_dt;   // m3/s
-    bankInLoss = 0.f;
+    float bankInLoss = 2.f * m_Kbank / 1000.f / 3600.f * dch * m_chLen[i] * m_dt;   // m3
+    bankInLoss = 0.f; //TODO
     if (m_chStorage[i] > bankInLoss)
     {
         m_chStorage[i] -= bankInLoss;
@@ -655,7 +615,7 @@ void MUSK_CH::ChannelFlow(int i)
     // water balance of the bank storage
     // loss the water from bank storage to the adjacent unsaturated zone and groundwater storage
     float bankOutGw = m_bankStorage[i] * (1.f - exp(-m_bBank));
-    bankOutGw = 0.f;
+    bankOutGw = 0.f; //TODO
     m_bankStorage[i] = m_bankStorage[i] + bankInLoss - bankOutGw;
     if (m_gwStorage != NULL)
         m_gwStorage[i] += bankOutGw / m_area[i] * 1000.f;   // updated groundwater storage
@@ -692,11 +652,12 @@ void MUSK_CH::ChannelFlow(int i)
 
     //////////////////////////////////////////////////////////////////////////
     // routing, there are water in the channel after inflow and transmission loss
-    float totalLoss = m_seepage[i] + bankInLoss + et;
-
+	float totalLoss = m_seepage[i] + bankInLoss + et;
+	//if(i == 12) cout << ",  m_petCh: " << m_petCh[i] << ",  et: " << et << ",  m_chStorage: " << m_chStorage[i] << ", \n";
     if (m_chStorage[i] >= 0.f)
     {
-        qIn -= totalLoss / m_dt;// average loss rate during m_dt
+//         qIn -= totalLoss / m_dt;// average loss rate during m_dt
+// 		if(qIn < 0.f) qIn = 0.f;
         m_chStorage[i] = st0;
         // calculate coefficients
         MuskWeights wt;
@@ -707,7 +668,7 @@ void MUSK_CH::ChannelFlow(int i)
         {
             m_qOut[i] = wt.c1 * qIn + wt.c2 * m_qIn[i] + wt.c3 * m_qOut[i];
             m_qIn[i] = qIn;
-            float tmp = m_chStorage[i] + (qIn - m_qOut[i]) * wt.dt;
+            float tmp = m_chStorage[i] + (qIn - totalLoss/m_dt - m_qOut[i]) * wt.dt;
             if (tmp < 0.f)
             {
                 m_qOut[i] = m_chStorage[i] / wt.dt + qIn;
@@ -727,7 +688,6 @@ void MUSK_CH::ChannelFlow(int i)
         m_chStorage[i] = 0.f;
         qIn = 0.f;
     }
-
     float qInSum = m_qsSub[i] + qiSub + qgSub + qsUp + qiUp + qgUp;
     m_qsCh[i] = m_qOut[i] * (m_qsSub[i] + qsUp) / qInSum;
     m_qiCh[i] = m_qOut[i] * (qiSub + qiUp) / qInSum;

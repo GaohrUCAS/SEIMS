@@ -476,7 +476,7 @@
 /// Nutrient remove
 #define MCLS_NutRemv "Nutrient remove"
 #define MCLSDESC_NutRemv "Simulates the loss of nitrate and phosphorus via surface runoff"
-#define MID_NUTRMV "NutRemv"
+#define MID_NUTRMV "NutrMV"
 #define MDESC_NUTRMV "Simulates the loss of nitrate and phosphorus via surface runoff"
 /// Nutrient routing
 #define MID_SSR_NUTR				"SSR_NUTR"
@@ -576,6 +576,7 @@
 #define VAR_CH_CHLORAConc "CH_chloraConc"
 #define VAR_CHL_A "chl_a"
 #define VAR_CHS0 "Chs0"                               /// initial channel storage per meter of reach length
+#define VAR_CHS0_PERC "chs0_perc"
 #define VAR_CHSB "CHSB"
 #define VAR_CHST "CHST"                               /// channel storage
 #define VAR_CHT "CHT" /// canopy height for the day(m)
@@ -589,6 +590,8 @@
 #define VAR_CO2HI "CO2HI"
 #define VAR_COD_CH "codToCh"
 #define VAR_COD "cod"
+#define VAR_COD_N "cod_n"
+#define VAR_COD_K "cod_k"
 #define VAR_COND_MAX "Cond_max"                       /// "Maximum automata's conductance"
 #define VAR_COND_RATE "Cond_rate"                     /// Rate of decline in automata's conductance per unit increase in vapor pressure deficit
 #define VAR_CONDUCT "Conductivity"
@@ -676,7 +679,6 @@
 #define VAR_K_N "k_n"
 #define VAR_K_P "k_p"
 #define VAR_K_PET "K_pet"                           /// Correction factor for PET
-#define VAR_K_PET "K_pet"                           /// Correction factor for PET
 #define VAR_K_RUN "K_run"
 #define VAR_K_SOIL10 "k_soil10"
 #define VAR_K_SUBLI "K_subli"
@@ -720,6 +722,7 @@
 #define VAR_NO2_TOCH "nitriteToCh"
 #define VAR_CH_NO2 "CH_NO2"
 #define VAR_CH_NO2Conc "CH_NO2Conc"
+#define VAR_DISTSTREAM "dist2stream"
 #define VAR_NO3GW "no3gw"
 #define VAR_NO3GW_TOCH "no3gwToCh"
 #define VAR_NPERCO "nperco"
@@ -736,6 +739,10 @@
 #define VAR_CH_ORGNConc "CH_ORGNConc"
 #define VAR_CH_ORGP "CH_ORGP"
 #define VAR_CH_ORGPConc "CH_ORGPConc"
+#define VAR_CH_TN "CH_TN"
+#define VAR_CH_TNConc "CH_TNConc"
+#define VAR_CH_TP "CH_TP"
+#define VAR_CH_TPConc "CH_TPConc"
 #define VAR_OUTLETID "OUTLET_ID"
 #define VAR_P_MAX "P_max"
 #define VAR_P_N "p_n"
@@ -762,6 +769,9 @@
 #define VAR_PPERCO "pperco"
 #define VAR_PPT "PPT"
 #define VAR_PSP "psp"                               /// Phosphorus availability index
+#define VAR_PTTN2CH "ptTNToCh"
+#define VAR_PTTP2CH "ptTPToCh"
+#define VAR_PTCOD2CH "ptCODToCh"
 #define VAR_PUPDIS "p_updis"
 #define VAR_QCH "QCH"
 #define VAR_FLOW_OL "OL_Flow"						/// overland flow in each cell calculated during overland routing
@@ -834,7 +844,6 @@
 #define VAR_SNOCOVMX "SNOCOVMX"
 #define VAR_SNO50COV "SNO50COV"
 #define VAR_SNRD "SNRD"
-#define VAR_SNRD "SNRD"
 #define VAR_SNSB "SNSB"
 #define VAR_SNWB "SNWB"
 #define VAR_SOER "SOER"                             /// soil loss caused by water erosion (t)
@@ -867,7 +876,6 @@
 #define VAR_SOL_STAP "sol_stap"                     /// amount of phosphorus in the soil layer stored in the stable mineral phosphorus pool(kg P/ha)
 #define VAR_SOL_SUMAWC "sol_sumAWC"  /// mm H2O sol_sumfc in SWAT
 #define VAR_SOL_SUMSAT "sol_sumul"  /// mm H2O  sol_sumul in SWAT
-#define VAR_SOL_UL "sol_ul"
 #define VAR_SOL_TA0 "soil_ta0"
 #define VAR_SOL_TA1 "soil_ta1"
 #define VAR_SOL_TA2 "soil_ta2"
@@ -904,6 +912,7 @@
 #define VAR_SUR_NH4_TOCH "SUR_NH4_TOCH"
 #define VAR_SUR_SOLP "sur_solp"
 #define VAR_SUR_SOLP_TOCH "sur_solp_ToCh"
+#define VAR_SUR_COD_TOCH "sur_cod_ToCH"
 #define VAR_SURU "SURU"                             /// surface runoff generated
 #define VAR_SWE "SWE"
 #define VAR_SWE0 "swe0"
@@ -1090,11 +1099,16 @@
 #define DESC_CH_MANNING_FACTOR "Manning scaling factor for channel routing"
 #define DESC_CH_SEDRATE "distribution of channel sediment rate"
 #define DESC_CH_TCCO "Calibration coefficient of transport capacity calculation"
+#define DESC_CH_TN " total N amount in reach"
+#define DESC_CH_TNConc "total N concentration in reach"
+#define DESC_CH_TP " total P amount in reach"
+#define DESC_CH_TPConc "total P concentration in reach"
 #define DESC_CH_V "flow velocity"
 #define DESC_CH_VOL "water volume"
 #define DESC_CH_CHLORA "chlorophyll-a in reach"
 #define DESC_CHL_A "chlorophyll-a concentration in water yield"
 #define DESC_CHS0 "initial channel storage per meter of reach length"
+#define DESC_CHS0_PERC "initial percentage of channel volume"
 #define DESC_CHSB "Channel sediment balance for each reach and at each time step"
 #define DESC_CHST "channel storage"
 #define DESC_CHT "canopy height for the day (m)"
@@ -1108,6 +1122,8 @@
 #define DESC_CO2HI "elevated CO2 atmospheric concentration corresponding the 2nd point on the radiation use efficiency curve"
 #define DESC_COD "carbonaceous oxygen demand of surface runoff"
 #define DESC_COD_CH "carbonaceous oxygen demand loading to reach"
+#define DESC_COD_N "Conversion factor"
+#define DESC_COD_K "Reaction coefficient"
 #define DESC_CONDRATE "Rate of decline in stomatal conductance per unit increase in vapor pressure deficit"
 #define DESC_CONDUCT "saturation hydraulic conductivity"
 #define DESC_CONV_WT "factor which converts kg/kg soil to kg/ha"
@@ -1126,6 +1142,7 @@
 #define DESC_DF_COEF "Deep percolation coefficient"
 #define DESC_CH_SOLP "dissolved phosphorus in reach"
 #define DESC_DLAI "the fraction of growing season(PHU) when senescence becomes dominant"
+#define DESC_DISTSTREAM "distance to the stream"
 #define DESC_DORMHR "time threshold used to define dormant period for plant"
 #define DESC_DORMI "dormancy status code, 0 for land cover growing and 1 for dormant"
 #define DESC_DPST "depression storage"
@@ -1161,9 +1178,9 @@
 #define DESC_GW_Q "groundwater contribution to stream flow"
 #define DESC_GW0 "initial ground water storage"
 #define DESC_GWMAX "maximum ground water storage"
-#define DESC_GWMINP "soluble P concentration in groundwater loading to reach"
+#define DESC_GWMINP "soluble P concentration in groundwater"
 #define DESC_GWNEW "The volume of water from the bank storage to the adjacent unsaturated zone and groundwater storage"
-#define DESC_GWNO3 "nitrate N concentration in groundwater loading to reach"
+#define DESC_GWNO3 "nitrate N concentration in groundwater"
 #define DESC_GWWB "groundwater water balance"
 #define DESC_GWRQ "groundwater recharge to channel"
 #define DESC_HCH "Water depth in the downslope boundary of cells"
@@ -1284,6 +1301,9 @@
 #define DESC_PPERCO "phosphorus percolation coefficient"
 #define DESC_PPT "maximum amount of transpiration (plant et)"
 #define DESC_PSP "Phosphorus availability index"
+#define DESC_PTTN2CH "total nitrogen loaded from point sources"
+#define DESC_PTTP2CH "total phosphrus loaded from point sources"
+#define DESC_PTCOD2CH "total COD loaded from point sources"
 #define DESC_PUPDIS "Phosphorus uptake distribution parameter"
 #define DESC_QCH "Flux in the downslope boundary of cells"
 #define DESC_OLFLOW "overland flow in each cell calculated during overland routing"
@@ -1426,10 +1446,11 @@
 #define DESC_SUR_NH4_CH "amount of NH4 transported with surface runoff to channel"
 #define DESC_SUR_SOLP "amount of solution phosphorus in surface runoff"
 #define DESC_SUR_SOLP_CH "amount of soluble phosphorus from surface runoff to channel"
+#define DESC_SUR_COD_CH "amount of COD to reach in surface runoff"
 #define DESC_SURU "surface runoff generated"
 #define DESC_SWE "average snow accumulation of the watershed"
 #define DESC_SWE0 "Initial snow water equivalent"
-#define DESC_T_BASE "base or minimum temperature for growth"
+#define DESC_T_BASE "base or minimum temperature for plant growth"
 #define DESC_T_OPT "optimal temperature for plant growth"
 #define DESC_T_RG "groundwater runoff"
 #define DESC_T_SNOW "Snowfall temperature"

@@ -37,8 +37,7 @@ void AET_PT_H::Set1DData(const char *key, int n, float *data)
     else if (StringMatch(sk, VAR_SOL_COV)) m_solCov = data;
 	else if (StringMatch(sk, VAR_SOL_SW)) m_soilStorageProfile = data;
     else
-        throw ModelException(MID_AET_PTH, "Set1DData", "Parameter " + sk +
-                                                       " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_AET_PTH, "Set1DData", "Parameter " + sk + " does not exist.");
 }
 
 void AET_PT_H::Set2DData(const char *key, int n, int col, float **data)
@@ -52,8 +51,7 @@ void AET_PT_H::Set2DData(const char *key, int n, int col, float **data)
     else if (StringMatch(sk, VAR_SOL_NO3)) m_solNo3 = data;
     else if (StringMatch(sk, VAR_SOL_ST)) m_soilStorage = data;
     else
-        throw ModelException(MID_AET_PTH, "Set2DData", "Parameter " + sk +
-                                                       " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_AET_PTH, "Set2DData", "Parameter " + sk + " does not exist.");
 }
 
 bool AET_PT_H::CheckInputSize(const char *key, int n)
@@ -75,51 +73,36 @@ bool AET_PT_H::CheckInputData(void)
 {
     if (this->m_date <= 0) throw ModelException(MID_AET_PTH, "CheckInputData", "You have not set the time.");
     if (this->m_nCells <= 0)
-        throw ModelException(MID_AET_PTH, "CheckInputData",
-                             "The dimension of the input data can not be less than zero.");
+        throw ModelException(MID_AET_PTH, "CheckInputData", "The dimension of the input data can not be less than zero.");
     if (this->m_esco == NULL)
-        throw ModelException(MID_AET_PTH, "CheckInputData",
-                             "The soil evaporation compensation factor can not be NULL.");
+        throw ModelException(MID_AET_PTH, "CheckInputData", "The soil evaporation compensation factor can not be NULL.");
     if (this->m_nSoilLayers == NULL)
-        throw ModelException(MID_AET_PTH, "CheckInputData",
-                             "The soil layers can not be NULL.");
+        throw ModelException(MID_AET_PTH, "CheckInputData", "The soil layers can not be NULL.");
     if (this->m_tMean == NULL)
-        throw ModelException(MID_AET_PTH, "CheckInputData",
-                             "The mean temperature can not be NULL.");
+        throw ModelException(MID_AET_PTH, "CheckInputData", "The mean temperature can not be NULL.");
     if (this->m_lai == NULL)
-        throw ModelException(MID_AET_PTH, "CheckInputData",
-                             "The leaf area index can not be NULL.");
+        throw ModelException(MID_AET_PTH, "CheckInputData", "The leaf area index can not be NULL.");
     if (this->m_pet == NULL)
-        throw ModelException(MID_AET_PTH, "CheckInputData",
-                             "The potential evaportranspiration can not be NULL.");
+        throw ModelException(MID_AET_PTH, "CheckInputData", "The potential evaportranspiration can not be NULL.");
     if (this->m_snowAcc == NULL)
-        throw ModelException(MID_AET_PTH, "CheckInputData",
-                             "The snow accumulation can not be NULL.");
-    /// if m_snowSB is not provided, it will be initialized in initialOutputs().
+        throw ModelException(MID_AET_PTH, "CheckInputData", "The snow accumulation can not be NULL.");
+    /// If m_snowSB is not provided, it will be initialized in initialOutputs().
 	//if (this->m_snowSB == NULL)
-    //    throw ModelException(MID_AET_PTH, "CheckInputData",
-    //                         "The snow sublimation can not be NULL.");
+    //    throw ModelException(MID_AET_PTH, "CheckInputData", "The snow sublimation can not be NULL.");
     if (this->m_solCov == NULL)
-        throw ModelException(MID_AET_PTH, "CheckInputData",
-                             "The residue on soil surface can not be NULL.");
+        throw ModelException(MID_AET_PTH, "CheckInputData", "The residue on soil surface can not be NULL.");
     if (this->m_soilDepth == NULL)
-        throw ModelException(MID_AET_PTH, "CheckInputData",
-                             "The soil depth can not be NULL.");
+        throw ModelException(MID_AET_PTH, "CheckInputData", "The soil depth can not be NULL.");
 	if (this->m_soilThick == NULL)
-		throw ModelException(MID_AET_PTH, "CheckInputData",
-		"The soil thickness can not be NULL.");
+		throw ModelException(MID_AET_PTH, "CheckInputData", "The soil thickness can not be NULL.");
     if (this->m_solAWC == NULL)
-        throw ModelException(MID_AET_PTH, "CheckInputData",
-                             "The available water capacity at field capacity can not be NULL.");
+        throw ModelException(MID_AET_PTH, "CheckInputData", "The available water capacity at field capacity can not be NULL.");
     if (this->m_solNo3 == NULL)
-        throw ModelException(MID_AET_PTH, "CheckInputData",
-                             "Nitrogen stored in the nitrate pool can not be NULL.");
+        throw ModelException(MID_AET_PTH, "CheckInputData", "Nitrogen stored in the nitrate pool can not be NULL.");
     if (this->m_soilStorage == NULL)
-        throw ModelException(MID_AET_PTH, "CheckInputData",
-                             "The soil storage can not be NULL.");
+        throw ModelException(MID_AET_PTH, "CheckInputData", "The soil storage can not be NULL.");
 	if (this->m_soilStorageProfile == NULL)
-		throw ModelException(MID_AET_PTH, "CheckInputData",
-		"The soil storage of soil profile can not be NULL.");
+		throw ModelException(MID_AET_PTH, "CheckInputData", "The soil storage of soil profile can not be NULL.");
     return true;
 }
 void AET_PT_H::initialOutputs()
@@ -147,18 +130,18 @@ int AET_PT_H::Execute()
         effnup = 0.1f;
 		if (pet < UTIL_ZERO)
 		{
-			m_ppt[i] = 0.f;
+			pet = 0.f;
+			m_ppt[i] = 0.f; // i.e., ep_max
 			es_max = 0.f;
 		}
-        if (pet >= UTIL_ZERO)
+		else
         {
             /// compute potential plant evapotranspiration (PPT) other than Penman-Monteith method
             if (m_lai[i] <= 3.f)
                 m_ppt[i] = m_lai[i] * m_pet[i] / 3.f;
             else
-                m_ppt[i] = m_pet[i];
-            if (m_ppt[i] < 0.f)
-                m_ppt[i] = 0.f;
+                m_ppt[i] = pet;
+            if (m_ppt[i] < 0.f) m_ppt[i] = 0.f;
             /// compute potential soil evaporation
             cej = -5.e-5f;
             eaj = 0.f;
@@ -168,19 +151,19 @@ int AET_PT_H::Execute()
                 eaj = 0.5f;
             else
                 eaj = exp(cej * (m_solCov[i] + 0.1f));
-            es_max = m_pet[i] * eaj;
-            eos1 = m_pet[i] / (es_max + m_ppt[i] + 1.e-10f);
+            es_max = pet * eaj;
+            eos1 = pet / (es_max + m_ppt[i] + 1.e-10f);
             eos1 = es_max * eos1;
             es_max = min(es_max, eos1);
             es_max = max(es_max, 0.f);
             /// make sure maximum plant and soil ET doesn't exceed potential ET
-            if (m_pet[i] < es_max + m_ppt[i] && FloatEqual(es_max + m_ppt[i], 0.f))
+            if (pet < es_max + m_ppt[i] && !FloatEqual(es_max + m_ppt[i], 0.f))
             {
-                es_max = m_pet[i] * es_max / (es_max + m_ppt[i]);
-                m_ppt[i] = m_pet[i] * m_ppt[i] / (es_max + m_ppt[i]);
+                es_max = pet * es_max / (es_max + m_ppt[i]);
+                m_ppt[i] = pet * m_ppt[i] / (es_max + m_ppt[i]);
             }
-            if (m_pet[i] < es_max + m_ppt[i] && FloatEqual(es_max + m_ppt[i], 0.f))
-                es_max = m_pet[i] - m_ppt[i] - UTIL_ZERO;
+            if (pet < es_max + m_ppt[i])
+                es_max = pet - m_ppt[i] - UTIL_ZERO;
 
             /// initialize soil evaporation variables
             esleft = es_max;
@@ -266,6 +249,7 @@ int AET_PT_H::Execute()
 				m_soilESDay[i] = 0.f;
         }
     }
+	//cout<<"AET_PTH, cell id 5878, sol_no3[0]: "<<m_solNo3[5878][0]<<endl;
     return true;
 }
 
@@ -291,16 +275,3 @@ void AET_PT_H::Get1DData(const char *key, int *n, float **data)
         throw ModelException(MID_AET_PTH, "Get1DData", "Result " + sk + " does not exist.");
     *n = this->m_nCells;
 }
-
-//void AET_PT_H::Get2DData(const char *key, int *n, int *col, float ***data)
-//{
-//	initialOutputs();
-//    string sk(key);
-//    if (StringMatch(sk, VAR_SOMO)) *data = this->m_soilStorage;
-//    else
-//        throw ModelException(MID_AET_PTH, "Get2DData", "Result " + sk
-//                                                       +
-//                                                       " does not exist in current module. Please contact the module developer.");
-//    *n = this->m_nCells;
-//    *col = this->m_soilLayers;
-//}

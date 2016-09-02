@@ -41,8 +41,7 @@ void clsPI_MSM::Set1DData(const char *key, int nRows, float *data)
     else if (StringMatch(s, VAR_INTERC_MIN))
         m_minSt = data;
     else
-        throw ModelException(MID_PI_MSM, "Set1DData", "Parameter " + s +
-                                                      " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_PI_MSM, "Set1DData", "Parameter " + s + " does not exist.");
 }
 
 void clsPI_MSM::SetValue(const char *key, float data)
@@ -52,8 +51,7 @@ void clsPI_MSM::SetValue(const char *key, float data)
     else if (StringMatch(s, VAR_INIT_IS)) this->m_Init_IS = data;
     else if (StringMatch(s, VAR_OMP_THREADNUM)) omp_set_num_threads((int) data);
     else
-        throw ModelException(MID_PI_MSM, "SetValue", "Parameter " + s +
-                                                     " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_PI_MSM, "SetValue", "Parameter " + s + " does not exist.");
 }
 
 void clsPI_MSM::Get1DData(const char *key, int *nRows, float **data)
@@ -68,8 +66,7 @@ void clsPI_MSM::Get1DData(const char *key, int *nRows, float **data)
     else if (StringMatch(s, VAR_NEPR))
         *data = m_netPrecipitation;
     else
-        throw ModelException(MID_PI_MSM, "Get1DData",
-                             "Result " + s + " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_PI_MSM, "Get1DData", "Result " + s + " does not exist.");
     *nRows = this->m_nCells;
 }
 

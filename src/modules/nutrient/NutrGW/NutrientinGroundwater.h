@@ -5,12 +5,11 @@
  */
 
 #pragma once
-#ifndef SEIMS_NutRemv_PARAMS_INCLUDE
-#define SEIMS_NutRemv_PARAMS_INCLUDE
 
 #include <string>
 #include "api.h"
 #include "SimulationModule.h"
+#include "ModelException.h"
 
 using namespace std;
 /** \defgroup NutGW
@@ -56,9 +55,9 @@ private:
 	int m_TimeStep;
 
     /// input data
-    /// nitrate N concentration in groundwater loading to reach (g/L, i.e. kg/m3)
+    /// nitrate N concentration in groundwater loading to reach (mg/L, i.e. g/m3)
     float *m_gwno3Con;
-    /// soluble P concentration in groundwater loading to reach (g/L, i.e. kg/m3)
+    /// soluble P concentration in groundwater loading to reach (mg/L, i.e. g/m3)
     float *m_gwminpCon;
     /// groundwater contribution to stream flow (m3/s)
     float *m_gw_q; 
@@ -117,10 +116,3 @@ private:
     void initialOutputs();
 
 };
-
-#endif
-
-
-
-
-

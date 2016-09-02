@@ -141,6 +141,7 @@ int AtmosphericDeposition::Execute()
 			m_wshd_rno3 += (m_addrno3 * (1.f / m_nCells));
 		}
 	}
+	//cout<<"ATMDEP, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
     return 0;
 }
 

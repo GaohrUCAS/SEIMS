@@ -142,12 +142,7 @@ void SurrunoffTransfer::Set1DData(const char *key, int n, float *data)
 	if (StringMatch(sk, VAR_SUBBSN))
 		m_subbasin = data;
     else if (StringMatch(sk, VAR_SED_OL))
-    {
         this->m_sedimentYield = data;
-		// convert kg to ton
-		for (int i = 0; i < n; i++)
-			m_sedimentYield[i] /= 1000.f;
-    }
 	else if (StringMatch(sk, VAR_SOILLAYERS))
 	{
 		m_nSoilLayers = data;
@@ -193,15 +188,15 @@ void SurrunoffTransfer::initialOutputs()
 		Initialize1DArray(m_nCells, m_enratio, 0.f);
 		for (int i = 0; i < m_nCells; i++)
 		{
-			if (m_sedimentYield[i] < 1e-4f)
+			if (m_sedimentYield[i] < 1.e-4f)
 			{
 				m_sedimentYield[i] = 0.f;
 			}
 			// CREAMS method for calculating enrichment ratio
 			float cy = 0.f;
 			// Calculate sediment calculations, equation 4:2.2.3 in SWAT Theory 2009, p272
-			cy = 0.1f * m_sedimentYield[i] / (m_cellWidth * m_cellWidth * 0.0001f * m_surfr[i] + 1e-6f);
-			if (cy > 1e-6f)
+			cy = 0.1f * m_sedimentYield[i] / (m_cellWidth * m_cellWidth * 0.0001f * m_surfr[i] + 1.e-6f) / 1000.f;
+			if (cy > 1.e-6f)
 			{
 				m_enratio[i] = 0.78f * pow(cy, -0.2468f);
 			} else
@@ -269,18 +264,18 @@ int SurrunoffTransfer::Execute()
 		}
 		m_sedorgnToCh[subi] += m_sedorgn[i];
 		m_sedorgpToCh[subi] += m_sedorgp[i];
-		m_sedminpaToCh[subi] = m_sedminpa[i];
-		m_sedminpsToCh[subi] = m_sedminps[i];
+		m_sedminpaToCh[subi] += m_sedminpa[i];
+		m_sedminpsToCh[subi] += m_sedminps[i];
 	}
 	// sum all the subbasins and put the sum value in the zero-index of the array
-	float cellArea = m_cellWidth * m_cellWidth * 0.0001f; //ha
+	float cellArea = m_cellWidth * m_cellWidth * 0.0001f; // ha
 	//for (int i = 1; i < m_nSubbasins + 1; i++)
 	for (vector<int>::iterator it = m_subbasinIDs.begin(); it != m_subbasinIDs.end(); it++)
 	{
 		m_sedorgnToCh[0] += m_sedorgnToCh[*it] * cellArea;
 		m_sedorgpToCh[0] += m_sedorgpToCh[*it] * cellArea;
-		m_sedminpaToCh[0] = m_sedminpaToCh[*it] * cellArea;
-		m_sedminpsToCh[0] = m_sedminpsToCh[*it] * cellArea;
+		m_sedminpaToCh[0] += m_sedminpaToCh[*it] * cellArea;
+		m_sedminpsToCh[0] += m_sedminpsToCh[*it] * cellArea;
 	}
     return 0;
 }
@@ -299,9 +294,9 @@ void SurrunoffTransfer::OrgnRemoveinSr(int i)
         float concn = 0.f;
         concn = orgninfl * m_enratio[i] / wt;
         //Calculate the amount of organic nitrogen transported with sediment to the stream, equation 4:2.2.1 in SWAT Theory 2009, p271
-        m_sedorgn[i] = 0.001f * concn * m_sedimentYield[i] / (m_cellWidth * m_cellWidth * m_nCells);
+        m_sedorgn[i] = 0.001f * concn * m_sedimentYield[i] / 1000.f / (m_cellWidth * m_cellWidth * m_nCells * 0.0001f);	// * 0.0001f, m2 -> ha
         //update soil nitrogen pools
-        if (orgninfl > 1e-6f)
+        if (orgninfl > 1.e-6f)
         {
             m_sol_aorgn[i][0] = m_sol_aorgn[i][0] - m_sedorgn[i] * (m_sol_aorgn[i][0] / orgninfl);
             m_sol_orgn[i][0] = m_sol_orgn[i][0] - m_sedorgn[i] * (m_sol_orgn[i][0] / orgninfl);
@@ -337,7 +332,7 @@ void SurrunoffTransfer::OrgpAttachedtoSed(int i)
         float sol_attp_s = 0.f;
         //Calculate sediment
         sol_attp = m_sol_orgp[i][0] + m_sol_fop[i][0] + m_sol_actp[i][0] + m_sol_stap[i][0];
-        if (sol_attp > 1e-3f)
+        if (sol_attp > 1.e-3f)
         {
             sol_attp_o = (m_sol_orgp[i][0] + m_sol_fop[i][0]) / sol_attp;
             sol_attp_a = m_sol_actp[i][0] / sol_attp;
@@ -349,18 +344,20 @@ void SurrunoffTransfer::OrgpAttachedtoSed(int i)
         float concp = 0.f;
         concp = sol_attp * m_enratio[i] / wt;
         //total amount of P removed in sediment erosion (sedp)
-        float sedp = 0.001f * concp * m_sedimentYield[i] / (m_cellWidth * m_cellWidth) / 10000.f;
+        float sedp = 0.001f * concp * m_sedimentYield[i] / 1000.f / (m_cellWidth * m_cellWidth) / 10000.f;
         m_sedorgp[i] = sedp * sol_attp_o;
         m_sedminpa[i] = sedp * sol_attp_a;
         m_sedminps[i] = sedp * sol_attp_s;
         //modify phosphorus pools
-        //total amount of P in mineral sediment pools prior to sediment removal (psedd)
-        float psedd = 0.f;
+
+        //total amount of P in mineral sediment pools prior to sediment removal (psedd)		// Not used
+        //float psedd = 0.f;
+        //psedd = m_sol_actp[i][0] + m_sol_stap[i][0];
+
         //total amount of P in organic pools prior to sediment removal (porgg)
         float porgg = 0.f;
-        psedd = m_sol_actp[i][0] + m_sol_stap[i][0];
         porgg = m_sol_orgp[i][0] + m_sol_fop[i][0];
-        if (porgg > 1e-3f)
+        if (porgg > 1.e-3f)
         {
             m_sol_orgp[i][0] = m_sol_orgp[i][0] - m_sedorgp[i] * (m_sol_orgp[i][0] / porgg);
             m_sol_fop[i][0] = m_sol_fop[i][0] - m_sedorgp[i] * (m_sol_fop[i][0] / porgg);

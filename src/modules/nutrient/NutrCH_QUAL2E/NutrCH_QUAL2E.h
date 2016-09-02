@@ -64,7 +64,7 @@ public:
 private:
 	// cell number
 	int m_nCells;
-    /// time step (hr)
+    /// time step (sec)
     int m_dt;
     /// downstream id (The value is 0 if there if no downstream reach)
     float *m_reachDownStream;
@@ -120,6 +120,11 @@ private:
     float m_mumax;
     /// algal respiration rate at 20 deg C (1/day)
     float m_rhoq;
+	/// Conversion factor
+	float m_cod_n;
+	/// Reaction coefficient
+	float m_cod_k;
+
 	/// stream link
 	float *m_streamLink;
 	/// soil temperature (deg C)
@@ -190,10 +195,14 @@ private:
 	float *m_ptNH4ToCh;
 	/// Organic nitrogen
 	float *m_ptOrgNToCh;
+	/// total nitrogen
+	float *m_ptTNToCh;
 	/// soluble (dissolved) phosphorus
 	float *m_ptSolPToCh;
 	/// Organic phosphorus 
 	float *m_ptOrgPToCh;
+	/// total phosphorus
+	float *m_ptTPToCh;
 	/// COD
 	float *m_ptCODToCh;
 
@@ -212,8 +221,8 @@ private:
     float *m_chNO3;
     /// dissolved phosphorus storage in reach (kg)
     float *m_chSolP;
-    /// carbonaceous biochemical oxygen demand in reach (kg)
-    float *m_chCBOD;
+    /// carbonaceous oxygen demand in reach (kg)
+    float *m_chCOD;
     /// dissolved oxygen storage in reach (kg)
     float *m_chDOx;
     /// chlorophyll-a storage in reach (kg)
@@ -262,8 +271,14 @@ private:
 	float *m_chOutDOx;
 	/// dissolved oxygen concentration in reach (mg/L)
 	float *m_chOutDOxConc;
-
-	
+	/// total N amount in reach (kg)
+	float *m_chOutTN;
+	/// total N concentration in reach (mg/L)
+	float *m_chOutTNConc;
+	/// total P amount in reach (kg)
+	float *m_chOutTP;
+	/// total P concentration in reach (mg/L)
+	float *m_chOutTPConc;
 
 	//intermediate variables
 

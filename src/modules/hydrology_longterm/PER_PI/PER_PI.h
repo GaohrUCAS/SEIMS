@@ -48,20 +48,15 @@ private:
     int m_nCells;
     /// threshold soil freezing temperature
     float m_frozenT;
-    /// saturated conductivity
+    /// saturated conductivity, mm/h
     float **m_ks;
     ///// soil porosity
     //float **m_porosity;
 
 	/// amount of water held in the soil layer at saturation (sat - wp water), mm
-	float **m_sat;
-    ///// field capacity (mm H2O/ mm Soil)
-    //float **m_fc;
-    
-	/// amount of water held in the soil layer at saturation (sat - wp water) mm H2O
+	float **m_sat;    
+	/// amount of water held in the soil layer at field capacity (fc - wp water) mm H2O
 	float **m_fc;
-	///// wilting point (mm H2O/ mm Soil)
-	//float **m_wp;
 	/// water content of soil at -1.5 MPa (wilting point) mm H2O
 	float **m_wp;
     /// pore index

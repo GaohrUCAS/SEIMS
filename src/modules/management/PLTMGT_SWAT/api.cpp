@@ -50,13 +50,14 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.AddParameter(VAR_SAND, UNIT_PERCENT, DESC_SAND, Source_ParameterDB, DT_Raster2D);
     mdi.AddParameter(VAR_ROCK, UNIT_PERCENT, DESC_ROCK, Source_ParameterDB, DT_Raster2D);
     /// landuse/landcover
+	mdi.AddParameter(VAR_IDC, UNIT_NON_DIM, DESC_IDC, Source_ParameterDB, DT_Raster1D);
     mdi.AddParameter(VAR_LANDUSE, UNIT_NON_DIM, DESC_LANDUSE, Source_ParameterDB, DT_Raster1D);
     mdi.AddParameter(VAR_LANDCOVER, UNIT_NON_DIM, DESC_LANDCOVER, Source_ParameterDB, DT_Raster1D);
     mdi.AddParameter(VAR_CN2, UNIT_NON_DIM, DESC_CN2, Source_ParameterDB, DT_Raster1D);
     mdi.AddParameter(VAR_HVSTI, UNIT_CONT_RATIO, DESC_HVSTI, Source_ParameterDB, DT_Raster1D);
     mdi.AddParameter(VAR_WSYF, UNIT_CONT_RATIO, DESC_WSYF, Source_ParameterDB, DT_Raster1D);
     mdi.AddParameter(VAR_PHUPLT, UNIT_HEAT_UNIT, DESC_PHUPLT, Source_ParameterDB, DT_Raster1D);
-
+	mdi.AddParameter(VAR_T_BASE, UNIT_TEMP_DEG, DESC_T_BASE, Source_ParameterDB, DT_Raster1D);
     /// lookup table as 2D array, such as crop, management, landuse, tillage, etc.
     mdi.AddParameter(VAR_LANDUSE_LOOKUP, UNIT_NON_DIM, DESC_LANDUSE_LOOKUP, Source_ParameterDB, DT_Array2D);
     mdi.AddParameter(VAR_CROP_LOOKUP, UNIT_NON_DIM, DESC_CROP_LOOKUP, Source_ParameterDB, DT_Array2D);

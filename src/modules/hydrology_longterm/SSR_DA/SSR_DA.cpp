@@ -25,21 +25,8 @@ SSR_DA::SSR_DA(void) : m_nSoilLayers(-1), m_dt(-1), m_nCells(-1), m_CellWidth(-1
 SSR_DA::~SSR_DA(void)
 {
     if (m_qi != NULL) Release2DArray(m_nCells, m_qi);
-    //{
-    //    for (int i = 0; i < m_nCells; i++)
-    //        delete[] m_qi[i];
-    //    delete[] m_qi;
-    //}
-
     if (m_qiVol != NULL) Release2DArray(m_nCells, m_qiVol);
-    //{
-    //    for (int i = 0; i < m_nCells; i++)
-    //        delete[] m_qiVol[i];
-    //    delete[] m_qiVol;
-    //}
-
     if (m_qiSubbasin != NULL) Release1DArray(m_qiSubbasin);
-        //delete[] m_qiSubbasin;
 }
 
 void SSR_DA::FlowInSoil(int id)
@@ -314,7 +301,7 @@ void SSR_DA::Get1DData(const char *key, int *n, float **data)
     if (StringMatch(sk, VAR_SBIF))
         *data = m_qiSubbasin;
     else
-        throw ModelException(MID_SSR_DA, "Get1DData", "Result " + sk + " does not exist in current module.");
+        throw ModelException(MID_SSR_DA, "Get1DData", "Result " + sk + " does not exist.");
     *n = m_nSubbasin + 1;
 }
 

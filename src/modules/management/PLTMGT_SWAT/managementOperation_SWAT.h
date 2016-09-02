@@ -106,6 +106,8 @@ private:
     ///    sol_solp(:,:) |kg P/ha       |amount of inorganic phosphorus stored in solution
     float **m_soilSolP;
 
+	/// minimum temperature for plant growth
+	float *m_tBase;
     /** Temporary parameters**/
 
     /// Sequence number of management operations done in the previous time step run
@@ -123,6 +125,8 @@ private:
     float *m_CN2;
     /// plant growth code, 0 or 1
     float *m_igro;
+	/// land cover/crop  classification:1-7, i.e., IDC
+	float *m_landCoverCls;
     /// Harvest index target, defined in plant operation and used in harvest/kill operation
     float *m_HarvestIdxTarg;
     /// Biomass target

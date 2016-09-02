@@ -178,6 +178,7 @@ namespace MainBMP
         const bson_t *info;
         while (mongoc_cursor_more(cursor) && mongoc_cursor_next(cursor, &info))
         {
+			//cout<<bson_as_json(info,0)<<endl;
             bson_iter_t iter;
             int BMPID = -1;
             int subScenario = -1;

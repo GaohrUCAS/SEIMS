@@ -20,7 +20,7 @@ class clsRasterData;
 /*!
  * \brief Get Integer value from \a bson_iter_t 
  *
- * The \a bson_type_t can be BSON_TYPE_INT32 or BSON_TYPE_INT64
+ * The \a bson_type_t can be BSON_TYPE_INT32 or BSON_TYPE_INT64 or BSON_TYPE_UTF8
  *
  * \param[in] iter \a bson_iter_t
  * \return Integer value if success, or -1 if failed.
@@ -30,13 +30,21 @@ int GetIntFromBSONITER(bson_iter_t *iter);
 /*!
  * \brief Get Float value from \a bson_iter_t 
  *
- * The \a bson_type_t can be BSON_TYPE_INT32 or BSON_TYPE_INT64 or BSON_TYPE_DOUBLE
+ * The \a bson_type_t can be BSON_TYPE_INT32 or BSON_TYPE_INT64 or BSON_TYPE_DOUBLE or BSON_TYPE_UTF8
  *
  * \param[in] iter \a bson_iter_t
  * \return Float value if success, or -1.0 if failed.
  */
 float GetFloatFromBSONITER(bson_iter_t *iter);
-
+/*!
+ * \brief Get boolean value from \a bson_iter_t 
+ *
+ * The \a bson_type_t can be BSON_TYPE_INT32 or BSON_TYPE_INT64 or BSON_TYPE_DOUBLE or BSON_TYPE_UTF8
+ *
+ * \param[in] iter \a bson_iter_t
+ * \return true if the value is 1, or greater than 0, or string matched to 'TURE', 'True', 'true' etc., or false.
+ */
+bool GetBoolFromBSONITER(bson_iter_t *iter);
 /*!
  * \brief Get Date time from \a bson_iter_t 
  *

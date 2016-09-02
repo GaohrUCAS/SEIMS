@@ -60,14 +60,19 @@ private:
     /// input data
     /// drainage tile flow in soil profile
     float m_qtile;
-    /// distribution of soil loss caused by water erosion
-    float *m_sedimentYield;
     /// Phosphorus soil partitioning coefficient
     float m_phoskd;
     /// phosphorus percolation coefficient (0-1)
     float m_pperco;
     /// nitrate percolation coefficient (0-1)
     float m_nperco;
+	/// Conversion factor
+	float m_cod_n;
+	/// Reaction coefficient
+	float m_cod_k;
+
+    /// distribution of soil loss caused by water erosion
+    float *m_sedimentYield;
     // fraction of porosity from which anions are excluded
     float *m_anion_excl;
     // distribution of surface runoff generated
@@ -78,6 +83,8 @@ private:
     float *m_ldrain;
     /// crack volume potential of soil
     float *m_sol_crk;
+	/// distance to the stream
+	float *m_dis_stream;
     /// amount of water held in the soil layer at saturation
     float **m_sol_wsatur;
 
@@ -92,7 +99,15 @@ private:
 
 	/// flow out index
 	float *m_flowOutIndex;
-
+	/**
+    *	@brief Routing layers according to the flow direction
+    *
+    *	There are not flow relationships within each layer.
+    *	The first element in each layer is the number of cells in the layer
+    */
+    float **m_routingLayers;
+	/// number of routing layers
+    int m_nRoutingLayers;
     /// amount of organic nitrogen in surface runoff
     float *m_sedorgn;
     /// average air temperature
@@ -109,7 +124,7 @@ private:
     float *m_perco_n;
 	/// amount of solute P percolating past bottom of soil profile
 	float *m_perco_p;
-    /// amount of nitrate transported with surface runoff
+    /// amount of nitrate transported with surface runoff, kg/ha
     float *m_surqno3;
     /// amount of soluble phosphorus in surface runoff
     float *m_surqsolp;
@@ -128,6 +143,9 @@ private:
 	float *m_sur_solpToCh;// amount of soluble phosphorus in surface runoff to channel
 	float *m_perco_n_gw;  // amount of nitrate percolating past bottom of soil profile sum by sub-basin
 	float *m_perco_p_gw;  // amount of solute P percolating past bottom of soil profile sum by sub-basin
+
+	// amount of COD to reach in surface runoff (kg)
+	float *m_sur_codToCh; 
 
 	/// subbasin related
 	/// the total number of subbasins
@@ -169,8 +187,10 @@ private:
 
     /*!
     * \brief Calculate the loss of nitrate via surface runoff, lateral flow, tile flow, and percolation out of the profile.
-    *
-    * \return void
+     * mainly rewrited from nlch.f of SWAT
+	 * 1. nitrate loss with surface flow
+	 * 2. nitrate loss with subsurface flow (routing considered)
+	 * 3. nitrate loss with percolation
     */
     void NitrateLoss();
 
@@ -178,11 +198,14 @@ private:
     * \brief Calculates the amount of phosphorus lost from the soil
     *        profile in runoff and the movement of soluble phosphorus from the first
     *        to the second layer via percolation.
-    *
-    * \return void
+    *		 rewrite from solp.f of SWAT
     */
     void PhosphorusLoss();
-
+	/*
+	 * \brief compute loadings of chlorophyll-a, BOD, and dissolved oxygen to the main channel
+	 *        rewrite from subwq.f of SWAT
+	 */
+	void SubbasinWaterQuality();
     /*!
     * \brief Calculate enrichment ratio.
      *

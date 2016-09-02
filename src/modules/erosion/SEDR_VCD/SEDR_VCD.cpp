@@ -121,7 +121,8 @@ void  SEDR_VCD::initialOutputs()
 
         for (int i = 1; i <= m_nreach; i++){
             //m_sedStorage[i] = m_Chs0 * m_chLen[i]; // m_Chs0 is initial channel storage per meter, not sediment! By LJ
-			m_sedStorage[i] = m_sedChi0 * m_Chs0 * m_chLen[i] * 1000.f; /// ton/m3 * m3/m * m * 1000 = kg
+			//m_sedStorage[i] = m_sedChi0 * m_Chs0 * m_chLen[i] * 1000.f; /// ton/m3 * m3/m * m * 1000 = kg
+			m_sedStorage[i] = m_sedChi0 * m_chStorage[i] * 1000.f;
 		}
     }
 	/// initialize point source loadings
@@ -150,14 +151,15 @@ void SEDR_VCD::PointSourceLoading()
 					continue;
 			}
 			// 1.2 Otherwise, get the water volume
-			float per_sed = curPtMgt->GetSedment(); /// kg/'size'/day 
+			float per_sed = curPtMgt->GetSedment(); /// g/cm3, or Mg/m3 
 			// 1.3 Sum up all point sources
 			for (vector<int>::iterator locIter = m_ptSrcIDs.begin(); locIter != m_ptSrcIDs.end(); locIter++)
 			{
 				if (m_pointSrcLocsMap.find(*locIter) != m_pointSrcLocsMap.end()){
 					PointSourceLocations* curPtLoc = m_pointSrcLocsMap.at(*locIter);
 					int curSubID = curPtLoc->GetSubbasinID();
-					m_ptSub[curSubID] += per_sed * curPtLoc->GetSize(); /// kg
+					/// Mg/m3 ==> kg / timestep
+					m_ptSub[curSubID] += per_sed * curPtLoc->GetSize() * 1000.f * m_dt / 86400.f; 
 				}
 			}
 		}
@@ -341,15 +343,18 @@ void SEDR_VCD::SetReaches(clsReaches *reaches)
 	{
 		m_nreach = reaches->GetReachNumber();
 		m_reachId = reaches->GetReachIDs();
-		Initialize1DArray(m_nreach+1,m_reachDownStream, 0.f);
-		Initialize1DArray(m_nreach+1,m_chOrder, 0.f);
-		Initialize1DArray(m_nreach+1,m_chWidth, 0.f);
-		Initialize1DArray(m_nreach+1,m_chLen, 0.f);
-		Initialize1DArray(m_nreach+1,m_chDepth, 0.f);
-		Initialize1DArray(m_nreach+1,m_chVel, 0.f);
-		Initialize1DArray(m_nreach+1,m_chSlope, 0.f);
-		Initialize1DArray(m_nreach+1,m_chCover, 0.f);
-		Initialize1DArray(m_nreach+1,m_chErod, 0.f);
+		if (m_reachDownStream == NULL)
+		{
+			Initialize1DArray(m_nreach+1,m_reachDownStream, 0.f);
+			Initialize1DArray(m_nreach+1,m_chOrder, 0.f);
+			Initialize1DArray(m_nreach+1,m_chWidth, 0.f);
+			Initialize1DArray(m_nreach+1,m_chLen, 0.f);
+			Initialize1DArray(m_nreach+1,m_chDepth, 0.f);
+			Initialize1DArray(m_nreach+1,m_chVel, 0.f);
+			Initialize1DArray(m_nreach+1,m_chSlope, 0.f);
+			Initialize1DArray(m_nreach+1,m_chCover, 0.f);
+			Initialize1DArray(m_nreach+1,m_chErod, 0.f);
+		}
 		for (vector<int>::iterator it = m_reachId.begin(); it != m_reachId.end(); it++)
 		{
 			int i = *it;

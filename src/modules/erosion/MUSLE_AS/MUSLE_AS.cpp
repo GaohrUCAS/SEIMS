@@ -51,16 +51,6 @@ void MUSLE_AS::initialOutputs()
     if (m_nCells <= 0)
         throw ModelException(MID_MUSLE_AS, "CheckInputData",
                              "The dimension of the input data can not be less than zero.");
-    // allocate the output variables
-    //if (m_nsub <= 0)// TODO prepared in parameter tables.
-    //{
-    //    map<int, int> subs;
-    //    for (int i = 0; i < m_nCells; i++)
-    //    {
-    //        subs[int(m_subbasin[i])] += 1;
-    //    }
-    //    m_nsub = subs.size();
-    //}
    
     if (m_sedimentYield == NULL)
 		Initialize1DArray(m_nCells, m_sedimentYield, 0.f);

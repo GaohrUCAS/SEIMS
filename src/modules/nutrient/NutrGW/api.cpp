@@ -49,6 +49,8 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddInput(VAR_PERCO_P_GW, UNIT_KG, DESC_PERCO_P, Source_Module, DT_Array1D);
 
     // set the output variables
+	mdi.AddOutput(VAR_GWNO3_CON, UNIT_CONCENTRATION, DESC_GWNO3, DT_Array1D);
+	mdi.AddOutput(VAR_GWMINP_CON, UNIT_CONCENTRATION, DESC_GWMINP, DT_Array1D);
     mdi.AddOutput(VAR_NO3GW_TOCH, UNIT_KG, DESC_NO3GW_CH, DT_Array1D);
     mdi.AddOutput(VAR_MINPGW_TOCH, UNIT_KG, DESC_MINPGW_CH, DT_Array1D);
 
