@@ -147,8 +147,12 @@ void NutrientinGroundwater::SetReaches(clsReaches *reaches)
 	{
 		m_nSubbasins = reaches->GetReachNumber();
 		vector<int> m_reachId = reaches->GetReachIDs();
-		Initialize1DArray(m_nSubbasins+1, m_gwminpCon, 0.f);
-		Initialize1DArray(m_nSubbasins+1, m_gwno3Con, 0.f);
+		if (m_gwminpCon == NULL)
+		{
+			Initialize1DArray(m_nSubbasins+1, m_gwminpCon, 0.f);
+			Initialize1DArray(m_nSubbasins+1, m_gwno3Con, 0.f);
+		}
+		
 		for (vector<int>::iterator it = m_reachId.begin(); it != m_reachId.end(); it++)
 		{
 			clsReach* tmpReach = reaches->GetReachByID(*it);
@@ -183,11 +187,11 @@ int NutrientinGroundwater::Execute()
 		int id = *iter;
 		// gw no3 to channel
 		float xx = m_gw_q[id] * m_TimeStep;	//m3
-		cout<<"subID: "<<id<<", gwQ: "<<m_gw_q[id] << ", ";
+		//cout<<"subID: "<<id<<", gwQ: "<<m_gw_q[id] << ", ";
 		m_no3gwToCh[id] = m_gwno3Con[id] * xx / 1000.f;	// g/m3 * m3 / 1000 = kg
 		m_minpgwToCh[id] = m_gwminpCon[id] * xx / 1000.f;
-		cout<<"subID: "<<id<<", gwno3Con: "<<m_gwno3Con[id] << ", ";
-		cout<<"subID: "<<id<<", no3gwToCh: "<<m_no3gwToCh[id] << ", ";
+		//cout<<"subID: "<<id<<", gwno3Con: "<<m_gwno3Con[id] << ", ";
+		//cout<<"subID: "<<id<<", no3gwToCh: "<<m_no3gwToCh[id] << ", ";
 		// gw no3 loss through revep
 		Subbasin *subbasin = m_subbasinsInfo->GetSubbasinByID(id);
 		float subArea = subbasin->getCellCount() * m_cellWidth * m_cellWidth;	//m2
@@ -208,9 +212,9 @@ int NutrientinGroundwater::Execute()
 		float gwVol = subArea * m_gwStor[id] / 1000.f;//m3, memo, this m_gwStor is the resulted status of the current time step
 		m_gwno3Con[id] += (m_perco_no3_gw[id] - m_no3gwToCh[id]) * 1000.f / gwVol;
 		m_gwminpCon[id] += (m_perco_solp_gw[id] - m_minpgwToCh[id]) * 1000.f / gwVol;
-		cout<<"subID: "<<id<<", percoNo3: "<<m_perco_no3_gw[id]<<", gwStorage: "<<m_gwStor[id]<<", new gwno3Con: "<<m_gwno3Con[id] << ", ";
+		//cout<<"subID: "<<id<<", percoNo3: "<<m_perco_no3_gw[id]<<", gwStorage: "<<m_gwStor[id]<<", new gwno3Con: "<<m_gwno3Con[id] << ", ";
     }
-	cout<<endl;
+	//cout<<endl;
 	//cout<<"NUTRGW, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
     return 0;
 }

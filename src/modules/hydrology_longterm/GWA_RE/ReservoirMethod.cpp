@@ -72,6 +72,11 @@ int ReservoirMethod::Execute()
 			perco += m_perc[index][(int)m_soilLayers[index]-1];
 		}
 		perco /= curCellsNum; // mean mm
+		/// percolated water ==> vadose zone ==> shallow aquifer ==> deep aquifer
+		/// currently, for convenience, we assume a small portion of the percolated water
+		/// will enter groundwater. By LJ. 2016-9-2
+		float ratio2gw = 0.001;
+		perco *= ratio2gw;
 		curSub->setPerco(perco);
 
 		//if (perco > 0.f)
