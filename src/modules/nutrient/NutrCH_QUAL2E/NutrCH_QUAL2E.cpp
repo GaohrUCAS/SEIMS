@@ -27,8 +27,8 @@ NutrCH_QUAL2E::NutrCH_QUAL2E(void) :
 		// reaches related
 		m_reachDownStream(NULL),
 		// point source loadings to channel
-		m_ptNO3ToCh(NULL), m_ptNH4ToCh(NULL), m_ptOrgNToCh(NULL), 
-		m_ptSolPToCh(NULL), m_ptOrgPToCh(NULL), m_ptCODToCh(NULL), 
+		m_ptNO3ToCh(NULL), m_ptNH4ToCh(NULL), m_ptOrgNToCh(NULL), m_ptTNToCh(NULL),
+		m_ptSolPToCh(NULL), m_ptOrgPToCh(NULL), m_ptTPToCh(NULL), m_ptCODToCh(NULL), 
         // nutrient storage in channel
         m_chAlgae(NULL), m_chOrgN(NULL), m_chOrgP(NULL), m_chNH4(NULL), m_chNO2(NULL), m_chNO3(NULL),
         m_chSolP(NULL), m_chCOD(NULL), m_chDOx(NULL), m_chChlora(NULL), m_chSatDOx(NODATA_VALUE),
@@ -64,8 +64,10 @@ NutrCH_QUAL2E::~NutrCH_QUAL2E(void)
 	if (m_ptNO3ToCh != NULL) Release1DArray(m_ptNO3ToCh);
 	if (m_ptNH4ToCh != NULL) Release1DArray(m_ptNH4ToCh);
 	if (m_ptOrgNToCh != NULL) Release1DArray(m_ptOrgNToCh);
+	if (m_ptTNToCh != NULL) Release1DArray(m_ptTNToCh);
 	if (m_ptSolPToCh != NULL) Release1DArray(m_ptSolPToCh);
 	if (m_ptOrgPToCh != NULL) Release1DArray(m_ptOrgPToCh);
+	if (m_ptTPToCh != NULL) Release1DArray(m_ptTPToCh);
 	if (m_ptCODToCh != NULL) Release1DArray(m_ptCODToCh);
 	/// storage in channel
     if (m_chAlgae != NULL) Release1DArray(m_chAlgae);
@@ -496,8 +498,10 @@ void NutrCH_QUAL2E::PointSourceLoading()
 		Initialize1DArray(m_nReaches+1,m_ptNO3ToCh,0.f);
 		Initialize1DArray(m_nReaches+1,m_ptNH4ToCh,0.f);
 		Initialize1DArray(m_nReaches+1,m_ptOrgNToCh,0.f);
+		Initialize1DArray(m_nReaches+1,m_ptTNToCh,0.f);
 		Initialize1DArray(m_nReaches+1,m_ptSolPToCh,0.f);
 		Initialize1DArray(m_nReaches+1,m_ptOrgPToCh,0.f);
+		Initialize1DArray(m_nReaches+1,m_ptTPToCh,0.f);
 		Initialize1DArray(m_nReaches+1,m_ptCODToCh,0.f);
 	}
 	else
@@ -508,8 +512,10 @@ void NutrCH_QUAL2E::PointSourceLoading()
 			m_ptNO3ToCh[i] = 0.f;
 			m_ptNH4ToCh[i] = 0.f;
 			m_ptOrgNToCh[i] = 0.f;
+			m_ptTNToCh[i] = 0.f;
 			m_ptSolPToCh[i] = 0.f;
 			m_ptOrgPToCh[i] = 0.f;
+			m_ptTPToCh[i] = 0.f;
 			m_ptCODToCh[i] = 0.f;
 		}
 	}
@@ -552,8 +558,18 @@ void NutrCH_QUAL2E::PointSourceLoading()
 					m_ptOrgPToCh[curSubID] += per_orgP * cvt;
 					m_ptSolPToCh[curSubID] += per_solp * cvt;
 					m_ptCODToCh[curSubID] += per_cod * cvt;
+					m_ptTNToCh[curSubID] += (per_no3 + per_nh4 + per_orgn) * cvt;
+					m_ptTPToCh[curSubID] += (per_solp + per_orgP) * cvt;
 				}
 			}
+		}
+		// sum up point sources loadings of all subbasins
+		
+		for (int i = 1;i <= m_nReaches; i++)
+		{
+			m_ptTNToCh[0] += m_ptTNToCh[i];
+			m_ptTPToCh[0] += m_ptTPToCh[i];
+			m_ptCODToCh[0] += m_ptCODToCh[i];
 		}
 	}
 }
@@ -1101,6 +1117,9 @@ void NutrCH_QUAL2E::Get1DData(const char *key, int *n, float **data)
 	else if(StringMatch(sk, VAR_CH_TNConc))    *data = m_chOutTNConc;
 	else if(StringMatch(sk, VAR_CH_TP))    *data = m_chOutTP;
 	else if(StringMatch(sk, VAR_CH_TPConc))    *data = m_chOutTPConc;
+	else if(StringMatch(sk, VAR_PTTN2CH)) *data = m_ptTNToCh;
+	else if(StringMatch(sk, VAR_PTTP2CH)) *data = m_ptTPToCh;
+	else if(StringMatch(sk, VAR_PTCOD2CH)) *data = m_ptCODToCh;
     else
         throw ModelException(MID_NUTRCH_QUAL2E, "Get1DData", "Parameter " + sk + " does not exist.");
 }

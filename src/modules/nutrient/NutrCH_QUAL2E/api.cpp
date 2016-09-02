@@ -109,6 +109,10 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddOutput(VAR_CH_DOXConc, UNIT_CONCENTRATION, DESC_CH_DOX, DT_Array1D);
 	mdi.AddOutput(VAR_CH_TNConc, UNIT_CONCENTRATION, DESC_CH_TNConc, DT_Array1D);
 	mdi.AddOutput(VAR_CH_TPConc, UNIT_CONCENTRATION, DESC_CH_TPConc, DT_Array1D);
+	// 3. point source loadings
+	mdi.AddOutput(VAR_PTTN2CH, UNIT_KG, DESC_PTTN2CH, DT_Array1D);
+	mdi.AddOutput(VAR_PTTP2CH, UNIT_KG, DESC_PTTP2CH, DT_Array1D);
+	mdi.AddOutput(VAR_PTCOD2CH, UNIT_KG, DESC_PTCOD2CH, DT_Array1D);
     string res = mdi.GetXMLDocument();
     char *tmp = new char[res.size() + 1];
     strprintf(tmp, res.size() + 1, "%s", res.c_str());

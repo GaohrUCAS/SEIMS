@@ -15,6 +15,8 @@ mpiexec -n 4 E:\github-zlj\SEIMS_VS\Debug\seims ..\model_data\cluster_model_fenk
 + D:\Compile\SEIMS_Preprocess\Release\grid_layering 127.0.0.1 27017 E:\data_m\SEIMS\dianbu2_30m_omp\layering_info model_dianbu2_30m_longterm SPATIAL 1
 
 + python E:\code\hydro\SEIMS\preprocess\import_parameters.py -ini E:\code\hydro\SEIMS\preprocess\dianbu2_30m_longterm_omp_zhulj_win.ini
++ python E:\code\hydro\SEIMS\preprocess\parameters_extraction.py -ini E:\code\hydro\SEIMS\preprocess\dianbu2_30m_longterm_omp_zhulj_win.ini
++ python E:\code\hydro\SEIMS\preprocess\build_db.py -ini E:\code\hydro\SEIMS\preprocess\dianbu2_30m_longterm_omp_zhulj_win.ini
 + python E:\code\hydro\SEIMS\preprocess\import_bmp_scenario.py -ini E:\code\hydro\SEIMS\preprocess\dianbu_30m_longterm_omp_zhulj_win.ini
 + python E:\code\hydro\SEIMS\preprocess\generate_stream_input.py -ini E:\code\hydro\SEIMS\preprocess\dianbu_30m_longterm_omp_zhulj_win.ini
 
@@ -47,8 +49,6 @@ python G:\code_zhulj\SEIMS\preprocess\parameters_extraction.py -ini G:\code_zhul
 
 + D:\SEIMS_model\SEIMS\Release\seims_omp D:\SEIMS_model\Model_data\model_dianbu_30m_longterm 8 0 192.168.6.55 27017 0
 + D:\SEIMS_model\SEIMS\Release\seims_omp D:\SEIMS_model\Model_data\model_dianbu2_30m_longterm 8 0 192.168.6.55 27017 0
-
-+ python D:\GaohrWS\GithubPrj\SEIMS\preprocess\import_parameters.py -ini D:\GaohrWS\GithubPrj\SEIMS\preprocess\dianbu2_30m_longterm_omp_ghr_win.ini
 
 + Under LINUX
   + /home/zhulj/SEIMS/seims_omp/seims_omp /home/zhulj/SEIMS/models/dianbu/model_dianbu_30m_longterm 8 0 127.0.0.1 27017 0
