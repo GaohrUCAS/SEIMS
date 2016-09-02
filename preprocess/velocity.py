@@ -49,9 +49,7 @@ def GenerateVelocity(filepath):
     def velocityCal(rad, man, slp):
         if (abs(rad - noDataValue) < UTIL_ZERO):
             return DEFAULT_NODATA
-        # set a scale factor for manning coefficient, in order to slow down
-        # the flow velocity. Added by LJ, 2016-9-3
-        tmp = numpy.power(man * 2, -1) * numpy.power(rad, 2 / 3) * \
+        tmp = numpy.power(man, -1) * numpy.power(rad, 2 / 3) * \
               numpy.power(slp, 0.5)
         if tmp < vel_min:
             return vel_min
