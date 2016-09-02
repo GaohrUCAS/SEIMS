@@ -119,7 +119,7 @@ private:
 
     /// runoff exponent
     float m_kRunoff;
-    /// maximum P corresponding to runoffCo
+    /// maximum precipitation corresponding to runoffCo
     float m_pMax;
     /// depression storage (mm)
     float *m_sd;    // SD(t-1) from the depression storage module
