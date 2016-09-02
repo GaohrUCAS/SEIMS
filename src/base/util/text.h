@@ -769,6 +769,9 @@
 #define VAR_PPERCO "pperco"
 #define VAR_PPT "PPT"
 #define VAR_PSP "psp"                               /// Phosphorus availability index
+#define VAR_PTTN2CH "ptTNToCh"
+#define VAR_PTTP2CH "ptTPToCh"
+#define VAR_PTCOD2CH "ptCODToCh"
 #define VAR_PUPDIS "p_updis"
 #define VAR_QCH "QCH"
 #define VAR_FLOW_OL "OL_Flow"						/// overland flow in each cell calculated during overland routing
@@ -1298,6 +1301,9 @@
 #define DESC_PPERCO "phosphorus percolation coefficient"
 #define DESC_PPT "maximum amount of transpiration (plant et)"
 #define DESC_PSP "Phosphorus availability index"
+#define DESC_PTTN2CH "total nitrogen loaded from point sources"
+#define DESC_PTTP2CH "total phosphrus loaded from point sources"
+#define DESC_PTCOD2CH "total COD loaded from point sources"
 #define DESC_PUPDIS "Phosphorus uptake distribution parameter"
 #define DESC_QCH "Flux in the downslope boundary of cells"
 #define DESC_OLFLOW "overland flow in each cell calculated during overland routing"

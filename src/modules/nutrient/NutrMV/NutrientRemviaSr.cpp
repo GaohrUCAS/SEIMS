@@ -146,7 +146,7 @@ bool NutrientRemviaSr::CheckInputData()
     {
         throw ModelException(MID_NUTRMV, "CheckInputData", "The fraction of porosity from which anions are excluded can not be NULL.");
     }
-    if (this->m_isep_opt <= 0)
+    if (this->m_isep_opt < 0)
     {
         throw ModelException(MID_NUTRMV, "CheckInputData", "The septic operational condition code can not be NULL.");
     }
