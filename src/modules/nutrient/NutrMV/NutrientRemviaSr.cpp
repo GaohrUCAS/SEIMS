@@ -414,7 +414,7 @@ void NutrientRemviaSr::NitrateLoss()
 				// equation 4:2.1.2, 4:2.1.3 and 4:2.1.4 in SWAT Theory 2009, p269
 				mw = m_sol_perco[i][k] + sro + m_flat[i][k] + 1.e-10f;
 				ww = -mw / ((1.f - m_anion_excl[i]) * m_sol_wsatur[i][k]);
-				vno3 = m_sol_no3[i][k] * (1.f - exp(ww)); // kg/ha
+				vno3 = m_sol_no3[i][k] * (1.f - exp(ww));
 				if (mw > 1.e-10f)
 					con = max(vno3 / mw, 0.f); // kg/ha/mm = 100 mg/L
 				//if (i == 1762)
