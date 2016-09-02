@@ -77,7 +77,7 @@ Discharge	Ch_iuh	Channel flow IUH	none	ChannelRouting	-9999		NC	-9999	-9999	Y
 Discharge	Reach	Reach properties	none	ALL	-9999	0	NC	-9999	-9999	Y
 Discharge	Ki	Interflow scaling factor	none	SSR_DA	3	0	AC	10	0	Y
 Discharge	Kg	Baseflow recession coefficient	none	GW_RSVR	5.00E-03	0	AC	0.1	0.001	Y
-Discharge	Base_ex	Baseflow exponent	none	GW_RSVR	1	1	AC	4	1	Y
+Discharge	Base_ex	Baseflow exponent	none	GW_RSVR	1	0	AC	4	1	Y
 Discharge	df_coef	Deep percolation coefficient	mm	GW_RSVR	0	0	AC	1	0	Y
 Discharge	gw0	Initial groundwater storage	mm	GW_RSVR	100	0	AC	1000	0	Y
 Discharge	gwmax	Maximum groundwater storage	mm	GW_RSVR	300	0	AC	1000	0	Y
@@ -172,7 +172,7 @@ Nutrient	psp	nitrogen active pool fraction	none	NMINRL	0.02	1	RC	1	0	Y
 Nutrient	nperco	Nitrogen percolation coefficient	none	NutRemv	0.5	1	RC	1	0	Y
 Nutrient	pperco	Phosphorus percolation coefficient	none	NutRemv	10	0	AC	17.5	10	Y
 Nutrient	phoskd	Phosphorus soil partitioning coefficient	none	NutRemv	175	0	AC	200	100	Y
-Nutrient	isep_opt	initial septic operational condition	none	NutRemv	0	1	AC	2	0	Y
+Nutrient	isep_opt	initial septic operational condition	none	NutRemv	0	0	AC	2	0	Y
 Nutrient	rca	Atmospheric deposition of ammonium	mg/L	ATMDEP	2	1	RC	2	0	Y
 Nutrient	rcn	Atmospheric deposition of nitrate	mg/L	ATMDEP	1	1	RC	1	0	Y
 Nutrient	drydep_nh4	Atmospheric dry deposition of ammonium	kg/ha/yr	ATMDEP	1	1	RC	1	0	Y
