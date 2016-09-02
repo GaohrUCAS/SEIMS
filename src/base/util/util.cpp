@@ -294,16 +294,6 @@ bool StringMatch(string text1, string text2)
     return (strTmp1 == strTmp2);
 }
 
-double Sum(double *a, int n)
-{
-    double s = 0.0;
-    for (int i = 0; i < n; i++)
-    {
-        s += a[i];
-    }
-    return s;
-}
-
 string &trim(string &s)
 {
     if (s.empty())

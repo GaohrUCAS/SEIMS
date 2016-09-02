@@ -44,6 +44,7 @@ NutrientRemviaSr::~NutrientRemviaSr(void)
 
 void NutrientRemviaSr::SumBySubbasin()
 {
+	// reset to zero
 	for(int subi = 0; subi <= m_nSubbasins; subi++)
 	{
 		m_sur_no3ToCh[subi] = 0.f;
@@ -68,8 +69,11 @@ void NutrientRemviaSr::SumBySubbasin()
 		m_sur_no3ToCh[subi] += m_surqno3[i] * cellArea; // kg/ha * ha = kg
 		m_sur_solpToCh[subi] += m_surqsolp[i] * cellArea;
 		m_sur_codToCh[subi] += m_cod[i] * cellArea;
-		m_perco_n_gw[subi] += m_perco_n[i] * cellArea;
-		m_perco_p_gw[subi] += m_perco_p[i] * cellArea;
+		//if(i == 1762)
+		//	cout<<"sum by subbasin: perocN: "<<m_perco_n[i]<<endl;
+		float ratio2gw = 0.001;
+		m_perco_n_gw[subi] += m_perco_n[i] * cellArea * ratio2gw;
+		m_perco_p_gw[subi] += m_perco_p[i] * cellArea * ratio2gw;
 		if(m_streamLink[i] > 0)
 			m_latno3ToCh[subi] += m_latno3[i];
 	}
@@ -350,18 +354,30 @@ int NutrientRemviaSr::Execute()
     }
     initialOutputs();
     // compute nitrate movement leaching
+	//cout<<"NUTRMV-exec, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
     NitrateLoss();
+	//cout<<"NUTRMV-loss, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
     // compute phosphorus movement
     PhosphorusLoss();
 	// compute chl-a, CBOD and dissolved oxygen loadings
 	SubbasinWaterQuality();
 	// sum by sub-basin
 	SumBySubbasin();
+	//for (int i = 1; i <= m_nSubbasins; i++){
+	//	cout<<"surNo3ToCh: "<<m_sur_no3ToCh[i]<<", ";
+	//}
+	//cout<<endl;
+	//for (int i = 1; i <= m_nSubbasins; i++){
+	//	cout<<"percoNToCh: "<<m_perco_n_gw[i]<<", ";
+	//}
+	//cout<<endl;
     return 0;
 }
 
 void NutrientRemviaSr::NitrateLoss()
 {
+	//float tmpPercN = NODATA_VALUE;
+	//int tmpIdx = -1;
 	for (int iLayer = 0; iLayer < m_nRoutingLayers; iLayer++)
 	{
 		// There are not any flow relationship within each routing layer.
@@ -377,7 +393,8 @@ void NutrientRemviaSr::NitrateLoss()
 			{
 				// add nitrate leached from layer above (kg/ha)
 				m_sol_no3[i][k] = m_sol_no3[i][k] + percnlyr;
-				if (m_sol_no3[i][k] < 1.e-6f)
+				percnlyr = 0.f;
+				if (m_sol_no3[i][k] < 1.e-6f) 
 					m_sol_no3[i][k] = 0.f;
 				// determine concentration of nitrate in mobile water
 				float sro = 0.f;// surface runoff generated (sro)
@@ -400,6 +417,10 @@ void NutrientRemviaSr::NitrateLoss()
 				vno3 = m_sol_no3[i][k] * (1.f - exp(ww)); // kg/ha
 				if (mw > 1.e-10f)
 					con = max(vno3 / mw, 0.f); // kg/ha/mm = 100 mg/L
+				//if (i == 1762)
+				//{
+				//	cout<<"perco water: "<<m_sol_perco[i][k]<<", mv: "<<mw<<", ww: "<<ww<<", vno3: "<<vno3<<",con: "<<con<<endl;
+				//}
 				// calculate nitrate in surface runoff
 				// concentration of nitrate in surface runoff (cosurf)
 				float cosurf = 0.f;
@@ -434,15 +455,20 @@ void NutrientRemviaSr::NitrateLoss()
 					m_sol_no3[idDownSlope][k] += ssfnlyr;
 				
 				// calculate nitrate in percolate
-				percnlyr = 0.f;
 				percnlyr = con * m_sol_perco[i][k];
+				//if(i == 1762)
+				//	cout<<"layer: "<<k<<", con: "<<con<<", sol_perco: "<<m_sol_perco[i][k]<<", solno3: "<<m_sol_no3[i][k]<<endl;
 				percnlyr = min(percnlyr, m_sol_no3[i][k]);
 				m_sol_no3[i][k] -= percnlyr;
 				//if(i == 0 && k == 0) cout << percnlyr << ", \n";
 			}
 			// calculate nitrate leaching from soil profile
+			m_perco_n[i] = 0;
 			m_perco_n[i] = percnlyr; // kg/ha
-
+			//if (tmpPercN < percnlyr){
+			//	tmpIdx = i;
+			//	tmpPercN = percnlyr;
+			//}
 			// I think these should be removed, because the lost nitrate
 			// have been added to it's downslope cell. by LJ
 			//float nloss = 0.f;
@@ -451,6 +477,11 @@ void NutrientRemviaSr::NitrateLoss()
 			//m_latno3[i] = (1.f - nloss) * m_latno3[i];
 		}
 	}
+	//tmpIdx = 1762;
+	//cout<<"NUTRMV, cell index: "<<tmpIdx<<", percoN "<<m_perco_n[tmpIdx]<<endl;
+	//for(int i = 0; i < m_nSoilLayers[tmpIdx];i++)
+	//	cout<<"layer: "<<i<<": "<<m_sol_no3[tmpIdx][i]<<", ";
+	//cout<<endl;
 }
 
 void NutrientRemviaSr::PhosphorusLoss()

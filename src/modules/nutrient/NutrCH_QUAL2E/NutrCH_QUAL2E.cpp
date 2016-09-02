@@ -24,6 +24,8 @@ NutrCH_QUAL2E::NutrCH_QUAL2E(void) :
         m_gwSolPToCh(NULL), m_sedOrgNToCh(NULL), m_sedOrgPToCh(NULL), m_sedMinPAToCh(NULL),
         m_sedMinPSToCh(NULL), m_nh4ToCh(NULL), m_no2ToCh(NULL), m_codToCh(NULL), 
 		m_chSr(NULL), m_chDaylen(NULL), m_chCellCount(NULL), m_soilTemp(NULL),
+		// reaches related
+		m_reachDownStream(NULL),
 		// point source loadings to channel
 		m_ptNO3ToCh(NULL), m_ptNH4ToCh(NULL), m_ptOrgNToCh(NULL), 
 		m_ptSolPToCh(NULL), m_ptOrgPToCh(NULL), m_ptCODToCh(NULL), 
@@ -345,33 +347,36 @@ void NutrCH_QUAL2E::SetReaches(clsReaches *reaches)
 	{
 		m_nReaches = reaches->GetReachNumber();
 		m_reachId = reaches->GetReachIDs();
-		Initialize1DArray(m_nReaches+1,m_reachDownStream, 0.f);
-		Initialize1DArray(m_nReaches+1,m_chOrder, 0.f);
-		/// initialize reach related parameters
-		Initialize1DArray(m_nReaches+1,m_bc1, 0.f);
-		Initialize1DArray(m_nReaches+1,m_bc2, 0.f);
-		Initialize1DArray(m_nReaches+1,m_bc3, 0.f);
-		Initialize1DArray(m_nReaches+1,m_bc4, 0.f);
-		Initialize1DArray(m_nReaches+1,m_rk1, 0.f);
-		Initialize1DArray(m_nReaches+1,m_rk2, 0.f);
-		Initialize1DArray(m_nReaches+1,m_rk3, 0.f);
-		Initialize1DArray(m_nReaches+1,m_rk4, 0.f);
-		Initialize1DArray(m_nReaches+1,m_rs1, 0.f);
-		Initialize1DArray(m_nReaches+1,m_rs2, 0.f);
-		Initialize1DArray(m_nReaches+1,m_rs3, 0.f);
-		Initialize1DArray(m_nReaches+1,m_rs4, 0.f);
-		Initialize1DArray(m_nReaches+1,m_rs5, 0.f);
+		if (m_reachDownStream == NULL)
+		{
+			Initialize1DArray(m_nReaches+1,m_reachDownStream, 0.f);
+			Initialize1DArray(m_nReaches+1,m_chOrder, 0.f);
+			/// initialize reach related parameters
+			Initialize1DArray(m_nReaches+1,m_bc1, 0.f);
+			Initialize1DArray(m_nReaches+1,m_bc2, 0.f);
+			Initialize1DArray(m_nReaches+1,m_bc3, 0.f);
+			Initialize1DArray(m_nReaches+1,m_bc4, 0.f);
+			Initialize1DArray(m_nReaches+1,m_rk1, 0.f);
+			Initialize1DArray(m_nReaches+1,m_rk2, 0.f);
+			Initialize1DArray(m_nReaches+1,m_rk3, 0.f);
+			Initialize1DArray(m_nReaches+1,m_rk4, 0.f);
+			Initialize1DArray(m_nReaches+1,m_rs1, 0.f);
+			Initialize1DArray(m_nReaches+1,m_rs2, 0.f);
+			Initialize1DArray(m_nReaches+1,m_rs3, 0.f);
+			Initialize1DArray(m_nReaches+1,m_rs4, 0.f);
+			Initialize1DArray(m_nReaches+1,m_rs5, 0.f);
 
-		Initialize1DArray(m_nReaches+1,m_chAlgae,0.f);
-		Initialize1DArray(m_nReaches+1,m_chOrgN,0.f);
-		Initialize1DArray(m_nReaches+1,m_chOrgP,0.f);
-		Initialize1DArray(m_nReaches+1,m_chNH4,0.f);
-		Initialize1DArray(m_nReaches+1,m_chNO2,0.f);
-		Initialize1DArray(m_nReaches+1,m_chNO3,0.f);
-		Initialize1DArray(m_nReaches+1,m_chSolP,0.f);
-		Initialize1DArray(m_nReaches+1,m_chCOD,0.f);
-		Initialize1DArray(m_nReaches+1,m_chDOx,0.f);
-		Initialize1DArray(m_nReaches+1,m_chChlora,0.f);
+			Initialize1DArray(m_nReaches+1,m_chAlgae,0.f);
+			Initialize1DArray(m_nReaches+1,m_chOrgN,0.f);
+			Initialize1DArray(m_nReaches+1,m_chOrgP,0.f);
+			Initialize1DArray(m_nReaches+1,m_chNH4,0.f);
+			Initialize1DArray(m_nReaches+1,m_chNO2,0.f);
+			Initialize1DArray(m_nReaches+1,m_chNO3,0.f);
+			Initialize1DArray(m_nReaches+1,m_chSolP,0.f);
+			Initialize1DArray(m_nReaches+1,m_chCOD,0.f);
+			Initialize1DArray(m_nReaches+1,m_chDOx,0.f);
+			Initialize1DArray(m_nReaches+1,m_chChlora,0.f);
+		}
 		for (vector<int>::iterator it = m_reachId.begin(); it != m_reachId.end(); it++)
 		{
 			int i = *it;

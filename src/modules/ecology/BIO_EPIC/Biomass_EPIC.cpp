@@ -386,10 +386,13 @@ void Biomass_EPIC::initialOutputs()
 		for (int i = 0; i < m_nCells; i++)
 			m_sol_rsd[i][0] = m_sol_cov[i];
 	}
-    if (m_LAIDay == NULL && m_initLAI != NULL)
-		Initialize1DArray(m_nCells, m_LAIDay, m_initLAI);
-	else
-		Initialize1DArray(m_nCells, m_LAIDay, 0.f);
+    if (m_LAIDay == NULL)
+	{	
+		if(m_initLAI != NULL)
+			Initialize1DArray(m_nCells, m_LAIDay, m_initLAI);
+		else
+			Initialize1DArray(m_nCells, m_LAIDay, 0.f);
+	}
     if (m_LAIYrMax == NULL)
     {
         m_LAIYrMax = new float[m_nCells];
@@ -456,11 +459,12 @@ void Biomass_EPIC::initialOutputs()
 		Initialize1DArray(m_nCells, m_frStrsWa, 1.f);
 	if (m_biomassDelta == NULL)
 		Initialize1DArray(m_nCells, m_biomassDelta, 0.f);
-	if (m_biomass == NULL)
+	if (m_biomass == NULL){
 		if (m_initBiomass != NULL)
 			Initialize1DArray(m_nCells, m_biomass, m_initBiomass);
 		else
 			Initialize1DArray(m_nCells, m_biomass, 0.f);
+	}
 }
 
 void Biomass_EPIC::DistributePlantET(int i)
@@ -550,6 +554,7 @@ void Biomass_EPIC::DistributePlantET(int i)
 		m_frStrsWa[i] = xx / m_ppt[i];
 		m_plantEPDay[i] = xx;
 	}
+	Release1DArray(wuse);
 }
 
 void Biomass_EPIC::CalTempStress(int i)

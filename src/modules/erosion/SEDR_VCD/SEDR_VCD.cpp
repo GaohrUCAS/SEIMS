@@ -343,15 +343,18 @@ void SEDR_VCD::SetReaches(clsReaches *reaches)
 	{
 		m_nreach = reaches->GetReachNumber();
 		m_reachId = reaches->GetReachIDs();
-		Initialize1DArray(m_nreach+1,m_reachDownStream, 0.f);
-		Initialize1DArray(m_nreach+1,m_chOrder, 0.f);
-		Initialize1DArray(m_nreach+1,m_chWidth, 0.f);
-		Initialize1DArray(m_nreach+1,m_chLen, 0.f);
-		Initialize1DArray(m_nreach+1,m_chDepth, 0.f);
-		Initialize1DArray(m_nreach+1,m_chVel, 0.f);
-		Initialize1DArray(m_nreach+1,m_chSlope, 0.f);
-		Initialize1DArray(m_nreach+1,m_chCover, 0.f);
-		Initialize1DArray(m_nreach+1,m_chErod, 0.f);
+		if (m_reachDownStream == NULL)
+		{
+			Initialize1DArray(m_nreach+1,m_reachDownStream, 0.f);
+			Initialize1DArray(m_nreach+1,m_chOrder, 0.f);
+			Initialize1DArray(m_nreach+1,m_chWidth, 0.f);
+			Initialize1DArray(m_nreach+1,m_chLen, 0.f);
+			Initialize1DArray(m_nreach+1,m_chDepth, 0.f);
+			Initialize1DArray(m_nreach+1,m_chVel, 0.f);
+			Initialize1DArray(m_nreach+1,m_chSlope, 0.f);
+			Initialize1DArray(m_nreach+1,m_chCover, 0.f);
+			Initialize1DArray(m_nreach+1,m_chErod, 0.f);
+		}
 		for (vector<int>::iterator it = m_reachId.begin(); it != m_reachId.end(); it++)
 		{
 			int i = *it;
