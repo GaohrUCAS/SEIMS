@@ -141,6 +141,9 @@ int ReservoirMethod::Execute()
 		float slopeCoef = curSub->getSlopeCoef();
 		float kg = m_Kg * slopeCoef;
 		float groundRunoff = kg * pow(m_gwStore[subID], m_Base_ex); //mm
+		if (groundRunoff  != groundRunoff )
+			cout << groundRunoff;
+
 		float groundQ = groundRunoff * curCellsNum * QGConvert; // groundwater discharge (m3/s)
 
 		float groundStorage = m_gwStore[subID];

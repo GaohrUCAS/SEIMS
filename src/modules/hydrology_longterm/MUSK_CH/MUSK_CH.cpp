@@ -7,7 +7,7 @@
 using namespace std;
 
 //! Constructor
-MUSK_CH::MUSK_CH(void) : m_dt(-1), m_nreach(-1), m_Kchb(NODATA_VALUE),
+MUSK_CH::MUSK_CH(void) : m_dt(-1), m_nreach(-1), m_outletID(-1), m_Kchb(NODATA_VALUE),
                          m_Kbank(NODATA_VALUE), m_Epch(NODATA_VALUE), m_Bnk0(NODATA_VALUE), m_Chs0_perc(NODATA_VALUE), m_aBank(NODATA_VALUE),
                          m_bBank(NODATA_VALUE), m_subbasin(NULL), m_qsSub(NULL),
 						 m_reachDownStream(NULL), m_chOrder(NULL), m_chWidth(NULL), 
@@ -113,7 +113,8 @@ void  MUSK_CH::initialOutputs()
             m_reachLayers[order].push_back(i);
         }
     }
-
+	if (m_outletID < 0)
+		m_outletID = m_reachLayers.rbegin()->second[0];
     //initial channel storage
     if (m_chStorage == NULL)
     {
@@ -313,7 +314,7 @@ void MUSK_CH::GetValue(const char *key, float *value)
     if (StringMatch(sk, VAR_QOUTLET))
     {
         //*value = m_qsCh[iOutlet];
-        m_qOut[0] = m_qOut[iOutlet] + m_deepGroundwater;
+        m_qOut[0] = m_qOut[iOutlet]; // + m_deepGroundwater;
         *value = m_qOut[0];
     }
     else if (StringMatch(sk, VAR_QSOUTLET))
@@ -330,45 +331,45 @@ void MUSK_CH::Get1DData(const char *key, int *n, float **data)
 
     string sk(key);
     *n = m_nreach + 1;
-    int iOutlet = m_reachLayers.rbegin()->second[0];
+    //int m_outletID = m_reachLayers.rbegin()->second[0];
     if (StringMatch(sk, VAR_QRECH))
     {
-        m_qOut[0] = m_qOut[iOutlet] + m_deepGroundwater;
+        m_qOut[0] = m_qOut[m_outletID]; // + m_deepGroundwater;
         *data = m_qOut;
     }
     else if (StringMatch(sk, VAR_QS))
     {
-        m_qsCh[0] = m_qsCh[iOutlet];
+        m_qsCh[0] = m_qsCh[m_outletID];
         *data = m_qsCh;
     }
     else if (StringMatch(sk, VAR_QI))
     {
-        m_qiCh[0] = m_qiCh[iOutlet];
+        m_qiCh[0] = m_qiCh[m_outletID];
         *data = m_qiCh;
     }
     else if (StringMatch(sk, VAR_QG))
     {
-        m_qgCh[0] = m_qgCh[iOutlet];
+        m_qgCh[0] = m_qgCh[m_outletID];
         *data = m_qgCh;
     }
     else if (StringMatch(sk, VAR_BKST))
     {
-        m_bankStorage[0] = m_bankStorage[iOutlet];
+        m_bankStorage[0] = m_bankStorage[m_outletID];
         *data = m_bankStorage;
     }
     else if (StringMatch(sk, VAR_CHST))
     {
-        m_chStorage[0] = m_chStorage[iOutlet];
+        m_chStorage[0] = m_chStorage[m_outletID];
         *data = m_chStorage;
     }
     else if (StringMatch(sk, VAR_SEEPAGE))
     {
-        m_seepage[0] = m_seepage[iOutlet];
+        m_seepage[0] = m_seepage[m_outletID];
         *data = m_seepage;
     }
     else if (StringMatch(sk, VAR_CHWTDEPTH))
     {
-        m_chWTdepth[0] = m_chWTdepth[iOutlet];
+        m_chWTdepth[0] = m_chWTdepth[m_outletID];
         *data = m_chWTdepth;
     }
     else
@@ -545,6 +546,8 @@ void MUSK_CH::ChannelFlow(int i)
     // first add all the inflow water
     // 1. water from this subbasin
     float qIn = m_qsSub[i] + qiSub + qgSub + ptSub;
+	if (i == m_outletID)
+		qIn += m_deepGroundwater;
 	//if(i == 12) cout << m_qsSub[i] << ", " << qiSub << ", " << qgSub << ", " << ptSub << ", \n";
     // 2. water from upstream reaches
     float qsUp = 0.f;

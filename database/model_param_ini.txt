@@ -1,7 +1,6 @@
 ## Table title (columns are split by Tab!)
 TYPE	NAME	DESCRIPTION	UNIT	MODULE	VALUE	IMPACT	CHANGE	MAX	MIN	USE
 TEXT	TEXT	TEXT	TEXT	TEXT	REAL	REAL	VARCHAR(2)	REAL	REAL	VARCHAR(1)
-
 Climate	DEM	Elevation of each grid cell	m	ALL	-9999		NC	-9999	-9999	
 Climate	K_pet	Correction factor for PET	none	ALL	1	0	AC	1.3	0.7	Y
 Climate	HCoef_pet	Coefficient related to radiation used in Hargreaves method	none	PET_H	0.0023	1	RC	0.0032	0.0019	Y
@@ -12,7 +11,6 @@ Climate	Weight_P	Weight Coefficient of Precipitation	none	ALL	-9999		NC	-9999	-9
 Climate	Weight_T	Weight Coefficient of Temperature	none	ALL	-9999		NC	-9999	-9999	Y
 Climate	Weight_PET	Weight Coefficient of Potential Evapotranspiration	none	ALL	-9999		NC	-9999	-9999	Y
 Climate	esco	soil evaporation compensation factor	none	AET_PTH	0.95	1	RC	1	0.01	Y
-
 Snow	T_snow	Snowfall temperature	deg C	ALL	0	0	AC	2	-2	Y
 Snow	T0	Snowmelt temperature	deg C	ALL	1	0	AC	3	-1	Y
 Snow	K_snow	Degree day coefficient	mm/deg C/day	SNO_DD	2	0	AC	5	0.5	Y
@@ -36,14 +34,12 @@ Snow	c_rain	Rainfall impact factor	mm/mm/deg C/delta_t	SNO_DD	0.04	0	AC	1	0	Y
 Snow	lag_snow	Snow temperature lag factor	none	SNO_SP	0.8	0	AC	1	0	Y
 Snow	c_snow6	Melt factor on June 21	mm/deg C/day	SNO_SP	2.5	0	AC	4	1	Y
 Snow	c_snow12	Melt factor on December 21	mm/deg C/day	SNO_SP	6.5	0	AC	9	6	Y
-
 Interception	Interc_max	Maximum Interception Capacity	mm	ALL	-9999	1	RC	1.5	0.5	Y
 Interception	Interc_min	Minimum Interception Capacity	mm	ALL	-9999	1	RC	1.5	0.5	Y
 Interception	Pi_b	Interception Storage Capacity Exponent	none	ALL	1.35	0	AC	1.5	0.5	Y
 Interception	Init_IS	Initial interception storage	mm	ALL	0	0	AC	1	0	Y
 Interception	BLAI	Leaf area index	none	PI_STORM	-9999	1	RC	12	0	Y
 Interception	CoverFrac	vegetation cover fraction	none	All	-9999	1	RC	1	0	Y
-
 WaterBalance	Depression	Depression storage capacity	mm	ALL	-9999	1	RC	5	0.5	Y
 WaterBalance	CN2	Curve number in condition II	none	ALL	-9999	1	RC	1.3	0.7	Y
 WaterBalance	Density	Soil bulk density	mg/cm3	ALL	-9999	1	RC	1.2	0.8	Y
@@ -76,15 +72,14 @@ WaterBalance	rv_co	Groundwater revap coefficient	none	GW_RSVR	0	0	AC	0.2	0	Y
 WaterBalance	t_soil	Soil freezing temperature	deg C	ALL	-5	0	AC	0	-15	Y
 WaterBalance	s_frozen	Frozen moisture relative to porosity with no infiltration	none	ALL	0.5	0	AC	1	0.1	Y
 WaterBalance	Residual	soil residual moisture	m3/m3	ALL	-9999	1	RC	1.2	0.8	Y
-
 Discharge	Ol_iuh	Overland flow IUH	none	ALL	-9999		NC	-9999	-9999	Y
 Discharge	Ch_iuh	Channel flow IUH	none	ChannelRouting	-9999		NC	-9999	-9999	Y
 Discharge	Reach	Reach properties	none	ALL	-9999	0	NC	-9999	-9999	Y
 Discharge	Ki	Interflow scaling factor	none	SSR_DA	3	0	AC	10	0	Y
-Discharge	Kg	Baseflow recession coefficient	none	GW_RSVR	0.002	0	AC	0.1	0.001	Y
+Discharge	Kg	Baseflow recession coefficient	none	GW_RSVR	5.00E-03	0	AC	0.1	0.001	Y
 Discharge	Base_ex	Baseflow exponent	none	GW_RSVR	1	1	AC	4	1	Y
 Discharge	df_coef	Deep percolation coefficient	mm	GW_RSVR	0	0	AC	1	0	Y
-Discharge	gw0	Initial groundwater storage	mm	GW_RSVR	20	0	AC	1000	0	Y
+Discharge	gw0	Initial groundwater storage	mm	GW_RSVR	100	0	AC	1000	0	Y
 Discharge	gwmax	Maximum groundwater storage	mm	GW_RSVR	300	0	AC	1000	0	Y
 Discharge	k_chb	channel bottom hydraulic conductivity	mm/hr	ALL	0.5	0	AC	150	0	Y
 Discharge	k_bank	channel bank hydraulic conductivity	mm/hr	ALL	20	0	AC	150	0	Y
@@ -113,7 +108,6 @@ Discharge	STREAM_ORDER	Stream Order	none	ALL	-9999	0	AC	-9999	-9999	N
 Discharge	ReachParameter	Reach parameters such as mannning's n, upstream subbasins and so on.	none	ALL	-9999	0	AC	-9999	-9999	N
 Discharge	VelScaleFactor	Scale factor used to adjust V0 in CH_MUSK	none	CH_MUSK	1	0	AC	1.5	0.5	Y
 Discharge	CH_ManningFactor	Manning scaling factor of channel routing	none	IKW_CH	1	0	AC	3	0.1	Y
-
 Sediment	USLE_C	the cover management factor	none	ALL	-9999	0	NC	-9999	-9999	Y
 Sediment	USLE_P	the erosion control practice factor	none	ALL	-9999	0	NC	-9999	-9999	Y
 Sediment	USLE_K	the soil erodibility factor	none	ALL	-9999	0	NC	-9999	-9999	Y
@@ -138,7 +132,6 @@ Sediment	eco2	calibration coefficient-2 of transport capacity calculation	none	K
 Sediment	ChTcCo	calibration coefficient of transport capacity calculation	none	KinWavSed_CH	0.8	1	RC	100000	0.001	Y
 Sediment	ChDetCo	calibration coefficient of channel flow detachment	none	KinWavSed_CH	0.001	1	RC	1	0.0001	Y
 Sediment	depRatio	deposition ratio	None	MUSLE_AS	0.8	1	RC	1	0	Y
-
 InstreamWQ	ai0	Ratio of algal biomass to chlorophyII-a	ug chla/mg alg	ChannelRouting	50	0	AC	100	10	Y
 InstreamWQ	ai1	Fraction of algal biomass that is nitrogen	mg N/mg alg	ChannelRouting	0.08	1	RC	0.09	0.07	Y
 InstreamWQ	ai2	Fraction of algal biomass that is phosphorous	mg P/mg alg	ChannelRouting	0.015	1	RC	0.02	0.01	Y
@@ -150,6 +143,9 @@ InstreamWQ	algae	Algal biomass concentration in reach on the first day	mg alg/L	
 InstreamWQ	nh3	Ammonia concentration in reach on the first day	mg N/L	ChannelRouting	0	0	AC	50	0	Y
 InstreamWQ	chlora	ChlorophyII-a concentration in reach on the first day	mg chla/L	ChannelRouting	0	0	AC	200	0	Y
 InstreamWQ	disp	Dissolved P concentration in reach on the first day	mg P/L	ChannelRouting	0	0	AC	25	0	Y
+InstreamWQ	k_l	Half saturation coefficient for light	kJ/(m2*min)	ChannelRouting	0.75	1	RC	1.135	0.223	Y
+InstreamWQ	k_n	Michaelis-mention half-saturation constant for nitrogen	mg N/L	ChannelRouting	0.02	1	RC	0.03	0.01	Y
+InstreamWQ	k_p	Michaelis-mention half-saturation constant for P	mg P/L	ChannelRouting	0.025	1	RC	0.05	0.001	Y
 InstreamWQ	lambda0	Non-algal portion of hte light extinction coefficient	1/m	NutCHRout	1	0	AC	10	0	Y
 InstreamWQ	lambda1	Linear algal self-shading coefficient	(1/m)1/(ug chla/L)	NutCHRout	0.03	1	RC	0.065	0.0065	Y
 InstreamWQ	lambda2	Nonlinear alga self-shading coefficient	(1/m)(ug chla/L)^(-2/3)	NutCHRout	0.05	1	RC	1	0	Y
@@ -163,7 +159,6 @@ InstreamWQ	cbod	Carbonaceous bideg Chemical oxygen demand in reach on the frist 
 InstreamWQ	diso2	Dissolved oxygen concentration in reach on the first day	mg O2/L	ChannelRouting	0	1	RC	1	0	Y
 InstreamWQ	rhoq	Algal respiration rate coefficient in reach at 20 deg C	1/day	ChannelRouting	0.3	1	RC	0.05	0.5	Y
 InstreamWQ	tfact	Fraction of solar radiation computed in the temperature heat balance that is photosynthetically active	none	ChannelRouting	0.3	1	RC	1	0	Y
-
 Nutrient	InitConc_NO3	Initial average concentration of NO3 in the soil	kg/kg	All	0.001	1	RC	0.001	1.00E-05	Y
 Nutrient	InitConc_P	Initial average concentration of P in the soil	kg/kg	All	0.001	1	RC	0.001	1.00E-05	Y
 Nutrient	InitConc_NH4	Initial average concentration of NH4 in the soil	kg/kg	All	0.001	1	RC	0.001	1.00E-05	Y
@@ -177,7 +172,7 @@ Nutrient	psp	nitrogen active pool fraction	none	NMINRL	0.02	1	RC	1	0	Y
 Nutrient	nperco	Nitrogen percolation coefficient	none	NutRemv	0.5	1	RC	1	0	Y
 Nutrient	pperco	Phosphorus percolation coefficient	none	NutRemv	10	0	AC	17.5	10	Y
 Nutrient	phoskd	Phosphorus soil partitioning coefficient	none	NutRemv	175	0	AC	200	100	Y
-Nutrient	isep_opt	Phosphorus sorption coefficient	none	NutRemv	0.4	1	RC	0.7	0.01	Y
+Nutrient	isep_opt	initial septic operational condition	none	NutRemv	0	1	AC	2	0	Y
 Nutrient	rca	Atmospheric deposition of ammonium	mg/L	ATMDEP	2	1	RC	2	0	Y
 Nutrient	rcn	Atmospheric deposition of nitrate	mg/L	ATMDEP	1	1	RC	1	0	Y
 Nutrient	drydep_nh4	Atmospheric dry deposition of ammonium	kg/ha/yr	ATMDEP	1	1	RC	1	0	Y
@@ -192,11 +187,8 @@ Nutrient	ai6	Rate of oxygen uptake per unit NO2-N oxidation	mg/mg	NutCHRout	1.07
 Nutrient	lambda0	Non-algal portion of hte light extinction coefficient	1/m	NutCHRout	1	0	AC	10	0	Y
 Nutrient	lambda1	Linear algal self-shading coefficient	(1/m)1/(ug chla/L)	NutCHRout	0.03	1	RC	0.065	0.0065	Y
 Nutrient	lambda2	Nonlinear alga self-shading coefficient	(1/m)(ug chla/L)^(-2/3)	NutCHRout	0.0541	1	RC	1	0	Y
-InstreamWQ	k_l	Half saturation coefficient for light	kJ/(m2*min)	ChannelRouting	0.75	1	RC	1.135	0.223	Y
-InstreamWQ	k_n	Michaelis-mention half-saturation constant for nitrogen	mg N/L	ChannelRouting	0.02	1	RC	0.03	0.01	Y
-InstreamWQ	k_p	Michaelis-mention half-saturation constant for P	mg P/L	ChannelRouting	0.025	1	RC	0.05	0.001	Y
 Nutrient	p_n	Algal preference factor for ammonia	mg/L	NutCHRout	0.5	1	RC	1	0	Y
-Nutrient	igropt	Qual2E algae growth limiting option	none	NutCHRout	3	0	AC	3	1	Y
+Nutrient	igropt	Qual2E algae growth limiting option	none	NutCHRout	2	0	AC	3	1	Y
 Nutrient	mumax	Maximum specific algal growth rate at 20 deg C	none	NutCHRout	2	1	RC	3	1	Y
 Nutrient	rhoq	Algal respiration rate at 20 deg C	1/day	NutCHRout	0.3	1	RC	0.05	0.5	Y
 Nutrient	tfact	Fraction of solar radiation that is photosynthetically active	none	NutCHRout	0.3	1	RC	1	0	Y
@@ -214,7 +206,6 @@ Nutrient	bc1	Rate constant for biological oxidation of NH4 to NO2 in the reach a
 Nutrient	bc2	Rate constant for biological oxidation of NO2 to NO3 in the reach at 20 deg C	1/day	NutCHRout	1.1	1	RC	2	0.2	Y
 Nutrient	bc3	Rate constant for hydrolysis of organic N to NH4 in the reach at 20 deg C	1/day	NutCHRout	0.21	1	RC	0.4	0.2	Y
 Nutrient	bc4	Rate constant for mineralization of organic P to dissolved P in the reach at 20 deg C	1/day	NutCHRout	0.35	1	RC	0.7	0.01	Y
-
 PlantGrowth	epco	plant water uptake compensation factor	None	BIO_EPIC	1	1	RC	1	0.01	Y
 PlantGrowth	n_updis	nitrogen uptake distribution parameter	None	BIO_EPIC	20	1	RC	100	0	Y
 PlantGrowth	p_updis	phosphorus uptake distribution parameter	None	BIO_EPIC	20	1	RC	100	0	Y
@@ -228,5 +219,4 @@ Snow	SNO50COV	Fraction of snow water equivalent that corresponds to 50% snow cov
 Groundwater	GW_recharge	Groundwater recharge	m3/s	MUSK_CH	0	0	AC	100	0	Y
 Nutrient	cod_n	COD conversion factor	None	NUTRMV	3.75	1	RC	6.5	1	Y
 Nutrient	cod_k	Reaction coefficient	None	NUTRMV	0.15	1	RC	0.2	0.1	Y
-
-
+Groundwater	gwrq	groundwater recharge to channel or perennial base flow	m3/s	MUSK_CH	0	0	AC	100	0	Y

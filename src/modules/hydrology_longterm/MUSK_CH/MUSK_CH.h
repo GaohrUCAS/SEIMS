@@ -89,7 +89,8 @@ private:
     int m_dt;
     /// reach number (= subbasin number)
     int m_nreach;
-
+	/// outlet ID
+	int m_outletID;
     /// The point source discharge (m3/s), m_ptSub[id], id is the reach id, load from m_Scenario
     float *m_ptSub;
 

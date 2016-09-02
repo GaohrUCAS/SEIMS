@@ -51,6 +51,7 @@ void ParamInfo::Adjust1DArray(int n, float *data)
     {
         if (StringMatch(Change, PARAM_CHANGE_RC) && !FloatEqual(Impact, 1.0))
         {
+#pragma omp parallel for
             for (int i = 0; i < n; i++)
             {
 				if(!FloatEqual(data[i], NODATA_VALUE))  /// Do not change NoData value
@@ -59,6 +60,7 @@ void ParamInfo::Adjust1DArray(int n, float *data)
         }
         else if (StringMatch(Change, PARAM_CHANGE_AC) && !FloatEqual(Impact, 0))
         {
+#pragma omp parallel for
             for (int i = 0; i < n; i++)
             {
 				if(!FloatEqual(data[i], NODATA_VALUE))  /// Do not change NoData value
@@ -75,6 +77,7 @@ void ParamInfo::Adjust1DRaster(int n, float *data)
 
 void ParamInfo::Adjust2DArray(int n, float **data)
 {
+#pragma omp parallel for
     for (int i = 0; i < n; i++)
     {
         int curCols = (int)data[i][0];
@@ -84,8 +87,10 @@ void ParamInfo::Adjust2DArray(int n, float **data)
 
 void ParamInfo::Adjust2DRaster(int n, int lyrs, float **data)
 {
-    for (int i = 0; i < n; i++)
+#pragma omp parallel for
+    for (int i = 0; i < n; i++){
         Adjust1DArray(lyrs, data[i]);
+	}
 }
 
 void ParamInfo::Reset(void)
