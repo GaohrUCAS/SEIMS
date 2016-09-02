@@ -386,10 +386,13 @@ void Biomass_EPIC::initialOutputs()
 		for (int i = 0; i < m_nCells; i++)
 			m_sol_rsd[i][0] = m_sol_cov[i];
 	}
-    if (m_LAIDay == NULL && m_initLAI != NULL)
-		Initialize1DArray(m_nCells, m_LAIDay, m_initLAI);
-	else
-		Initialize1DArray(m_nCells, m_LAIDay, 0.f);
+    if (m_LAIDay == NULL)
+	{	
+		if(m_initLAI != NULL)
+			Initialize1DArray(m_nCells, m_LAIDay, m_initLAI);
+		else
+			Initialize1DArray(m_nCells, m_LAIDay, 0.f);
+	}
     if (m_LAIYrMax == NULL)
     {
         m_LAIYrMax = new float[m_nCells];

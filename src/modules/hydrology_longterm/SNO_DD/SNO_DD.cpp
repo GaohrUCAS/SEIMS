@@ -54,20 +54,6 @@ void SNO_DD::initialOutputs()
 		Initialize1DArray(m_nCells, m_SR, 0.f);
 	if (m_SE == NULL) /// Snow sublimation will be considered in AET_PTH
 		Initialize1DArray(m_nCells, m_SE, 0.f);
-//    {
-//        m_SM = new float[this->m_nCells];
-//        m_SA = new float[this->m_nCells];
-//#pragma omp parallel for
-//        for (int i = 0; i < m_nCells; i++)
-//        {
-//            m_SM[i] = 0.f;
-//            m_SA[i] = 0.f;
-//            //if(this->m_tMean[i]  < this->m_tsnow)  /// I think we should do this more careful. LJ
-//            //	m_SA[i] = this->m_swe0; //winter
-//            //else
-//            //	this->m_SA[i] = 0.0f;	// other seasons
-//        }
-//    }
 }
 
 int SNO_DD::Execute()
