@@ -98,7 +98,6 @@ int PER_PI::Execute()
 			{
 				m_perc[i][j] = 0.f;
 			}
-			
 		}
 		//if (i == 1762)
 		//{
