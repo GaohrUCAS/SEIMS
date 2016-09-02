@@ -545,6 +545,7 @@ void MUSK_CH::ChannelFlow(int i)
     // first add all the inflow water
     // 1. water from this subbasin
     float qIn = m_qsSub[i] + qiSub + qgSub + ptSub;
+	//if(i == 12) cout << m_qsSub[i] << ", " << qiSub << ", " << qgSub << ", " << ptSub << ", \n";
     // 2. water from upstream reaches
     float qsUp = 0.f;
     float qiUp = 0.f;
@@ -574,7 +575,8 @@ void MUSK_CH::ChannelFlow(int i)
     // 1. transmission losses to deep aquifer, which is lost from the system
     // the unit of kchb is mm/hr
     float seepage = m_Kchb / 1000.f / 3600.f * m_chWidth[i] * m_chLen[i] * m_dt;
-    if (qgSub < 0.001f)
+	//if(i == 12) cout << "qgSub: " << ", " << qgSub << ", \n";
+    if (qgSub < UTIL_ZERO)
     {
         if (m_chStorage[i] > seepage)
         {
@@ -650,11 +652,12 @@ void MUSK_CH::ChannelFlow(int i)
 
     //////////////////////////////////////////////////////////////////////////
     // routing, there are water in the channel after inflow and transmission loss
-    float totalLoss = m_seepage[i] + bankInLoss + et;
-
+	float totalLoss = m_seepage[i] + bankInLoss + et;
+	//if(i == 12) cout << ",  m_petCh: " << m_petCh[i] << ",  et: " << et << ",  m_chStorage: " << m_chStorage[i] << ", \n";
     if (m_chStorage[i] >= 0.f)
     {
-        qIn -= totalLoss / m_dt;// average loss rate during m_dt
+//         qIn -= totalLoss / m_dt;// average loss rate during m_dt
+// 		if(qIn < 0.f) qIn = 0.f;
         m_chStorage[i] = st0;
         // calculate coefficients
         MuskWeights wt;
@@ -665,7 +668,7 @@ void MUSK_CH::ChannelFlow(int i)
         {
             m_qOut[i] = wt.c1 * qIn + wt.c2 * m_qIn[i] + wt.c3 * m_qOut[i];
             m_qIn[i] = qIn;
-            float tmp = m_chStorage[i] + (qIn - m_qOut[i]) * wt.dt;
+            float tmp = m_chStorage[i] + (qIn - totalLoss/m_dt - m_qOut[i]) * wt.dt;
             if (tmp < 0.f)
             {
                 m_qOut[i] = m_chStorage[i] / wt.dt + qIn;
@@ -685,7 +688,6 @@ void MUSK_CH::ChannelFlow(int i)
         m_chStorage[i] = 0.f;
         qIn = 0.f;
     }
-
     float qInSum = m_qsSub[i] + qiSub + qgSub + qsUp + qiUp + qgUp;
     m_qsCh[i] = m_qOut[i] * (m_qsSub[i] + qsUp) / qInSum;
     m_qiCh[i] = m_qOut[i] * (qiSub + qiUp) / qInSum;

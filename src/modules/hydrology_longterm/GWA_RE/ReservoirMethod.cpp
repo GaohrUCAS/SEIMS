@@ -75,7 +75,7 @@ int ReservoirMethod::Execute()
 		/// percolated water ==> vadose zone ==> shallow aquifer ==> deep aquifer
 		/// currently, for convenience, we assume a small portion of the percolated water
 		/// will enter groundwater. By LJ. 2016-9-2
-		float ratio2gw = 0.001;
+		float ratio2gw = 1.f;
 		perco *= ratio2gw;
 		curSub->setPerco(perco);
 
