@@ -74,12 +74,11 @@ int PER_PI::Execute()
 
                 m_perc[i][j] = k * m_dt / 3600.f;  // mm
 
-                //if (swater - m_perc[i][j] > maxSoilWater)
-                //    m_perc[i][j] = swater - maxSoilWater;
-                //else if (swater - m_perc[i][j] < fcSoilWater)
-                //    m_perc[i][j] = swater - fcSoilWater;
-				if (swater - m_perc[i][j] < fcSoilWater)
-					m_perc[i][j] = swater - fcSoilWater;
+                if (swater - m_perc[i][j] > maxSoilWater)
+                    m_perc[i][j] = swater - maxSoilWater;
+                else if (swater - m_perc[i][j] < fcSoilWater)
+                    m_perc[i][j] = swater - fcSoilWater;
+
 				if (m_perc[i][j] < 0.f)
 					m_perc[i][j] = 0.f;
                 //Adjust the moisture content in the current layer, and the layer immediately below it
