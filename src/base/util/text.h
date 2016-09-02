@@ -1182,7 +1182,7 @@
 #define DESC_GWNEW "The volume of water from the bank storage to the adjacent unsaturated zone and groundwater storage"
 #define DESC_GWNO3 "nitrate N concentration in groundwater"
 #define DESC_GWWB "groundwater water balance"
-#define DESC_GWRQ "groundwater recharge to channel"
+#define DESC_GWRQ "groundwater recharge to channel or perennial base flow"
 #define DESC_HCH "Water depth in the downslope boundary of cells"
 #define DESC_HITARG "Harvest index target "
 #define DESC_HMNTL "amount of nitrogen moving from active organic to nitrate pool in soil profile on current day in cell"
