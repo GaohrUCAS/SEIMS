@@ -602,7 +602,7 @@ void MUSK_CH::ChannelFlow(int i)
     // 2. calculate transmission losses to bank storage
     float dch = m_chStorage[i] / (m_chWidth[i] * m_chLen[i]);
     float bankInLoss = 2.f * m_Kbank / 1000.f / 3600.f * dch * m_chLen[i] * m_dt;   // m3
-    bankInLoss = 0.f;
+    bankInLoss = 0.f; //TODO
     if (m_chStorage[i] > bankInLoss)
     {
         m_chStorage[i] -= bankInLoss;
@@ -615,7 +615,7 @@ void MUSK_CH::ChannelFlow(int i)
     // water balance of the bank storage
     // loss the water from bank storage to the adjacent unsaturated zone and groundwater storage
     float bankOutGw = m_bankStorage[i] * (1.f - exp(-m_bBank));
-    bankOutGw = 0.f;
+    bankOutGw = 0.f; //TODO
     m_bankStorage[i] = m_bankStorage[i] + bankInLoss - bankOutGw;
     if (m_gwStorage != NULL)
         m_gwStorage[i] += bankOutGw / m_area[i] * 1000.f;   // updated groundwater storage
