@@ -419,10 +419,11 @@ void NutrientRemviaSr::NitrateLoss()
 				vno3 = m_sol_no3[i][k] * (1.f - exp(ww)); // kg/ha
 				if (mw > 1.e-10f)
 					con = max(vno3 / mw, 0.f); // kg/ha/mm = 100 mg/L
-				if (i == 5570)
-				{
-					cout<<"perco water: "<<m_sol_perco[i][k]<<", satportion: "<<satportion<<", mv: "<<mw<<", ww: "<<ww<<", vno3: "<<vno3<<",con: "<<con<<endl;
-				}
+				//if (con > 0.1) con = 0.1;
+				//if (i == 5570)
+				//{
+				//	cout<<"perco water: "<<m_sol_perco[i][k]<<", satportion: "<<satportion<<", mv: "<<mw<<", ww: "<<ww<<", vno3: "<<vno3<<",con: "<<con<<endl;
+				//}
 				// calculate nitrate in surface runoff
 				// concentration of nitrate in surface runoff (cosurf)
 				float cosurf = 0.f;
@@ -458,8 +459,8 @@ void NutrientRemviaSr::NitrateLoss()
 				
 				// calculate nitrate in percolate
 				percnlyr = con * m_sol_perco[i][k];
-				if(i == 5570)
-					cout<<"layer: "<<k<<", con: "<<con<<", sol_perco: "<<m_sol_perco[i][k]<<", solno3: "<<m_sol_no3[i][k]<<endl;
+				//if(i == 5570)
+				//	cout<<"layer: "<<k<<", con: "<<con<<", sol_perco: "<<m_sol_perco[i][k]<<", solno3: "<<m_sol_no3[i][k]<<endl;
 				percnlyr = min(percnlyr, m_sol_no3[i][k]);
 				m_sol_no3[i][k] -= percnlyr;
 				//if(i == 0 && k == 0) cout << percnlyr << ", \n";
@@ -479,11 +480,11 @@ void NutrientRemviaSr::NitrateLoss()
 			//m_latno3[i] = (1.f - nloss) * m_latno3[i];
 		}
 	}
-	tmpIdx = 5570;
-	cout<<"NUTRMV, cell index: "<<tmpIdx<<", percoN "<<m_perco_n[tmpIdx]<<endl;
-	for(int i = 0; i < m_nSoilLayers[tmpIdx];i++)
-		cout<<"layer: "<<i<<": "<<m_sol_no3[tmpIdx][i]<<", ";
-	cout<<endl;
+	//tmpIdx = 5570;
+	//cout<<"NUTRMV, cell index: "<<tmpIdx<<", percoN "<<m_perco_n[tmpIdx]<<endl;
+	//for(int i = 0; i < m_nSoilLayers[tmpIdx];i++)
+	//	cout<<"layer: "<<i<<": "<<m_sol_no3[tmpIdx][i]<<", ";
+	//cout<<endl;
 }
 
 void NutrientRemviaSr::PhosphorusLoss()
