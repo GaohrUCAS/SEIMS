@@ -894,8 +894,8 @@ int Biomass_EPIC::Execute()
         if (FloatEqual(m_igro[i], 1.f))            /// land cover growing
         {
             DistributePlantET(i);                  /// swu.f
-            //if (FloatEqual(m_dormFlag[i], 0.f))    /// plant will not undergo stress if dormant
-            //    AdjustPlantGrowth(i);              /// plantmod.f
+            if (FloatEqual(m_dormFlag[i], 0.f))    /// plant will not undergo stress if dormant
+                AdjustPlantGrowth(i);              /// plantmod.f
             CheckDormantStatus(i);                 /// dormant.f
         }
     }
