@@ -195,10 +195,14 @@ private:
 	float *m_ptNH4ToCh;
 	/// Organic nitrogen
 	float *m_ptOrgNToCh;
+	/// total nitrogen
+	float *m_ptTNToCh;
 	/// soluble (dissolved) phosphorus
 	float *m_ptSolPToCh;
 	/// Organic phosphorus 
 	float *m_ptOrgPToCh;
+	/// total phosphorus
+	float *m_ptTPToCh;
 	/// COD
 	float *m_ptCODToCh;
 

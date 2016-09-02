@@ -122,13 +122,13 @@ Sediment	T0_s	time of concentration	hr	ALL	-9999	0	NC	-9999	-9999	Y
 Sediment	adj_pkr	peak rate adjustment factor	none	MUSLE_I30	1	0	AC	1	0.1	Y
 Sediment	rain_yrs	number of yeares of data used to obtain values for RAINHHMX	none	MUSLE_I30	10	0	AC	10	5	Y
 Sediment	decay	dacay constant	1/day	ChannelRouting	0.184	0	NC	1	0	Y
-Sediment	spcon	 Coefficient in sediment transport equation	none	ChannelRouting	0.0001	0.0001	AC	0.01	0.0001	Y
-Sediment	p_rf	 Peak rate adjustment factor 	none	ChannelRouting	1	0.1	AC	3	1	Y
-Sediment	spexp	Exponent in sediment transport equation	none	ChannelRouting	1.5	0.1	AC	2	1	Y
-Sediment	sed_chi	Initial channel sediment concentration	ton/m^3	ChannelRouting	0.03	0.01	AC	0.848	0	Y
-Sediment	vcrit	critical veldeg Ctiy for sediment deposition	m/s	ChannelRouting	0.01	0.01	AC	1	0	Y
+Sediment	spcon	 Coefficient in sediment transport equation	none	ChannelRouting	0.0001	0	AC	0.01	0.0001	Y
+Sediment	p_rf	 Peak rate adjustment factor 	none	ChannelRouting	1	0	AC	3	1	Y
+Sediment	spexp	Exponent in sediment transport equation	none	ChannelRouting	1.5	0	AC	2	1	Y
+Sediment	sed_chi	Initial channel sediment concentration	ton/m^3	ChannelRouting	0.03	0	AC	0.848	0	Y
+Sediment	vcrit	critical veldeg Ctiy for sediment deposition	m/s	ChannelRouting	0.01	0	AC	1	0	Y
 Sediment	downcut	 whether do the channel downcutting and widening	none	ChannelRouting	1	0	NC	1	0	Y
-Sediment	rsd_covco	residue cover factor for computing fraction of cover	none	MUSLEC_LAI	0.3	0.1	AC	0.5	0.1	Y
+Sediment	rsd_covco	residue cover factor for computing fraction of cover	none	MUSLEC_LAI	0.3	0	AC	0.5	0.1	Y
 Sediment	Spl_delratio	Splash delivery ratio	none	SplashEro_KinEen	0.1	1	RC	1	0	Y
 Sediment	RandRough	The random roughness	cm	SplashEro_KinEen	-9999	0	NC	20	0.05	Y
 Sediment	Omega	calibration coefficient of splash detachment erosion	none	SplashEro_Park	0.02	1	RC	10	0.0001	Y

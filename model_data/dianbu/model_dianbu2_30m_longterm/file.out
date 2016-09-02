@@ -104,8 +104,10 @@ NutrientTransport	PERCO_P_GW	soluble P percolating past bottom of soil profile	k
 NutrientTransport	LATNO3TOCH	nitrate transported with lateral flow to channel	kg/ha	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	LATNO3TOCH.txt	1
 NutrientTransport	SUR_NO3_TOCH	nitrate transported with surface runoff to channel	kg/ha	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	SUR_NO3_TOCH.txt	1
 NutrientTransport	SUR_SOLP_TOCH	soluble phosphorus from surface runoff to channel	kg/ha	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	SUR_SOLP_TOCH.txt	1
-NutrientTransport	NO3GWTOCH	nitrate loading to reach in groundwater	kg	SUM,AVE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	ALL	NO3GWTOCH.tif	1
-NutrientTransport	MINPGWTOCH	soluble P loading to reach in groundwater	kg	SUM,AVE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	ALL	MINPGWTOCH.tif	1
+NutrientTransport	GWNO3	nitrate N concentration in groundwater	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	GWNO3.txt	1
+NutrientTransport	GWMINP	soluble P concentration in groundwater	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	GWMINP.txt	1
+NutrientTransport	NO3GWTOCH	nitrate loading to reach in groundwater	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	NO3GWTOCH.tif	1
+NutrientTransport	MINPGWTOCH	soluble P loading to reach in groundwater	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	MINPGWTOCH.tif	1
 NutrientTransport	CH_CHLORA	chlorophyll-a concentration in reach	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CH_CHLORA.txt	1
 NutrientTransport	CH_COD	carbonaceous oxygen demand in reach	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CH_COD.txt	1
 NutrientTransport	CH_SOLP	dissolved phosphorus concentration in reach	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CH_SOLP.txt	1
@@ -135,5 +137,6 @@ NutrientTransport	CH_TN	total nitrogen amount in reach	kg	NONE	2013-01-01 00:00	
 NutrientTransport	CH_TNConc	total nitrogen concentration in reach	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CH_TNConc.txt	1
 NutrientTransport	CH_TP	total phosphorus amount in reach	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CH_TP.txt	1
 NutrientTransport	CH_TPConc	total phosphorus concentration in reach	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CH_TPConc.txt	1
-NutrientTransport	GWNO3	nitrate N concentration in groundwater	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	ALL	GWNO3.txt	1
-NutrientTransport	GWMINP	soluble P concentration in groundwater	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	ALL	GWMINP.txt	1
+PointSources	ptTNToCh	total nitrogen loaded from point sources	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	0	ptTNToCh.txt	1
+PointSources	ptTPToCh	total phosphrus loaded from point sources	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	0	ptTPToCh.txt	1
+PointSources	ptCODToCh	total COD loaded from point sources	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	0	ptCODToCh.txt	1
