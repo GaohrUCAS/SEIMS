@@ -96,20 +96,6 @@ int ReservoirMethod::Execute()
 		fED = Sum(curCellsNum, curCells, m_D_ED) / curCellsNum;
 		fES = Sum(curCellsNum, curCells, m_D_ES) / curCellsNum;
 		plantEP = Sum(curCellsNum, curCells, m_plantEP) / curCellsNum;
-		//for (int i = 0; i < curCellsNum; i++)
-		//{
-		//	int index = curCells[i];
-		//	fPET += m_D_PET[index];
-		//	fEI += m_D_EI[index];
-		//	fED += m_D_ED[index];
-		//	fES += m_D_ES[index];
-		//	plantEP += m_plantEP[index];
-		//}
-		//fPET /= curCellsNum;
-		//fEI /= curCellsNum;
-		//fED /= curCellsNum;
-		//fES /= curCellsNum;
-		//plantEP /= curCellsNum;
 
 		curSub->setPET(fPET);
 
@@ -117,9 +103,9 @@ int ReservoirMethod::Execute()
 		//if (perco >= 0.01f)
 		//{
 			revap = (fPET - fEI - fED - fES - plantEP) * m_gwStore[subID] / m_GWMAX;
-// 			if (revap != revap)
-// 				cout <<"fPET: "<<fPET<<", fEI: "<<fEI<<", fED: "<<fED<<", fES: "<<fES<<", plantEP: "<<plantEP
-// 				<<"gwStore: "<<m_gwStore[subID]<<endl;
+			if (revap != revap)
+				cout <<"fPET: "<<fPET<<", fEI: "<<fEI<<", fED: "<<fED<<", fES: "<<fES<<", plantEP: "<<plantEP
+				<<"gwStore: "<<m_gwStore[subID]<<endl;
 			revap = max(revap, 0.f);
 			revap = min(revap, perco);
 		//}
@@ -215,16 +201,6 @@ int ReservoirMethod::Execute()
         }
     }
     return 0;
-}
-
-/// deprecated in next update version. By LJ
-void ReservoirMethod::clearInputs()
-{
-    m_TimeStep = -1;
-    m_nCells = -1;
-    m_dp_co = NODATA_VALUE;
-    m_Kg = NODATA_VALUE;
-    m_Base_ex = NODATA_VALUE;
 }
 
 bool ReservoirMethod::CheckInputData()
