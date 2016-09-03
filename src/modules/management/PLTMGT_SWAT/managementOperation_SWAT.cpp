@@ -1539,10 +1539,10 @@ int MGTOpt_SWAT::Execute()
     {
         int curFactoryID = -1;
         vector<int> curOps;
-		//if (i == 987){
+		//if (i == 1200){
 		//	ofstream fs;
 		//	utils util;
-		//	string filename = "E:\\code\\Hydro\\SEIMS\\model_data\\dianbu\\model_dianbu2_30m_longterm\\husc.txt";
+		//	string filename = "G:\\code_zhulj\\SEIMS\\model_data\\dianbu\\husc.txt";
 		//	fs.open(filename.c_str(), ios::out|ios::app);
 		//	if (fs.is_open())
 		//	{
