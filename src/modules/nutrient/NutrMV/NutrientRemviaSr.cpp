@@ -77,7 +77,7 @@ void NutrientRemviaSr::SumBySubbasin()
 		if(m_streamLink[i] > 0)
 			m_latno3ToCh[subi] += m_latno3[i];
 	}
-	//cout << m_perco_n[2] << "\n";
+	//cout<<"m_sur_codToCh: "<<m_sur_codToCh[2]<<endl;
 
 	// sum all the subbasins and put the sum value in the zero-index of the array
 	for (int i = 1; i < m_nSubbasins + 1; i++)
@@ -552,14 +552,15 @@ void NutrientRemviaSr::SubbasinWaterQuality()
 		// Stefan and Preudhomme. 1993.  Stream temperature estimation
 		// from air temperature.  Water Res. Bull. p. 27-45
 		// SWAT manual 2.3.13
-		float wtmp = 0.f;
-		wtmp = 5.f + 0.75f * m_tmean[i];
-		if (wtmp <= 0.1) wtmp = 0.1f;
-		wtmp = wtmp + 273.15f;    // deg C to deg K
+// 		float wtmp = 0.f;
+// 		wtmp = 5.f + 0.75f * m_tmean[i];
+// 		if (wtmp < 0.1) wtmp = 0.1f;
+// 		wtmp = wtmp + 273.15f;    // deg C to deg K
+
 		// water in cell
 		float qdr = 0.f;
 		qdr = m_surfr[i] + m_flat[i][0] + m_qtile;
-		if (qdr > 1.e-4f)
+		if (qdr > 1.e-6f)
 		{
 			// kilo moles of phosphorus in nutrient loading to main channel (tp)
 			float tp = 0.f;
@@ -578,7 +579,7 @@ void NutrientRemviaSr::SubbasinWaterQuality()
 			// CREAMS method for calculating enrichment ratio, enrsb.f of SWAT
 			float cy = 0.f;
 			// Calculate sediment, equation 4:2.2.3 in SWAT Theory 2009, p272
-			cy = 0.1f * m_sedimentYield[i] / (m_cellWidth * m_cellWidth * 0.0001f * m_surfr[i] + 1e-6f) / 1000.f;
+			cy = 0.1f * (m_sedimentYield[i] / 1000.f) / (m_cellWidth * m_cellWidth * 0.0001f * m_surfr[i] + 1e-6f);
 			if (cy > 1e-6f)
 			{
 				enratio = 0.78f * pow(cy, -0.2468f);
@@ -591,12 +592,12 @@ void NutrientRemviaSr::SubbasinWaterQuality()
 				enratio = 3.5f;
 			}
 			// calculate organic carbon loading to main channel
-			float org_c = (m_sol_om[i][0] * 0.58f / 100.f) * enratio * m_sedimentYield[i] / 1000.f;
+			float org_c = (m_sol_om[i][0] * 0.58f / 100.f) * enratio * (m_sedimentYield[i] / 1000.f) * 1000.f;
 			// calculate carbonaceous biological oxygen demand (CBOD) and COD(transform from CBOD)
-			float cbod  = 2.7f * org_c / (qdr * m_cellWidth * m_cellWidth * 0.0001f);
+			float cbod  = 2.7f * org_c / (qdr * m_cellWidth * m_cellWidth * 1.e-6f); //  kg/m3 
 			// calculate COD
-			m_cod[i] = m_cod_n * (cbod * (1.f - exp(-5.f * m_cod_k)));
-			m_cod[i] = m_surfr[i] / 1000.f * m_cod[i] * 10.f;	// mg/L converted to kg/ha
+			cbod = m_cod_n * (cbod * (1.f - exp(-5.f * m_cod_k)));
+			m_cod[i] = m_surfr[i] / 1000.f * cbod * 10.f;	// mg/L converted to kg/ha
 		} else
 		{
 			m_chl_a[i] = 0.f;
