@@ -200,6 +200,8 @@ int IMP_SWAT::Execute()
 			int id = (int) m_routingLayers[iLayer][iCell]; // cell index
 			if (FloatEqual(m_impoundTrig[id], 0.f)) /// if impounding trigger on
 				potholeSimulate(id);
+			else if (m_potVol[id] > 0.f)
+				releaseWater(id);
 		}
 	}
     return true;
@@ -536,6 +538,26 @@ void IMP_SWAT::potholeSurfaceArea(int id)
 		m_potSurfaceArea[id] = 0.001f;
 	if (m_potSurfaceArea[id] > m_cellArea)
 		m_potSurfaceArea[id] = m_cellArea;
+}
+
+void IMP_SWAT::releaseWater(int id)
+{
+	//if (id == 8144)
+	//	cout<<"releaseWater, "<<m_surfaceRunoff[id]<<", "<<m_potVol[id]<<endl;
+	float xx = 1.f;
+	m_surfaceRunoff[id] += m_potVol[id] * xx;
+	m_sedYield[id] += m_potSed[id] * xx;
+	m_sandYield[id] += m_potSand[id] * xx;
+	m_siltYield[id] += m_potSilt[id] * xx;
+	m_clayYield[id] += m_potClay[id] * xx;
+	m_smaggreYield[id] += m_potSag[id] * xx;
+	m_lgaggreYield[id] += m_potLag[id] * xx;
+	m_surqNo3[id] += m_potNo3[id] * xx;
+	m_surqSolP[id] += m_potSolP[id] * xx;
+	m_sedOrgN[id] += m_potOrgN[id] * xx;
+	m_sedOrgP[id] += m_potOrgP[id] * xx;
+	m_sedStableMinP[id] += m_potActMinP[id] * xx;
+	m_sedActiveMinP[id] += m_potStaMinP[id] * xx;
 }
 
 void IMP_SWAT::Get1DData(const char *key, int *n, float **data)

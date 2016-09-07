@@ -64,7 +64,8 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.AddOutput(VAR_BKST, UNIT_VOL_M3, DESC_BKST, DT_Array1D);
     mdi.AddOutput(VAR_SEEPAGE, UNIT_VOL_M3, DESC_SEEPAGE, DT_Array1D);
     mdi.AddOutput(VAR_CHWTDEPTH, UNIT_LEN_M, DESC_CHWTDEPTH, DT_Array1D);
-
+	mdi.AddOutput(VAR_CHWTWIDTH, UNIT_LEN_M, DESC_CHWTDEPTH, DT_Array1D);
+	mdi.AddOutput(VAR_CHWTDEPTH_DELTA, UNIT_LEN_M, DESC_CHWTDEPTH_DELTA, DT_Array1D);
     res = mdi.GetXMLDocument();
 
     char *tmp = new char[res.size() + 1];

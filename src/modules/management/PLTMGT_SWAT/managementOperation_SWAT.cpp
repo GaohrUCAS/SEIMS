@@ -1541,17 +1541,17 @@ int MGTOpt_SWAT::Execute()
     {
         int curFactoryID = -1;
         vector<int> curOps;
-		//if (i == 1200){
-		//	ofstream fs;
-		//	utils util;
-		//	string filename = "G:\\code_zhulj\\SEIMS\\model_data\\dianbu\\husc.txt";
-		//	fs.open(filename.c_str(), ios::out|ios::app);
-		//	if (fs.is_open())
-		//	{
-		//		fs << util.ConvertToString(&this->m_date) <<", IGRO: "<<m_igro[i]<<", phuBase: "<<m_phuBase[i]<<", phuAcc: "<<m_phuAcc[i]<<", phuPlt: "<<m_phuPlant[i]<< endl;
-		//		fs.close();
-		//	}
-		//}
+		if (i == 8144){
+			ofstream fs;
+			utils util;
+			string filename = "e:\\husc.txt";
+			fs.open(filename.c_str(), ios::out|ios::app);
+			if (fs.is_open())
+			{
+				fs << util.ConvertToString(&this->m_date) <<", IGRO: "<<m_igro[i]<<", phuBase: "<<m_phuBase[i]<<", phuAcc: "<<m_phuAcc[i]<<", phuPlt: "<<m_phuPlant[i]<< endl;
+				fs.close();
+			}
+		}
         if (GetOperationCode(i, curFactoryID, curOps))
         {
             for (vector<int>::iterator it = curOps.begin(); it != curOps.end(); it++)

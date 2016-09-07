@@ -137,6 +137,7 @@ private:
 
     float *m_chOrder;
     float *m_chWidth;
+	float *m_chWTWidth;
     float *m_chDepth;
     float *m_chLen;
     float *m_chVel;
@@ -178,6 +179,8 @@ private:
     float *m_qIn;
     /// channel water depth m
     float *m_chWTdepth;
+	/// channel water depth delta, m
+	float *m_chWTDepthDelta;
 	/*
 	 * reach layers
 	 * key: stream order

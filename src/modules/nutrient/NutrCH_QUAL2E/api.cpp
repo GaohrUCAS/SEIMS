@@ -51,6 +51,8 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddParameter(VAR_COD_N, UNIT_NON_DIM, DESC_COD_N, Source_ParameterDB, DT_Single);
 	mdi.AddParameter(VAR_COD_K, UNIT_NON_DIM, DESC_COD_K, Source_ParameterDB, DT_Single);
 	mdi.AddParameter(VAR_STREAM_LINK, UNIT_NON_DIM, DESC_STREAM_LINK, Source_ParameterDB, DT_Raster1D);
+	mdi.AddParameter(VAR_CH_ONCO, UNIT_CONCENTRATION, DESC_CH_ONCO, Source_ParameterDB, DT_Single);
+	mdi.AddParameter(VAR_CH_OPCO, UNIT_CONCENTRATION, DESC_CH_OPCO, Source_ParameterDB, DT_Single);
 	// add reach information
 	mdi.AddParameter(VAR_REACH_PARAM, UNIT_NON_DIM, DESC_REACH_PARAM, Source_ParameterDB, DT_Reach);
 	// add BMPs management operations, such as point source discharge
@@ -63,7 +65,6 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddInput(VAR_QRECH, UNIT_FLOW_CMS, DESC_QRECH, Source_Module, DT_Array1D);
 	mdi.AddInput(VAR_CHST, UNIT_VOL_M3, DESC_CHST, Source_Module, DT_Array1D);
 	mdi.AddInput(VAR_CHWTDEPTH, UNIT_LEN_M, DESC_CHWTDEPTH, Source_Module, DT_Array1D);
-	mdi.AddInput(VAR_BKST, UNIT_VOL_M3, DESC_BKST, Source_Module, DT_Array1D);
 
 	/// input from hillslope
 	//nutrient from surface water
@@ -81,7 +82,8 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	//nutrient from ground water
 	mdi.AddInput(VAR_NO3GW_TOCH, UNIT_KG, DESC_NO3GW_CH, Source_Module, DT_Array1D);
 	mdi.AddInput(VAR_MINPGW_TOCH, UNIT_KG, DESC_MINPGW_CH, Source_Module, DT_Array1D);
-
+	// channel erosion
+	mdi.AddInput(VAR_RCH_DEG, UNIT_KG, DESC_RCH_DEG, Source_Module, DT_Array1D);
     // set the output variables
 	/// 1. Amount (kg) outputs
     mdi.AddOutput(VAR_CH_ALGAE, UNIT_KG, DESC_CH_ALGAE, DT_Array1D);

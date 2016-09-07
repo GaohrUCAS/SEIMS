@@ -8,7 +8,6 @@
  */
 
 #pragma once
-#define DEPTH_INTERVAL 0.001f
 
 #include <string>
 #include <ctime>

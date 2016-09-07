@@ -201,4 +201,8 @@ private:
 	 * compute surface area assuming a cone shape, ha
 	 */
 	void potholeSurfaceArea(int id);
+	/*!
+	 * release water stored in pothole
+	 */
+	void releaseWater(int id);
 };

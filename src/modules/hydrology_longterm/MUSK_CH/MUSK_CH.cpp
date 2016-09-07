@@ -16,7 +16,7 @@ MUSK_CH::MUSK_CH(void) : m_dt(-1), m_nreach(-1), m_outletID(-1), m_Kchb(NODATA_V
                          m_bankStorage(NULL), m_seepage(NULL),
                          m_qsCh(NULL), m_qiCh(NULL), m_qgCh(NULL),
                          m_x(NODATA_VALUE), m_co1(NODATA_VALUE), m_qIn(NULL), m_chStorage(NULL), m_vScalingFactor(1.0f),
-                         m_qUpReach(0.f), m_deepGroundwater(0.f),m_chWTdepth(NULL)
+                         m_qUpReach(0.f), m_deepGroundwater(0.f),m_chWTdepth(NULL), m_chWTDepthDelta(NULL), m_chWTWidth(NULL)
 {
 }
 
@@ -38,6 +38,8 @@ MUSK_CH::~MUSK_CH(void)
     if (m_qiCh != NULL)Release1DArray(m_qiCh);
     if (m_qgCh != NULL)Release1DArray(m_qgCh);
     if (m_chWTdepth != NULL)Release1DArray(m_chWTdepth);
+	if (m_chWTDepthDelta != NULL)Release1DArray(m_chWTDepthDelta);
+	if (m_chWTWidth != NULL) Release1DArray(m_chWTWidth);
 	if (m_ptSub != NULL) Release1DArray(m_ptSub);
 	if (!m_ptSrcFactory.empty())
 	{
@@ -127,8 +129,9 @@ void  MUSK_CH::initialOutputs()
         m_qiCh = new float[m_nreach + 1];
         m_qgCh = new float[m_nreach + 1];
         m_chWTdepth = new float[m_nreach + 1];
-
-#pragma omp parallel for
+		m_chWTDepthDelta = new float[m_nreach + 1];
+		m_chWTWidth = new float[m_nreach + 1];
+//#pragma omp parallel for
         for (int i = 1; i <= m_nreach; i++)
         {
             float qiSub = 0.f;
@@ -140,7 +143,9 @@ void  MUSK_CH::initialOutputs()
             m_seepage[i] = 0.f;
             m_bankStorage[i] = m_Bnk0 * m_chLen[i];
 			m_chWTdepth[i] = m_chDepth[i] * m_Chs0_perc;
-			m_chStorage[i] = m_chWTdepth[i] * m_chWidth[i] * m_chLen[i];
+			m_chWTDepthDelta[i] = 0.f;
+			m_chWTWidth[i] = m_chWidth[i];
+			m_chStorage[i] = m_chWTdepth[i] * m_chWTWidth[i] * m_chLen[i];
             m_qIn[i] = 0.f;
             m_qOut[i] = m_qsSub[i] + qiSub + qgSub;
             m_qsCh[i] = m_qsSub[i];
@@ -371,6 +376,16 @@ void MUSK_CH::Get1DData(const char *key, int *n, float **data)
         m_chWTdepth[0] = m_chWTdepth[m_outletID];
         *data = m_chWTdepth;
     }
+	else if (StringMatch(sk, VAR_CHWTDEPTH_DELTA))
+	{
+		m_chWTDepthDelta[0] = m_chWTDepthDelta[m_outletID];
+		*data = m_chWTDepthDelta;
+	}
+	else if (StringMatch(sk, VAR_CHWTWIDTH))
+	{
+		m_chWTWidth[0] = m_chWTWidth[m_outletID];
+		*data = m_chWTWidth;
+	}
     else
         throw ModelException(MID_MUSK_CH, "Get1DData", "Output " + sk+" does not exist in the current module.");
 }
@@ -531,6 +546,7 @@ void MUSK_CH::GetCoefficients(float reachLength, float v0, MuskWeights &weights)
 //! Channel flow
 void MUSK_CH::ChannelFlow(int i)
 {
+	m_chWTDepthDelta[i] = m_chWTdepth[i];
     float st0 = m_chStorage[i];
     float qiSub = 0.f; /// interflow flow
     if (m_qiSub != NULL && m_qiSub[i] >= 0.f)
@@ -576,7 +592,7 @@ void MUSK_CH::ChannelFlow(int i)
     // then subtract all the outflow water
     // 1. transmission losses to deep aquifer, which is lost from the system
     // the unit of kchb is mm/hr
-    float seepage = m_Kchb / 1000.f / 3600.f * m_chWidth[i] * m_chLen[i] * m_dt;
+    float seepage = m_Kchb / 1000.f / 3600.f * m_chWTWidth[i] * m_chLen[i] * m_dt;
 	//if(i == 12) cout << "qgSub: " << ", " << qgSub << ", \n";
     if (qgSub < UTIL_ZERO)
     {
@@ -593,6 +609,9 @@ void MUSK_CH::ChannelFlow(int i)
             m_qsCh[i] = 0.f;
             m_qiCh[i] = 0.f;
             m_qgCh[i] = 0.f;
+			m_chWTdepth[i] = 0.f;
+			m_chWTWidth[i] = 0.f;
+			m_chWTDepthDelta[i] = m_chWTdepth[i] - m_chWTDepthDelta[i];
             return;
         }
     }
@@ -602,7 +621,7 @@ void MUSK_CH::ChannelFlow(int i)
     }
 
     // 2. calculate transmission losses to bank storage
-    float dch = m_chStorage[i] / (m_chWidth[i] * m_chLen[i]);
+    float dch = m_chStorage[i] / (m_chWTWidth[i] * m_chLen[i]);
     float bankInLoss = 2.f * m_Kbank / 1000.f / 3600.f * dch * m_chLen[i] * m_dt;   // m3
     bankInLoss = 0.f; //TODO
     if (m_chStorage[i] > bankInLoss)
@@ -627,7 +646,10 @@ void MUSK_CH::ChannelFlow(int i)
         m_qOut[i] = 0.f;
         m_qsCh[i] = 0.f;
         m_qiCh[i] = 0.f;
-        m_qgCh[i] = 0.f;
+		m_qgCh[i] = 0.f;
+		m_chWTdepth[i] = 0.f;
+		m_chWTWidth[i] = 0.f;
+		m_chWTDepthDelta[i] = m_chWTdepth[i] - m_chWTDepthDelta[i];
         return;
     }
 
@@ -635,7 +657,7 @@ void MUSK_CH::ChannelFlow(int i)
     float et = 0.f;
     if (m_petCh != NULL)
     {
-        et = m_Epch * m_petCh[i] / 1000.0f * m_chWidth[i] * m_chLen[i];    //m3
+        et = m_Epch * m_petCh[i] / 1000.0f * m_chWTWidth[i] * m_chLen[i];    //m3
         if (m_chStorage[i] > et)
         {
             m_chStorage[i] -= et;
@@ -647,7 +669,10 @@ void MUSK_CH::ChannelFlow(int i)
             m_qOut[i] = 0.f;
             m_qsCh[i] = 0.f;
             m_qiCh[i] = 0.f;
-            m_qgCh[i] = 0.f;
+			m_qgCh[i] = 0.f;
+			m_chWTdepth[i] = 0.f;
+			m_chWTWidth[i] = 0.f;
+			m_chWTDepthDelta[i] = m_chWTdepth[i] - m_chWTDepthDelta[i];
             return;
         }
     }
@@ -697,5 +722,6 @@ void MUSK_CH::ChannelFlow(int i)
 
     // set variables for next time step
     m_qIn[i] = qIn;
-    m_chWTdepth[i] = dch;
+    m_chWTdepth[i] = m_chStorage[i] / (m_chWTWidth[i] * m_chLen[i]);
+	m_chWTDepthDelta[i] = m_chWTdepth[i] - m_chWTDepthDelta[i];
 }

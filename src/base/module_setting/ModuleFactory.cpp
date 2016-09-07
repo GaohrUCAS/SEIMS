@@ -1443,7 +1443,7 @@ void ModuleFactory::GetValueFromDependencyModule(int iModule, vector<SimulationM
 {
     size_t n = m_moduleIDs.size();
     string id = m_moduleIDs[iModule];
-    vector<ParamInfo> &inputs = m_inputs[id];
+    vector<ParamInfo> &inputs = m_inputs[id]; 
 	/// if there are no inputs from other modules for current module
 	for (vector<ParamInfo>::iterator it = inputs.begin(); it != inputs.end(); it++)
 	{
