@@ -39,6 +39,12 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddParameter(VAR_SUBBASIN_PARAM, UNIT_NON_DIM, DESC_SUBBASIN_PARAM, Source_ParameterDB, DT_Subbasin);
     mdi.AddParameter(VAR_STREAM_LINK, UNIT_NON_DIM, DESC_STREAM_LINK, Source_ParameterDB, DT_Raster1D);
 
+	mdi.AddParameter(VAR_DETACH_SAND, UNIT_NON_DIM, DESC_DETACH_SAND, Source_ParameterDB, DT_Raster1D);
+	mdi.AddParameter(VAR_DETACH_SILT, UNIT_NON_DIM, DESC_DETACH_SILT, Source_ParameterDB, DT_Raster1D);
+	mdi.AddParameter(VAR_DETACH_CLAY, UNIT_NON_DIM, DESC_DETACH_CLAY, Source_ParameterDB, DT_Raster1D);
+	mdi.AddParameter(VAR_DETACH_SAG, UNIT_NON_DIM, DESC_DETACH_SAG, Source_ParameterDB, DT_Raster1D);
+	mdi.AddParameter(VAR_DETACH_LAG, UNIT_NON_DIM, DESC_DETACH_LAG, Source_ParameterDB, DT_Raster1D);
+
     //input from other module
     mdi.AddInput(VAR_FLOW_OL, UNIT_DEPTH_MM, DESC_OLFLOW, Source_Module, DT_Raster1D);
     mdi.AddInput(VAR_SNAC, UNIT_DEPTH_MM, DESC_SNAC, Source_Module, DT_Raster1D);
@@ -46,6 +52,11 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     // set the output variables
     mdi.AddOutput(VAR_SOER, UNIT_KG, DESC_SOER, DT_Raster1D);
     mdi.AddOutput(VAR_USLE_LS, UNIT_NON_DIM, DESC_USLE_LS, DT_Raster1D);
+	mdi.AddOutput(VAR_SANDYLD, UNIT_KG, DESC_SANDYLD, DT_Raster1D);
+	mdi.AddOutput(VAR_SILTYLD, UNIT_KG, DESC_SILTYLD, DT_Raster1D);
+	mdi.AddOutput(VAR_CLAYYLD, UNIT_KG, DESC_CLAYYLD, DT_Raster1D);
+	mdi.AddOutput(VAR_SAGYLD, UNIT_KG, DESC_SAGYLD, DT_Raster1D);
+	mdi.AddOutput(VAR_LAGYLD, UNIT_KG, DESC_LAGYLD, DT_Raster1D);
 
     // write out the XML file
     string res = mdi.GetXMLDocument();

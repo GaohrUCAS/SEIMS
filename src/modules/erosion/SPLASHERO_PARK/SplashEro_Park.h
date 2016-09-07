@@ -64,7 +64,7 @@ private:
 
     //static string toString(float value);
 
-    void initial();
+    void initialOutputs();
 
 private:
     //Parameters
