@@ -312,7 +312,9 @@ double TimeCounting()
 		PCFreq = double(li.QuadPart);
 		QueryPerformanceCounter(&li);
 		return (double)li.QuadPart / PCFreq; // seconds
-	} 
+	}
+	else
+		return (double)clock()/CLK_TCK;
 #else
 	struct timeval tv;
 	gettimeofday(&tv, NULL); 
