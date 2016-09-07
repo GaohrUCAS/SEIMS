@@ -314,11 +314,12 @@ private:
     float *m_grzFlag;
     /** Release or Impound Operation **/
 
-    /* |release/impound action code:  TODO
+    /* |release/impound action code:
            |0 begin impounding water
            |1 release impounded water*/
     float *m_impoundTriger;
-
+	/// maximum volume of water stored in the depression/impounded area, mm
+	float *m_potVolMax;
 	/// flag to identify the initialization
 	bool m_initialized;
 public:
