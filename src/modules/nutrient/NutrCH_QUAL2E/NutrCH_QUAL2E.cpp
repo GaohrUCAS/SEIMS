@@ -367,7 +367,9 @@ void NutrCH_QUAL2E::SetReaches(clsReaches *reaches)
 			Initialize1DArray(m_nReaches+1,m_rs3, 0.f);
 			Initialize1DArray(m_nReaches+1,m_rs4, 0.f);
 			Initialize1DArray(m_nReaches+1,m_rs5, 0.f);
-
+		}
+		if(m_chOrgN == NULL)
+		{
 			Initialize1DArray(m_nReaches+1,m_chAlgae,0.f);
 			Initialize1DArray(m_nReaches+1,m_chOrgN,0.f);
 			Initialize1DArray(m_nReaches+1,m_chOrgP,0.f);
@@ -680,7 +682,8 @@ void NutrCH_QUAL2E::RouteOut(int i)
 		return;
 	}
 	float outFraction = wtrOut / wtrTotal;
-	if (outFraction >= 1.f) outFraction = 1.f;
+	//if(i == 2) cout << "wtrOut: " << wtrOut << "m_chStorage: " << m_chStorage[i] << endl;
+	if (outFraction > 1.f) outFraction = 1.f;
 	m_chOutOrgN[i] = m_chOrgN[i] * outFraction;
 	m_chOutOrgP[i] = m_chOrgP[i] * outFraction;
 	m_chOutNO3[i]  = m_chNO3[i] * outFraction;
@@ -905,6 +908,8 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	// calculate carbonaceous biological oxygen demand at end of day (dbod)
 	float yyy = 0.f;   
 	float zzz = 0.f;   
+	//1. COD convert to CBOD
+	cbodcon /= (m_cod_n * (1.f - exp(-5.f * m_cod_k)));
 	yyy = corTempc(m_rk1[i], thm_rk1, wtmp) * cbodcon;
 	zzz = corTempc(m_rk3[i], thm_rk3, wtmp) * cbodcon;
 	dbod = 0.f;
@@ -919,6 +924,9 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	if (dbod < 1.e-6f)
 		dbod = 1.e-6f;
 	if (dbod > dcoef * cbodcon) dbod = dcoef * cbodcon;
+	//2. CBOD convert to COD
+	dbod *= m_cod_n * (1.f - exp(-5.f * m_cod_k));
+	//if(i == 2) cout << "dbod: " << dbod << "coef: " << m_cod_n * (1.f - exp(-5.f * m_cod_k)) << "\n";
 
 	// calculate dissolved oxygen concentration if reach at end of day (ddisox)
 	float uu = 0.f;     // variable to hold intermediate calculation result
@@ -1068,9 +1076,6 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	m_chSolP[i]  = dsolp * wtrTotal / 1000.f;
 	m_chCOD[i]   = dbod * wtrTotal / 1000.f;
 	m_chDOx[i]    = ddisox * wtrTotal / 1000.f;
-
-	/// CBOD convert to COD, (still call it CBOD here...)
-	m_chCOD[i] = m_cod_n * (m_chCOD[i] * (1.f - exp(-5.f * m_cod_k)));
 }
 
 float NutrCH_QUAL2E::corTempc(float r20, float thk, float tmp)
