@@ -137,9 +137,7 @@ void SoilTemperatureFINPL::Set1DData(const char *key, int n, float *data)
     else if (StringMatch(sk, VAR_TMEAN2))
         this->m_t2 = data;
     else
-        throw ModelException(MID_STP_FP, "Set1DData", "Parameter " + sk
-                                                      +
-                                                      " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_STP_FP, "Set1DData", "Parameter " + sk + " does not exist.");
 }
 
 void SoilTemperatureFINPL::Get1DData(const char *key, int *n, float **data)

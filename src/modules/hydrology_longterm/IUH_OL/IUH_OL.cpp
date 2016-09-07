@@ -41,6 +41,8 @@ bool IUH_OL::CheckInputData(void)
         throw ModelException(MID_IUH_OL, "CheckInputData", "The parameter: m_iuhCell has not been set.");
     if (m_rs == NULL)
         throw ModelException(MID_IUH_OL, "CheckInputData", "The parameter: surface runoff (m_rs) has not been set.");
+	//if (m_landcover == NULL)
+	//	throw ModelException(MID_IUH_OL, "CheckInputData", "The parameter: landcover has not been set.");
     return true;
 }
 
@@ -56,7 +58,33 @@ void IUH_OL::initialOutputs()
         //get m_cellFlowCols, i.e. the maximum of second column of OL_IUH plus 1.
 		Initialize2DArray(m_nCells,m_cellFlowCols,m_cellFlow,0.f);
     }
-	if(m_OL_Flow == NULL) Initialize1DArray(m_nCells,m_OL_Flow,0.f);
+	if(m_OL_Flow == NULL){
+		Initialize1DArray(m_nCells,m_OL_Flow,0.f);
+		/// added by Junzhi, 2016-9-4
+//#pragma omp parallel for
+//		for (int i = 0; i < m_nCells; i++)
+//		{
+//			if(FloatEqual(m_landcover[i], 33))//assume most water in padday field flowing out at the second day after rainfall
+//			{
+//				// the first two elements in each row of m_iuhCell are the start and end time of iuh
+//				// the actual index of "start" in m_iuhCell is "start+2", for example, the index of start time 0 is index 2.
+//				int start = int(m_iuhCell[i][0]);
+//				int end = int(m_iuhCell[i][1]);
+//
+//				if(end - start == 0) // if water will flow to channel within one day
+//				{
+//					m_iuhCell[i][1] = 1.f;
+//					m_iuhCell[i][2] = 0.2f;
+//					m_iuhCell[i][3] = 0.8f; //must make sure m_iuhCell has at least 4 columns in the readin codes
+//				}
+//				else
+//				{
+//					m_iuhCell[i][3] += 0.8f * m_iuhCell[i][2];
+//					m_iuhCell[i][2] = 0.2f * m_iuhCell[i][2];
+//				}
+//			}
+//		}
+	}
 }
 
 int IUH_OL::Execute()
@@ -155,6 +183,7 @@ void IUH_OL::Set1DData(const char *key, int n, float *data)
     string sk(key);
 	if (StringMatch(sk, VAR_SUBBSN))m_subbasin = data;
     else if (StringMatch(sk, VAR_SURU))m_rs = data;
+	//else if (StringMatch(sk, VAR_LANDCOVER)) m_landcover = data;
     else
         throw ModelException(MID_IUH_OL, "Set1DData", "Parameter " + sk + " does not exist in current method.");
 }
@@ -170,7 +199,7 @@ void IUH_OL::Set2DData(const char *key, int nRows, int nCols, float **data)
         m_iuhCols = nCols;
     }
     else
-        throw ModelException(MID_IUH_OL, "Set2DData", "Parameter " + sk + " does not exist in current method.");
+        throw ModelException(MID_IUH_OL, "Set2DData", "Parameter " + sk + " does not exist.");
 }
 void IUH_OL::SetSubbasins(clsSubbasins *subbasins)
 {
@@ -196,5 +225,5 @@ void IUH_OL::Get1DData(const char *key, int *n, float **data)
 		*n = this->m_nCells;
 	}
     else
-        throw ModelException(MID_IUH_OL, "Get1DData", "Result " + sk + " does not exist in current method.");
+        throw ModelException(MID_IUH_OL, "Get1DData", "Result " + sk + " does not exist.");
 }

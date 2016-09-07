@@ -297,6 +297,7 @@ void SSR_DA::SetSubbasins(clsSubbasins *subbasins)
 
 void SSR_DA::Get1DData(const char *key, int *n, float **data)
 {
+	initialOutputs();
     string sk(key);
     if (StringMatch(sk, VAR_SBIF))
         *data = m_qiSubbasin;
@@ -308,6 +309,7 @@ void SSR_DA::Get1DData(const char *key, int *n, float **data)
 
 void SSR_DA::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
 {
+	initialOutputs();
     string sk(key);
     *nRows = m_nCells;
     *nCols = m_nSoilLayers;
@@ -321,8 +323,7 @@ void SSR_DA::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
         *data = m_qiVol;
     }
     else
-        throw ModelException(MID_SSR_DA, "Get2DData", "Output " + sk
-                                                    + " does not exist. Please contact the module developer.");
+        throw ModelException(MID_SSR_DA, "Get2DData", "Output " + sk + " does not exist.");
 }
 
 bool SSR_DA::CheckInputData()

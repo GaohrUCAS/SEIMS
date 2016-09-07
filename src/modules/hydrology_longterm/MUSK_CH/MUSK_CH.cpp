@@ -328,7 +328,6 @@ void MUSK_CH::Get1DData(const char *key, int *n, float **data)
 {
 	if(m_reachLayers.empty())
 		initialOutputs();
-
     string sk(key);
     *n = m_nreach + 1;
     //int m_outletID = m_reachLayers.rbegin()->second[0];
