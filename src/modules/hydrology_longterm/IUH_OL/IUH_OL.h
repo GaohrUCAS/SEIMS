@@ -98,6 +98,8 @@ private:
     /// end time of IUH for each grid cell
     ///float* m_uhmaxCell;
     
+	/// landcover code
+	//float *m_landcover;
     /// IUH of each grid cell (1/s)
     float **m_iuhCell;
     /// the number of columns of Ol_iuh

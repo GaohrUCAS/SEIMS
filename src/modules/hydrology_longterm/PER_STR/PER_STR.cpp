@@ -140,13 +140,13 @@ int PER_STR::Execute()
 
 void PER_STR::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
 {
+	initialOutputs();
     string sk(key);
     *nRows = m_nCells;
     *nCols = m_nSoilLayers;
     if (StringMatch(sk, VAR_PERCO)) *data = m_perc;
     else
-        throw ModelException(MID_PER_STR, "Get2DData", "Output " + sk
-                                                       + " does not exist. Please contact the module developer.");
+        throw ModelException(MID_PER_STR, "Get2DData", "Output " + sk + " does not exist.");
 }
 
 void PER_STR::Set1DData(const char *key, int nRows, float *data)

@@ -117,6 +117,7 @@ int PER_PI::Execute()
 
 void PER_PI::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
 {
+	initialOutputs();
     string sk(key);
     *nRows = m_nCells;
     *nCols = m_soilLayers;

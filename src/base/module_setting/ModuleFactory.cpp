@@ -179,7 +179,9 @@ void ModuleFactory::Init(const string &configFileName)
         ReadInputSetting(id, doc, m_settings[id]);
         ReadOutputSetting(id, doc, m_settings[id]);
     }
-
+	map<string, vector<ParamInfo> > (m_parameters).swap(m_parameters);
+	map<string, vector<ParamInfo> > (m_inputs).swap(m_inputs);
+	map<string, vector<ParamInfo> > (m_outputs).swap(m_outputs);
     // set the connections among objects
     for (size_t i = 0; i < n; i++)
     {
@@ -276,7 +278,7 @@ string ModuleFactory::GetComparableName(string &paraName)
     return compareName;
 }
 
-int ModuleFactory::CreateModuleList(string dbName, int subbasinID, int numThreads, LayeringMethod layeringMethod,
+float ModuleFactory::CreateModuleList(string dbName, int subbasinID, int numThreads, LayeringMethod layeringMethod,
                                     clsRasterData *templateRaster, SettingsInput *settingsInput,
                                     vector<SimulationModule *> &modules)
 {
@@ -288,8 +290,8 @@ int ModuleFactory::CreateModuleList(string dbName, int subbasinID, int numThread
         pModule->SetTheadNumber(numThreads);
         modules.push_back(pModule);
     }
-
-    clock_t t1 = clock();
+	double t1 = TimeCounting();
+    //clock_t t1 = clock();
     //initial parameter (reading parameter information from database)
     //cout << "reading parameter information from database...\n";
     for (size_t i = 0; i < n; i++)
@@ -331,9 +333,10 @@ int ModuleFactory::CreateModuleList(string dbName, int subbasinID, int numThread
                     verticalInterpolation);
         }
     }
-    clock_t t2 = clock();
+	double t2 = TimeCounting();
+    //clock_t t2 = clock();
     StatusMessage("Reading parameter finished.\n");
-    return t2 - t1;
+    return float(t2 - t1);
 }
 
 ParamInfo *ModuleFactory::FindDependentParam(ParamInfo &paramInfo)
@@ -1434,13 +1437,25 @@ void ModuleFactory::UpdateInput(vector<SimulationModule *> &modules, SettingsInp
 }
 
 /// Revised LiangJun Zhu
-/// Fix code of DT_Raster2D related
-/// 5-27-2016
+/// 1. Fix code of DT_Raster2D related, 2016-5-27
+/// 2. Bugs fixed in continuous dependency, 2016-9-6 
 void ModuleFactory::GetValueFromDependencyModule(int iModule, vector<SimulationModule *> &modules)
 {
     size_t n = m_moduleIDs.size();
     string id = m_moduleIDs[iModule];
     vector<ParamInfo> &inputs = m_inputs[id];
+	/// if there are no inputs from other modules for current module
+	for (vector<ParamInfo>::iterator it = inputs.begin(); it != inputs.end(); it++)
+	{
+		ParamInfo &param = *it;
+		if (StringMatch(param.Source, Source_Module) || 
+			(StringMatch(param.Source, Source_Module_Optional) && param.DependPara != NULL)){
+			break;
+		}
+		modules[iModule]->SetInputsDone(true);
+		return;
+	}
+
     for (size_t j = 0; j < inputs.size(); j++)
     {
         ParamInfo *dependParam = inputs[j].DependPara;
@@ -1453,6 +1468,11 @@ void ModuleFactory::GetValueFromDependencyModule(int iModule, vector<SimulationM
             if (m_moduleIDs[k] == dependParam->ModuleID)
                 break;
         }
+		//cout<<iModule<<", "<<k<<", "<<dependParam->ModuleID<<", "<<dependParam->Name<<endl;
+		if (!modules[k]->IsInputsSetDone())
+		{
+			GetValueFromDependencyModule(k, modules);
+		}
         string compareName = GetComparableName(dependParam->Name);
         int dataLen;
         if (dependParam->Dimension == DT_Array1D || dependParam->Dimension == DT_Raster1D)
@@ -1460,19 +1480,25 @@ void ModuleFactory::GetValueFromDependencyModule(int iModule, vector<SimulationM
             float *data;
             modules[k]->Get1DData(compareName.c_str(), &dataLen, &data);
             modules[iModule]->Set1DData(inputs[j].Name.c_str(), dataLen, data);
+			dependParam->initialized = true;
+			modules[iModule]->SetInputsDone(true);
         }
         else if (dependParam->Dimension == DT_Array2D || dependParam->Dimension == DT_Raster2D)
         {
             int nCol;
             float **data;
             modules[k]->Get2DData(compareName.c_str(), &dataLen, &nCol, &data);
-            modules[iModule]->Set2DData(inputs[j].Name.c_str(), dataLen, nCol, data);
+			modules[iModule]->Set2DData(inputs[j].Name.c_str(), dataLen, nCol, data);
+			dependParam->initialized = true;
+			modules[iModule]->SetInputsDone(true);
         }
         else if (dependParam->Dimension == DT_Single)
         {
             float value;
             modules[k]->GetValue(compareName.c_str(), &value);
-            modules[iModule]->SetValue(inputs[j].Name.c_str(), value);
+			modules[iModule]->SetValue(inputs[j].Name.c_str(), value);
+			dependParam->initialized = true;
+			modules[iModule]->SetInputsDone(true);
         }
         else
         {

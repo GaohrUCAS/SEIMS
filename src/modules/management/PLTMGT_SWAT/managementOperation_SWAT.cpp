@@ -52,7 +52,7 @@ MGTOpt_SWAT::MGTOpt_SWAT(void) : m_nCells(-1), m_nSub(-1), m_soilLayers(-1),
         /// Grazing operation
                                  m_nGrazingDays(NULL), m_grzFlag(NULL),
         /// Release or impound operation
-                                 m_impoundTriger(NULL),
+                                 m_impoundTriger(NULL), m_potVolMax(NULL),
         /// Temporary parameters
                                  m_doneOpSequence(NULL),
 								 m_initialized(false)
@@ -155,6 +155,7 @@ MGTOpt_SWAT::~MGTOpt_SWAT(void)
 	if (m_grzFlag !=NULL) Release1DArray(m_grzFlag);
 	/// Impound/Release operation
 	if (m_impoundTriger !=NULL) Release1DArray(m_impoundTriger);
+	if (m_potVolMax != NULL) Release1DArray(m_potVolMax);
 }
 
 void MGTOpt_SWAT::SetValue(const char *key, float data)
@@ -252,8 +253,7 @@ bool MGTOpt_SWAT::CheckInputSize2D(const char *key, int n, int col)
         {
             throw ModelException(MID_PLTMGT_SWAT, "CheckInputSize2D", "Input data for " + string(key) +
                                                                    " is invalid. All the layers of input 2D raster data should have same size of " +
-                                                                   ValueToString(m_soilLayers) + " instead of " +
-                                                                   ValueToString(col) + ".");
+                                                                   ValueToString(m_soilLayers) + " instead of " + ValueToString(col) + ".");
             return false;
         }
     }
@@ -1452,7 +1452,9 @@ void MGTOpt_SWAT::ExecuteReleaseImpoundOperation(int i, int &factoryID, int nOp)
     ReleaseImpoundOperation *curOperation = (ReleaseImpoundOperation *) m_mgtFactory[factoryID]->GetOperations()[nOp];
     m_impoundTriger[i] = curOperation->ImpoundTriger();
     /// pothole.f and potholehr.f for sub-daily timestep simulation, TODO
+	/// 1. pothole module has been added by LJ, 2016-9-6, IMP_SWAT
 	/// paddy rice module should be added!
+	m_potVolMax[i] = curOperation->MaxDepth();
 }
 
 void MGTOpt_SWAT::ExecuteContinuousFertilizerOperation(int i, int &factoryID, int nOp)
@@ -1577,6 +1579,7 @@ int MGTOpt_SWAT::Execute()
 
 void MGTOpt_SWAT::Get1DData(const char *key, int *n, float **data)
 {
+	initialOutputs();
     string sk(key);
         /// plant operation
     if (StringMatch(sk, VAR_HITARG)) *data = m_HarvestIdxTarg;
@@ -1606,6 +1609,7 @@ void MGTOpt_SWAT::Get1DData(const char *key, int *n, float **data)
     else if (StringMatch(sk, VAR_GRZ_FLAG)) *data = m_grzFlag;
         /// Impound/Release operation
     else if (StringMatch(sk, VAR_IMPOUND_TRIG)) *data = m_impoundTriger;
+	else if (StringMatch(sk, VAR_POT_VOLMAXMM)) *data = m_potVolMax;
     *n = m_nCells;
 }
 
@@ -1665,6 +1669,7 @@ void MGTOpt_SWAT::initialOutputs()
 	if (find(definedMgtCodes.begin(), definedMgtCodes.end(), BMP_PLTOP_ReleaseImpound) != definedMgtCodes.end())
 	{
 		if (m_impoundTriger == NULL) Initialize1DArray(m_nCells, m_impoundTriger, -1.f);
+		if (m_potVolMax == NULL) Initialize1DArray(m_nCells, m_potVolMax, 0.f);
 	}
 	if (m_doneOpSequence == NULL) Initialize1DArray(m_nCells, m_doneOpSequence, -1);
 	m_initialized = true;

@@ -171,7 +171,7 @@ bool SplashEro_Park::CheckInputSize(const char *key, int n)
     return true;
 }
 
-void SplashEro_Park::initial()
+void SplashEro_Park::initialOutputs()
 {
     //allocate the output variable
     if (m_DETSplash == NULL)
@@ -191,7 +191,7 @@ int SplashEro_Park::Execute()
 
     CheckInputData();
 
-    initial();
+    initialOutputs();
     //StatusMsg("executing SplashEro_Park");
 #pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)

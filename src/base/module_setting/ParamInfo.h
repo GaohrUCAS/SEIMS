@@ -86,5 +86,7 @@ public:
     bool OutputToOthers;
     //! Basic name
     string BasicName;
+	//! whether is initialized 
+	bool initialized;
 };
 

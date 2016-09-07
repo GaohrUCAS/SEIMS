@@ -1096,6 +1096,7 @@ void NutrCH_QUAL2E::GetValue(const char *key, float *value)
 
 void NutrCH_QUAL2E::Get1DData(const char *key, int *n, float **data)
 {
+	initialOutputs();
     string sk(key);
     *n = m_nReaches + 1;
     if (StringMatch(sk, VAR_CH_ALGAE)) *data = m_chOutAlgae;

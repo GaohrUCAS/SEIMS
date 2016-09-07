@@ -420,12 +420,17 @@ namespace MainBMP
             ~ReleaseImpoundOperation();
 
             int ImpoundTriger() { return m_impTrig; }
-
+			float MaxDepth() {return m_maxDepth; }
+			float UpDepth() {return m_upDepth; }
+			float LowDepth() {return m_lowDepth; }
             //! Output
             void dump(ostream *fs);
 
         private:
             int m_impTrig;
+			float m_maxDepth;
+			float m_upDepth;
+			float m_lowDepth;
         };
 
         /*!

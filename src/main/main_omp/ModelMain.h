@@ -80,7 +80,7 @@ public:
     float GetModuleExecuteTime(int i) { return m_executeTime[i]; }
 
     //! Get time consuming of read files
-    int GetReadDataTime() { return m_readFileTime; }
+    float GetReadDataTime() { return m_readFileTime; }
 
 	//! 
     float GetQOutlet();
@@ -147,7 +147,7 @@ private:
     //! Execute time list of each module
     vector<double> m_executeTime;
     //! Time consuming for read files
-    int m_readFileTime;
+    float m_readFileTime;
     //! Layering method
     LayeringMethod m_layeringMethod;
 

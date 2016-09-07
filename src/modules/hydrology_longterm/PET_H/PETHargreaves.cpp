@@ -121,8 +121,7 @@ void PETHargreaves::Get1DData(const char *key, int *n, float **data)
     else if (StringMatch(sk, VAR_DAYLEN)) *data = this->m_dayLen;
     else if (StringMatch(sk, VAR_PHUBASE)) *data = this->m_phuBase;
     else
-        throw ModelException(MID_PET_H, "Get1DData",
-                             "Parameter " + sk + " does not exist. Please contact the module developer.");
+        throw ModelException(MID_PET_H, "Get1DData", "Parameter " + sk + " does not exist.");
 }
 
 bool PETHargreaves::CheckInputSize(const char *key, int n)

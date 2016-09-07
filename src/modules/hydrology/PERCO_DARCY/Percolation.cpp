@@ -100,14 +100,14 @@ int Percolation_DARCY::Execute()
 
 void Percolation_DARCY::Get1DData(const char *key, int *nRows, float **data)
 {
+	initialOutputs();
     string s(key);
     if (StringMatch(s, VAR_PERCO))
     {
         *data = this->m_recharge;
     }
     else
-        throw ModelException(MID_PERCO_DARCY, "Get1DData",
-                             "Result " + s + " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_PERCO_DARCY, "Get1DData", "Result " + s + " does not exist.");
     *nRows = this->m_nCells;
 }
 

@@ -48,7 +48,7 @@ WaterBalance	Sand	Sand proportion	%	ALL	-9999	1	RC	1.2	0.8	Y
 WaterBalance	Slope	Slope	%	ALL	-9999	1	RC	1.1	0.9	Y
 WaterBalance	Wiltingpoint	Plant wilting point moisture	m3/m3	ALL	-9999	1	RC	1.2	0.8	Y
 WaterBalance	Poreindex	Pore size distribution index	none	ALL	-9999	1	RC	1.2	0.8	Y
-WaterBalance	Runoff_co	Potential runoff coefficient	none	SUR_MR	-9999	1	RC	1	0.5	Y
+WaterBalance	Runoff_co	Potential runoff coefficient	none	SUR_MR	-9999	1	RC	2	0.5	Y
 WaterBalance	Conductivity	Soil hydraulic conductivity	mm/hr	ALL	-9999	1	RC	10	0.1	Y
 WaterBalance	Porosity	Soil porosity	m3/m3	ALL	-9999	1	RC	1.2	0.8	Y
 WaterBalance	Fieldcap	Soil field capacity	m3/m3	ALL	-9999	1	RC	1.2	0.8	Y
@@ -76,7 +76,7 @@ Discharge	Ol_iuh	Overland flow IUH	none	ALL	-9999		NC	-9999	-9999	Y
 Discharge	Ch_iuh	Channel flow IUH	none	ChannelRouting	-9999		NC	-9999	-9999	Y
 Discharge	Reach	Reach properties	none	ALL	-9999	0	NC	-9999	-9999	Y
 Discharge	Ki	Interflow scaling factor	none	SSR_DA	3	0	AC	10	0	Y
-Discharge	Kg	Baseflow recession coefficient	none	GW_RSVR	5.00E-03	0	AC	0.1	0.001	Y
+Discharge	Kg	Baseflow recession coefficient	none	GW_RSVR	0.005	-0.004	AC	0.1	0.001	Y
 Discharge	Base_ex	Baseflow exponent	none	GW_RSVR	1	0	AC	4	1	Y
 Discharge	df_coef	Deep percolation coefficient	mm	GW_RSVR	0	0	AC	1	0	Y
 Discharge	gw0	Initial groundwater storage	mm	GW_RSVR	100	0	AC	1000	0	Y
@@ -106,7 +106,7 @@ Discharge	THETA	Parameter theta for the implicit finite deffirent equation	none	
 Discharge	STREAM_LINK	Stream link	none	ALL	-9999	0	AC	-9999	-9999	N
 Discharge	STREAM_ORDER	Stream Order	none	ALL	-9999	0	AC	-9999	-9999	N
 Discharge	ReachParameter	Reach parameters such as mannning's n, upstream subbasins and so on.	none	ALL	-9999	0	AC	-9999	-9999	N
-Discharge	VelScaleFactor	Scale factor used to adjust V0 in CH_MUSK	none	CH_MUSK	1	0	AC	1.5	0.5	Y
+Discharge	VelScaleFactor	Scale factor used to adjust V0 in CH_MUSK	none	CH_MUSK	1	-0.5	AC	1.5	0.5	Y
 Discharge	CH_ManningFactor	Manning scaling factor of channel routing	none	IKW_CH	1	0	AC	3	0.1	Y
 Sediment	USLE_C	the cover management factor	none	ALL	-9999	0	NC	-9999	-9999	Y
 Sediment	USLE_P	the erosion control practice factor	none	ALL	-9999	0	NC	-9999	-9999	Y
@@ -167,11 +167,11 @@ Nutrient	ConRainAmm	Concentration of ammonia in rainfall	mg N/L	ATMDEP	0	0	AC	15
 Nutrient	cmn	Rate coefficient for mineralization of the humus active organic nutrients	none	NMINRL	0.002	0	AC	0.003	0.001	Y
 Nutrient	cdn	rate coefficient for denitrification	none	NMINRL	1	1	RC	3	0	Y
 Nutrient	nactfr	nitrogen active pool fraction	none	NMINRL	0.02	1	RC	1	0	Y
-Nutrient	sdnco	denitrification threshold: fraction of field capacity	none	NMINRL	1.02	1	RC	1	0	Y
+Nutrient	sdnco	denitrification threshold: fraction of field capacity	none	NMINRL	1.02	0.8	RC	1	0	Y
 Nutrient	psp	nitrogen active pool fraction	none	NMINRL	0.02	1	RC	1	0	Y
-Nutrient	nperco	Nitrogen percolation coefficient	none	NutRemv	0.5	1	RC	1	0	Y
+Nutrient	nperco	Nitrogen percolation coefficient	none	NutRemv	0.5	0.001	RC	1	0	Y
 Nutrient	pperco	Phosphorus percolation coefficient	none	NutRemv	10	0	AC	17.5	10	Y
-Nutrient	phoskd	Phosphorus soil partitioning coefficient	none	NutRemv	175	0	AC	200	100	Y
+Nutrient	phoskd	Phosphorus soil partitioning coefficient	none	NutRemv	175	25	AC	200	100	Y
 Nutrient	isep_opt	initial septic operational condition	none	NutRemv	0	0	AC	2	0	Y
 Nutrient	rca	Atmospheric deposition of ammonium	mg/L	ATMDEP	2	1	RC	2	0	Y
 Nutrient	rcn	Atmospheric deposition of nitrate	mg/L	ATMDEP	1	1	RC	1	0	Y
@@ -219,4 +219,9 @@ Snow	SNO50COV	Fraction of snow water equivalent that corresponds to 50% snow cov
 Groundwater	GW_recharge	Groundwater recharge	m3/s	MUSK_CH	0	0	AC	100	0	Y
 Nutrient	cod_n	COD conversion factor	None	NUTRMV	3.75	1	RC	6.5	1	Y
 Nutrient	cod_k	Reaction coefficient	None	NUTRMV	0.15	1	RC	0.2	0.1	Y
-Groundwater	gwrq	groundwater recharge to channel or perennial base flow	m3/s	MUSK_CH	0	0	AC	100	0	Y
+Groundwater	gwrq	groundwater recharge to channel or perennial base flow	m3/s	MUSK_CH	0	0.4	AC	100	0	Y
+Pothole	evlai	leaf area index at which no evaporation occurs from water surface	m2/m2	IMP_SWAT	3	1	AC	10	0	Y
+Pothole	pot_no3l	Nitrate decay rate in impounded water body	1/day	IMP_SWAT	0	0	AC	1	0	Y
+Pothole	pot_solpl	Soluble phosphorus decay rate in impounded water body	1/day	IMP_SWAT	0	0	AC	1	0	Y
+Pothole	pot_tile	Average daily outflow to main channel from tile flow if drainage tiles are installed in the pothole.	mm	IMP_SWAT	0	0	AC	100	0	Y
+Pothole	evpot	Pothole evaporation coefficient	None	IMP_SWAT	0.5	0	AC	2	0	Y

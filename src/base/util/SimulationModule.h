@@ -152,6 +152,10 @@ public:
     {
         m_tsCounter = 1;
     };
+	//! Whether the inputs parameters (i.e., parameters derived from other modules) have been set.
+	bool IsInputsSetDone() {return m_inputsSetDone;}
+	//! Change the status of setting inputs parameters
+	void SetInputsDone(bool setDone) { m_inputsSetDone = setDone; }
 protected:
     /// date time
     time_t m_date;
@@ -159,5 +163,7 @@ protected:
     int m_yearIdx;
     /// sub-timestep counter
     int m_tsCounter;
+	/// Whether the inputs parameters (i.e., parameters derived from other modules) have been set.
+	bool m_inputsSetDone;
 };
 

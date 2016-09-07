@@ -192,6 +192,7 @@ void NUTR_CH::Set1DData(const char *key, int n, float *value)
 
 void NUTR_CH::Get1DData(const char *key, int *n, float **data)
 {
+	initialOutputs();
     string sk(key);
     *n = m_nreach + 1;
     int iOutlet = m_reachLayers.rbegin()->second[0];

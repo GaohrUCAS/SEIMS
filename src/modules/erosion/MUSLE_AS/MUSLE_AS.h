@@ -63,6 +63,16 @@ private:
 	//! deposition ratio
 	float m_depRatio;  // added by Wu Hui, 2013.11.16
     //grid from parameter
+	//! sand fraction
+	float *m_detachSand;
+	//! silt fraction
+	float *m_detachSilt;
+	//! clay fraction
+	float *m_detachClay;
+	//! small aggregate fraction
+	float *m_detachSmAggre;
+	//! large aggregate fraction
+	float *m_detachLgAggre;
 
 	//! USLE P factor (Practice)
     float *m_usle_p;
@@ -101,7 +111,16 @@ private:
 
 	//! sediment yield on each cell
     float *m_sedimentYield;
-
+	//! sand yield
+	float *m_sandYield;
+	//! silt yield
+	float *m_siltYield;
+	//! clay yield
+	float *m_clayYield;
+	//! small aggregate yield
+	float *m_smaggreYield;
+	//! large aggregate yield
+	float *m_lgaggreYield;
 	//! initialize outputs
     void initialOutputs();
 	//! 

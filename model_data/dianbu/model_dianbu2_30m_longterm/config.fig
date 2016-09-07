@@ -19,6 +19,7 @@
 0 | ATMDEP | Atomosphere deposition | ATMDEP
 0 | Groundwater | Linear reservoir | GWA_RE
 0 | Soil water | Water balance | SOL_WB
+0 | Pothole | SWAT cone shape | IMP_SWAT
 0 | Water overland routing | IUH | IUH_OL
 0 | Overland sediment routing | IUH_SED_OL | IUH_SED_OL
 0 | Nutrient | Attached nutrient loss | NUTRSED

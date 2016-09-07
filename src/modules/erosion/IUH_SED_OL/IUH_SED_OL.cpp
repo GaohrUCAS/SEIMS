@@ -155,9 +155,7 @@ void IUH_SED_OL::SetValue(const char *key, float value)
 
 void IUH_SED_OL::Set1DData(const char *key, int n, float *data)
 {
-
     this->CheckInputSize(key, n);
-
     //set the value
     string sk(key);
 	if (StringMatch(sk, VAR_SUBBSN))
@@ -170,7 +168,6 @@ void IUH_SED_OL::Set1DData(const char *key, int n, float *data)
 
 void IUH_SED_OL::Set2DData(const char *key, int nRows, int nCols, float **data)
 {
-
     string sk(key);
     if (StringMatch(sk, VAR_OL_IUH))
     {
@@ -209,5 +206,3 @@ void IUH_SED_OL::Get1DData(const char *key, int *n, float **data)
     else
         throw ModelException(MID_IUH_SED_OL, "Get1DData", "Result " + sk + " does not exist in current method.");
 }
-
-

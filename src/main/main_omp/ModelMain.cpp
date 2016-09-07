@@ -21,7 +21,7 @@ ModelMain::ModelMain(mongoc_client_t *conn, string dbName, string projectPath, S
                      LayeringMethod layeringMethod)
         : m_conn(conn), m_dbName(dbName), m_projectPath(projectPath), m_input(input), m_factory(factory),
           m_subBasinID(subBasinID), m_scenarioID(scenarioID), m_threadNum(numThread), m_layeringMethod(layeringMethod),
-          m_templateRasterData(NULL), m_readFileTime(0), m_firstRunChannel(true), m_firstRunOverland(true),
+          m_templateRasterData(NULL), m_readFileTime(0.f), m_firstRunChannel(true), m_firstRunOverland(true),
           m_initialized(false), m_output(NULL)
 {
     mongoc_gridfs_t *spatialData;
@@ -174,7 +174,6 @@ void ModelMain::StepHillSlope(time_t t, int yearIdx, int subIndex)
 		double sub_t2 = TimeCounting();
         m_executeTime[index] += (sub_t2 - sub_t1);
     }
-
     m_firstRunOverland = false;
 }
 
@@ -208,7 +207,7 @@ void ModelMain::Step(time_t t, int yearIdx, vector<int> &moduleIndex, bool first
         int index = moduleIndex[i];
         SimulationModule *pModule = m_simulationModules[index];
 
-        if (firstRun)
+        if (m_firstRunChannel)
             m_factory->GetValueFromDependencyModule(index, m_simulationModules);
 
         //clock_t sub_t1 = clock();
@@ -230,7 +229,7 @@ void ModelMain::Execute()
     time_t endTime = m_input->getEndTime();
     int startYear = GetYear(startTime);
     int nHs = 0;
-
+	
     for (time_t t = startTime; t < endTime; t += m_dtCh)
     {
         cout << util.ConvertToString2(&t) << endl;
