@@ -95,13 +95,12 @@ void clsPI_STORM::SetValue(const char *key, float data)
 
 void clsPI_STORM::Get1DData(const char *key, int *n, float **data)
 {
+	initialOutputs();
     string s(key);
     if (StringMatch(s, VAR_INLO)) *data = this->m_interceptionLoss;
-        //else if(StringMatch(s,"INET"))			*data = this->m_evaporation;
     else if (StringMatch(s, VAR_NEPR)) *data = this->m_netPrecipitation;
     else
-        throw ModelException(MID_PI_STORM, "Get1DData",
-                             "Result " + s + " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_PI_STORM, "Get1DData", "Result " + s + " does not exist.");
 
     *n = this->m_nCells;
 }

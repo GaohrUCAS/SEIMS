@@ -565,9 +565,7 @@ void Muskingum::Get1DData(const char *key, int *n, float **data)
         *data = m_qSubbasin;
     }
     else
-        throw ModelException(MID_CH_MSK, "Get1DData", "Output " + sk
-                                                      +
-                                                      " does not exist in the current module. Please contact the module developer.");
+        throw ModelException(MID_CH_MSK, "Get1DData", "Output " + sk + " does not exist.");
 
 }
 
