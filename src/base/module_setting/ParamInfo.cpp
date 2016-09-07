@@ -112,4 +112,5 @@ void ParamInfo::Reset(void)
     ClimateType = "";
     IsOutput = false;
     OutputToOthers = false;
+	initialized = false;
 }

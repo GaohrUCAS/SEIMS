@@ -53,11 +53,11 @@ public:
     ~ModuleFactory(void);
 
     //! Create a set of objects and set up the relationship among them. Return time-consuming.
-    int CreateModuleList(string dbName, int subbasinID, int numThreads, LayeringMethod layeringMethod,
+    float CreateModuleList(string dbName, int subbasinID, int numThreads, LayeringMethod layeringMethod,
                          clsRasterData *templateRaster, SettingsInput *settingsInput,
                          vector<SimulationModule *> &modules);
 
-    //! Update input
+    //! Update inputs, such climate data.
     void UpdateInput(vector<SimulationModule *> &modules, SettingsInput *input, time_t t);
 
     //! Get value from dependency modules
