@@ -221,6 +221,7 @@ int NutrientinGroundwater::Execute()
 
 void NutrientinGroundwater::Get1DData(const char *key, int *n, float **data)
 {
+	initialOutputs();
     string sk(key);
     *n = m_nSubbasins + 1;
     if (StringMatch(sk, VAR_NO3GW_TOCH))

@@ -252,5 +252,3 @@ void IUH_NUTR_OL::Get1DData(const char *key, int *n, float **data)
     else
         throw ModelException(MID_IUH_NUTR_OL, "Get1DData", "Result " + sk + " does not exist in current method.");
 }
-
-

@@ -389,6 +389,7 @@ void SurrunoffTransfer::OrgpAttachedtoSed(int i)
 
 void SurrunoffTransfer::Get1DData(const char *key, int *n, float **data)
 {
+	initialOutputs();
     string sk(key);
     if (StringMatch(sk, VAR_SEDORGN)) 
 	{ 
@@ -438,6 +439,7 @@ void SurrunoffTransfer::Get1DData(const char *key, int *n, float **data)
 
 void SurrunoffTransfer::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
 {
+	initialOutputs();
     string sk(key);
     *nRows = m_nCells;
     *nCols = m_soiLayers;

@@ -247,7 +247,7 @@ void NutrientRemviaSr::SetValue(const char *key, float value)
 	else if (StringMatch(sk, VAR_ISEP_OPT)) { this->m_isep_opt = value; }
 	else if (StringMatch(sk, VAR_COD_N)) { this->m_cod_n = value; }
 	else if (StringMatch(sk, VAR_COD_K)) { this->m_cod_k = value; }
-	else if (StringMatch(sk, VAR_WSHD_PLCH)) m_wshd_plch = value;
+	//else if (StringMatch(sk, VAR_WSHD_PLCH)) m_wshd_plch = value;
     else
     {
         throw ModelException(MID_NUTRMV, "SetValue", "Parameter " + sk + " does not exist.");
@@ -617,7 +617,7 @@ void NutrientRemviaSr::GetValue(const char *key, float *value)
 void NutrientRemviaSr::Get1DData(const char *key, int *n, float **data)
 {
     string sk(key);
-                
+	initialOutputs();
     if (StringMatch(sk, VAR_LATNO3)) 
 	{
 		*data = this->m_latno3;
@@ -678,6 +678,7 @@ void NutrientRemviaSr::Get1DData(const char *key, int *n, float **data)
 }
 void NutrientRemviaSr::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
 {
+	initialOutputs();
     string sk(key);
     *nRows = m_nCells;
     *nCols = m_soiLayers;
