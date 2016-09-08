@@ -279,5 +279,4 @@ def ExtractParameters():
 if __name__ == "__main__":
     LoadConfiguration(GetINIfile())
     maskFile = WORKING_DIR + os.sep + mask_to_ext
-    # soil_parameters2(WORKING_DIR, maskFile, soilSEQNFile, soilSEQNText)
     ExtractParameters()
