@@ -1,10 +1,12 @@
 /*!
- * \file PER_STR.h
- * \brief Percolation calculated by storage routing method.
+ * \brief Percolation calculated by storage routing method
+ * reference SWAT theory manual, p151-152
  * \author Junzhi Liu
  * \date May 2011
  * \revised LiangJun Zhu
  * \date 2016-5-29
+ * \date 2016-9-8
+ * \description: 1. ReWrite according to percmain.f and sat_excess.f of SWAT
  */
 #pragma once
 
@@ -45,19 +47,22 @@ private:
     float m_frozenT;
     /// saturated conductivity
     float **m_ks;
-    /// soil porosity
-    float **m_porosity;
-    /// field capacity
+	/// amount of water held in the soil layer at saturation (sat - wp water), mm
+	float **m_sat;    
+	/// amount of water held in the soil layer at field capacity (fc - wp water) mm H2O
 	float **m_fc;
-	/// wilting point (mm H2O/ mm Soil)
-	float **m_wp;
-    /// soil moisture
-    float **m_somo;
+    /// soil moisture, mm H2O
+    float **m_soilStorage;
+	/// amount of water stored in soil profile on current day, sol_sw in SWAT
+	float *m_soilStorageProfile;
     /// soil temperature
     float *m_soilT;
-    /// infiltration
+    /// infiltration, mm
     float *m_infil;
-
+	/// surface runoff, mm
+	float *m_surfQmm;
+	/// pothole volume, mm
+	float *m_potVol;
     /// Output: percolation
     float **m_perc;
 

@@ -14,9 +14,10 @@
 #include <omp.h>
 
 PER_STR::PER_STR(void) : m_nSoilLayers(-1), m_dt(-1), m_nCells(-1), m_frozenT(NODATA_VALUE),
-                         m_ks(NULL), m_porosity(NULL), m_fc(NULL),
-						 m_soilThick(NULL), m_soilLayers(NULL), m_wp(NULL),
-                         m_infil(NULL), m_soilT(NULL), m_somo(NULL),
+                         m_ks(NULL), m_sat(NULL), m_fc(NULL),
+						 m_soilThick(NULL), m_soilLayers(NULL), 
+                         m_infil(NULL), m_soilT(NULL), m_soilStorage(NULL),m_soilStorageProfile(NULL),
+						 m_potVol(NULL), m_surfQmm(NULL),
                          m_perc(NULL)
 {
 }
@@ -24,117 +25,102 @@ PER_STR::PER_STR(void) : m_nSoilLayers(-1), m_dt(-1), m_nCells(-1), m_frozenT(NO
 PER_STR::~PER_STR(void)
 {
     if (m_perc == NULL) Release2DArray(m_nCells, m_perc);
-    //{
-    //    for (int i = 0; i < m_nCells; i++)
-    //        delete[] m_perc[i];
-    //    delete[] m_perc;
-    //    m_perc = NULL;
-    //}
 }
 void PER_STR::initialOutputs()
 {
 	if (m_perc == NULL)
-		Initialize2DArray(m_nCells, m_nSoilLayers, m_perc, 0.f);
+		Initialize2DArray(m_nCells, m_nSoilLayers, m_perc, NODATA_VALUE);
 }
 int PER_STR::Execute()
 {
     CheckInputData();
 	initialOutputs();
-	/*if (m_perc == NULL)
-	{
-	m_perc = new float *[m_nCells];
-
-	#pragma omp parallel for
-	for (int i = 0; i < m_nCells; i++)
-	{
-	m_perc[i] = new float[m_nSoilLayers];
-	for (int j = 0; j < m_nSoilLayers; j++)
-	m_perc[i][j] = 0.f;
-	}
-	}*/
 #pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
     {
-		float maxSoilWater = 0.f, fcSoilWater = 0.f;
-		float swater = 0.f, wpSoilWater = 0.f;     
-        //// Update soil layers from solid two layers to multi-layers by m_nSoilLayers. By LJ
-        //int curSoilLayers = -1, j;
-        //m_upSoilDepth[0] = m_soilDepth[i][0];
-        //for (j = 1; j < m_nSoilLayers; j++)
-        //{
-        //    if (!FloatEqual(m_soilDepth[i][j], NODATA_VALUE))
-        //        m_upSoilDepth[j] = m_soilDepth[i][j] - m_soilDepth[i][j - 1];
-        //    else
-        //        break;
-        //}
-        //curSoilLayers = j;
-
-        //float depth[3];
-        //depth[0] = m_upSoilDepth;
-        //depth[1] = m_rootDepth[i] - m_upSoilDepth;
-        //if(depth[1] < 0)
-        //{
-        //	ostringstream oss;
-        //	oss << "The root depth at cell(" << i << ") is " << m_rootDepth[i] << ", and is less than the upper soil depth (" << m_upSoilDepth << endl;
-        //	throw ModelException(MID_PER_STR, "Execute",  oss.str());
-        //}
-
-
-        m_somo[i][0] += m_infil[i] / m_soilThick[i][0];
+		// Note that, infiltration, pothole seepage, irrigation etc. have been added to
+		// the first soil layer in other modules. By LJ
+		
+		float excessWater = 0.f, maxSoilWater = 0.f, fcSoilWater = 0.f;
         for (int j = 0; j < (int)m_soilLayers[i]; j++)
-        {
-            //No movement if soil moisture is below field capacity
-            m_perc[i][j] = 0.f;
-
+		{
+			excessWater = 0.f;
+			maxSoilWater = m_sat[i][j];
+			fcSoilWater = m_fc[i][j];
+			// determine gravity drained water in layer
+			excessWater += m_soilStorage[i][j] - fcSoilWater;
+			//if (i == 100)
+			//	cout<<"lyr: "<<j<<", soil storage: "<<m_soilStorage[i][j]<<", fc: "<<fcSoilWater<<", excess: "<<excessWater<<endl;
             // for the upper two layers, soil may be frozen
             if (j == 0 && m_soilT[i] <= m_frozenT)
                 continue;
-
-            if (m_somo[i][j] > m_fc[i][j])
+			m_perc[i][j] = 0.f;
+			// No movement if soil moisture is below field capacity
+            if (excessWater > 1.e-5f)
             {
-                maxSoilWater = m_soilThick[i][j] * m_porosity[i][j];
-                swater = m_soilThick[i][j] * m_somo[i][j];
-                fcSoilWater = m_soilThick[i][j] * m_fc[i][j];
-				wpSoilWater = m_soilThick[i][j] * m_wp[i][j];
-                //////////////////////////////////////////////////////////////////////////
-                // method from swat
-                float tt = 3600.f * (m_porosity[i][j] - m_fc[i][j]) * m_soilThick[i][j] / m_ks[i][j];
-                m_perc[i][j] = swater * (1.f - exp(-m_dt / tt));
+				float maxPerc = maxSoilWater - fcSoilWater;
+                float tt = 3600.f * maxPerc  / m_ks[i][j]; // secs
+                m_perc[i][j] = excessWater * (1.f - exp(-m_dt / tt)); // secs
 
-				if (swater - m_perc[i][j] > maxSoilWater)
-					m_perc[i][j] = swater - maxSoilWater;
-				else if (swater - m_perc[i][j] < fcSoilWater)
-					m_perc[i][j] = swater - fcSoilWater;
-				else if (swater - m_perc[i][j] < wpSoilWater)
-					m_perc[i][j] = swater - wpSoilWater;
-				else  /// percolation is not allowed!
-					m_perc[i][j] = 0.f;
+				if (m_perc[i][j] > maxPerc)
+					m_perc[i][j] = maxPerc;
                 //Adjust the moisture content in the current layer, and the layer immediately below it
-                m_somo[i][j] -= m_perc[i][j] / m_soilThick[i][j];
-                if (j < m_nSoilLayers - 1)
-                    m_somo[i][j + 1] += m_perc[i][j] / m_soilThick[i][j + 1];
-
-
-                //if (m_somo[i][j] != m_somo[i][j] || m_somo[i][j] < 0.f)
-                //{
-                //    cout << "PER_STR CELL:" << i << ", Layer: " << j << "\tPerco:" << soilWater << "\t" <<
-                //    fcSoilWater << "\t" << m_perc[i][j] << "\t" << m_soilThick[i][j] << "\tValue:" << m_somo[i][j] <<
-                //    endl;
-                //    throw ModelException(MID_PER_STR, "Execute", "moisture is less than zero.");
-                //}
-
+                m_soilStorage[i][j] -= m_perc[i][j];
+				excessWater -= m_perc[i][j];
+				m_soilStorage[i][j] = max(UTIL_ZERO, m_soilStorage[i][j]);
+				// redistribute soil water if above field capacity (high water table), rewrite from sat_excess.f of SWAT
+				float qlyr = m_soilStorage[i][j];
+				if (j < (int)m_soilLayers[i] - 1)
+				{
+					m_soilStorage[i][j+1] += m_perc[i][j];
+					if (m_soilStorage[i][j] - m_sat[i][j] > 1.e-4f)
+					{
+						m_soilStorage[i][j+1] += m_soilStorage[i][j] - m_sat[i][j];
+						m_soilStorage[i][j] = m_sat[i][j];
+					}
+				}
+				else /// for the last soil layer
+				{
+					if (m_soilStorage[i][j] - m_sat[i][j] > 1.e-4f)
+					{
+						float ul_excess = m_soilStorage[i][j] - m_sat[i][j];
+						m_soilStorage[i][j] = m_sat[i][j];
+						for (int ly = (int)m_soilLayers[i] - 2; ly >= 0; ly--)
+						{
+							m_soilStorage[i][ly] += ul_excess;
+							if (m_soilStorage[i][ly] > m_sat[i][ly])
+							{
+								ul_excess = m_soilStorage[i][ly] - m_sat[i][ly];
+								m_soilStorage[i][ly] = m_sat[i][ly];
+							}
+							else{
+								ul_excess = 0.f;
+								break;
+							}
+							if (ly == 0 && ul_excess > 0.f)
+							{
+								// add ul_excess to depressional storage and then to surfq
+								if (m_potVol != NULL)
+									m_potVol[i] += ul_excess;
+								else
+									m_surfQmm[i] += ul_excess;
+							}
+						}
+					}
+				}
             }
 			else
 			{
-				for (int j = 0; j < (int)m_soilLayers[i]; j++)
-					m_perc[i][j] = 0.f;
+				m_perc[i][j] = 0.f;
 			}
-			for (int j = (int)m_soilLayers[i]; j < m_nSoilLayers; j++)
-				m_perc[i][j] = NODATA_VALUE;
         }
+		/// update soil profile water
+		m_soilStorageProfile[i] = 0.f;
+		for (int ly = 0; ly < (int)m_soilLayers[i]; ly++){
+			m_soilStorageProfile[i] += m_soilStorage[i][ly];
+		}
     }
     return 0;
-
 }
 
 
@@ -151,15 +137,16 @@ void PER_STR::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
 
 void PER_STR::Set1DData(const char *key, int nRows, float *data)
 {
-    string s(key);
+    string sk(key);
     CheckInputSize(key, nRows);
-    if (StringMatch(s, VAR_SOTE)) m_soilT = data;
-	else if (StringMatch(s, VAR_INFIL)) m_infil = data;
-	else if (StringMatch(s, VAR_SOILLAYERS)) m_soilLayers = data;
+    if (StringMatch(sk, VAR_SOTE)) m_soilT = data;
+	else if (StringMatch(sk, VAR_INFIL)) m_infil = data;
+	else if (StringMatch(sk, VAR_SOILLAYERS)) m_soilLayers = data;
+	else if (StringMatch(sk, VAR_SOL_SW)) m_soilStorageProfile = data;
+	else if (StringMatch(sk, VAR_POT_VOL)) m_potVol = data;
+	else if (StringMatch(sk, VAR_SURU)) m_surfQmm = data;
     else
-        throw ModelException(MID_PER_STR, "Set1DData",
-                             "Parameter " + s +
-                             " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_PER_STR, "Set1DData","Parameter " + sk +" does not exist.");
 }
 
 void PER_STR::Set2DData(const char *key, int nrows, int ncols, float **data)
@@ -170,13 +157,11 @@ void PER_STR::Set2DData(const char *key, int nrows, int ncols, float **data)
 
     if (StringMatch(sk, VAR_CONDUCT)) m_ks = data;
     else if (StringMatch(sk, VAR_SOILTHICK)) m_soilThick = data;
-    else if (StringMatch(sk, VAR_POROST)) m_porosity = data;
-    else if (StringMatch(sk, VAR_FIELDCAP)) m_fc = data;
-	else if (StringMatch(sk, VAR_WILTPOINT)) m_wp = data;
-    else if (StringMatch(sk, VAR_SOL_ST)) m_somo = data;
+	else if (StringMatch(sk, VAR_SOL_UL)) m_sat = data;
+	else if (StringMatch(sk, VAR_SOL_AWC)) m_fc = data;
+    else if (StringMatch(sk, VAR_SOL_ST)) m_soilStorage = data;
     else
-        throw ModelException(MID_PER_STR, "Set2DData",
-                             "Parameter " + sk + " does not exist. Please contact the module developer.");
+        throw ModelException(MID_PER_STR, "Set2DData", "Parameter " + sk + " does not exist.");
 }
 
 void PER_STR::SetValue(const char *key, float data)
@@ -203,14 +188,16 @@ bool PER_STR::CheckInputData()
 
     if (m_ks == NULL)
         throw ModelException(MID_PER_STR, "CheckInputData", "The Conductivity can not be NULL.");
-    if (m_porosity == NULL)
-        throw ModelException(MID_PER_STR, "CheckInputData", "The Porosity can not be NULL.");
-    if (m_somo == NULL)
+    if (m_sat == NULL)
+        throw ModelException(MID_PER_STR, "CheckInputData", "The saturated moisture can not be NULL.");
+    if (m_soilStorage == NULL)
         throw ModelException(MID_PER_STR, "CheckInputData", "The Moisture can not be NULL.");
 	if (m_fc == NULL)
 		throw ModelException(MID_PER_PI, "CheckInputData", "The field capacity can not be NULL.");
-	if (m_wp == NULL)
-		throw ModelException(MID_PER_PI, "CheckInputData", "The wilting point can not be NULL.");
+	if (this->m_soilStorage == NULL)
+		throw ModelException(MID_PER_PI, "CheckInputData", "The soil storage can not be NULL.");
+	if (this->m_soilStorageProfile == NULL)
+		throw ModelException(MID_PER_PI, "CheckInputData", "The soil storage of soil profile can not be NULL.");
 	if (m_soilThick == NULL)
 		throw ModelException(MID_PER_PI, "CheckInputData", "The soil depth can not be NULL.");
     if (m_soilT == NULL)
