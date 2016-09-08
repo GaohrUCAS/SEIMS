@@ -190,12 +190,13 @@ int SubbasinIUHCalculator::calCell(int id)
                 pTemp[index] = uh1[nc][k];
                 index++;
             }
-            /*iuhf<<i<<","<<j<<",";
-            for (int k = 0; k < nTemp; k++)
-            {
-            iuhf<<pTemp[k]<<",";
-            }
-            iuhf<<endl;*/
+            //iuhf<<i<<","<<j<<",";
+   //         for (int k = 0; k < nTemp; k++)
+   //         {
+			//	cout<<pTemp[k]<<",";
+   //         }
+			//cout<<endl;
+            //iuhf<<endl;
             gridfile_write_buffer(gfile, (const char *) pTemp, 4 * nTemp);
             delete pTemp;
 
