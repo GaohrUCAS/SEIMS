@@ -8,14 +8,14 @@
 
 using namespace std;
 
-SubbasinIUHCalculator::SubbasinIUHCalculator(int t, Raster<int> &rsMask, Raster<int> &rsLanduse, Raster<float> &rsTime, Raster<float> &rsDelta,
+SubbasinIUHCalculator::SubbasinIUHCalculator(int t, Raster<int> &rsMask, Raster<float> &rsLandcover, Raster<float> &rsTime, Raster<float> &rsDelta,
                                              gridfs *grdfs)
         : dt(t), gfs(grdfs), mt(30)
 {
     nRows = rsMask.GetNumberOfRows();
     nCols = rsMask.GetNumberofColumns();
     mask = rsMask.GetData();
-	landuse = rsLanduse.GetData();
+	landcover = rsLandcover.GetData();
     noDataValue = rsMask.GetNoDataValue();
 
     nCells = 0;
@@ -85,11 +85,11 @@ int SubbasinIUHCalculator::calCell(int id)
     int nc = 0;                       //number of cell
     maxtSub = 0;                  //maximum length of uhSub
 
-    //ofstream iuhf;
-    //char iuhfile[200];
-    //strcpy(iuhfile,"E:\\github-zlj\\model_data\\model_dianbu_30m_longterm\\output\\iuh.txt");
-    //iuhf.open(iuhfile,ios_base::app|ios_base::out);
-    //iuhf<<"SubbasinID: "<<id<<endl;
+	ofstream iuhf;
+	char iuhfile[200];
+	strcpy(iuhfile,"E:\\iuh.txt");
+	iuhf.open(iuhfile,ios_base::app|ios_base::out);
+	iuhf<<"SubbasinID: "<<id<<endl;
 
     for (int i = 0; i < nRows; ++i)
     {
@@ -181,8 +181,8 @@ int SubbasinIUHCalculator::calCell(int id)
                 maxt0 = maxt;
             }
 
-			// if landuse if rice paddy, adjust the iuh according to experience
-			//if(landuse[i][j] == rice)
+			// if landcover if rice paddy, adjust the iuh according to experience knowledge
+			//if(landcover[i][j] == 33)
 			    adjustRiceField(mint0, maxt0, uh1[nc]);
 
             int nTemp = maxt0 - mint0 + 3;
@@ -195,13 +195,13 @@ int SubbasinIUHCalculator::calCell(int id)
                 pTemp[index] = uh1[nc][k];
                 index++;
             }
-            //iuhf<<i<<","<<j<<",";
-   //         for (int k = 0; k < nTemp; k++)
-   //         {
-			//	cout<<pTemp[k]<<",";
-   //         }
+            iuhf<<i<<","<<j<<",";
+			for (int k = 0; k < nTemp; k++)
+			{
+				iuhf<<pTemp[k]<<",";
+			}
 			//cout<<endl;
-            //iuhf<<endl;
+            iuhf<<endl;
             gridfile_write_buffer(gfile, (const char *) pTemp, 4 * nTemp);
             delete pTemp;
 
@@ -241,13 +241,19 @@ void SubbasinIUHCalculator::adjustRiceField(int& mint0, int& maxt0, vector<doubl
 	if(maxt0 - mint0 == 0) // if water will flow to channel within one day
     {
 		maxt0 = 1;
-		iuhRow[0] = 0.2f;
-		iuhRow[1] = 0.8f; //must make sure m_iuhCell has at least 4 columns in the readin codes
+		iuhRow[0] = 0.1f;
+		iuhRow[1] = 0.9f; //must make sure m_iuhCell has at least 4 columns in the readin codes
+		//maxt0 = 5;
+		//iuhRow[0] = 0.2f;
+		//iuhRow[1] = 0.46f;
+		//iuhRow[2] = 0.28f;
+		//iuhRow[3] = 0.054f;
+		//iuhRow[4] = 0.005f;
+		//iuhRow[5] = 0.001f;
 	}
 	else
 	{
 		iuhRow[1] += 0.8f*iuhRow[0];
 		iuhRow[0] = 0.2f*iuhRow[0];
 	}
-
 }

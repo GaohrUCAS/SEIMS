@@ -19,7 +19,7 @@
 class SubbasinIUHCalculator
 {
 public:
-    SubbasinIUHCalculator(int t, Raster<int> &rsMask, Raster<int> &rsLanduse, Raster<float> &rsTime, Raster<float> &rsDelta, gridfs *grdfs);
+    SubbasinIUHCalculator(int t, Raster<int> &rsMask, Raster<float> &rsLanduse, Raster<float> &rsTime, Raster<float> &rsDelta, gridfs *grdfs);
 
     virtual ~SubbasinIUHCalculator(void);
 
@@ -33,7 +33,7 @@ private:
     int nCells;          //number of cells
 
     int **mask;  //value of subwatershed/subbasin
-	int **landuse; //landuse map
+	float **landcover; //landcover map
     float **t0;          //flow time
     float **delta;       //standard deviation of flow time
     gridfs *gfs;
