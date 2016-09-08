@@ -13,7 +13,7 @@
 
 PER_PI::PER_PI(void) : m_soilLayers(-1), m_dt(-1), m_nCells(-1), m_frozenT(NODATA_VALUE),
                        m_ks(NULL), m_sat(NULL), m_poreIndex(NULL), m_fc(NULL), 
-					   m_wp(NULL), m_soilThick(NULL),
+					   m_wp(NULL), m_soilThick(NULL), m_impoundTriger(NULL),
                        m_infil(NULL), m_soilT(NULL), m_soilStorage(NULL),
                        m_perc(NULL)
 {
@@ -58,8 +58,10 @@ int PER_PI::Execute()
 				if (nextSoilWater >= m_fc[i][j+1])
 					percAllowed = false;
 			}
-
-            if (swater > fcSoilWater)
+			bool impoundTrig = false; /// means release
+			if (m_impoundTriger != NULL && FloatEqual(m_impoundTriger[i], 0.f))
+				impoundTrig = true;
+            if (swater > fcSoilWater && !impoundTrig)
             {
 				//if (i == 1762)
 				//	cout<<"PER_PI, layer: "<<j<<", swater: "<<swater<<", max: "<<maxSoilWater<<", fc: "<<fcSoilWater<<endl;
@@ -136,6 +138,7 @@ void PER_PI::Set1DData(const char *key, int nRows, float *data)
 	else if (StringMatch(sk, VAR_INFIL)) m_infil = data;
 	else if (StringMatch(sk, VAR_SOILLAYERS)) m_nSoilLayers = data;
 	else if (StringMatch(sk, VAR_SOL_SW)) m_soilStorageProfile = data;
+	else if (StringMatch(sk, VAR_IMPOUND_TRIG)) m_impoundTriger = data;
     else
         throw ModelException(MID_PER_PI, "Set1DData", "Parameter " + sk + " does not exist.");
 }

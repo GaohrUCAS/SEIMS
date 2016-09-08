@@ -69,7 +69,8 @@ private:
     float *m_soilT;
     /// infiltration (mm)
     float *m_infil;
-
+	/// impound/release 
+	float *m_impoundTriger;
     /// Output
 	
 	///percolation (mm)

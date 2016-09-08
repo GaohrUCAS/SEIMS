@@ -318,8 +318,12 @@ private:
            |0 begin impounding water
            |1 release impounded water*/
     float *m_impoundTriger;
+	/// volume   mm
+	float *m_potVol;
 	/// maximum volume of water stored in the depression/impounded area, mm
 	float *m_potVolMax;
+	/// low depth ...., mm
+	float *m_potVolLow;
 	/// flag to identify the initialization
 	bool m_initialized;
 public:

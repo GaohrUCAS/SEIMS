@@ -106,7 +106,8 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     //mdi.AddInput(VAR_DEEPST, UNIT_DEPTH_MM, DESC_DEEPST, Source_Module, DT_Raster1D);
     //mdi.AddInput(VAR_SHALLST, UNIT_DEPTH_MM, DESC_SHALLST, Source_Module, DT_Raster1D);
 	mdi.AddInput(VAR_SBGS, UNIT_DEPTH_MM, DESC_SBGS, Source_Module, DT_Array1D);
-    /// set the output variables
+    mdi.AddInput(VAR_POT_VOL, UNIT_DEPTH_MM, DESC_POT_VOL, Source_Module_Optional, DT_Raster1D);
+	/// set the output variables
 
     ///// outputs of plant operation. NO NEED TO OUTPUT?
     mdi.AddOutput(VAR_BIOTARG, UNIT_CONT_KGHA, DESC_BIOTARG, DT_Raster1D);
@@ -138,6 +139,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     //// output of impound/release operation
     mdi.AddOutput(VAR_IMPOUND_TRIG, UNIT_NON_DIM, DESC_IMPOUND_TRIG, DT_Raster1D);
 	mdi.AddOutput(VAR_POT_VOLMAXMM, UNIT_DEPTH_MM, DESC_POT_VOLMAXMM, DT_Raster1D);
+	mdi.AddOutput(VAR_POT_VOLLOWMM, UNIT_DEPTH_MM, DESC_POT_VOLLOWMM, DT_Raster1D);
     /// write out the XML file.
     res = mdi.GetXMLDocument();
 

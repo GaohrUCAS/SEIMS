@@ -44,6 +44,8 @@ private:
 	float *m_slope;
 	/// saturated conductivity
 	float **m_ks;
+	/// field capacity (FC-WP)
+	float **m_sol_fc;
 	/// field capacity on soil profile (mm, FC-WP)
 	float *m_sol_sumfc;
 	/// soil thickness
@@ -125,6 +127,8 @@ private:
 	float *m_potVol;
 	/// maximum volume mm
 	float *m_potVolMax;
+	/// lowest volume mm
+	float *m_potVolLow;
 	/// seepage water of pothole, mm
 	float *m_potSeep;
 	/// evaporation, mm

@@ -52,7 +52,7 @@ MGTOpt_SWAT::MGTOpt_SWAT(void) : m_nCells(-1), m_nSub(-1), m_soilLayers(-1),
         /// Grazing operation
                                  m_nGrazingDays(NULL), m_grzFlag(NULL),
         /// Release or impound operation
-                                 m_impoundTriger(NULL), m_potVolMax(NULL),
+                                 m_impoundTriger(NULL), m_potVol(NULL), m_potVolMax(NULL),m_potVolLow(NULL),
         /// Temporary parameters
                                  m_doneOpSequence(NULL),
 								 m_initialized(false)
@@ -156,6 +156,7 @@ MGTOpt_SWAT::~MGTOpt_SWAT(void)
 	/// Impound/Release operation
 	if (m_impoundTriger !=NULL) Release1DArray(m_impoundTriger);
 	if (m_potVolMax != NULL) Release1DArray(m_potVolMax);
+	if (m_potVolLow != NULL) Release1DArray(m_potVolLow);
 }
 
 void MGTOpt_SWAT::SetValue(const char *key, float data)
@@ -235,6 +236,8 @@ void MGTOpt_SWAT::Set1DData(const char *key, int n, float *data)
     else if (StringMatch(sk, VAR_FR_STRSWTR)) m_frStrsWa = data;
         //else if (StringMatch(sk, VAR_DEEPST)) m_deepWaterDepth = data;
         //else if (StringMatch(sk, VAR_SHALLST)) m_shallowWaterDepth = data;
+	/// impound/release
+	else if (StringMatch(sk, VAR_POT_VOL)) m_potVol = data;
     else
         throw ModelException(MID_PLTMGT_SWAT, "Set1DData", "Parameter " + sk + " does not exist.");
 }
@@ -616,6 +619,7 @@ void MGTOpt_SWAT::initializeTillageLookup()
 
 void MGTOpt_SWAT::ExecutePlantOperation(int i, int &factoryID, int nOp)
 {
+	//cout<<i<<endl;
     //initializeLanduseLookup();
     PlantOperation *curOperation = (PlantOperation *) m_mgtFactory[factoryID]->GetOperations()[nOp];
     /// initialize parameters
@@ -1455,6 +1459,11 @@ void MGTOpt_SWAT::ExecuteReleaseImpoundOperation(int i, int &factoryID, int nOp)
 	/// 1. pothole module has been added by LJ, 2016-9-6, IMP_SWAT
 	/// paddy rice module should be added!
 	m_potVolMax[i] = curOperation->MaxDepth();
+	m_potVolLow[i] = curOperation->LowDepth();
+	/// Currently, add pothole volume (mm) to the max depth directly (in case of infiltration).
+	/// TODO, autoirrigation operations should be triggered. BY lj
+	if (m_potVol != NULL)
+		m_potVol[i] = curOperation->MaxDepth();
 }
 
 void MGTOpt_SWAT::ExecuteContinuousFertilizerOperation(int i, int &factoryID, int nOp)
@@ -1541,17 +1550,17 @@ int MGTOpt_SWAT::Execute()
     {
         int curFactoryID = -1;
         vector<int> curOps;
-		if (i == 8144){
-			ofstream fs;
-			utils util;
-			string filename = "e:\\husc.txt";
-			fs.open(filename.c_str(), ios::out|ios::app);
-			if (fs.is_open())
-			{
-				fs << util.ConvertToString(&this->m_date) <<", IGRO: "<<m_igro[i]<<", phuBase: "<<m_phuBase[i]<<", phuAcc: "<<m_phuAcc[i]<<", phuPlt: "<<m_phuPlant[i]<< endl;
-				fs.close();
-			}
-		}
+		//if (i == 8144){
+		//	ofstream fs;
+		//	utils util;
+		//	string filename = "e:\\husc.txt";
+		//	fs.open(filename.c_str(), ios::out|ios::app);
+		//	if (fs.is_open())
+		//	{
+		//		fs << util.ConvertToString(&this->m_date) <<", IGRO: "<<m_igro[i]<<", phuBase: "<<m_phuBase[i]<<", phuAcc: "<<m_phuAcc[i]<<", phuPlt: "<<m_phuPlant[i]<< endl;
+		//		fs.close();
+		//	}
+		//}
         if (GetOperationCode(i, curFactoryID, curOps))
         {
             for (vector<int>::iterator it = curOps.begin(); it != curOps.end(); it++)
@@ -1559,10 +1568,10 @@ int MGTOpt_SWAT::Execute()
                 //cout<<curFactoryID<<","<<*it<<endl;
                 ScheduledManagement(i, curFactoryID, *it);
 				/// output for debug, by LJ.
-				//if (i == 987){
+				//if (i == 8144){
 				//	ofstream fs;
 				//	utils util;
-				//	string filename = "E:\\code\\Hydro\\SEIMS\\model_data\\dianbu\\model_dianbu2_30m_longterm\\pltMgt.txt";
+				//	string filename = "E:\\pltMgt.txt";
 				//	fs.open(filename.c_str(), ios::out|ios::app);
 				//	if (fs.is_open())
 				//	{
@@ -1610,6 +1619,7 @@ void MGTOpt_SWAT::Get1DData(const char *key, int *n, float **data)
         /// Impound/Release operation
     else if (StringMatch(sk, VAR_IMPOUND_TRIG)) *data = m_impoundTriger;
 	else if (StringMatch(sk, VAR_POT_VOLMAXMM)) *data = m_potVolMax;
+	else if (StringMatch(sk, VAR_POT_VOLLOWMM)) *data = m_potVolLow;
     *n = m_nCells;
 }
 
@@ -1668,8 +1678,9 @@ void MGTOpt_SWAT::initialOutputs()
     /// impound/release operation
 	if (find(definedMgtCodes.begin(), definedMgtCodes.end(), BMP_PLTOP_ReleaseImpound) != definedMgtCodes.end())
 	{
-		if (m_impoundTriger == NULL) Initialize1DArray(m_nCells, m_impoundTriger, -1.f);
+		if (m_impoundTriger == NULL) Initialize1DArray(m_nCells, m_impoundTriger, 1.f);
 		if (m_potVolMax == NULL) Initialize1DArray(m_nCells, m_potVolMax, 0.f);
+		if (m_potVolLow == NULL) Initialize1DArray(m_nCells, m_potVolLow, 0.f);
 	}
 	if (m_doneOpSequence == NULL) Initialize1DArray(m_nCells, m_doneOpSequence, -1);
 	m_initialized = true;

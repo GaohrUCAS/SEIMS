@@ -71,7 +71,8 @@ public:
 private:
     /// valid cells number
     int m_nCells;
-
+	/// impound/release 
+	float *m_impoundTriger;
     /// initial depression storage coefficient
     float m_depCo;
     /// depression storage capacity (mm)

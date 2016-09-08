@@ -40,11 +40,13 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddParameter(VAR_CONDUCT, UNIT_WTRDLT_MMH, DESC_CONDUCT, Source_ParameterDB, DT_Raster2D);
 	mdi.AddParameter(VAR_SOILLAYERS, UNIT_NON_DIM, DESC_SOILLAYERS, Source_ParameterDB, DT_Raster1D);
 	mdi.AddParameter(VAR_SOL_SUMAWC, UNIT_DEPTH_MM, DESC_SOL_SUMAWC, Source_ParameterDB, DT_Raster1D);
+	mdi.AddParameter(VAR_SOL_AWC, UNIT_DEPTH_MM, DESC_SOL_AWC, Source_ParameterDB, DT_Raster2D);
 	mdi.AddParameter(VAR_SOILTHICK, UNIT_DEPTH_MM, DESC_SOILTHICK, Source_ParameterDB, DT_Raster2D);
 	mdi.AddParameter(VAR_POROST, UNIT_VOL_FRA_M3M3, DESC_POROST, Source_ParameterDB, DT_Raster2D);
     /// set input from other modules
 	mdi.AddInput(VAR_IMPOUND_TRIG, UNIT_NON_DIM, DESC_IMPOUND_TRIG, Source_Module, DT_Raster1D);
 	mdi.AddInput(VAR_POT_VOLMAXMM, UNIT_DEPTH_MM, DESC_POT_VOLMAXMM, Source_Module, DT_Raster1D);
+	mdi.AddInput(VAR_POT_VOLLOWMM, UNIT_DEPTH_MM, DESC_POT_VOLLOWMM, Source_Module, DT_Raster1D);
 	mdi.AddInput(VAR_NEPR, UNIT_DEPTH_MM, DESC_NEPR, Source_Module, DT_Raster1D);// m_pNet
     mdi.AddInput(VAR_LAIDAY, UNIT_AREA_RATIO, DESC_LAIDAY, Source_Module, DT_Raster1D);
 	mdi.AddInput(VAR_PET, UNIT_DEPTH_MM, DESC_PET, Source_Module, DT_Raster1D); ///PET
@@ -71,7 +73,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	//mdi.AddOutput(VAR_POT_AMINP, UNIT_KG, DESC_POT_AMINP, DT_Raster1D);
 	//mdi.AddOutput(VAR_POT_SMINP, UNIT_KG, DESC_POT_SMINP, DT_Raster1D);
 	//mdi.AddOutput(VAR_POT_SED, UNIT_KG, DESC_POT_SED, DT_Raster1D);
-	//mdi.AddOutput(VAR_POT_VOL, UNIT_VOL_M3, DESC_POT_VOL, DT_Raster1D);
+	mdi.AddOutput(VAR_POT_VOL, UNIT_DEPTH_MM, DESC_POT_VOL, DT_Raster1D);
 	//mdi.AddOutput(VAR_POT_FLOWIN, UNIT_VOL_M3, DESC_POT_FLOWIN, DT_Raster1D);
 	//mdi.AddOutput(VAR_POT_FLOWOUT, UNIT_VOL_M3, DESC_POT_FLOWOUT, DT_Raster1D);
 	//mdi.AddOutput(VAR_POT_SEDIN, UNIT_KG, DESC_POT_SEDIN, DT_Raster1D);
