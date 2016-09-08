@@ -1,5 +1,4 @@
 /*!
- * \file PER_PI.h
  * \brief Percolation calculated by Darcy's law and Brooks-Corey equation.
  * \author Junzhi Liu
  * \date May 2011

@@ -58,10 +58,8 @@ int PER_PI::Execute()
 				if (nextSoilWater >= m_fc[i][j+1])
 					percAllowed = false;
 			}
-			bool impoundTrig = false; /// means release
-			if (m_impoundTriger != NULL && FloatEqual(m_impoundTriger[i], 0.f))
-				impoundTrig = true;
-            if (swater > fcSoilWater && !impoundTrig)
+
+            if (swater > fcSoilWater)
             {
 				//if (i == 1762)
 				//	cout<<"PER_PI, layer: "<<j<<", swater: "<<swater<<", max: "<<maxSoilWater<<", fc: "<<fcSoilWater<<endl;
@@ -151,10 +149,10 @@ void PER_PI::Set2DData(const char *key, int nrows, int ncols, float **data)
 
     if (StringMatch(sk, VAR_CONDUCT)) m_ks = data;
 	else if (StringMatch(sk, VAR_SOILTHICK)) m_soilThick = data;
-	else if (StringMatch(sk, VAR_SOL_UL)) m_sat = data;
 	else if (StringMatch(sk, VAR_SOL_AWC)) m_fc = data;
 	else if (StringMatch(sk, VAR_SOL_WPMM)) m_wp = data;
     else if (StringMatch(sk, VAR_POREID)) m_poreIndex = data;
+	else if (StringMatch(sk, VAR_SOL_UL)) m_sat = data;
     else if (StringMatch(sk, VAR_SOL_ST)) m_soilStorage = data;
     else
         throw ModelException(MID_PER_PI, "Set2DData", "Parameter " + sk + " does not exist.");
