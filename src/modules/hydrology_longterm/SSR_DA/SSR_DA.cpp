@@ -43,8 +43,7 @@ void SSR_DA::FlowInSoil(int id)
 	}
 	// return with initial values if flowWidth is less than 0
 	if (flowWidth <= 0) return;
-
-	// number of flow in cells
+	// number of flow-in cells
     int nUpstream = (int) m_flowInIndex[id][0];
 	m_soilStorageProfile[id] = 0.f; // update soil storage on profile
     for (int j = 0; j < (int)m_soilLayers[id]; j++)
@@ -60,17 +59,7 @@ void SSR_DA::FlowInSoil(int id)
 				qUp += m_qi[flowInID][j];// * m_flowInPercentage[id][upIndex];
             //cout << id << "\t" << flowInID << "\t" << m_nCells << "\t" << m_qi[flowInID][j] << endl;
         }
-		// moved up by LJ.
-        //if (flowWidth <= 0)
-        //{
-        //    m_qi[id][j] = 0.f;
-        //    m_qiVol[id][j] = 0.f;
-        //    continue;
-        //}
-
         // add upstream water to the current cell
-        //float soilVolumn = m_soilThick[id][j] / 1000.f * m_CellWidth * flowWidth; //m3
-        //m_soilStorage[id][j] += qUp / soilVolumn;
 		if (qUp < 0.f) qUp = 0.f;
 		m_soilStorage[id][j] += qUp; // mm
         //TEST
@@ -83,10 +72,7 @@ void SSR_DA::FlowInSoil(int id)
             throw ModelException(MID_SSR_DA, "Execute:FlowInSoil", oss.str());
         }
 
-		//m_qi[id][j] = 0.f; //reset to default value for current cell
-		//m_qiVol[id][j] = 0.f;
         // if soil moisture is below the field capacity, no interflow will be generated
-
         if (m_soilStorage[id][j] > m_fcmm[id][j])
         {
             // for the upper two layers, soil may be frozen
@@ -94,7 +80,7 @@ void SSR_DA::FlowInSoil(int id)
             if (j == 0 && m_soilT[id] <= m_frozenT && qUp <= 0.f)
                 continue;
 
-            float k= 0.f, maxSoilWater= 0.f, soilWater= 0.f, fcSoilWater= 0.f;
+            float k = 0.f, maxSoilWater = 0.f, soilWater = 0.f, fcSoilWater = 0.f;
 			soilWater = m_soilStorage[id][j];
 			maxSoilWater = m_satmm[id][j];
 			fcSoilWater = m_fcmm[id][j];
@@ -109,20 +95,14 @@ void SSR_DA::FlowInSoil(int id)
             }
             m_qi[id][j] = m_ki * s0 * k * m_dt / 3600.f * m_soilThick[id][j] / 1000.f / flowWidth; // the unit is mm
 
-			if (m_qi[id][j] < 0.f)
-				m_qi[id][j] = 0.f;
-			else if (soilWater - m_qi[id][j]> maxSoilWater)
+			if (soilWater - m_qi[id][j]> maxSoilWater)
 				m_qi[id][j] = soilWater - maxSoilWater;
 			else if (soilWater - m_qi[id][j] < fcSoilWater)
 				m_qi[id][j] = soilWater - fcSoilWater;
+			m_qi[id][j] = max(0.f, m_qi[id][j]);
 
-			if(m_qi[id][j] < 0.f)
-				m_qi[id][j] = 0.f;
-			if (m_qi[id][j] >= m_soilStorage[id][j])
-				m_qi[id][j] = 0.f;
             m_qiVol[id][j] = m_qi[id][j] / 1000.f * m_CellWidth * flowWidth; //m3
-			if(m_qiVol[id][j] < 0.f)
-				m_qiVol[id][j] = 0.f;
+			m_qiVol[id][j] = max(0.f, m_qiVol[id][j]);
             //Adjust the moisture content in the current layer, and the layer immediately below it
 			m_soilStorage[id][j] -= m_qi[id][j];
 			m_soilStorageProfile[id] += m_soilStorage[id][j];
@@ -170,7 +150,7 @@ int SSR_DA::Execute()
             qiAllLayers = 0.f;
             for (int j = 0; j < (int)m_soilLayers[i]; j++){
 				if (m_qiVol[i][j] > UTIL_ZERO)
-					qiAllLayers += m_qiVol[i][j]/m_dt;
+					qiAllLayers += m_qiVol[i][j]/m_dt; /// m^3/s
 			}
             //cout << m_nSubbasin << "\tsubbasin:" << m_subbasin[i] << "\t" << qiAllLayers << endl;
             if (m_nSubbasin > 1)

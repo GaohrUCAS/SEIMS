@@ -44,8 +44,8 @@ private:
 	float *m_slope;
 	/// saturated conductivity
 	float **m_ks;
-	/// field capacity (FC-WP)
-	float **m_sol_fc;
+	/// saturated soil water, mm
+	float **m_sol_sat;
 	/// field capacity on soil profile (mm, FC-WP)
 	float *m_sol_sumfc;
 	/// soil thickness

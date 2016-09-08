@@ -143,7 +143,7 @@ private:
     float *m_chVel;
 
     float *m_bankStorage;
-
+	/// groundwater recharge to channel or perennial base flow, m^3/s
     float m_deepGroundwater;
 
     /// seepage to deep aquifer
@@ -160,7 +160,7 @@ private:
     // for muskingum
     float m_x;
     float m_co1;
-
+	// IS THIS USEFUL? BY LJ
     float m_qUpReach;
 	/// scenario data
 

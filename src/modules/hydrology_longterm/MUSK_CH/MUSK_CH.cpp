@@ -560,10 +560,10 @@ void MUSK_CH::ChannelFlow(int i)
     //////////////////////////////////////////////////////////////////////////
     // first add all the inflow water
     // 1. water from this subbasin
-    float qIn = m_qsSub[i] + qiSub + qgSub + ptSub;
-	if (i == m_outletID)
-		qIn += m_deepGroundwater;
-	//if(i == 12) cout << m_qsSub[i] << ", " << qiSub << ", " << qgSub << ", " << ptSub << ", \n";
+    float qIn = m_qsSub[i] + qiSub + qgSub + ptSub + m_deepGroundwater;
+	//if (i == m_outletID) /// this should be added to each channel. By lj
+	//	qIn += m_deepGroundwater;
+	//if(i == 2) cout <<"surfaceQ:"<< m_qsSub[i] << ", subsurfaceQ: " << qiSub << ", groundQ: " << qgSub << ", pointQ: " << ptSub << ", \n";
     // 2. water from upstream reaches
     float qsUp = 0.f;
     float qiUp = 0.f;
@@ -578,7 +578,7 @@ void MUSK_CH::ChannelFlow(int i)
     qIn += qsUp + qiUp + qgUp;
 	//qIn is equivalent to the wtrin variable in rtmusk.f of SWAT
     qIn += m_qUpReach; // m_qUpReach is zero for not-parallel program and qsUp, qiUp and qgUp are zero for parallel computing
-
+	
     // 3. water from bank storage
     float bankOut = m_bankStorage[i] * (1.f - exp(-m_aBank));
 
@@ -587,13 +587,13 @@ void MUSK_CH::ChannelFlow(int i)
 
     // add inflow water to storage
     m_chStorage[i] += qIn * m_dt;
-
+	//if(i == 2) cout <<"qIn:"<< qIn<<", chStorage: "<<m_chStorage[i]<<endl;
     //////////////////////////////////////////////////////////////////////////
     // then subtract all the outflow water
     // 1. transmission losses to deep aquifer, which is lost from the system
     // the unit of kchb is mm/hr
     float seepage = m_Kchb / 1000.f / 3600.f * m_chWTWidth[i] * m_chLen[i] * m_dt;
-	//if(i == 12) cout << "qgSub: " << ", " << qgSub << ", \n";
+	//if(i == 2) cout << "seepage: " << seepage << endl;
     if (qgSub < UTIL_ZERO)
     {
         if (m_chStorage[i] > seepage)
@@ -676,7 +676,7 @@ void MUSK_CH::ChannelFlow(int i)
             return;
         }
     }
-
+	//if(i == 2) cout << "chStorage before routing " << m_chStorage[i] << endl;
     //////////////////////////////////////////////////////////////////////////
     // routing, there are water in the channel after inflow and transmission loss
 	float totalLoss = m_seepage[i] + bankInLoss + et;
