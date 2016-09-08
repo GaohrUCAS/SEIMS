@@ -225,3 +225,6 @@ Pothole	pot_no3l	Nitrate decay rate in impounded water body	1/day	IMP_SWAT	0	0	A
 Pothole	pot_solpl	Soluble phosphorus decay rate in impounded water body	1/day	IMP_SWAT	0	0	AC	1	0	Y
 Pothole	pot_tile	Average daily outflow to main channel from tile flow if drainage tiles are installed in the pothole.	mm	IMP_SWAT	0	0	AC	100	0	Y
 Pothole	evpot	Pothole evaporation coefficient	None	IMP_SWAT	0.5	0	AC	2	0	Y
+Sediment	vcd	channel degredation code	None	SEDR	1	0	AC	1	0	Y
+Nutrient	ch_onco	Channel organic nitrogen concentration in basin	ppm	NUTR_QUAL2E	0	0	AC	100	0	Y
+Nutrient	ch_opco	Channel organic phosphorus concentration in basin	ppm	NUTR_QUAL2E	0	0	AC	100	0	Y

@@ -72,8 +72,6 @@ def cal_flowlen(filepath, weight):
     geotransform = ds.GetGeoTransform()
     cellsize = geotransform[1]
     length = numpy.zeros((ysize, xsize))
-    # weight = zeros((ysize, xsize))
-    # weight[:] = 1
 
     for i in range(0, ysize):
         for j in range(0, xsize):
@@ -103,9 +101,6 @@ def GenerateDelta_s(filepath):
     ysize = strlkR.nRows
     noDataValue = strlkR.noDataValue
 
-    # weight = numpy.zeros((ysize, xsize))
-    delta_s = numpy.zeros((ysize, xsize))
-
     def initialVariables(vel, strlk, slp, rad):
         if abs(vel - noDataValue) < UTIL_ZERO:
             return DEFAULT_NODATA
@@ -125,22 +120,6 @@ def GenerateDelta_s(filepath):
     initialVariables_numpy = numpy.frompyfunc(initialVariables, 4, 1)
     weight = initialVariables_numpy(vel_data, strlk_data, slo_data, rad_data)
 
-    # for i in range(0, ysize):
-    #     for j in range(0, xsize):
-    #         if (abs(vel_data[i][j] - noDataValue) < UTIL_ZERO):
-    #             delta_s[i][j] = DEFAULT_NODATA
-    #             continue
-    #         if (strlk_data[i][j] <= 0):
-    #             weight[i][j] = 1
-    #         else:
-    #             weight[i][j] = 0
-    #         # 0 is river
-    #         if (slo_data[i][j] < 0.0005):
-    #             slo_data[i][j] = 0.0005
-    #         dampGrid = vel_data[i][j] * rad_data[i][j] / (slo_data[i][j] / 100. * 2.)
-    #         celerity = vel_data[i][j] * 5. / 3.
-    #         weight[i][j] = dampGrid * 2. / numpy.power(celerity, 3.) * weight[i][j]
-
     delta_s_sqr = cal_flowlen(filepath, weight)
 
     def cal_delta_s(vel, sqr):
@@ -151,11 +130,6 @@ def GenerateDelta_s(filepath):
 
     cal_delta_s_numpy = numpy.frompyfunc(cal_delta_s, 2, 1)
     delta_s = cal_delta_s_numpy(vel_data, delta_s_sqr)
-    # for i in range(0, ysize):
-    #     for j in range(0, xsize):
-    #         if (abs(vel_data[i][j] - noDataValue) < UTIL_ZERO):
-    #             continue
-    #         delta_s[i][j] = math.sqrt(delta_s_sqr[i][j]) / 3600.
 
     filename = filepath + os.sep + delta_sFile
     WriteGTiffFile(filename, ysize, xsize, delta_s, strlkR.geotrans, strlkR.srs,

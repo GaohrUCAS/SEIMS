@@ -162,7 +162,10 @@ private:
     float *m_rk3;      /// rate of loss of CBOD due to settling in reach at 20 deg C (1/day)
     float *m_rk4;      /// sediment oxygen demand rate in reach at 20 deg C (mg O2/ ((m**2)*day))
 
-
+	/// Channel organic nitrogen concentration in basin, ppm
+	float m_chOrgNCo;
+	/// Channel organic phosphorus concentration in basin, ppm
+	float m_chOrgPCo;
     /// amount of nitrate transported with lateral flow
     float *m_latNO3ToCh;
     /// amount of nitrate transported with surface runoff
@@ -205,6 +208,9 @@ private:
 	float *m_ptTPToCh;
 	/// COD
 	float *m_ptCODToCh;
+
+	/// channel erosion
+	float *m_chDeg;
 
     /// nutrient amount stored in reach
     /// algal biomass storage in reach (kg)

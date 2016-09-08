@@ -8,7 +8,7 @@ using namespace std;
 
 IMP_SWAT::IMP_SWAT(void) : m_cnv(NODATA_VALUE), m_nCells(-1), m_cellWidth(NODATA_VALUE), m_cellArea(NODATA_VALUE), 
 	m_soilLayers(NULL), m_nSoilLayers(-1), m_routingLayers(NULL), m_nRoutingLayers(-1),
-	m_slope(NULL), m_ks(NULL), m_sol_sumfc(NULL), m_soilThick(NULL), m_sol_por(NULL), 
+	m_slope(NULL), m_ks(NULL), m_sol_sat(NULL), m_sol_sumfc(NULL), m_soilThick(NULL), m_sol_por(NULL), 
 	m_evLAI(NODATA_VALUE), m_potTilemm(NODATA_VALUE), m_potNo3Decay(NODATA_VALUE), m_potSolPDecay(NODATA_VALUE),
 	m_impoundTrig(NULL), 
 	m_sedYield(NULL), m_sandYield(NULL), m_siltYield(NULL), m_clayYield(NULL), m_smaggreYield(NULL), m_lgaggreYield(NULL),
@@ -16,7 +16,7 @@ IMP_SWAT::IMP_SWAT(void) : m_cnv(NODATA_VALUE), m_nCells(-1), m_cellWidth(NODATA
 	m_surfaceRunoff(NULL), m_surqNo3(NULL), m_surqSolP(NULL), m_sedOrgN(NULL), m_sedOrgP(NULL), m_sedActiveMinP(NULL), m_sedStableMinP(NULL),
 	m_potNo3(NULL), m_potOrgN(NULL), m_potSolP(NULL), m_potOrgP(NULL), m_potActMinP(NULL),
 	m_potStaMinP(NULL), m_potSed(NULL), m_potSand(NULL), m_potSilt(NULL), m_potClay(NULL), m_potSag(NULL), m_potLag(NULL), 
-	m_potVol(NULL), m_potVolMax(NULL), m_potSeep(NULL), m_potEvap(NULL), m_potSurfaceArea(NULL)
+	m_potVol(NULL), m_potVolMax(NULL), m_potVolLow(NULL), m_potSeep(NULL), m_potEvap(NULL), m_potSurfaceArea(NULL)
 {
 	//m_potSedIn(NULL), m_potSandIn(NULL), m_potSiltIn(NULL), m_potClayIn(NULL), m_potSagIn(NULL), m_potLagIn(NULL),
 }
@@ -125,6 +125,7 @@ void IMP_SWAT::Set1DData(const char *key, int n, float *data)
 	else if (StringMatch(sk, VAR_SOL_SUMAWC)) m_sol_sumfc = data;
 	else if (StringMatch(sk, VAR_IMPOUND_TRIG)) m_impoundTrig = data;
 	else if (StringMatch(sk, VAR_POT_VOLMAXMM)) m_potVolMax = data;
+	else if (StringMatch(sk, VAR_POT_VOLLOWMM)) m_potVolLow = data;
 	else if (StringMatch(sk, VAR_SOER)) m_sedYield = data;
 	else if (StringMatch(sk, VAR_SANDYLD)) m_sandYield = data;
 	else if (StringMatch(sk, VAR_SILTYLD)) m_siltYield = data;
@@ -160,6 +161,7 @@ void IMP_SWAT::Set2DData(const char *key, int n, int col, float **data)
 	else if (StringMatch(sk, VAR_SOILTHICK)) m_soilThick = data;
 	else if (StringMatch(sk, VAR_POROST)) m_sol_por = data;
 	else if (StringMatch(sk, VAR_SOL_ST)) m_soilStorage = data;
+	else if (StringMatch(sk, VAR_SOL_UL)) m_sol_sat = data;
 	else
 		throw ModelException(MID_IMP_SWAT, "Set2DData", "Parameter " + sk + " does not exist.");
 }
@@ -200,6 +202,9 @@ int IMP_SWAT::Execute()
 			int id = (int) m_routingLayers[iLayer][iCell]; // cell index
 			if (FloatEqual(m_impoundTrig[id], 0.f)) /// if impounding trigger on
 				potholeSimulate(id);
+			else{
+				releaseWater(id);
+			}
 		}
 	}
     return true;
@@ -258,7 +263,8 @@ void IMP_SWAT::potholeSimulate(int id)
 	m_potVol[id] += qIn;
 	//m_potFlowIn[id] += qIn;
 	/// compute surface area assuming a cone shape, ha
-	potholeSurfaceArea(id);
+	//potholeSurfaceArea(id);
+	m_potSurfaceArea[id] = m_cellArea; /// currently, assume to cell area.
 	potvol_ini = m_potVol[id];
 	potsa_ini = m_potSurfaceArea[id];
 	/// update sediment in pothole
@@ -305,7 +311,10 @@ void IMP_SWAT::potholeSimulate(int id)
 		qdayTmp += (m_potVol[id] - m_potVolMax[id]);
 		spillo = m_potVol[id] - m_potVolMax[id];
 		m_potVol[id] = m_potVolMax[id];
-		xx = spillo / (spillo + m_potVolMax[id]);
+		if (FloatEqual(spillo + m_potVolMax[id], 0.f))
+			xx = 0.f;
+		else
+			xx = spillo / (spillo + m_potVolMax[id]);
 		potsedo += m_potSed[id] * xx;
 		potsano += m_potSand[id] * xx;
 		potsilo += m_potSilt[id] * xx;
@@ -370,8 +379,12 @@ void IMP_SWAT::potholeSimulate(int id)
 		m_potLag[id] = 0.f;
 
 		/// compute total delivery ratio for pot_sed
-		drtot = (m_potClay[id] + m_potSilt[id] + m_potSand[id] + m_potSag[id] + m_potLag[id]) / 
-			(m_potClayIn + m_potSiltIn + m_potSandIn + m_potSagIn + m_potLagIn);
+		float allSedPart = m_potClayIn + m_potSiltIn + m_potSandIn + m_potSagIn + m_potLagIn;
+
+		if (FloatEqual(allSedPart, 0.f))
+			drtot = 0.f;
+		else
+			drtot = (m_potClay[id] + m_potSilt[id] + m_potSand[id] + m_potSag[id] + m_potLag[id]) / allSedPart;
 		m_potSed[id] *= drtot;
 
 		/// compute organic settling assuming an enrichment ratio of 3 on clay (0.75)
@@ -392,26 +405,45 @@ void IMP_SWAT::potholeSimulate(int id)
 		/// limit seepage into soil if profile is near field capacity
 		/// hydraulic conductivity of soil surface of pothole
 		/// [defaults to conductivity of upper soil (0.01--10.) layer]
-		yy = m_ks[id][0];
-		/// calculate seepage into soil
-		potsep = yy * m_potSurfaceArea[id] * 240.f / m_cnv; /// mm/hr*ha/240=m3/cnv=mm
-		potsep = min(potsep, m_potVol[id]);
+		//yy = m_ks[id][0];
+		/// calculate seepage into soil // these code from SWAT seems problematic. By LJ
+		//potsep = yy * m_potSurfaceArea[id] * 240.f / m_cnv; /// mm/hr*ha/240=m3/cnv=mm
+		//potsep = min(potsep, m_potVol[id]);
 		float potvol_sep = m_potVol[id];
-		m_potVol[id] -= potsep;
-		m_potSeep[id] += potsep;
+		//m_potVol[id] -= potsep;
+		//m_potSeep[id] += potsep;
 
-		/// recompute total soil water storage 
-		m_soilStorageProfile[id] = 0.f;
-		for (int ly = 0; ly < (int)m_soilLayers[id]; ly++)
-			m_soilStorageProfile[id] += m_soilStorage[id][ly];
+		///// force the soil water storage to field capacity
+		//for (int ly = 0; ly < (int)m_soilLayers[id]; ly++)
+		//{
+		//	float dep2cap = m_sol_sat[id][ly] - m_soilStorage[id][ly];
+		//	if (dep2cap > 0.f)
+		//	{
+		//		dep2cap = min(dep2cap, m_potVol[id]);
+		//		m_soilStorage[id][ly] += dep2cap;
+		//		m_potVol[id] -= dep2cap;
+		//	}
+		//}
+		//if (m_potVol[id] < m_potVolLow[id])
+		//	m_potVol[id] = m_potVolLow[id]; /// force to reach the lowest depth. 
+		///// recompute total soil water storage 
+		//m_soilStorageProfile[id] = 0.f;
+		//for (int ly = 0; ly < (int)m_soilLayers[id]; ly++)
+		//	m_soilStorageProfile[id] += m_soilStorage[id][ly];
 
 		/// compute evaporation from water surface
 		if (m_LAIDay[id] < m_evLAI)
 		{
 			potev = (1.f - m_LAIDay[id] / m_evLAI) * m_pet[id];
+			//if (id == 1085)
+			//	cout<<"pet: "<<m_pet[id]<<", laiday: "<<m_LAIDay[id]<<", potEvap: "<<potev<<", ";
 			potev = min(potev, m_potVol[id]);
 			m_potVol[id] -= potev;
 			m_potEvap[id] += potev;
+		}
+		if (m_potVol[id] < UTIL_ZERO)
+		{
+			m_potVol[id] = m_potVolLow[id]; // auto-irrigation
 		}
 		if (potvol_tile > UTIL_ZERO)
 		{
@@ -522,8 +554,10 @@ void IMP_SWAT::potholeSimulate(int id)
 			m_potLag[id] -= lagloss;
 		}
 	}
-	potholeSurfaceArea(id);
+	//potholeSurfaceArea(id);
 	m_surfaceRunoff[id] = qdayTmp;
+	//if (id == 1085)  /// dianbu 8144, dianbu2 1085
+	//	cout<<"surfaceQ: "<<m_surfaceRunoff[id]<<", potVol: "<<m_potVol[id]<<endl;
 }
 
 void IMP_SWAT::potholeSurfaceArea(int id)
@@ -538,9 +572,50 @@ void IMP_SWAT::potholeSurfaceArea(int id)
 		m_potSurfaceArea[id] = m_cellArea;
 }
 
+void IMP_SWAT::releaseWater(int id)
+{
+	//if (id == 108 && m_potVol[id] > UTIL_ZERO)  /// dianbu 8144, dianbu2 1085
+	//	cout<<"releaseWater, "<<m_surfaceRunoff[id]<<", "<<m_potVol[id]<<endl;
+	if (m_potVol[id] < UTIL_ZERO)
+		return;
+	float xx = 1.f;
+	m_surfaceRunoff[id] += m_potVol[id] * xx;
+	m_sedYield[id] += m_potSed[id] * xx;
+	m_sandYield[id] += m_potSand[id] * xx;
+	m_siltYield[id] += m_potSilt[id] * xx;
+	m_clayYield[id] += m_potClay[id] * xx;
+	m_smaggreYield[id] += m_potSag[id] * xx;
+	m_lgaggreYield[id] += m_potLag[id] * xx;
+	m_surqNo3[id] += m_potNo3[id] * xx;
+	m_surqSolP[id] += m_potSolP[id] * xx;
+	m_sedOrgN[id] += m_potOrgN[id] * xx;
+	m_sedOrgP[id] += m_potOrgP[id] * xx;
+	m_sedStableMinP[id] += m_potActMinP[id] * xx;
+	m_sedActiveMinP[id] += m_potStaMinP[id] * xx;
+
+	m_potVol[id] *= (1 - xx);
+	m_potSed[id] *= (1 - xx);
+	m_potSand[id] *= (1 - xx);
+	m_potSilt[id] *= (1 - xx);
+	m_potClay[id] *= (1 - xx);
+	m_potSag[id] *= (1 - xx);
+	m_potLag[id] *= (1 - xx);
+	m_potNo3[id] *= (1 - xx);
+	m_potSolP[id] *= (1 - xx);
+	m_potOrgN[id] *= (1 - xx);
+	m_potOrgP[id] *= (1 - xx);
+	m_potActMinP[id] *= (1 - xx);
+	m_potStaMinP[id] *= (1 - xx);
+}
+
 void IMP_SWAT::Get1DData(const char *key, int *n, float **data)
 {
+	initialOutputs();
 	string sk(key);
-	/// currently, no need to output.
+	if (StringMatch(sk, VAR_POT_VOL))
+		*data = m_potVol;
+	else
+		throw ModelException(MID_IMP_SWAT, "Get1DData","Parameter" + sk + "does not exist.");
+	*n = m_nCells;
 	return;
 }

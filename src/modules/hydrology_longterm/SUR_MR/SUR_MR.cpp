@@ -12,7 +12,7 @@ SUR_MR::SUR_MR(void) : m_nCells(-1), m_dt(-1), m_nSoilLayers(-1), m_tFrozen(NODA
                        m_sFrozen(NODATA_VALUE), m_runoffCo(NULL), m_initSoilStorage(NULL), m_tMean(NULL), 
 					   // m_soilThick(NULL) ,m_fieldCap(NULL),m_wiltingPoint(NULL), m_porosity(NULL), 
 					   m_sol_awc(NULL), m_sol_sumsat(NULL), m_soilLayers(NULL),
-                       m_pNet(NULL), m_sd(NULL), m_soilTemp(NULL), 
+                       m_pNet(NULL), m_sd(NULL), m_soilTemp(NULL), m_potVol(NULL),m_impoundTrig(NULL),
                        m_pe(NULL), m_infil(NULL), m_soilStorage(NULL), m_soilStorageProfile(NULL)       
 {
 }
@@ -211,6 +211,17 @@ int SUR_MR::Execute()
 		/// if m_infil > 0., m_soilStorage need to be updated here. By LJ, 2016-9-2
 		if (m_infil[i] > 0.f)
 		{
+			if (m_potVol != NULL && m_potVol[i] > UTIL_ZERO)
+			{
+				if (m_impoundTrig != NULL && FloatEqual(m_impoundTrig[i], 0.f))
+				{
+					m_potVol[i] += m_infil[i];
+					m_infil[i] = min(2.f, m_potVol[i]);
+					m_potVol[i] -= m_infil[i];
+				}
+				else
+					m_infil[i] += m_potVol[i];
+			}
 			m_soilStorage[i][0] += m_infil[i];
 		}
 		//if (i == 200)
@@ -267,6 +278,8 @@ void SUR_MR::Set1DData(const char *key, int n, float *data)
     else if (StringMatch(sk, VAR_SOTE))m_soilTemp = data;
 	else if (StringMatch(sk, VAR_SOILLAYERS))m_soilLayers = data;
 	else if (StringMatch(sk, VAR_SOL_SUMSAT))m_sol_sumsat = data;
+	else if (StringMatch(sk, VAR_POT_VOL)) m_potVol = data;
+	else if (StringMatch(sk, VAR_IMPOUND_TRIG)) m_impoundTrig = data;
     //else if (StringMatch(sk, VAR_SNAC))m_snowAccu = data;
     //else if (StringMatch(sk, VAR_SNME))m_snowMelt = data;
     else

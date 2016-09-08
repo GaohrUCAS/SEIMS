@@ -459,8 +459,8 @@
 /// Sediment routing related modules
 #define MCLS_SED_ROUTING                    "Sediment routing"
 #define MCLSDESC_SED_ROUTING        "Sediment channel routing modules."
-#define MID_SEDR_VCD                            "SEDR_VCD"
-#define MDESC_SEDR_VCD                        "Sediment channel routing using variable channel dimension method as used in SWAT."
+#define MID_SEDR_SBAGNOLD                            "SEDR_SBAGNOLD"
+#define MDESC_SEDR_SBAGNOLD                        "Sediment channel routing using variable channel dimension method as used in SWAT."
 
 /// Nutrient
 /// nitrogen and phosphorus mineralization and immobilization
@@ -536,6 +536,8 @@
 #define VAR_ALBDAY "ALBDAY"
 #define VAR_CH_ALGAE "ch_algae"
 #define VAR_CH_ALGAEConc "ch_algaeConc"
+#define VAR_CH_ONCO "ch_onco"
+#define VAR_CH_OPCO "ch_opco"
 #define VAR_AMMO_CH "ammoToCh"
 #define VAR_CH_NH3 "ch_nh3"
 #define VAR_CH_NH3Conc "ch_nh3Conc"
@@ -586,8 +588,10 @@
 #define VAR_CHST "CHST"                               /// channel storage
 #define VAR_CHT "CHT" /// canopy height for the day(m)
 #define VAR_CHTMX "CHTMX" /// maximum canopy height (m)
+#define VAR_CHWTWIDTH "chwtwidth"
 #define VAR_CHWIDTH "CHWIDTH"
 #define VAR_CHWTDEPTH "CHWTDEPTH"                     /// channel water depth
+#define VAR_CHWTDEPTH_DELTA "chwtdepth_delta"
 #define VAR_CLAY "CLAY"
 #define VAR_CMN "cmn"                                 /// Rate coefficient for mineralization of the humus active organic nutrients
 #define VAR_CN2 "CN2"
@@ -680,6 +684,7 @@
 #define VAR_IGROPT "igropt"
 #define VAR_IMPOUND_TRIG "impound_trig"
 #define VAR_POT_VOLMAXMM "pot_volmaxmm"
+#define VAR_POT_VOLLOWMM "pot_vollowmm"
 #define VAR_INET "INET"                             /// evaporation from the interception storage
 #define VAR_INFIL "INFIL"                           /// Infiltration
 #define VAR_INFILCAPSURPLUS "INFILCAPSURPLUS"
@@ -825,6 +830,10 @@
 #define VAR_CH_CODConc "CH_CODConc"
 #define VAR_CH_DOX "ch_dox"
 #define VAR_CH_DOXConc "ch_doxConc"
+#define VAR_RCH_BANKERO "rch_bank_ero"
+#define VAR_RCH_DEG "rch_deg"
+#define VAR_RCH_DEP "rch_dep"
+#define VAR_FLPLAIN_DEP "flplain_dep"
 #define VAR_RCN "rcn"                               /// concentration of nitrate in the rain (mg N/m3)  L -> 0.001 * m3
 #define VAR_Reinfiltration "Reinfiltration"
 #define VAR_RETURNFLOW "ReturnFlow"
@@ -968,6 +977,7 @@
 #define VAR_USLE_K "USLE_K"
 #define VAR_USLE_LS "USLE_LS"
 #define VAR_USLE_P "USLE_P"
+#define VAR_VCD "vcd"
 #define VAR_VCRIT "vcrit"
 #define VAR_VDIV "Vdiv"                             /// diversion loss of the river reach
 #define VAR_VP_ACT "avp"                            /// actual vapor pressure
@@ -1019,7 +1029,7 @@
 #define UNIT_CONT_TONHA "tons/ha"
 #define UNIT_DENSITY "Mg/m3"                        /// density, equal to g/cm3, Mg/m3, ton/m3
 #define UNIT_SEDCONC "g/L"                         /// i.e., kg/m3
-#define UNIT_CONCENTRATION "mg/L"                        /// concentration
+#define UNIT_CONCENTRATION "mg/L"                        /// concentration, or mg/kg
 #define UNIT_DEPTH_MM "mm"                          /// Depth related unit, mm
 #define UNIT_FLOW_CMS "m3/s"                        /// Cubic meters per second of flow discharge
 #define UNIT_GAS_CON "uL/L"   /// e.g., uL CO2/L air, IS this same with ppmv? LJ
@@ -1093,6 +1103,8 @@
 #define DESC_CH_ALGAE "algal biomass in reach"
 #define DESC_AMMO_CH "amount of ammonium transported with lateral flow"
 #define DESC_CH_NH4 "ammonia nitrogen in reach"
+#define DESC_CH_ONCO "Channel organic nitrogen concentration in basin"
+#define DESC_CH_OPCO "Channel organic phosphorus concentration in basin"
 #define DESC_ANION_EXCL "fraction of porosity from which anions are excluded"
 #define DESC_AWTR_STRS_ID "Water stress identifier, 1 plant water demand, 2 soil water content"
 #define DESC_AWTR_STRS_TRIG "Water stress threshold that triggers irrigation"
@@ -1146,7 +1158,9 @@
 #define DESC_CHT "canopy height for the day (m)"
 #define DESC_CHTMX "maximum canopy height (m)"
 #define DESC_CHWIDTH "Channel width"
+#define DESC_CHWTWIDTH "Channel water width"
 #define DESC_CHWTDEPTH "channel water depth"
+#define DESC_CHWTDEPTH_DELTA "changes of channel water depth during current timestep"
 #define DESC_CLAY "Percent of clay content"
 #define DESC_CMN "Rate coefficient for mineralization of the humus active organic nutrients"
 #define DESC_CN2 "CN under moisture condition II"
@@ -1200,6 +1214,7 @@
 #define DESC_POT_NO3DECAY "Nitrate decay rate in impounded water body"
 #define DESC_POT_SOLPDECAY "Soluble phosphorus decay rate in impounded water body"
 #define DESC_POT_VOLMAXMM "maximum volume of water stored in the depression/impounded area"
+#define DESC_POT_VOLLOWMM "lowest volume of water stored in the depression/impounded area"
 #define DESC_EXT_COEF "light extinction coefficient"
 #define DESC_FERTILIZER_LOOKUP "Fertilizer database"
 #define DESC_FIELDCAP "Soil field capacity"
@@ -1370,7 +1385,7 @@
 #define DESC_QI "Interflow at each reach outlet"
 #define DESC_QOUTLET "discharge at the watershed outlet"
 #define DESC_QOVERLAND "Water discharge in the downslope boundary of cells"
-#define DESC_QRECH "Discharge in a text format at each reach outlet and at each time step"
+#define DESC_QRECH "Discharge at each reach outlet of each time step"
 #define DESC_QS "Overland discharge at each reach outlet"
 #define DESC_QSOIL "discharge added to channel flow from interflow"
 #define DESC_QSOUTLET "surface runoff at the watershed outlet"
@@ -1382,6 +1397,10 @@
 #define DESC_RCA "concentration of ammonia in the rain"
 #define DESC_CH_COD "carbonaceous oxygen demand in reach"
 #define DESC_CH_DOX "dissolved oxygen in reach"
+#define DESC_RCH_BANKERO "bank erosion"
+#define DESC_RCH_DEG "reach degradation"
+#define DESC_RCH_DEP "reach deposition"
+#define DESC_FLPLAIN_DEP "Floodplain Deposition"
 #define DESC_RCN "concentration of nitrate in the rain"
 #define DESC_Reinfiltration "TODO: meaning?"
 #define DESC_RETURNFLOW "water depth of return flow"
@@ -1532,7 +1551,8 @@
 #define DESC_USLE_C "the cover management factor"
 #define DESC_USLE_K "The soil erodibility factor used in USLE"
 #define DESC_USLE_LS "USLE LS factor"
-#define DESC_USLE_P "the erosion control practice factor "
+#define DESC_USLE_P "the erosion control practice factor"
+#define DESC_VCD "compute changes in channel dimensions"
 #define DESC_VCRIT "critical velocity for sediment deposition"
 #define DESC_VDIV "diversion loss of the river reach"
 #define DESC_VER_ITP "Execute vertical interpolation (1) or not (0), defined in config.fig"

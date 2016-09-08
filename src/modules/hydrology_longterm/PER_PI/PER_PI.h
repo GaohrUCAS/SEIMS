@@ -1,5 +1,4 @@
 /*!
- * \file PER_PI.h
  * \brief Percolation calculated by Darcy's law and Brooks-Corey equation.
  * \author Junzhi Liu
  * \date May 2011
@@ -69,7 +68,8 @@ private:
     float *m_soilT;
     /// infiltration (mm)
     float *m_infil;
-
+	/// impound/release 
+	float *m_impoundTriger;
     /// Output
 	
 	///percolation (mm)

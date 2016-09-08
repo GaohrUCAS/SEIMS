@@ -60,30 +60,6 @@ void IUH_OL::initialOutputs()
     }
 	if(m_OL_Flow == NULL){
 		Initialize1DArray(m_nCells,m_OL_Flow,0.f);
-		/// added by Junzhi, 2016-9-4
-//#pragma omp parallel for
-//		for (int i = 0; i < m_nCells; i++)
-//		{
-//			if(FloatEqual(m_landcover[i], 33))//assume most water in padday field flowing out at the second day after rainfall
-//			{
-//				// the first two elements in each row of m_iuhCell are the start and end time of iuh
-//				// the actual index of "start" in m_iuhCell is "start+2", for example, the index of start time 0 is index 2.
-//				int start = int(m_iuhCell[i][0]);
-//				int end = int(m_iuhCell[i][1]);
-//
-//				if(end - start == 0) // if water will flow to channel within one day
-//				{
-//					m_iuhCell[i][1] = 1.f;
-//					m_iuhCell[i][2] = 0.2f;
-//					m_iuhCell[i][3] = 0.8f; //must make sure m_iuhCell has at least 4 columns in the readin codes
-//				}
-//				else
-//				{
-//					m_iuhCell[i][3] += 0.8f * m_iuhCell[i][2];
-//					m_iuhCell[i][2] = 0.2f * m_iuhCell[i][2];
-//				}
-//			}
-//		}
 	}
 }
 

@@ -318,8 +318,18 @@ private:
            |0 begin impounding water
            |1 release impounded water*/
     float *m_impoundTriger;
+	/// volume   mm
+	float *m_potVol;
 	/// maximum volume of water stored in the depression/impounded area, mm
 	float *m_potVolMax;
+	/// low depth ...., mm
+	float *m_potVolLow;
+	/// amount of water held in the soil layer at saturation (sat - wp water), mm
+	float **m_sol_sat;
+	/// soil water storage (mm)
+	float **m_soilStorage;
+	/// soil water storage in soil profile (mm)
+	float *m_soilStorageProfile;
 	/// flag to identify the initialization
 	bool m_initialized;
 public:

@@ -137,12 +137,13 @@ private:
 
     float *m_chOrder;
     float *m_chWidth;
+	float *m_chWTWidth;
     float *m_chDepth;
     float *m_chLen;
     float *m_chVel;
 
     float *m_bankStorage;
-
+	/// groundwater recharge to channel or perennial base flow, m^3/s
     float m_deepGroundwater;
 
     /// seepage to deep aquifer
@@ -159,7 +160,7 @@ private:
     // for muskingum
     float m_x;
     float m_co1;
-
+	// IS THIS USEFUL? BY LJ
     float m_qUpReach;
 	/// scenario data
 
@@ -178,6 +179,8 @@ private:
     float *m_qIn;
     /// channel water depth m
     float *m_chWTdepth;
+	/// channel water depth delta, m
+	float *m_chWTDepthDelta;
 	/*
 	 * reach layers
 	 * key: stream order

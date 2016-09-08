@@ -44,6 +44,8 @@ private:
 	float *m_slope;
 	/// saturated conductivity
 	float **m_ks;
+	/// saturated soil water, mm
+	float **m_sol_sat;
 	/// field capacity on soil profile (mm, FC-WP)
 	float *m_sol_sumfc;
 	/// soil thickness
@@ -125,6 +127,8 @@ private:
 	float *m_potVol;
 	/// maximum volume mm
 	float *m_potVolMax;
+	/// lowest volume mm
+	float *m_potVolLow;
 	/// seepage water of pothole, mm
 	float *m_potSeep;
 	/// evaporation, mm
@@ -201,4 +205,8 @@ private:
 	 * compute surface area assuming a cone shape, ha
 	 */
 	void potholeSurfaceArea(int id);
+	/*!
+	 * release water stored in pothole
+	 */
+	void releaseWater(int id);
 };

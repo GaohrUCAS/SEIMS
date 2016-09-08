@@ -22,13 +22,15 @@ NutrCH_QUAL2E::NutrCH_QUAL2E(void) :
         m_daylen(NULL), m_sra(NULL), m_bankStorage(NULL), m_qOutCh(NULL), m_chStorage(NULL), m_chWTdepth(NULL), m_chTemp(NULL),
         m_latNO3ToCh(NULL), m_surNO3ToCh(NULL), m_surSolPToCh(NULL), m_gwNO3ToCh(NULL),
         m_gwSolPToCh(NULL), m_sedOrgNToCh(NULL), m_sedOrgPToCh(NULL), m_sedMinPAToCh(NULL),
-        m_sedMinPSToCh(NULL), m_nh4ToCh(NULL), m_no2ToCh(NULL), m_codToCh(NULL), 
+        m_sedMinPSToCh(NULL), m_nh4ToCh(NULL), m_no2ToCh(NULL), m_codToCh(NULL),
 		m_chSr(NULL), m_chDaylen(NULL), m_chCellCount(NULL), m_soilTemp(NULL),
 		// reaches related
-		m_reachDownStream(NULL),
+		m_reachDownStream(NULL), m_chOrgNCo(NODATA_VALUE), m_chOrgPCo(NODATA_VALUE),
 		// point source loadings to channel
 		m_ptNO3ToCh(NULL), m_ptNH4ToCh(NULL), m_ptOrgNToCh(NULL), m_ptTNToCh(NULL),
 		m_ptSolPToCh(NULL), m_ptOrgPToCh(NULL), m_ptTPToCh(NULL), m_ptCODToCh(NULL), 
+		// channel erosion
+		m_chDeg(NULL),
         // nutrient storage in channel
         m_chAlgae(NULL), m_chOrgN(NULL), m_chOrgP(NULL), m_chNH4(NULL), m_chNO2(NULL), m_chNO3(NULL),
         m_chSolP(NULL), m_chCOD(NULL), m_chDOx(NULL), m_chChlora(NULL), m_chSatDOx(NODATA_VALUE),
@@ -262,6 +264,8 @@ void NutrCH_QUAL2E::SetValue(const char *key, float value)
     else if (StringMatch(sk, VAR_TFACT)) { tfact = value; }
     else if (StringMatch(sk, VAR_MUMAX)) { m_mumax = value; }
     else if (StringMatch(sk, VAR_RHOQ)) { m_rhoq = value; }
+	else if (StringMatch(sk, VAR_CH_ONCO)) m_chOrgNCo = value;
+	else if (StringMatch(sk, VAR_CH_OPCO)) m_chOrgPCo = value;
     else
     {
         throw ModelException(MID_NUTRCH_QUAL2E, "SetValue", "Parameter " + sk +" does not exist.");
@@ -337,6 +341,7 @@ void NutrCH_QUAL2E::Set1DData(const char *key, int n, float *data)
     else if (StringMatch(sk, VAR_SEDMINPS_TOCH)) { m_sedMinPSToCh = data; }
     else if (StringMatch(sk, VAR_SUR_NH4_TOCH))  { m_nh4ToCh = data; }
     else if (StringMatch(sk, VAR_NO2_TOCH))      { m_no2ToCh = data; }
+	else if (StringMatch(sk, VAR_RCH_DEG)) m_chDeg = data;
     else
     {
         throw ModelException(MID_NUTRCH_QUAL2E, "Set1DData", "Parameter " + sk + " does not exist.");
@@ -630,6 +635,12 @@ void NutrCH_QUAL2E::AddInputNutrient(int i)
 	/// absorbed organic N, P from overland sediment routing
 	m_chOrgN[i] += m_sedOrgNToCh[i];
 	m_chOrgP[i] += m_sedOrgPToCh[i];
+	/// organic N, P contribution from channel erosion
+	if (m_chDeg != NULL && m_chOrgPCo != NODATA_VALUE && m_chOrgNCo != NODATA_VALUE)
+	{
+		m_chOrgN[i] += m_chDeg[i] * m_chOrgNCo / 1000.f;
+		m_chOrgP[i] += m_chDeg[i] * m_chOrgPCo / 1000.f;
+	}
 	/// dissolved N, P from overland surface flow routing and groundwater
 	m_chNO3[i]  += m_surNO3ToCh[i] + m_latNO3ToCh[i] + m_gwNO3ToCh[i];
 	m_chSolP[i] += m_surSolPToCh[i] + m_gwSolPToCh[i];

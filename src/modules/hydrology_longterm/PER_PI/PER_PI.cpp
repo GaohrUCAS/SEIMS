@@ -13,7 +13,7 @@
 
 PER_PI::PER_PI(void) : m_soilLayers(-1), m_dt(-1), m_nCells(-1), m_frozenT(NODATA_VALUE),
                        m_ks(NULL), m_sat(NULL), m_poreIndex(NULL), m_fc(NULL), 
-					   m_wp(NULL), m_soilThick(NULL),
+					   m_wp(NULL), m_soilThick(NULL), m_impoundTriger(NULL),
                        m_infil(NULL), m_soilT(NULL), m_soilStorage(NULL),
                        m_perc(NULL)
 {
@@ -136,6 +136,7 @@ void PER_PI::Set1DData(const char *key, int nRows, float *data)
 	else if (StringMatch(sk, VAR_INFIL)) m_infil = data;
 	else if (StringMatch(sk, VAR_SOILLAYERS)) m_nSoilLayers = data;
 	else if (StringMatch(sk, VAR_SOL_SW)) m_soilStorageProfile = data;
+	else if (StringMatch(sk, VAR_IMPOUND_TRIG)) m_impoundTriger = data;
     else
         throw ModelException(MID_PER_PI, "Set1DData", "Parameter " + sk + " does not exist.");
 }
@@ -148,10 +149,10 @@ void PER_PI::Set2DData(const char *key, int nrows, int ncols, float **data)
 
     if (StringMatch(sk, VAR_CONDUCT)) m_ks = data;
 	else if (StringMatch(sk, VAR_SOILTHICK)) m_soilThick = data;
-	else if (StringMatch(sk, VAR_SOL_UL)) m_sat = data;
 	else if (StringMatch(sk, VAR_SOL_AWC)) m_fc = data;
 	else if (StringMatch(sk, VAR_SOL_WPMM)) m_wp = data;
     else if (StringMatch(sk, VAR_POREID)) m_poreIndex = data;
+	else if (StringMatch(sk, VAR_SOL_UL)) m_sat = data;
     else if (StringMatch(sk, VAR_SOL_ST)) m_soilStorage = data;
     else
         throw ModelException(MID_PER_PI, "Set2DData", "Parameter " + sk + " does not exist.");

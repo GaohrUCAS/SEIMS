@@ -177,6 +177,7 @@ clsReaches::clsReaches(mongoc_client_t *conn, string &dbName, string collectionN
     bson_destroy(b);
     mongoc_collection_destroy(collection);
     mongoc_cursor_destroy(cursor);
+	/// 
 }
 
 clsReaches::~clsReaches()

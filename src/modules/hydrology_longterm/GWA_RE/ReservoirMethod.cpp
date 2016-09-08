@@ -81,7 +81,7 @@ int ReservoirMethod::Execute()
 
 		//if (perco > 0.f)
 		//{
-		//	cout << perco << endl;
+		//	cout << "subID: "<<subID<<", perco mean: "<<perco << endl;
 		//}
 
 		//calculate EG, i.e. Revap
@@ -98,7 +98,7 @@ int ReservoirMethod::Execute()
 		plantEP = Sum(curCellsNum, curCells, m_plantEP) / curCellsNum;
 
 		curSub->setPET(fPET);
-
+		
 		//if percolation < 0.01, EG will be 0. if percolation >= 0.01, EG will be calculated by equation (why? this is not used currently. Junzhi Liu 2016-08-14).
 		//if (perco >= 0.01f)
 		//{
@@ -373,7 +373,7 @@ void ReservoirMethod::Get1DData(const char *key, int *nRows, float **data)
         *nRows = m_nSubbasins + 1;
     }
     else
-        throw ModelException(MID_GWA_RE, "Get1DData", "Parameter " + sk + " does not exist in current module.");
+        throw ModelException(MID_GWA_RE, "Get1DData", "Parameter " + sk + " does not exist.");
 }
 
 void ReservoirMethod::Get2DData(const char *key, int *nRows, int *nCols, float ***data)

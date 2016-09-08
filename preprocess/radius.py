@@ -16,21 +16,9 @@ def GenerateRadius(filepath, stormProbability):
     noDataValue = acc_R.noDataValue
     cellsize = acc_R.dx
     data = acc_R.data
-    # ds = gdal.Open(accfile)
-    # band = ds.GetRasterBand(1)
-    # data = band.ReadAsArray()
-    # xsize = band.XSize
-    # ysize = band.YSize
-    # noDataValue = band.GetNoDataValue()
-    # geotransform = ds.GetGeoTransform()
-    #
-    # srs = osr.SpatialReference()
-    # srs.ImportFromWkt(ds.GetProjection())
-    #
-    # cellsize = geotransform[1]
     coeTable = {"T2": [0.05, 0.48],
-            "T10": [0.12, 0.52],
-            "T100": [0.18, 0.55]}
+                "T10": [0.12, 0.52],
+                "T100": [0.18, 0.55]}
     ap = coeTable[stormProbability][0]
     bp = coeTable[stormProbability][1]
 
@@ -41,16 +29,6 @@ def GenerateRadius(filepath, stormProbability):
 
     radiusCal_numpy = numpy.frompyfunc(radiusCal, 1, 1)
     radius = radiusCal_numpy(data)
-    # radius = numpy.zeros((ysize, xsize))
-    # for i in range(0, ysize):
-    #     for j in range(0, xsize):
-    #         if (abs(data[i][j] - noDataValue) < UTIL_ZERO):
-    #             radius[i][j] = DEFAULT_NODATA
-    #             continue
-    #         data[i][j] = data[i][j] + 1
-    #         temp = ap * (data[i][j] * cellsize * cellsize / 1000000.)
-    #         # print temp, bp
-    #         radius[i][j] = math.pow(temp, bp)
 
     filename = filepath + os.sep + radiusFile
     WriteGTiffFile(filename, ysize, xsize, radius,
