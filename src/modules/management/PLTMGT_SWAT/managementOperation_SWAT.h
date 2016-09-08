@@ -324,6 +324,12 @@ private:
 	float *m_potVolMax;
 	/// low depth ...., mm
 	float *m_potVolLow;
+	/// amount of water held in the soil layer at saturation (sat - wp water), mm
+	float **m_sol_sat;
+	/// soil water storage (mm)
+	float **m_soilStorage;
+	/// soil water storage in soil profile (mm)
+	float *m_soilStorageProfile;
 	/// flag to identify the initialization
 	bool m_initialized;
 public:

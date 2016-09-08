@@ -53,6 +53,7 @@ MGTOpt_SWAT::MGTOpt_SWAT(void) : m_nCells(-1), m_nSub(-1), m_soilLayers(-1),
                                  m_nGrazingDays(NULL), m_grzFlag(NULL),
         /// Release or impound operation
                                  m_impoundTriger(NULL), m_potVol(NULL), m_potVolMax(NULL),m_potVolLow(NULL),
+								 m_sol_sat(NULL), m_soilStorage(NULL), m_soilStorageProfile(NULL),
         /// Temporary parameters
                                  m_doneOpSequence(NULL),
 								 m_initialized(false)
@@ -238,6 +239,7 @@ void MGTOpt_SWAT::Set1DData(const char *key, int n, float *data)
         //else if (StringMatch(sk, VAR_SHALLST)) m_shallowWaterDepth = data;
 	/// impound/release
 	else if (StringMatch(sk, VAR_POT_VOL)) m_potVol = data;
+	else if (StringMatch(sk, VAR_SOL_SW)) m_soilStorageProfile = data;
     else
         throw ModelException(MID_PLTMGT_SWAT, "Set1DData", "Parameter " + sk + " does not exist.");
 }
@@ -331,7 +333,9 @@ void MGTOpt_SWAT::Set2DData(const char *key, int n, int col, float **data)
     else if (StringMatch(sk, VAR_SOL_FOP)) m_soilFreshOrgP = data;
     else if (StringMatch(sk, VAR_SOL_ACTP)) m_soilActiveMinP = data;
     else if (StringMatch(sk, VAR_SOL_STAP)) m_soilStableMinP = data;
-    else if (StringMatch(sk, VAR_SOL_RSD)) m_soilRsd = data;
+	else if (StringMatch(sk, VAR_SOL_RSD)) m_soilRsd = data;
+	else if (StringMatch(sk, VAR_SOL_UL)) m_sol_sat = data;
+	else if (StringMatch(sk, VAR_SOL_ST)) m_soilStorage = data;
     else
         throw ModelException(MID_PLTMGT_SWAT, "Set2DData", "Parameter " + sk + " does not exist.");
 }
@@ -1460,10 +1464,35 @@ void MGTOpt_SWAT::ExecuteReleaseImpoundOperation(int i, int &factoryID, int nOp)
 	/// paddy rice module should be added!
 	m_potVolMax[i] = curOperation->MaxDepth();
 	m_potVolLow[i] = curOperation->LowDepth();
-	/// Currently, add pothole volume (mm) to the max depth directly (in case of infiltration).
-	/// TODO, autoirrigation operations should be triggered. BY lj
-	if (m_potVol != NULL)
-		m_potVol[i] = curOperation->MaxDepth();
+	if (FloatEqual(m_impoundTriger[i], 0.f))
+	{
+		/// Currently, add pothole volume (mm) to the max depth directly (in case of infiltration).
+		/// TODO, autoirrigation operations should be triggered. BY lj
+		if (m_potVol != NULL)
+			m_potVol[i] = curOperation->MaxDepth();
+		/// force the soil water storage to field capacity
+		for (int ly = 0; ly < (int)m_nSoilLayers[i]; ly++)
+		{
+			float dep2cap = m_sol_sat[i][ly] - m_soilStorage[i][ly];
+			if (dep2cap > 0.f)
+			{
+				dep2cap = min(dep2cap, m_potVol[i]);
+				m_soilStorage[i][ly] += dep2cap;
+				m_potVol[i] -= dep2cap;
+			}
+		}
+		if (m_potVol[i] < curOperation->UpDepth())
+			m_potVol[i] = curOperation->UpDepth(); /// force to reach the up depth. 
+		/// recompute total soil water storage 
+		m_soilStorageProfile[i] = 0.f;
+		for (int ly = 0; ly < (int)m_nSoilLayers[i]; ly++)
+			m_soilStorageProfile[i] += m_soilStorage[i][ly];
+	}
+	else
+	{
+		m_potVolMax[i] = 0.f;
+		m_potVolLow[i] = 0.f;
+	}
 }
 
 void MGTOpt_SWAT::ExecuteContinuousFertilizerOperation(int i, int &factoryID, int nOp)
