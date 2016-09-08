@@ -73,6 +73,8 @@ private:
     int m_nCells;
 	/// impound/release 
 	float *m_impoundTriger;
+	/// pothole volume, mm
+	float *m_potVol;
     /// initial depression storage coefficient
     float m_depCo;
     /// depression storage capacity (mm)
