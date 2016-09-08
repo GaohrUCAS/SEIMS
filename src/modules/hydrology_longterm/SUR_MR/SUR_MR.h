@@ -143,6 +143,10 @@ private:
     /// soil temperature obtained from the soil temperature module (deg C)
     float *m_soilTemp;
 
+	/// pothole volume, mm
+	float *m_potVol;
+	/// impound trigger
+	float *m_impoundTrig;
     // output
     /// the excess precipitation (mm) of the total nCells
     float *m_pe;
