@@ -71,7 +71,9 @@ bool NutrientinGroundwater::CheckInputData()
 		throw ModelException(MID_NUTRGW, "CheckInputData", "The parameter: m_TimeStep has not been set.");
     if (m_cellWidth < 0)
         throw ModelException(MID_NUTRGW, "CheckInputData", "The cell width can not be less than zero.");
-    if (m_gw_q == NULL)
+    if (m_gw0 < 0)
+		throw ModelException(MID_NUTRGW, "CheckInputData", "The initial groundwater storage can not be less than zero.");
+	if (m_gw_q == NULL)
         throw ModelException(MID_NUTRGW, "CheckInputData", "The groundwater contribution to stream flow data can not be NULL.");
 	if (m_gwStor == NULL)
 		throw ModelException(MID_NUTRGW, "CheckInputData", "The groundwater storage can not be NULL.");
@@ -81,7 +83,7 @@ bool NutrientinGroundwater::CheckInputData()
 		throw ModelException(MID_NUTRGW, "CheckInputData", "The solute P percolation to groundwater can not be NULL.");
 	if (m_soilLayers == NULL)
 		throw ModelException(MID_NUTRGW, "CheckInputData", "The soil layers number can not be NULL.");
-	if(m_sol_no3 == NULL)
+	if (m_sol_no3 == NULL)
 		throw ModelException(MID_NUTRGW, "CheckInputData", "m_sol_no3 can not be NULL.");
     return true;
 }
@@ -203,13 +205,14 @@ int NutrientinGroundwater::Execute()
     {
 		int id = *iter;
 		Subbasin *subbasin = m_subbasinsInfo->GetSubbasinByID(id);
-		float subArea = subbasin->getCellCount() * m_cellWidth * m_cellWidth;	//m2
+		int nCells = subbasin->getCellCount();
+		float subArea = nCells * m_cellWidth * m_cellWidth;	// m^2
 		float revap = subbasin->getEG();
 		/// 1. firstly, restore the groundwater storage during current day
 		///    since the m_gwStor has involved percolation water, just need add revap and runoff water
 		float gwqVol = m_gw_q[id] * m_TimeStep;	// m^3, water volume flow out
 		float reVapVol = revap * subArea / 1000.f; // m^3
-		float tmpGwStorage = m_gwStor[id] + gwqVol + reVapVol;
+		float tmpGwStorage = m_gwStor[id] * subArea / 1000.f + gwqVol + reVapVol;
 		/// 2. secondly, update nutrient concentration
 		m_gwNO3[id] += m_perco_no3_gw[id]; /// nutrient amount, kg
 		m_gwSolP[id] += m_perco_solp_gw[id];
@@ -226,7 +229,6 @@ int NutrientinGroundwater::Execute()
 		float no3ToSoil_kg = no3ToSoil * subArea / 10000.f; /// kg/ha * m^2 / 10000.f = kg
 		float solpToSoil_kg = solpToSoil * subArea / 10000.f;
 		int *cells = subbasin->getCells();
-		int nCells = subbasin->getCellCount();
 		int index = 0;
 		for (int i = 0; i < nCells; i++)
 		{
@@ -254,19 +256,17 @@ void NutrientinGroundwater::Get1DData(const char *key, int *n, float **data)
     string sk(key);
     *n = m_nSubbasins + 1;
     if (StringMatch(sk, VAR_NO3GW_TOCH))
-    {
         *data = m_no3GwToCh;
-    }
     else if (StringMatch(sk, VAR_MINPGW_TOCH))
-    {
-        *data = m_solpGwToCh;
-    }
-	else if (StringMatch(sk, VAR_GWNO3_CON))
+		*data = m_solpGwToCh;
+	else if (StringMatch(sk, VAR_GWNO3_CONC))
 		*data = m_gwno3Con;
-	else if (StringMatch(sk, VAR_GWMINP_CON))
+	else if (StringMatch(sk, VAR_GWSOLP_CONC))
 		*data = m_gwSolCon;
+	else if (StringMatch(sk, VAR_GWNO3))
+		*data = m_gwNO3;
+	else if (StringMatch(sk, VAR_GWSOLP))
+		*data = m_gwSolP;
     else
-    {
         throw ModelException(MID_NUTRGW, "Get1DData", "Parameter " + sk + " does not exist.");
-    }
 }

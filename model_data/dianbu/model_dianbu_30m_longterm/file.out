@@ -104,8 +104,8 @@ NutrientTransport	PERCO_P_GW	soluble P percolating past bottom of soil profile	k
 NutrientTransport	LATNO3TOCH	nitrate transported with lateral flow to channel	kg/ha	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	LATNO3TOCH.txt	1
 NutrientTransport	SUR_NO3_TOCH	nitrate transported with surface runoff to channel	kg/ha	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	SUR_NO3_TOCH.txt	1
 NutrientTransport	SUR_SOLP_TOCH	soluble phosphorus from surface runoff to channel	kg/ha	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	SUR_SOLP_TOCH.txt	1
-NutrientTransport	GWNO3	nitrate N concentration in groundwater	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	GWNO3.txt	1
-NutrientTransport	GWMINP	soluble P concentration in groundwater	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	GWMINP.txt	1
+NutrientTransport	GWNO3_CONC	nitrate N concentration in groundwater	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	GWNO3_CONC.txt	1
+NutrientTransport	GWSOLP_CONC	soluble P concentration in groundwater	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	GWSOLP_CONC.txt	1
 NutrientTransport	NO3GWTOCH	nitrate loading to reach in groundwater	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	NO3GWTOCH.tif	1
 NutrientTransport	MINPGWTOCH	soluble P loading to reach in groundwater	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	MINPGWTOCH.tif	1
 NutrientTransport	CH_CHLORA	chlorophyll-a concentration in reach	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CH_CHLORA.txt	1
@@ -120,7 +120,7 @@ NutrientTransport	CH_ALGAE	algal biomass concentration in reach	kg	NONE	2013-01-
 ChannelRouting	QS	Overland discharge at each reach outlet	m3/s	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	QS.txt	1
 ChannelRouting	QI	Interflow at each reach outlet	m3/s	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	QI.txt	1
 ChannelRouting	QG	Groundwater discharge at each reach outlet	m3/s	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	QG.txt	1
-ChannelRouting	CHST	hannel storage	m3	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CHST.txt	1
+ChannelRouting	CHST	channel storage	m3	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CHST.txt	1
 ChannelRouting	BKST	bank storage	m3	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	BKST.txt	1
 ChannelRouting	SEEPAGE	seepage	m3	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	SEEPAGE.txt	1
 ChannelRouting	CHWTDEPTH	channel water depth	m	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CHWTDEPTH.txt	1
@@ -144,3 +144,5 @@ NutrientTransport	CHSTR_TP	total phosphorus stored in reach	kg	NONE	2013-01-01 0
 NutrientTransport	CHSTR_TN	total nitrogen stored in reach	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CHSTR_TN.txt	1
 NutrientTransport	CHSTR_NH4	NH4-N stored in reach	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CHSTR_NH4.txt	1
 NutrientTransport	CHSTR_NO3	NO3-N stored in reach	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CHSTR_NO3.txt	1
+NutrientTransport	GWNO3	nitrate N amount in groundwater	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	GWNO3.txt	1
+NutrientTransport	GWSOLP	soluble P amount in groundwater	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	GWSOLP.txt	1
