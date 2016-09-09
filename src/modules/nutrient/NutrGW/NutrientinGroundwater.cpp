@@ -9,19 +9,22 @@ using namespace std;
 
 NutrientinGroundwater::NutrientinGroundwater(void) :
 //input
-        m_TimeStep(-1), m_nCells(-1), m_cellWidth(-1), m_gwno3Con(NULL), m_gwminpCon(NULL), m_gw_q(NULL),
+        m_TimeStep(-1), m_nCells(-1), m_cellWidth(-1), m_gwno3Con(NULL), m_gwSolCon(NULL), m_gw_q(NULL),
 		m_nSubbasins(-1), m_subbasin(NULL), m_subbasinsInfo(NULL), m_gwStor(NULL), 
 		m_perco_no3_gw(NULL), m_perco_solp_gw(NULL), m_soilLayers(NULL), m_nSoilLayers(-1), m_sol_no3(NULL),
+		m_gwNO3(NULL), m_gwSolP(NULL), m_gw0(NODATA_VALUE),
         //output
-        m_minpgwToCh(NULL), m_no3gwToCh(NULL)
+        m_solpGwToCh(NULL), m_no3GwToCh(NULL)
 {
 
 }
 
 NutrientinGroundwater::~NutrientinGroundwater(void)
 {
-	if (m_no3gwToCh != NULL) Release1DArray(m_no3gwToCh);
-    if (m_minpgwToCh != NULL) Release1DArray(m_minpgwToCh);
+	if (m_no3GwToCh != NULL) Release1DArray(m_no3GwToCh);
+    if (m_solpGwToCh != NULL) Release1DArray(m_solpGwToCh);
+	if (m_gwNO3 != NULL) Release1DArray(m_gwNO3);
+	if (m_gwSolP != NULL) Release1DArray(m_gwSolP);
 }
 
 void NutrientinGroundwater::SetSubbasins(clsSubbasins *subbasins)
@@ -96,6 +99,8 @@ void NutrientinGroundwater::SetValue(const char *key, float value)
     {
         m_cellWidth = value;
     }
+	else if (StringMatch(sk, VAR_GW0))
+		m_gw0 = value;
     else
     {
         throw ModelException(MID_NUTRGW, "SetValue", "Parameter " + sk + " does not exist.");
@@ -147,9 +152,9 @@ void NutrientinGroundwater::SetReaches(clsReaches *reaches)
 	{
 		m_nSubbasins = reaches->GetReachNumber();
 		vector<int> m_reachId = reaches->GetReachIDs();
-		if (m_gwminpCon == NULL)
+		if (m_gwSolCon == NULL)
 		{
-			Initialize1DArray(m_nSubbasins+1, m_gwminpCon, 0.f);
+			Initialize1DArray(m_nSubbasins+1, m_gwSolCon, 0.f);
 			Initialize1DArray(m_nSubbasins+1, m_gwno3Con, 0.f);
 		}
 		
@@ -157,7 +162,7 @@ void NutrientinGroundwater::SetReaches(clsReaches *reaches)
 		{
 			clsReach* tmpReach = reaches->GetReachByID(*it);
 			m_gwno3Con[*it] = tmpReach->GetGWNO3();
-			m_gwminpCon[*it] = tmpReach->GetGWSolP();
+			m_gwSolCon[*it] = tmpReach->GetGWSolP();
 		}
 	}
 	else
@@ -169,36 +174,57 @@ void NutrientinGroundwater::initialOutputs()
         throw ModelException(MID_NUTRGW, "CheckInputData",
                              "The dimension of the input data can not be less than zero.");
     // allocate the output variables
-	if (m_no3gwToCh == NULL)
+	if (m_no3GwToCh == NULL)
 	{
-		Initialize1DArray(m_nSubbasins+1, m_no3gwToCh, 0.f);
-		Initialize1DArray(m_nSubbasins+1, m_minpgwToCh, 0.f);
+		Initialize1DArray(m_nSubbasins+1, m_no3GwToCh, 0.f);
+		Initialize1DArray(m_nSubbasins+1, m_solpGwToCh, 0.f);
+	}
+	if (m_gwNO3 == NULL)
+	{	/// initial nutrient amount stored in groundwater
+		m_gwNO3 = new float[m_nSubbasins+1];
+		m_gwSolP = new float[m_nSubbasins+1];
+		for (int i = 1; i <= m_nSubbasins; i++)
+		{
+			Subbasin *subbasin = m_subbasinsInfo->GetSubbasinByID(i);
+			float subArea = subbasin->getCellCount() * m_cellWidth * m_cellWidth;	//m2
+			m_gwNO3[i] = m_gw0 * m_gwno3Con[i] * subArea / 1000000.f; /// mm * mg/L * m2 = 10^-6 kg 
+			m_gwSolP[i] = m_gw0 * m_gwSolCon[i] * subArea / 1000000.f;
+		}
 	}
 }
 
 
 int NutrientinGroundwater::Execute()
 {
-    if (!this->CheckInputData()) return -1;
+    CheckInputData();
 	initialOutputs();
 
 	for(vector<int>::iterator iter=m_subbasinIDs.begin(); iter != m_subbasinIDs.end(); iter++)
     {
 		int id = *iter;
-		// gw no3 to channel
-		float xx = m_gw_q[id] * m_TimeStep;	//m3
-		//cout<<"subID: "<<id<<", gwQ: "<<m_gw_q[id] << ", ";
-		m_no3gwToCh[id] = m_gwno3Con[id] * xx / 1000.f;	// g/m3 * m3 / 1000 = kg
-		m_minpgwToCh[id] = m_gwminpCon[id] * xx / 1000.f;
-		//cout<<"subID: "<<id<<", gwno3Con: "<<m_gwno3Con[id] << ", ";
-		//cout<<"subID: "<<id<<", no3gwToCh: "<<m_no3gwToCh[id] << ", ";
-		// gw no3 loss through revep
 		Subbasin *subbasin = m_subbasinsInfo->GetSubbasinByID(id);
 		float subArea = subbasin->getCellCount() * m_cellWidth * m_cellWidth;	//m2
 		float revap = subbasin->getEG();
+		/// 1. firstly, restore the groundwater storage during current day
+		///    since the m_gwStor has involved percolation water, just need add revap and runoff water
+		float gwqVol = m_gw_q[id] * m_TimeStep;	// m^3, water volume flow out
+		float reVapVol = revap * subArea / 1000.f; // m^3
+		float tmpGwStorage = m_gwStor[id] + gwqVol + reVapVol;
+		/// 2. secondly, update nutrient concentration
+		m_gwNO3[id] += m_perco_no3_gw[id]; /// nutrient amount, kg
+		m_gwSolP[id] += m_perco_solp_gw[id];
+		m_gwno3Con[id] = m_gwNO3[id] / tmpGwStorage * 1000.f; // kg / m^3 * 1000. = mg/L
+		m_gwSolCon[id] = m_gwSolP[id] / tmpGwStorage * 1000.f;
+		/// 3. thirdly, calculate nutrient in groundwater runoff
+		//cout<<"subID: "<<id<<", gwQ: "<<m_gw_q[id] << ", ";
+		m_no3GwToCh[id] = m_gwno3Con[id] * gwqVol / 1000.f;	// g/m3 * m3 / 1000 = kg
+		m_solpGwToCh[id] = m_gwSolCon[id] * gwqVol / 1000.f;
+		//cout<<"subID: "<<id<<", gwno3Con: "<<m_gwno3Con[id] << ", no3gwToCh: "<<m_no3gwToCh[id] << ", ";
+		/// 4. fourthly, calculate nutrient loss loss through revep and update no3 in the bottom soil layer
 		float no3ToSoil = revap / 1000.f * m_gwno3Con[id] * 10.f;	// kg/ha  (m*10*g/m3=kg/ha)
-		float solpToSoil = revap / 1000.f * m_gwminpCon[id] * 10.f;
-		// update no3 in the bottom soil layer due to revap
+		float solpToSoil = revap / 1000.f * m_gwSolCon[id] * 10.f;
+		float no3ToSoil_kg = no3ToSoil * subArea / 10000.f; /// kg/ha * m^2 / 10000.f = kg
+		float solpToSoil_kg = solpToSoil * subArea / 10000.f;
 		int *cells = subbasin->getCells();
 		int nCells = subbasin->getCellCount();
 		int index = 0;
@@ -208,10 +234,13 @@ int NutrientinGroundwater::Execute()
 			m_sol_no3[index][(int)m_soilLayers[index] - 1] += no3ToSoil;
 			m_sol_solp[index][(int)m_soilLayers[index] - 1] += solpToSoil;
 		}
-		// update concentration, minus loss and add perco
-		float gwVol = subArea * m_gwStor[id] / 1000.f;//m3, memo, this m_gwStor is the resulted status of the current time step
-		m_gwno3Con[id] += (m_perco_no3_gw[id] - m_no3gwToCh[id]) * 1000.f / gwVol;
-		m_gwminpCon[id] += (m_perco_solp_gw[id] - m_minpgwToCh[id]) * 1000.f / gwVol;
+		/// finally, update nutrient amount
+		m_gwNO3[id] -= (m_no3GwToCh[id] + no3ToSoil_kg);
+		m_gwSolP[id] -= (m_solpGwToCh[id] + solpToSoil_kg);
+
+		//float gwVol = subArea * m_gwStor[id] / 1000.f; //m3, memo, this m_gwStor is the resulted status of the current time step
+		//m_gwno3Con[id] += (m_perco_no3_gw[id] - m_no3GwToCh[id]) * 1000.f / gwVol;
+		//m_gwSolCon[id] += (m_perco_solp_gw[id] - m_solpGwToCh[id]) * 1000.f / gwVol;
 		//cout<<"subID: "<<id<<", percoNo3: "<<m_perco_no3_gw[id]<<", gwStorage: "<<m_gwStor[id]<<", new gwno3Con: "<<m_gwno3Con[id] << ", ";
     }
 	//cout<<endl;
@@ -226,16 +255,16 @@ void NutrientinGroundwater::Get1DData(const char *key, int *n, float **data)
     *n = m_nSubbasins + 1;
     if (StringMatch(sk, VAR_NO3GW_TOCH))
     {
-        *data = m_no3gwToCh;
+        *data = m_no3GwToCh;
     }
     else if (StringMatch(sk, VAR_MINPGW_TOCH))
     {
-        *data = m_minpgwToCh;
+        *data = m_solpGwToCh;
     }
 	else if (StringMatch(sk, VAR_GWNO3_CON))
 		*data = m_gwno3Con;
 	else if (StringMatch(sk, VAR_GWMINP_CON))
-		*data = m_gwminpCon;
+		*data = m_gwSolCon;
     else
     {
         throw ModelException(MID_NUTRGW, "Get1DData", "Parameter " + sk + " does not exist.");
