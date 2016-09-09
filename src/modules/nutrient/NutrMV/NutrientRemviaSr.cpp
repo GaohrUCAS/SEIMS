@@ -348,10 +348,7 @@ void NutrientRemviaSr::initialOutputs()
 
 int NutrientRemviaSr::Execute()
 {
-    if (!CheckInputData())
-    {
-        return false;
-    }
+    CheckInputData();
     initialOutputs();
     // compute nitrate movement leaching
 	//cout<<"NUTRMV-exec, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;

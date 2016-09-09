@@ -65,7 +65,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddInput(VAR_QRECH, UNIT_FLOW_CMS, DESC_QRECH, Source_Module, DT_Array1D);
 	mdi.AddInput(VAR_CHST, UNIT_VOL_M3, DESC_CHST, Source_Module, DT_Array1D);
 	mdi.AddInput(VAR_CHWTDEPTH, UNIT_LEN_M, DESC_CHWTDEPTH, Source_Module, DT_Array1D);
-
+	mdi.AddInput(VAR_CHWTDEPTH_DELTA, UNIT_LEN_M, DESC_CHWTDEPTH_DELTA, Source_Module, DT_Array1D);
 	/// input from hillslope
 	//nutrient from surface water
 	mdi.AddInput(VAR_SUR_NO3_TOCH, UNIT_KG, DESC_SUR_NO3_CH, Source_Module, DT_Array1D);
@@ -115,6 +115,11 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddOutput(VAR_PTTN2CH, UNIT_KG, DESC_PTTN2CH, DT_Array1D);
 	mdi.AddOutput(VAR_PTTP2CH, UNIT_KG, DESC_PTTP2CH, DT_Array1D);
 	mdi.AddOutput(VAR_PTCOD2CH, UNIT_KG, DESC_PTCOD2CH, DT_Array1D);
+	// 4. nutrient stored in reaches
+	mdi.AddOutput(VAR_CHSTR_NH4, UNIT_KG, DESC_CHSTR_NH4, DT_Array1D);
+	mdi.AddOutput(VAR_CHSTR_NO3, UNIT_KG, DESC_CHSTR_NO3, DT_Array1D);
+	mdi.AddOutput(VAR_CHSTR_TN, UNIT_KG, DESC_CHSTR_TN, DT_Array1D);
+	mdi.AddOutput(VAR_CHSTR_TP, UNIT_KG, DESC_CHSTR_TP, DT_Array1D);
     string res = mdi.GetXMLDocument();
     char *tmp = new char[res.size() + 1];
     strprintf(tmp, res.size() + 1, "%s", res.c_str());

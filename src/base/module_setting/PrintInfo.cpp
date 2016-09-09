@@ -105,6 +105,7 @@ void PrintInfoItem::Flush(string projectPath, clsRasterData *templateRaster, str
 //        mkdir(projectPath.c_str(), 0777);
 //    }
 //#endif
+	bool outToMongoDB = false; /// added by LJ. 
 	projectPath = projectPath + DB_TAB_OUT_SPATIAL + SEP;
     /// Get filenames existed in GridFS, i.e., "OUTPUT.files"
     vector<string> outputExisted = GetGridFsFileNames(gfs);
@@ -182,10 +183,14 @@ void PrintInfoItem::Flush(string projectPath, clsRasterData *templateRaster, str
         if (templateRaster == NULL)
             throw ModelException("PrintInfoItem", "Flush", "The templateRaster is NULL.");
         //cout << projectPath << Filename << endl;
-        bson_error_t *err = NULL;
-        if (find(outputExisted.begin(), outputExisted.end(), Filename.c_str()) != outputExisted.end())
-            mongoc_gridfs_remove_by_filename(gfs, Filename.c_str(), err);
-        clsRasterData::outputToMongoDB(templateRaster, m_1DData, Filename, gfs);
+		if (outToMongoDB)
+		{
+			bson_error_t *err = NULL;
+			if (find(outputExisted.begin(), outputExisted.end(), Filename.c_str()) != outputExisted.end())
+				mongoc_gridfs_remove_by_filename(gfs, Filename.c_str(), err);
+			clsRasterData::outputToMongoDB(templateRaster, m_1DData, Filename, gfs);
+		}
+       
         string ascii(ASCIIExtension);
         if (ascii.find(Suffix) != ascii.npos)
             clsRasterData::outputASCFile(templateRaster, m_1DData, projectPath + Filename + ASCIIExtension);
@@ -214,11 +219,14 @@ void PrintInfoItem::Flush(string projectPath, clsRasterData *templateRaster, str
                 clsRasterData::outputGTiff(templateRaster, tmpData, oss.str() + GTiffExtension);
         }
         delete[] tmpData;
-        bson_error_t *err = NULL;
-        if (find(outputExisted.begin(), outputExisted.end(), Filename.c_str()) != outputExisted.end())
-            mongoc_gridfs_remove_by_filename(gfs, Filename.c_str(), err);
-        clsRasterData::outputToMongoDB(templateRaster, m_2DData, m_nLayers, Filename, gfs);
-        return;
+		if (outToMongoDB)
+		{
+			bson_error_t *err = NULL;
+			if (find(outputExisted.begin(), outputExisted.end(), Filename.c_str()) != outputExisted.end())
+				mongoc_gridfs_remove_by_filename(gfs, Filename.c_str(), err);
+			clsRasterData::outputToMongoDB(templateRaster, m_2DData, m_nLayers, Filename, gfs);
+		}	
+		return;
     }
 
     if (TimeSeriesData.size() > 0)    /// time series data

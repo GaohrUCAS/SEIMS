@@ -95,7 +95,7 @@ public:
 
 	float GetDisOxygen(){return this->disox;}
 
-	float GetBOD(){return this->bod;}
+	float GetCOD(){return this->cod;}
 
 	float GetAlgae(){return this->algae;}
 
@@ -180,8 +180,8 @@ private:
 	float gwsolp;
 	/// Initial dissolved oxygen concentration in the reach.	[mg /l]
 	float disox;
-	/// Initial carbonaceous biochemical oxygen demand in the reach .	[mg /l]
-	float bod;
+	/// Initial biochemical oxygen demand in the reach .	[mg /l]. note that, this is different with cbod in SWAT
+	float cod;
 	/// Initial chlorophyll-a concentration in the reach.	[mg /l]
 	float algae;
 	/// Initial organic nitrogen concentration in the reach.	[mg /l]

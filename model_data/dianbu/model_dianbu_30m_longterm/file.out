@@ -140,3 +140,7 @@ NutrientTransport	CH_TPConc	total phosphorus concentration in reach	mg/L	NONE	20
 PointSources	ptTNToCh	total nitrogen loaded from point sources	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	0	ptTNToCh.txt	1
 PointSources	ptTPToCh	total phosphrus loaded from point sources	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	0	ptTPToCh.txt	1
 PointSources	ptCODToCh	total COD loaded from point sources	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	0	ptCODToCh.txt	1
+NutrientTransport	CHSTR_TP	total phosphorus stored in reach	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CHSTR_TP.txt	1
+NutrientTransport	CHSTR_TN	total nitrogen stored in reach	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CHSTR_TN.txt	1
+NutrientTransport	CHSTR_NH4	NH4-N stored in reach	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CHSTR_NH4.txt	1
+NutrientTransport	CHSTR_NO3	NO3-N stored in reach	kg	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	CHSTR_NO3.txt	1

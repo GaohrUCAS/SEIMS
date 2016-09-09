@@ -143,6 +143,8 @@ private:
     float *m_chStorage;
     /// channel water depth m
     float *m_chWTdepth;
+	/// channel water depth delta, m
+	float *m_chWTDepthDelta;
     /// temperature of water in reach (deg C)
     float *m_chTemp;
 
@@ -217,16 +219,20 @@ private:
     float *m_chAlgae;
     /// organic nitrogen storage in reach (kg)
     float *m_chOrgN;
-    /// organic phosphorus storage in reach (kg)
-    float *m_chOrgP;
     /// ammonia storage in reach (kg)
     float *m_chNH4;
     /// nitrite storage in reach (kg)
     float *m_chNO2;
     /// nitrate storage in reach (kg)
     float *m_chNO3;
+	/// total nitrogen in reach (kg)
+	float *m_chTN;
+    /// organic phosphorus storage in reach (kg)
+    float *m_chOrgP;
     /// dissolved phosphorus storage in reach (kg)
     float *m_chSolP;
+	/// total phosphorus storage in reach (kg)
+	float *m_chTP;
     /// carbonaceous oxygen demand in reach (kg)
     float *m_chCOD;
     /// dissolved oxygen storage in reach (kg)
