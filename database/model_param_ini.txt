@@ -2,7 +2,7 @@
 TYPE	NAME	DESCRIPTION	UNIT	MODULE	VALUE	IMPACT	CHANGE	MAX	MIN	USE
 TEXT	TEXT	TEXT	TEXT	TEXT	REAL	REAL	VARCHAR(2)	REAL	REAL	VARCHAR(1)
 Climate	DEM	Elevation of each grid cell	m	ALL	-9999		NC	-9999	-9999	
-Climate	K_pet	Correction factor for PET	none	ALL	1	0	AC	1.3	0.7	Y
+Climate	K_pet	Correction factor for PET	none	ALL	1	-0.3	AC	1.3	0.7	Y
 Climate	HCoef_pet	Coefficient related to radiation used in Hargreaves method	none	PET_H	0.0023	1	RC	0.0032	0.0019	Y
 Climate	Co2	CO2 Concentration	ppmv	ALL	330	1	RC	350	300	Y
 Climate	Cond_rate	rate of decline in stomatal conductance	m/s/kPa	PET_PM	3.75		NC	5	0	Y
@@ -48,7 +48,7 @@ WaterBalance	Sand	Sand proportion	%	ALL	-9999	1	RC	1.2	0.8	Y
 WaterBalance	Slope	Slope	%	ALL	-9999	1	RC	1.1	0.9	Y
 WaterBalance	Wiltingpoint	Plant wilting point moisture	m3/m3	ALL	-9999	1	RC	1.2	0.8	Y
 WaterBalance	Poreindex	Pore size distribution index	none	ALL	-9999	1	RC	1.2	0.8	Y
-WaterBalance	Runoff_co	Potential runoff coefficient	none	SUR_MR	-9999	1	RC	2	0.5	Y
+WaterBalance	Runoff_co	Potential runoff coefficient	none	SUR_MR	-9999	2	RC	1	0.5	Y
 WaterBalance	Conductivity	Soil hydraulic conductivity	mm/hr	ALL	-9999	1	RC	10	0.1	Y
 WaterBalance	Porosity	Soil porosity	m3/m3	ALL	-9999	1	RC	1.2	0.8	Y
 WaterBalance	Fieldcap	Soil field capacity	m3/m3	ALL	-9999	1	RC	1.2	0.8	Y
@@ -76,10 +76,10 @@ Discharge	Ol_iuh	Overland flow IUH	none	ALL	-9999		NC	-9999	-9999	Y
 Discharge	Ch_iuh	Channel flow IUH	none	ChannelRouting	-9999		NC	-9999	-9999	Y
 Discharge	Reach	Reach properties	none	ALL	-9999	0	NC	-9999	-9999	Y
 Discharge	Ki	Interflow scaling factor	none	SSR_DA	3	0	AC	10	0	Y
-Discharge	Kg	Baseflow recession coefficient	none	GW_RSVR	0.005	-0.004	AC	0.1	0.001	Y
+Discharge	Kg	Baseflow recession coefficient	none	GW_RSVR	0.005	0.005	AC	0.1	0.001	Y
 Discharge	Base_ex	Baseflow exponent	none	GW_RSVR	1	0	AC	4	1	Y
 Discharge	df_coef	Deep percolation coefficient	mm	GW_RSVR	0	0	AC	1	0	Y
-Discharge	gw0	Initial groundwater storage	mm	GW_RSVR	100	0	AC	1000	0	Y
+Discharge	gw0	Initial groundwater storage	mm	GW_RSVR	100	-50	AC	1000	0	Y
 Discharge	gwmax	Maximum groundwater storage	mm	GW_RSVR	300	0	AC	1000	0	Y
 Discharge	k_chb	channel bottom hydraulic conductivity	mm/hr	ALL	0.5	0	AC	150	0	Y
 Discharge	k_bank	channel bank hydraulic conductivity	mm/hr	ALL	20	0	AC	150	0	Y
@@ -219,12 +219,12 @@ Snow	SNO50COV	Fraction of snow water equivalent that corresponds to 50% snow cov
 Groundwater	GW_recharge	Groundwater recharge	m3/s	MUSK_CH	0	0	AC	100	0	Y
 Nutrient	cod_n	COD conversion factor	None	NUTRMV	3.75	1	RC	6.5	1	Y
 Nutrient	cod_k	Reaction coefficient	None	NUTRMV	0.15	1	RC	0.2	0.1	Y
-Groundwater	gwrq	groundwater recharge to channel or perennial base flow	m3/s	MUSK_CH	0	0.4	AC	100	0	Y
+Groundwater	gwrq	groundwater recharge to channel or perennial base flow	m3/s	MUSK_CH	0	0.009	AC	100	0	Y
 Pothole	evlai	leaf area index at which no evaporation occurs from water surface	m2/m2	IMP_SWAT	3	1	AC	10	0	Y
 Pothole	pot_no3l	Nitrate decay rate in impounded water body	1/day	IMP_SWAT	0	0	AC	1	0	Y
 Pothole	pot_solpl	Soluble phosphorus decay rate in impounded water body	1/day	IMP_SWAT	0	0	AC	1	0	Y
 Pothole	pot_tile	Average daily outflow to main channel from tile flow if drainage tiles are installed in the pothole.	mm	IMP_SWAT	0	0	AC	100	0	Y
 Pothole	evpot	Pothole evaporation coefficient	None	IMP_SWAT	0.5	0	AC	2	0	Y
-Sediment	vcd	channel degredation code	None	SEDR	1	0	AC	1	0	Y
-Nutrient	ch_onco	Channel organic nitrogen concentration in basin	ppm	NUTR_QUAL2E	0	0	AC	100	0	Y
-Nutrient	ch_opco	Channel organic phosphorus concentration in basin	ppm	NUTR_QUAL2E	0	0	AC	100	0	Y
+Sediment	vcd	channel degredation code	None	SEDR	0	0	AC	1	0	Y
+Nutrient	ch_onco	Channel organic nitrogen concentration in basin	mg/kg	NUTR_QUAL2E	0	0	AC	100	0	Y
+Nutrient	ch_opco	Channel organic phosphorus concentration in basin	mg/kg	NUTR_QUAL2E	0	0	AC	100	0	Y
