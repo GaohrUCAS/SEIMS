@@ -723,5 +723,6 @@ void MUSK_CH::ChannelFlow(int i)
     // set variables for next time step
     m_qIn[i] = qIn;
     m_chWTdepth[i] = m_chStorage[i] / (m_chWTWidth[i] * m_chLen[i]);
+	if (m_chWTdepth[i] <= 0.f) m_chWTdepth[i] = UTIL_ZERO;
 	m_chWTDepthDelta[i] = m_chWTdepth[i] - m_chWTDepthDelta[i];
 }
