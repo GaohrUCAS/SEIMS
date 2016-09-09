@@ -83,7 +83,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddInput(VAR_NO3GW_TOCH, UNIT_KG, DESC_NO3GW_CH, Source_Module, DT_Array1D);
 	mdi.AddInput(VAR_MINPGW_TOCH, UNIT_KG, DESC_MINPGW_CH, Source_Module, DT_Array1D);
 	// channel erosion
-	mdi.AddInput(VAR_RCH_DEG, UNIT_KG, DESC_RCH_DEG, Source_Module, DT_Array1D);
+	mdi.AddInput(VAR_RCH_DEG, UNIT_KG, DESC_RCH_DEG, Source_Module_Optional, DT_Array1D);
     // set the output variables
 	/// 1. Amount (kg) outputs
     mdi.AddOutput(VAR_CH_ALGAE, UNIT_KG, DESC_CH_ALGAE, DT_Array1D);
