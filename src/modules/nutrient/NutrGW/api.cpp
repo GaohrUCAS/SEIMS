@@ -17,7 +17,7 @@ extern "C" SEIMS_MODULE_API SimulationModule *GetInstance()
 extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 {
     MetadataInfo mdi;
-    mdi.SetAuthor("Huiran Gao");
+    mdi.SetAuthor("Huiran Gao; Liang-Jun Zhu");
     mdi.SetClass(MCLS_NUTRGW, MCLSDESC_NUTRGW);
     mdi.SetDescription(MDESC_NUTRGW);
     mdi.SetEmail(SEIMS_EMAIL);
@@ -35,7 +35,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddParameter(VAR_SUBBSN, UNIT_NON_DIM, DESC_SUBBSN, Source_ParameterDB, DT_Raster1D);
 	mdi.AddParameter(VAR_SUBBASIN_PARAM, UNIT_NON_DIM, DESC_SUBBASIN_PARAM, Source_ParameterDB, DT_Subbasin);
 	mdi.AddParameter(VAR_SOILLAYERS, UNIT_NON_DIM, DESC_SOILLAYERS, Source_ParameterDB, DT_Raster1D);
-
+	mdi.AddParameter(VAR_GW0, UNIT_DEPTH_MM, DESC_GW0, Source_ParameterDB, DT_Single);
 	// add reach information
 	mdi.AddParameter(VAR_REACH_PARAM, UNIT_NON_DIM, DESC_REACH_PARAM, Source_ParameterDB, DT_Reach);
     // set the input from other modules
@@ -49,11 +49,12 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddInput(VAR_PERCO_P_GW, UNIT_KG, DESC_PERCO_P, Source_Module, DT_Array1D);
 
     // set the output variables
-	mdi.AddOutput(VAR_GWNO3_CON, UNIT_CONCENTRATION, DESC_GWNO3, DT_Array1D);
-	mdi.AddOutput(VAR_GWMINP_CON, UNIT_CONCENTRATION, DESC_GWMINP, DT_Array1D);
+	mdi.AddOutput(VAR_GWNO3_CONC, UNIT_CONCENTRATION, DESC_GWNO3_CONC, DT_Array1D);
+	mdi.AddOutput(VAR_GWSOLP_CONC, UNIT_CONCENTRATION, DESC_GWSOLP, DT_Array1D);
     mdi.AddOutput(VAR_NO3GW_TOCH, UNIT_KG, DESC_NO3GW_CH, DT_Array1D);
     mdi.AddOutput(VAR_MINPGW_TOCH, UNIT_KG, DESC_MINPGW_CH, DT_Array1D);
-
+	mdi.AddOutput(VAR_GWNO3, UNIT_KG, DESC_GWNO3, DT_Array1D);
+	mdi.AddOutput(VAR_GWSOLP, UNIT_KG, DESC_GWSOLP_CONC, DT_Array1D);
 	//mdi.AddOutput(VAR_REVAP_NO3, UNIT_KG, )
 
     string res = mdi.GetXMLDocument();
@@ -65,4 +66,4 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 //mdi.AddParameter(Tag_CellSize, UNIT_NON_DIM, DESC_CellSize, Source_ParameterDB, DT_Single);
 /// these two parameters are imported from VAR_REACH_PARAM, by lj
 //mdi.AddParameter(VAR_GWNO3, UNIT_KGM3, DESC_GWNO3, Source_ParameterDB, DT_Raster1D);
-//mdi.AddParameter(VAR_GWMINP, UNIT_KGM3, DESC_GWMINP, Source_ParameterDB, DT_Raster1D);
+//mdi.AddParameter(VAR_GWMINP, UNIT_KGM3, DESC_GWSOLP, Source_ParameterDB, DT_Raster1D);

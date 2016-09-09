@@ -666,9 +666,11 @@
 #define VAR_GW_Q "GW"
 #define VAR_GW0 "GW0"                               /// initial ground water storage
 #define VAR_GWMAX "GWMAX"                           /// maximum ground water storage
-#define VAR_GWMINP_CON "gwminp"
+#define VAR_GWSOLP_CONC "gwsolp_conc"
+#define VAR_GWSOLP "gwsolp"
 #define VAR_GWNEW "GWNEW"                           /// The volume of water from the bank storage to the adjacent unsaturated zone and groundwater storage
-#define VAR_GWNO3_CON "gwno3"
+#define VAR_GWNO3_CONC "gwno3_conc"
+#define VAR_GWNO3 "gwno3"
 #define VAR_GWWB "GWWB"        // groundwater water balance
 #define VAR_GWRQ "GWRQ"
 #define VAR_HCH "HCH"
@@ -1248,9 +1250,11 @@
 #define DESC_GW_Q "groundwater contribution to stream flow"
 #define DESC_GW0 "initial ground water storage"
 #define DESC_GWMAX "maximum ground water storage"
-#define DESC_GWMINP "soluble P concentration in groundwater"
+#define DESC_GWSOLP "soluble P amount in groundwater"
+#define DESC_GWSOLP_CONC "soluble P concentration in groundwater"
 #define DESC_GWNEW "The volume of water from the bank storage to the adjacent unsaturated zone and groundwater storage"
-#define DESC_GWNO3 "nitrate N concentration in groundwater"
+#define DESC_GWNO3_CONC "nitrate N concentration in groundwater"
+#define DESC_GWNO3 "nitrate N amount in groundwater"
 #define DESC_GWWB "groundwater water balance"
 #define DESC_GWRQ "groundwater recharge to channel or perennial base flow"
 #define DESC_HCH "Water depth in the downslope boundary of cells"
