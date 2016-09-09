@@ -55,10 +55,16 @@ private:
 	int m_TimeStep;
 
     /// input data
+	/// gw0
+	float m_gw0;
     /// nitrate N concentration in groundwater loading to reach (mg/L, i.e. g/m3)
     float *m_gwno3Con;
+	/// kg
+	float *m_gwNO3; 
     /// soluble P concentration in groundwater loading to reach (mg/L, i.e. g/m3)
-    float *m_gwminpCon;
+    float *m_gwSolCon;
+	/// kg
+	float *m_gwSolP;
     /// groundwater contribution to stream flow (m3/s)
     float *m_gw_q; 
 	/// groundwater storage
@@ -82,9 +88,9 @@ private:
     /// outputs
 
     /// nitrate loading to reach in groundwater to channel
-    float *m_no3gwToCh;
+    float *m_no3GwToCh;
     /// soluble P loading to reach in groundwater to channel
-    float *m_minpgwToCh;
+    float *m_solpGwToCh;
 
 	/// subbasin related
 	/// the total number of subbasins
