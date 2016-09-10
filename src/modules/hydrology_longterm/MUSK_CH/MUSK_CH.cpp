@@ -560,11 +560,10 @@ void MUSK_CH::ChannelFlow(int i)
     //////////////////////////////////////////////////////////////////////////
     // first add all the inflow water
     // 1. water from this subbasin
-    float qIn = m_qsSub[i] + qiSub + qgSub + ptSub + m_deepGroundwater;
+    float qIn = m_qsSub[i] + qiSub + qgSub + ptSub + m_deepGroundwater;  /// m^3
 	//if (i == m_outletID) /// this should be added to each channel. By lj
 	//	qIn += m_deepGroundwater;
-	//if(i == 2) cout <<"surfaceQ:"<< m_qsSub[i] << ", subsurfaceQ: " << qiSub << ", groundQ: " << qgSub << ", pointQ: " << ptSub << ", \n";
-    // 2. water from upstream reaches
+	// 2. water from upstream reaches
     float qsUp = 0.f;
     float qiUp = 0.f;
     float qgUp = 0.f;
@@ -578,7 +577,9 @@ void MUSK_CH::ChannelFlow(int i)
     qIn += qsUp + qiUp + qgUp;
 	//qIn is equivalent to the wtrin variable in rtmusk.f of SWAT
     qIn += m_qUpReach; // m_qUpReach is zero for not-parallel program and qsUp, qiUp and qgUp are zero for parallel computing
-	
+	//if(i == 12)
+	//	cout <<"surfaceQ: "<< m_qsSub[i] << ", subsurfaceQ: " << qiSub << ", groundQ: " << qgSub << ", pointQ: " << ptSub <<
+	//	", UPsurfaceQ: "<<qsUp<<", UPsubsurface: "<<qiUp<<", UPground: "<<qgUp<<", \n";
     // 3. water from bank storage
     float bankOut = m_bankStorage[i] * (1.f - exp(-m_aBank));
 
@@ -586,7 +587,9 @@ void MUSK_CH::ChannelFlow(int i)
     qIn += bankOut / m_dt;
 
     // add inflow water to storage
+	//if (i==12) cout<<"initial chStorage: "<<m_chStorage[i]<<", ";
     m_chStorage[i] += qIn * m_dt;
+	//if (i==12) cout<<"added chStorage: "<<m_chStorage[i]<<endl;
 	//if(i == 2) cout <<"qIn:"<< qIn<<", chStorage: "<<m_chStorage[i]<<endl;
     //////////////////////////////////////////////////////////////////////////
     // then subtract all the outflow water
