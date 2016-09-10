@@ -613,20 +613,20 @@ int NutrCH_QUAL2E::Execute()
 			RouteOut(reachIndex);
         }
 	}
-	cout<<"NUTR_QUAL2E, surNO3ToCh: "<<m_surNO3ToCh[12]<<", gwno3ToCh: "<<m_gwNO3ToCh[12]<<", ptNo3ToCh: "<<m_ptNO3ToCh[12]
-	<<", chOutNO3: "<<m_chOutNO3[12]<<", chOutNO3Conc: "<<m_chOutTNConc[12]<<", TN: "<<m_chOutTN[12]<<", TNConc: "<<m_chOutTNConc[12]<<endl;
-	cout<<"chStr_NO3: "<<m_chNO3[12]<<", chStr_NH4: "<<m_chNH4[12]<<", chStr_TN: "<<m_chTN[12]<<endl;
+// 	cout<<"NUTR_QUAL2E, surNO3ToCh: "<<m_surNO3ToCh[12]<<", gwno3ToCh: "<<m_gwNO3ToCh[12]<<", ptNo3ToCh: "<<m_ptNO3ToCh[12]
+// 	<<", chOutNO3: "<<m_chOutNO3[12]<<", chOutNO3Conc: "<<m_chOutTNConc[12]<<", TN: "<<m_chOutTN[12]<<", TNConc: "<<m_chOutTNConc[12]<<endl;
+// 	cout<<"chStr_NO3: "<<m_chNO3[12]<<", chStr_NH4: "<<m_chNH4[12]<<", chStr_TN: "<<m_chTN[12]<<endl;
     return 0;
 }
 
 void NutrCH_QUAL2E::AddInputNutrient(int i)
 {
-	cout<<"subID: "<<i<<", initial nh4: "<<m_chNH4[i]<<", ";
+	//cout<<"subID: "<<i<<", initial nh4: "<<m_chNH4[i]<<", ";
 	/// nutrient amount from upstream routing will be accumulated to current storage
 	for (size_t j = 0; j < m_reachUpStream[i].size(); ++j)
 	{
 		int upReachId = m_reachUpStream[i][j];
-		cout<<"upSubID: "<<upReachId<<", "<<m_chOutNH4[upReachId]<<", ";
+		//cout<<"upSubID: "<<upReachId<<", "<<m_chOutNH4[upReachId]<<", ";
 		m_chOrgN[i]   += m_chOutOrgN[upReachId];
 		m_chNO3[i]    += m_chOutNO3[upReachId];
 		m_chNO2[i]    += m_chOutNO2[upReachId];
@@ -638,7 +638,7 @@ void NutrCH_QUAL2E::AddInputNutrient(int i)
 		m_chChlora[i] += m_chOutChlora[upReachId];
 		m_chAlgae[i]  += m_chOutAlgae[upReachId];
 	}
-	cout<<", added upstream, nh4: "<<m_chNH4[i]<<endl;
+	//cout<<", added upstream, nh4: "<<m_chNH4[i]<<endl;
 	/// absorbed organic N, P from overland sediment routing
 	m_chOrgN[i] += m_sedOrgNToCh[i];
 	m_chOrgP[i] += m_sedOrgPToCh[i];
@@ -1083,7 +1083,7 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	yy = 0.f;
 	zz = 0.f;
 	xx = corTempc(m_bc4[i], thbc4, wtmp) * orgpcon;
-	yy = corTempc(m_rs2[i], thrs2, wtmp) / (m_chWTdepth[i] * 1000.f);
+	yy = corTempc(m_rs2[i], thrs2, wtmp) / (tmpChWtDepth * 1000.f);
 	zz = m_ai2 * corTempc(gra, thgra, wtmp) * algcon;
 	dsolp = 0.f;
 	dsolp = solpcon + (xx + yy - zz) * tday;
