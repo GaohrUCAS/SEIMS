@@ -138,11 +138,11 @@ private:
     //float* m_soxy;
 
 	// N and P to channel
-	float *m_latno3ToCh;  // amount of nitrate transported with lateral flow to channel
-	float *m_sur_no3ToCh; // amount of nitrate transported with surface runoff to channel
-	float *m_sur_solpToCh;// amount of soluble phosphorus in surface runoff to channel
-	float *m_perco_n_gw;  // amount of nitrate percolating past bottom of soil profile sum by sub-basin
-	float *m_perco_p_gw;  // amount of solute P percolating past bottom of soil profile sum by sub-basin
+	float *m_latno3ToCh;  // amount of nitrate transported with lateral flow to channel, kg
+	float *m_sur_no3ToCh; // amount of nitrate transported with surface runoff to channel, kg
+	float *m_sur_solpToCh;// amount of soluble phosphorus in surface runoff to channel, kg
+	float *m_perco_n_gw;  // amount of nitrate percolating past bottom of soil profile sum by sub-basin, kg
+	float *m_perco_p_gw;  // amount of solute P percolating past bottom of soil profile sum by sub-basin, kg
 
 	// amount of COD to reach in surface runoff (kg)
 	float *m_sur_codToCh; 

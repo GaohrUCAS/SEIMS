@@ -613,9 +613,9 @@ int NutrCH_QUAL2E::Execute()
 			RouteOut(reachIndex);
         }
 	}
-// 	cout<<"NUTR_QUAL2E, surNO3ToCh: "<<m_surNO3ToCh[12]<<", gwno3ToCh: "<<m_gwNO3ToCh[12]<<", ptNo3ToCh: "<<m_ptNO3ToCh[12]
-// 	<<", chOutNO3: "<<m_chOutNO3[12]<<", chOutNO3Conc: "<<m_chOutTNConc[12]<<", TN: "<<m_chOutTN[12]<<", TNConc: "<<m_chOutTNConc[12]<<endl;
-// 	cout<<"chStr_NO3: "<<m_chNO3[12]<<", chStr_NH4: "<<m_chNH4[12]<<", chStr_TN: "<<m_chTN[12]<<endl;
+	//cout<<"NUTR_QUAL2E, surNO3ToCh: "<<m_surNO3ToCh[12]<<", gwno3ToCh: "<<m_gwNO3ToCh[12]<<", ptNo3ToCh: "<<m_ptNO3ToCh[12]
+	//<<", chOutNO3: "<<m_chOutNO3[12]<<", chOutNO3Conc: "<<m_chOutTNConc[12]<<", TN: "<<m_chOutTN[12]<<", TNConc: "<<m_chOutTNConc[12]<<endl;
+	//cout<<"chStr_NO3: "<<m_chNO3[12]<<", chStr_NH4: "<<m_chNH4[12]<<", chStr_TN: "<<m_chTN[12]<<endl;
     return 0;
 }
 
@@ -785,9 +785,8 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	float wtrOut = m_qOutCh[i] * m_dt; 
 	float wtrTotal = wtrOut + m_chStorage[i]; /// m3
 	float tmpChWtDepth = m_chWTdepth[i] - m_chWTDepthDelta[i]; /// m
-	if (tmpChWtDepth <= 0.f){
-		tmpChWtDepth = UTIL_ZERO;
-		// this situation would not happen, just in case of dividing by 0. By lj
+	if (tmpChWtDepth <= 0.01f){
+		tmpChWtDepth = 0.01f;
 	}
 	if (wtrTotal <= 0.f)/// which means no flow out of current channel    || wtrOut <= 0.f
 	{
@@ -1029,7 +1028,7 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	float f1 = 0.f;
 	f1 = m_p_n * nh3con / (m_p_n * nh3con + (1.f - m_p_n) * no3con + 1.e-6f);
 
-	//if (i == 12) cout<<"nh3 conc: "<<nh3con<<",";
+	//cout<<"subID: "<<i<<", initial nh3 conc: "<<nh3con<<", "<<"initial orgn: "<<orgncon<<", ";
 	// calculate ammonia nitrogen concentration at end of day (dnh4)
 	ww = 0.f;
 	xx = 0.f;
@@ -1044,7 +1043,7 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	if (dnh4 < 1.e-6f) dnh4 = 0.f;
 	if (dnh4 > dcoef * nh3con && nh3con > 0.f)
 		dnh4 = dcoef * nh3con;
-	//if (i == 12) cout<<"ww: "<<ww<<", xx: "<<xx<<", yy: "<<yy<<", zz: "<<zz<<", nh4 out: "<<dnh4<<endl;
+	//cout<<"ww: "<<ww<<", xx: "<<xx<<", yy: "<<yy<<", zz: "<<zz<<", nh4 out: "<<dnh4<<endl;
 	// calculate concentration of nitrite at end of day (dno2)
 	yy = 0.f;
 	zz = 0.f;
