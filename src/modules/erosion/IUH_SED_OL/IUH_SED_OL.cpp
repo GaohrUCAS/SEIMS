@@ -111,10 +111,10 @@ int IUH_SED_OL::Execute()
             throw ModelException(MID_IUH_SED_OL, "Execute", "The subbasin " + oss.str() + " is invalid.");
         }
         m_sedtoCh[subi] += m_cellSed[i][0];
-
 		m_sedOL[i] = m_cellSed[i][0];
+		//if(i == 1852) cout << m_cellSed[i][0] << endl;
     }
-
+	//cout << m_sedtoCh[1] << endl;
     float tmp = 0.f;
 	#pragma omp parallel for reduction(+:tmp)
     for (int i = 1; i < m_nSubbasins + 1; i++)
