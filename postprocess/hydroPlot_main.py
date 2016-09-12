@@ -1,15 +1,21 @@
 # -*- coding: utf-8 -*-
 
+
+# import util module located in SEIMS/preprocess
+import sys
+
+sys.path.append("..")
+from preprocess.util import *
 from hydroPlot import *
-from util import *
 
 if __name__ == "__main__":
     ## @dataDir, data folder, superior directory of "OUTPUT"
     ## @vari_Sim, Variables list
-    
-    dataDir = r'D:\SEIMS_model\Model_data\model_dianbu_30m_longterm'
-    vari_Sim = ["Q", "SED", "CH_TN", "CH_TP", "CH_COD"]
-    
+
+    # dataDir = r'D:\SEIMS_model\Model_data\model_dianbu_30m_longterm'
+    dataDir = r'E:\code\Hydro\SEIMS\model_data\dianbu\model_dianbu_30m_longterm'
+    vari_Sim = ["Q", "SED", "CH_TN", "CH_TP", "CH_COD", "CH_TNConc"]
+
     xlsFile = r'SEIMS_db_vali_2016-09-09.xlsm'
     excelData = ReadObsfromExcel(currentPath() + os.sep + xlsFile)
     sim_date = excelData[0]
