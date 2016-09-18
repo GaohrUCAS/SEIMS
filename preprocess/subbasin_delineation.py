@@ -270,6 +270,3 @@ def SubbasinDelineation():
 if __name__ == "__main__":
     LoadConfiguration(GetINIfile())
     SubbasinDelineation()
-    # tauDir = WORKING_DIR + os.sep + DIR_NAME_TAUDEM
-    # FlowAccD8(np, tauDir, flowDir, acc, outlet=None, streamSkeleton=None, mpiexeDir=MPIEXEC_DIR,
-    #                 exeDir=CPP_PROGRAM_DIR)
