@@ -794,7 +794,7 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	//     from stream to groundwater through seepage and bank storage)
 	float wtrOut = m_qOutCh[i] * m_dt; 
 	// float wtrTotal = wtrOut + m_chStorage[i]; /// m3
-	float wtrTotal = m_preChStorage[i];
+	float wtrTotal = m_preChStorage[i]; // by LJ
 	float tmpChWtDepth = m_preChWTDepth[i]; /// m
 	if (tmpChWtDepth <= 0.01f){
 		tmpChWtDepth = 0.01f;
