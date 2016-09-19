@@ -19,8 +19,8 @@ NutrCH_QUAL2E::NutrCH_QUAL2E(void) :
         m_ai0(-1.f), m_ai1(-1.f), m_ai2(-1.f), m_ai3(-1.f), m_ai4(-1.f), m_ai5(-1.f), 
 		m_ai6(-1.f), m_lambda0(-1.f), m_lambda1(-1.f), m_lambda2(-1.f), m_cod_n(-1), m_cod_k(-1), 
         m_k_l(-1.f), m_k_n(-1.f), m_k_p(-1.f), m_p_n(-1.f), tfact(-1.f), m_mumax(-1.f), m_rhoq(-1.f), m_streamLink(NULL),
-        m_daylen(NULL), m_sra(NULL), m_bankStorage(NULL), m_qOutCh(NULL), m_chStorage(NULL), 
-		m_chWTdepth(NULL), m_chWTDepthDelta(NULL), m_chTemp(NULL),
+        m_daylen(NULL), m_sra(NULL), m_bankStorage(NULL), m_qOutCh(NULL), m_chStorage(NULL), m_preChStorage(NULL),
+		m_chWTdepth(NULL), m_preChWTDepth(NULL), m_chTemp(NULL),
         m_latNO3ToCh(NULL), m_surNO3ToCh(NULL), m_surSolPToCh(NULL), m_gwNO3ToCh(NULL),
         m_gwSolPToCh(NULL), m_sedOrgNToCh(NULL), m_sedOrgPToCh(NULL), m_sedMinPAToCh(NULL),
         m_sedMinPSToCh(NULL), m_nh4ToCh(NULL), m_no2ToCh(NULL), m_codToCh(NULL),
@@ -218,7 +218,8 @@ bool NutrCH_QUAL2E::CheckInputData()
     CHECK_POINTER(MID_NUTRCH_QUAL2E, m_daylen, "m_daylen")
     CHECK_POINTER(MID_NUTRCH_QUAL2E, m_sra, "m_sra")
     CHECK_POINTER(MID_NUTRCH_QUAL2E, m_qOutCh, "m_qOutCh")
-    CHECK_POINTER(MID_NUTRCH_QUAL2E, m_chStorage, "m_chStorage")
+	CHECK_POINTER(MID_NUTRCH_QUAL2E, m_chStorage, "m_chStorage")
+	CHECK_POINTER(MID_NUTRCH_QUAL2E, m_preChStorage, "m_preChStorage")
     CHECK_POINTER(MID_NUTRCH_QUAL2E, m_chWTdepth, "m_chWTdepth")
     CHECK_POINTER(MID_NUTRCH_QUAL2E, m_latNO3ToCh, "m_latNO3ToCh")
     CHECK_POINTER(MID_NUTRCH_QUAL2E, m_surNO3ToCh, "m_surNO3ToCh")
@@ -312,10 +313,13 @@ void NutrCH_QUAL2E::Set1DData(const char *key, int n, float *data)
     else if (StringMatch(sk, VAR_QRECH)) { m_qOutCh = data; }
     else if (StringMatch(sk, VAR_CHST)) {
 		m_chStorage = data;
+	}
+	else if (StringMatch(sk, VAR_PRECHST)) {
+		m_preChStorage = data;
 		for (int i = 0; i<= m_nReaches; i++)
 		{
 			// input from SetReaches(), unit is mg/L, need to be converted to kg
-			float cvt_conc2amount = m_chStorage[i] / 1000.f;
+			float cvt_conc2amount = m_preChStorage[i] / 1000.f;
 			m_chAlgae[i] *= cvt_conc2amount;
 			m_chOrgN[i] *= cvt_conc2amount;
 			m_chOrgP[i] *= cvt_conc2amount;
@@ -328,7 +332,7 @@ void NutrCH_QUAL2E::Set1DData(const char *key, int n, float *data)
 		}
 	}
     else if (StringMatch(sk, VAR_CHWTDEPTH)) { m_chWTdepth = data; }
-	else if (StringMatch(sk, VAR_CHWTDEPTH_DELTA)) {m_chWTDepthDelta = data;}
+	else if (StringMatch(sk, VAR_PRECHWTDEPTH)) {m_preChWTDepth = data;}
     else if (StringMatch(sk, VAR_WATTEMP)) { m_chTemp = data; }
 
     else if (StringMatch(sk, VAR_LATNO3_TOCH))   { m_latNO3ToCh = data; }
@@ -576,14 +580,13 @@ void NutrCH_QUAL2E::PointSourceLoading()
 				}
 			}
 		}
-		// sum up point sources loadings of all subbasins
-		
-		for (int i = 1;i <= m_nReaches; i++)
-		{
-			m_ptTNToCh[0] += m_ptTNToCh[i];
-			m_ptTPToCh[0] += m_ptTPToCh[i];
-			m_ptCODToCh[0] += m_ptCODToCh[i];
-		}
+	}	
+	// sum up point sources loadings of all subbasins
+	for (int i = 1;i <= m_nReaches; i++)
+	{
+		m_ptTNToCh[0] += m_ptTNToCh[i];
+		m_ptTPToCh[0] += m_ptTPToCh[i];
+		m_ptCODToCh[0] += m_ptCODToCh[i];
 	}
 }
 
@@ -608,8 +611,8 @@ int NutrCH_QUAL2E::Execute()
 		{
             // index in the array
             int reachIndex = it->second[i];
-            AddInputNutrient(reachIndex);
 			NutrientTransform(reachIndex);
+            AddInputNutrient(reachIndex);
 			RouteOut(reachIndex);
         }
 	}
@@ -621,7 +624,7 @@ int NutrCH_QUAL2E::Execute()
 
 void NutrCH_QUAL2E::AddInputNutrient(int i)
 {
-	//cout<<"subID: "<<i<<", initial nh4: "<<m_chNH4[i]<<", ";
+	//cout<<"subID: "<<i<<", initial cod: "<<m_chCOD[i]<<", ";
 	/// nutrient amount from upstream routing will be accumulated to current storage
 	for (size_t j = 0; j < m_reachUpStream[i].size(); ++j)
 	{
@@ -638,7 +641,7 @@ void NutrCH_QUAL2E::AddInputNutrient(int i)
 		m_chChlora[i] += m_chOutChlora[upReachId];
 		m_chAlgae[i]  += m_chOutAlgae[upReachId];
 	}
-	//cout<<", added upstream, nh4: "<<m_chNH4[i]<<endl;
+	//cout<<", added upstream, cod: "<<m_chCOD[i]<<", ";
 	/// absorbed organic N, P from overland sediment routing
 	m_chOrgN[i] += m_sedOrgNToCh[i];
 	m_chOrgP[i] += m_sedOrgPToCh[i];
@@ -654,14 +657,20 @@ void NutrCH_QUAL2E::AddInputNutrient(int i)
 
 	if(m_nh4ToCh != NULL && m_nh4ToCh[i] > 0.f) m_chNH4[i] += m_nh4ToCh[i];
 	if(m_no2ToCh != NULL && m_no2ToCh[i] > 0.f) m_chNO2[i] += m_no2ToCh[i];
-	if(m_codToCh != NULL && m_codToCh[i] > 0.f) m_chCOD[i] += m_codToCh[i];
+	if(m_codToCh != NULL && m_codToCh[i] > 0.f){
+		m_chCOD[i] += m_codToCh[i];
+		//cout<<", added surface, cod: "<<m_chCOD[i]<<", ";
+	}
 	/// add point source loadings to channel
 	if(m_ptNO3ToCh != NULL && m_ptNO3ToCh[i] > 0.f) m_chNO3[i] += m_ptNO3ToCh[i];
 	if(m_ptNH4ToCh != NULL && m_ptNH4ToCh[i] > 0.f) m_chNH4[i] += m_ptNH4ToCh[i];
 	if(m_ptOrgNToCh != NULL && m_ptOrgNToCh[i] > 0.f) m_chOrgN[i] += m_ptOrgNToCh[i];
 	if(m_ptSolPToCh != NULL && m_ptSolPToCh[i] > 0.f) m_chSolP[i] += m_ptSolPToCh[i];
 	if(m_ptOrgPToCh != NULL && m_ptOrgPToCh[i] > 0.f) m_chOrgP[i] += m_ptOrgPToCh[i];
-	if(m_ptCODToCh != NULL && m_ptCODToCh[i] > 0.f) m_chCOD[i] += m_ptCODToCh[i];
+	if(m_ptCODToCh != NULL && m_ptCODToCh[i] > 0.f){
+		m_chCOD[i] += m_ptCODToCh[i];
+		//cout<<", added point source, cod: "<<m_chCOD[i]<<endl;
+	}
 }
 
 void NutrCH_QUAL2E::RouteOut(int i)
@@ -693,7 +702,8 @@ void NutrCH_QUAL2E::RouteOut(int i)
 	m_chOutTPConc[i] = 0.f;
 	//get out flow water fraction
 	float wtrOut = m_qOutCh[i] * m_dt; // m**3
-	float wtrTotal = wtrOut + m_chStorage[i];
+	// float wtrTotal = wtrOut + m_chStorage[i];
+	float wtrTotal = m_preChStorage[i];
 	if (wtrTotal <= 0.f)//wtrOut <= 0.f ||  || m_chWTdepth[i] <= 0.f)
 	{
 		// return with initialized values directly
@@ -783,8 +793,9 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	//     flowout plus the storage at the end of day (did not consider the nutrients 
 	//     from stream to groundwater through seepage and bank storage)
 	float wtrOut = m_qOutCh[i] * m_dt; 
-	float wtrTotal = wtrOut + m_chStorage[i]; /// m3
-	float tmpChWtDepth = m_chWTdepth[i] - m_chWTDepthDelta[i]; /// m
+	// float wtrTotal = wtrOut + m_chStorage[i]; /// m3
+	float wtrTotal = m_preChStorage[i]; // by LJ
+	float tmpChWtDepth = m_preChWTDepth[i]; /// m
 	if (tmpChWtDepth <= 0.01f){
 		tmpChWtDepth = 0.01f;
 	}
@@ -944,7 +955,9 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	float yyy = 0.f;   
 	float zzz = 0.f;   
 	//1. COD convert to CBOD
+	//if(i == 12) cout << "pre_cod, mg/L: " << cbodcon << ", ";
 	cbodcon /= (m_cod_n * (1.f - exp(-5.f * m_cod_k)));
+	//if(i == 12) cout << "pre_cbod, mg/L: " << cbodcon << ", ";
 	yyy = corTempc(m_rk1[i], thm_rk1, wtmp) * cbodcon;
 	zzz = corTempc(m_rk3[i], thm_rk3, wtmp) * cbodcon;
 	dbod = 0.f;
@@ -956,12 +969,14 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	coef = exp(-1.f * corTempc(m_rk3[i], thm_rk1, wtmp)*tday);
 	tmp *= coef;
 	dbod = tmp;
+	//if(i == 12) cout << "trans_cbod, mg/L: " << dbod << ", ";
 	if (dbod < 1.e-6f)
 		dbod = 1.e-6f;
 	if (dbod > dcoef * cbodcon) dbod = dcoef * cbodcon;
+	//if(i == 12) cout << "trans_cbod2, mg/L: " << dbod << ", ";
 	//2. CBOD convert to COD
 	dbod *= m_cod_n * (1.f - exp(-5.f * m_cod_k));
-	//if(i == 2) cout << "dbod: " << dbod << "coef: " << m_cod_n * (1.f - exp(-5.f * m_cod_k)) << "\n";
+	//if(i == 12) cout << "cod: " << dbod << endl;
 
 	// calculate dissolved oxygen concentration if reach at end of day (ddisox)
 	float uu = 0.f;     // variable to hold intermediate calculation result
@@ -1100,6 +1115,7 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	m_chOrgP[i]  = dorgp * wtrTotal / 1000.f;
 	m_chSolP[i]  = dsolp * wtrTotal / 1000.f;
 	m_chCOD[i]   = dbod * wtrTotal / 1000.f;
+	//if(i == 12) cout << "chCOD: " << m_chCOD[i] << endl;
 	m_chDOx[i]   = ddisox * wtrTotal / 1000.f;
 }
 

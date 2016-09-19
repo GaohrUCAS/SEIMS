@@ -50,3 +50,6 @@ ID	NAME	BMPID	SUBSCENARIO	DISTRIBUTION	COLLECTION	LOCATION
 5	sewage scenario	1	40004	ARRAY|point_source_distribution|40000	point_source_management	40002
 5	sewage scenario	1	40006	ARRAY|point_source_distribution|40000	point_source_management	40003
 5	sewage scenario	16	10001	RASTER|MGT_FIELDS|areal_source_distribution|10000	areal_source_management	86,4,58
+6	noPointSrc_scenario	12	0	RASTER|MGT_FIELDS	plant_management	ALL
+6	noPointSrc_scenario	12	1	RASTER|MGT_FIELDS	plant_management	ALL
+

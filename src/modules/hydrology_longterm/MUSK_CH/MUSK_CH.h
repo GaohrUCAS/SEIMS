@@ -2,10 +2,15 @@
  * \brief channel flow routing using Muskingum method
  * \author Junzhi Liu
  * \version 1.0
- * \date 26-Jule-2012
+ * \date 26-Jul-2012
  * 
  * \revision Liangjun Zhu
+ * \date 18-Sep-2016
  * \description: 1. Add point source loadings from Scenario.
+ *               2. Assume the channels have a trapezoidal shape
+ *               3. Add m_chBtmWidth as variable intermediate parameter
+ *               4. Add m_chSideSlope (default is 2) as input parameter from MongoDB, which is the ratio of run to rise
+ *               5. Add several variables to store values in previous time step, which will be use in QUAL2E etc.
  */
 #pragma once
 
@@ -105,6 +110,8 @@ private:
     /// initial channel storage per meter of reach length (m3/m)
     //float m_Chs0;
 	
+	/// inverse of the channel side slope, by default is 2.
+	float *m_chSideSlope;
 	/// initial percentage of channel volume
 	float m_Chs0_perc;
     /// the initial volume of transmission loss to the deep aquifer over the time interval (m3/s)
@@ -134,14 +141,25 @@ private:
     float *m_qsCh;
     float *m_qiCh;
     float *m_qgCh;
-
+	/// channel order
     float *m_chOrder;
+	/// channel width (m)
     float *m_chWidth;
+	/// channel water width (m)
 	float *m_chWTWidth;
+	/// bottom width of channel (m)
+	float *m_chBtmWidth;
+	/// channel depth (m)
     float *m_chDepth;
+	/// channel water depth (m)
+	float *m_chWTdepth;
+	/// channel water depth of previous timestep (m)
+	float *m_preChWTDepth;
+	/// channel length (m)
     float *m_chLen;
+	/// channel flow velocity (m/s)
     float *m_chVel;
-
+	/// bank storage (m^3)
     float *m_bankStorage;
 	/// groundwater recharge to channel or perennial base flow, m^3/s
     float m_deepGroundwater;
@@ -171,16 +189,14 @@ private:
 	map<int, BMPPointSrcFactory*> m_ptSrcFactory;
     //temporary at routing time
 
-    /// reach storage (m3) at time t
+    /// reach storage (m^3) at time, t
     float *m_chStorage;
-    /// reach outflow (m3/s) at time t
+	/// reach storage (m^3) at previous time step, t-1
+	float *m_preChStorage;
+    /// reach outflow (m3/s) at time, t
     float *m_qOut;
     /// flowin discharge at the last time step
     float *m_qIn;
-    /// channel water depth m
-    float *m_chWTdepth;
-	/// channel water depth delta, m
-	float *m_chWTDepthDelta;
 	/*
 	 * reach layers
 	 * key: stream order
@@ -197,5 +213,7 @@ private:
     void GetDt(float timeStep, float fmin, float fmax, float &dt, int &n);
 
     void GetCoefficients(float reachLength, float v0, MuskWeights &weights);
+
+	void updateWaterWidthDepth(int i);
 };
 

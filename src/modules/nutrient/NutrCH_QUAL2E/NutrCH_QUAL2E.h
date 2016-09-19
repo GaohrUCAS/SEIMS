@@ -141,10 +141,12 @@ private:
 	float *m_qOutCh;
     /// reach storage (m3) at time t
     float *m_chStorage;
+	/// reach storage of previous timestep
+	float *m_preChStorage;
     /// channel water depth m
     float *m_chWTdepth;
-	/// channel water depth delta, m
-	float *m_chWTDepthDelta;
+	/// channel water depth of previous timestep, m
+	float *m_preChWTDepth;
     /// temperature of water in reach (deg C)
     float *m_chTemp;
 

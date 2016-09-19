@@ -276,6 +276,7 @@ def GenerateReachTable(folder, db, forCluster):
             dic[REACH_LENGTH.upper()] = lenDic[id]
             dic[REACH_DEPTH.upper()] = depthDic[id]
             dic[REACH_AREA.upper()] = areaDic[id] * dx * dx
+            dic[REACH_SIDESLP.upper()] = 2.
             dic[REACH_BC1.upper()] = 0.55
             dic[REACH_BC2.upper()] = 1.1
             dic[REACH_BC3.upper()] = 0.21
