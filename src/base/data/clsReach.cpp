@@ -27,6 +27,8 @@ clsReach::clsReach(const bson_t *&bsonTable)
         this->DownUpOrder = GetIntFromBSONITER(&iterator);
     if (bson_iter_init_find(&iterator, bsonTable, REACH_WIDTH))
         this->Width = GetFloatFromBSONITER(&iterator);
+	if (bson_iter_init_find(&iterator, bsonTable, REACH_SIDESLP))
+		this->SideSlope = GetFloatFromBSONITER(&iterator);
     if (bson_iter_init_find(&iterator, bsonTable, REACH_LENGTH))
         this->Length = GetFloatFromBSONITER(&iterator);
     if (bson_iter_init_find(&iterator, bsonTable, REACH_DEPTH))
@@ -122,6 +124,7 @@ void clsReach::Reset(void)
     UpDownOrder = -1;
     V0 = NODATA_VALUE;
     Width = NODATA_VALUE;
+	SideSlope = 2.f;
     bc1 = 0.55f;
     bc2 = 1.1f;
     bc3 = 0.21f;

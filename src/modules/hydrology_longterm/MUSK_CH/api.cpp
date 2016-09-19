@@ -25,7 +25,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.SetHelpfile("MUSK_CH.chm");
     mdi.SetID(MID_MUSK_CH);
     mdi.SetName(MID_MUSK_CH);
-    mdi.SetVersion("0.1");
+    mdi.SetVersion("0.2");
     mdi.SetWebsite(SEIMS_SITE);
 
     mdi.AddParameter(Tag_ChannelTimeStep, UNIT_SECOND, DESC_TIMESTEP, File_Input, DT_Single);
@@ -61,11 +61,13 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.AddOutput(VAR_QI, UNIT_NON_DIM, DESC_QI, DT_Array1D);
     mdi.AddOutput(VAR_QG, UNIT_NON_DIM, DESC_QG, DT_Array1D);
     mdi.AddOutput(VAR_CHST, UNIT_VOL_M3, DESC_CHST, DT_Array1D);
+	mdi.AddOutput(VAR_PRECHST, UNIT_VOL_M3, DESC_PRECHST, DT_Array1D);
     mdi.AddOutput(VAR_BKST, UNIT_VOL_M3, DESC_BKST, DT_Array1D);
     mdi.AddOutput(VAR_SEEPAGE, UNIT_VOL_M3, DESC_SEEPAGE, DT_Array1D);
     mdi.AddOutput(VAR_CHWTDEPTH, UNIT_LEN_M, DESC_CHWTDEPTH, DT_Array1D);
-	mdi.AddOutput(VAR_CHWTWIDTH, UNIT_LEN_M, DESC_CHWTDEPTH, DT_Array1D);
-	mdi.AddOutput(VAR_CHWTDEPTH_DELTA, UNIT_LEN_M, DESC_CHWTDEPTH_DELTA, DT_Array1D);
+	mdi.AddOutput(VAR_CHWTWIDTH, UNIT_LEN_M, DESC_CHWTWIDTH, DT_Array1D);
+	mdi.AddOutput(VAR_CHBTMWIDTH, UNIT_LEN_M, DESC_CHBTMWIDTH, DT_Array1D);
+	mdi.AddOutput(VAR_PRECHWTDEPTH, UNIT_LEN_M, DESC_PRECHWTDEPTH, DT_Array1D);
 
     res = mdi.GetXMLDocument();
     char *tmp = new char[res.size() + 1];

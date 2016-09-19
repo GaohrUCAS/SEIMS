@@ -214,6 +214,7 @@
 #define REACH_UPDOWN_ORDER        "UP_DOWN_ORDER"
 #define REACH_DOWNUP_ORDER        "DOWN_UP_ORDER"
 #define REACH_WIDTH                "WIDTH"
+#define REACH_SIDESLP			"SIDE_SLOPE"
 #define REACH_LENGTH            "LENGTH"
 #define REACH_DEPTH                "DEPTH"
 #define REACH_V0                        "V0"
@@ -586,12 +587,14 @@
 #define VAR_CHS0_PERC "chs0_perc"
 #define VAR_CHSB "CHSB"
 #define VAR_CHST "CHST"                               /// channel storage
+#define VAR_PRECHST "preCHST"						/// channel storage at previous timestep
 #define VAR_CHT "CHT" /// canopy height for the day(m)
 #define VAR_CHTMX "CHTMX" /// maximum canopy height (m)
 #define VAR_CHWTWIDTH "chwtwidth"
+#define VAR_CHBTMWIDTH "chbtmwidth"
 #define VAR_CHWIDTH "CHWIDTH"
 #define VAR_CHWTDEPTH "CHWTDEPTH"                     /// channel water depth
-#define VAR_CHWTDEPTH_DELTA "chwtdepth_delta"
+#define VAR_PRECHWTDEPTH "prechwtdepth"
 #define VAR_CLAY "CLAY"
 #define VAR_CMN "cmn"                                 /// Rate coefficient for mineralization of the humus active organic nutrients
 #define VAR_CN2 "CN2"
@@ -1019,7 +1022,6 @@
 #define VAR_DP_OUTLET "disolvp_outlet"
 #define VAR_COD_OUTLET "cod_outlet"
 #define VAR_CHL_OUTLET "chlora_outlet"
-
 //////////////////////////////////////////////////////////////////////////
 /// Define units common used in SEIMS, in case of inconsistency //////////
 /// By LiangJun Zhu, HuiRan Gao ///
@@ -1165,12 +1167,14 @@
 #define DESC_CHS0_PERC "initial percentage of channel volume"
 #define DESC_CHSB "Channel sediment balance for each reach and at each time step"
 #define DESC_CHST "channel storage"
+#define DESC_PRECHST "channel storage at previous timestep"
 #define DESC_CHT "canopy height for the day (m)"
 #define DESC_CHTMX "maximum canopy height (m)"
 #define DESC_CHWIDTH "Channel width"
 #define DESC_CHWTWIDTH "Channel water width"
+#define DESC_CHBTMWIDTH "the bottom width of channel"
 #define DESC_CHWTDEPTH "channel water depth"
-#define DESC_CHWTDEPTH_DELTA "changes of channel water depth during current timestep"
+#define DESC_PRECHWTDEPTH "channel water depth of previous timestep"
 #define DESC_CLAY "Percent of clay content"
 #define DESC_CMN "Rate coefficient for mineralization of the humus active organic nutrients"
 #define DESC_CN2 "CN under moisture condition II"

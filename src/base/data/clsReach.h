@@ -63,6 +63,8 @@ public:
 
     float GetWidth() { return this->Width; }
 
+	float GetSideSlope() {return this->SideSlope;}
+
     float GetBc1() { return this->bc1; }
 
     float GetBc2() { return this->bc2; }
@@ -143,6 +145,8 @@ private:
     float V0;
     //! Width
     float Width;
+	/// inverse of the channel side slope
+	float SideSlope;
     /// rate constant for biological oxidation of NH3 to NO2 in reach at 20 deg C
     float bc1;
     /// rate constant for biological oxidation of NO2 to NO3 in reach at 20 deg C

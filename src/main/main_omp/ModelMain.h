@@ -77,7 +77,7 @@ public:
     string GetModuleID(int i) { return m_factory->GetModuleID(i); }
 
     //! Get module execute time by index in ModuleFactory
-    float GetModuleExecuteTime(int i) { return m_executeTime[i]; }
+    float GetModuleExecuteTime(int i) { return (float)m_executeTime[i]; }
 
     //! Get time consuming of read files
     float GetReadDataTime() { return m_readFileTime; }

@@ -589,12 +589,12 @@ void NutrientRemviaSr::SubbasinWaterQuality()
 				enratio = 3.5f;
 			}
 			// calculate organic carbon loading to main channel
-			float org_c = (m_sol_om[i][0] * 0.58f / 100.f) * enratio * (m_sedimentYield[i] / 1000.f) * 1000.f;
+			float org_c = (m_sol_om[i][0] * 0.58f / 100.f) * enratio * (m_sedimentYield[i] / 1000.f) * 1000.f; /// kg
 			// calculate carbonaceous biological oxygen demand (CBOD) and COD(transform from CBOD)
-			float cbod  = 2.7f * org_c / (qdr * m_cellWidth * m_cellWidth * 1.e-6f); //  kg/m3 
-			// calculate COD
-			cbod = m_cod_n * (cbod * (1.f - exp(-5.f * m_cod_k)));
-			m_cod[i] = m_surfr[i] / 1000.f * cbod * 10.f;	// mg/L converted to kg/ha
+			float cbod  = 2.7f * org_c / (qdr * m_cellWidth * m_cellWidth * 1.e-6f); //  mg/L 
+			// convert cbod to cod according to Wang Cai-Qin et al. (2014) and 
+			float cod = m_cod_n * (cbod * (1.f - exp(-5.f * m_cod_k)));
+			m_cod[i] = m_surfr[i] / 1000.f * cod * 10.f;	// mg/L converted to kg/ha
 		} else
 		{
 			m_chl_a[i] = 0.f;
