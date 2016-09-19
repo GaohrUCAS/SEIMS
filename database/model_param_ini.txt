@@ -48,8 +48,8 @@ WaterBalance	Clay	Clay proportion	%	ALL	-9999	1	RC	1.2	0.8	Y
 Nutrient	cmn	Rate coefficient for mineralization of the humus active organic nutrients	none	NMINRL	0.002	0	AC	0.003	0.001	Y
 WaterBalance	CN2	Curve number in condition II	none	ALL	-9999	1	RC	1.3	0.7	Y
 Climate	Co2	CO2 Concentration	ppmv	ALL	330	1	RC	350	300	Y
-Nutrient	cod_k	Reaction coefficient	None	NUTRMV	0.15	1	RC	0.2	0.1	Y
-Nutrient	cod_n	COD conversion factor	None	NUTRMV	3.75	1	RC	6.5	1	Y
+Nutrient	cod_k	Reaction coefficient	None	NUTRMV	0.7	0	AC	0.7	0.1	Y
+Nutrient	cod_n	COD conversion factor	None	NUTRMV	6.5	-5.5	AC	6.5	1	Y
 Climate	Cond_max	maximum stomatal conductance	m/s	PET_PM	0.005		NC	0	0	Y
 Climate	Cond_rate	rate of decline in stomatal conductance	m/s/kPa	PET_PM	3.75		NC	5	0	Y
 WaterBalance	Conductivity	Soil hydraulic conductivity	mm/hr	ALL	-9999	1	RC	10	0.1	Y

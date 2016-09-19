@@ -611,8 +611,8 @@ int NutrCH_QUAL2E::Execute()
 		{
             // index in the array
             int reachIndex = it->second[i];
-            AddInputNutrient(reachIndex);
 			NutrientTransform(reachIndex);
+            AddInputNutrient(reachIndex);
 			RouteOut(reachIndex);
         }
 	}
@@ -955,7 +955,9 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	float yyy = 0.f;   
 	float zzz = 0.f;   
 	//1. COD convert to CBOD
+	//if(i == 12) cout << "pre_cod, mg/L: " << cbodcon << ", ";
 	cbodcon /= (m_cod_n * (1.f - exp(-5.f * m_cod_k)));
+	//if(i == 12) cout << "pre_cbod, mg/L: " << cbodcon << ", ";
 	yyy = corTempc(m_rk1[i], thm_rk1, wtmp) * cbodcon;
 	zzz = corTempc(m_rk3[i], thm_rk3, wtmp) * cbodcon;
 	dbod = 0.f;
@@ -967,12 +969,14 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	coef = exp(-1.f * corTempc(m_rk3[i], thm_rk1, wtmp)*tday);
 	tmp *= coef;
 	dbod = tmp;
+	//if(i == 12) cout << "trans_cbod, mg/L: " << dbod << ", ";
 	if (dbod < 1.e-6f)
 		dbod = 1.e-6f;
 	if (dbod > dcoef * cbodcon) dbod = dcoef * cbodcon;
+	//if(i == 12) cout << "trans_cbod2, mg/L: " << dbod << ", ";
 	//2. CBOD convert to COD
 	dbod *= m_cod_n * (1.f - exp(-5.f * m_cod_k));
-	//if(i == 2) cout << "dbod: " << dbod << "coef: " << m_cod_n * (1.f - exp(-5.f * m_cod_k)) << "\n";
+	//if(i == 12) cout << "cod: " << dbod << endl;
 
 	// calculate dissolved oxygen concentration if reach at end of day (ddisox)
 	float uu = 0.f;     // variable to hold intermediate calculation result
@@ -1111,6 +1115,7 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	m_chOrgP[i]  = dorgp * wtrTotal / 1000.f;
 	m_chSolP[i]  = dsolp * wtrTotal / 1000.f;
 	m_chCOD[i]   = dbod * wtrTotal / 1000.f;
+	//if(i == 12) cout << "chCOD: " << m_chCOD[i] << endl;
 	m_chDOx[i]   = ddisox * wtrTotal / 1000.f;
 }
 
