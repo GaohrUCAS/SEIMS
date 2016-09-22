@@ -113,6 +113,7 @@ int IUH_OL::Execute()
 
 		m_OL_Flow[i] = m_cellFlow[i][0];
 		m_OL_Flow[i] = m_OL_Flow[i] * m_TimeStep * 1000.f / m_cellArea;	 // m3/s -> mm
+		//if(i == 1000) cout << m_OL_Flow[i] << endl;
     }
 
     float tmp = 0.f;

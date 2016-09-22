@@ -58,7 +58,7 @@ python G:\code_zhulj\SEIMS\preprocess\parameters_extraction.py -ini G:\code_zhul
 
 ## TEST COMMAND BY Huiran Gao:
 
-+ D:\SEIMS_model\SEIMS\Release\seims_omp D:\SEIMS_model\Model_data\model_dianbu_30m_longterm 8 0 192.168.6.55 27017 1
++ D:\SEIMS_model\SEIMS\Release\seims_omp D:\SEIMS_model\Model_data\model_dianbu_30m_longterm 8 0 192.168.6.55 27017 6
 + D:\SEIMS_model\SEIMS\Release\seims_omp D:\SEIMS_model\Model_data\model_dianbu2_30m_longterm 8 0 192.168.6.55 27017 0
 
 + Under LINUX
