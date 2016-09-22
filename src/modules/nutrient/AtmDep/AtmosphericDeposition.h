@@ -83,14 +83,14 @@ private:
     //float **m_sol_z;
 
     ///amount of ammonium in layer (kg/ha)
-    float **m_sol_nh3;
+    float **m_sol_nh4;
 	/// amount of nitrate in layer (kg/ha)
     float **m_sol_no3;
 
     /// temporaries
 
     /// nitrate added by rainfall (kg/ha)
-    float m_addrnh3;
+    float m_addrnh4;
     /// ammonium added by rainfall (kg/ha)
     float m_addrno3;
     

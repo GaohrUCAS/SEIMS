@@ -23,7 +23,7 @@ NandPim::NandPim(void) :
         m_landcover(NULL), m_rsdco_pl(NULL), m_sol_cbn(NULL), 
         m_sol_wpmm(NULL),  m_sol_awc(NULL),
         m_sol_solp(NULL), m_sol_orgp(NULL),m_sol_actp(NULL), m_sol_stap(NULL),  m_sol_fop(NULL), 
-        m_sol_no3(NULL),m_sol_nh3(NULL),m_sol_orgn(NULL), m_sol_aorgn(NULL), m_sol_fon(NULL),
+        m_sol_no3(NULL),m_sol_nh4(NULL),m_sol_orgn(NULL), m_sol_aorgn(NULL), m_sol_fon(NULL),
 		m_sol_cov(NULL),m_sol_rsd(NULL), 
 		/// from other modules
 		m_soilStorage(NULL),m_sote(NULL),
@@ -112,8 +112,8 @@ bool NandPim::CheckInputData()
         throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_wpmm can not be NULL.");
     if (this->m_sol_no3 == NULL)
         throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_no3 can not be NULL.");
-    if (this->m_sol_nh3 == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_nh3 can not be NULL.");
+    if (this->m_sol_nh4 == NULL)
+        throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_nh4 can not be NULL.");
     if (this->m_sol_orgn == NULL)
         throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_orgn can not be NULL.");
     if (this->m_sol_orgp == NULL)
@@ -168,7 +168,7 @@ void NandPim::Set2DData(const char *key, int nRows, int nCols, float **data)
     else if (StringMatch(sk, VAR_SOL_ST)) { this->m_soilStorage = data; }
     else if (StringMatch(sk, VAR_SOL_AWC)) { this->m_sol_awc = data; }
 	else if (StringMatch(sk, VAR_SOL_NO3)) { this->m_sol_no3 = data; }
-	else if (StringMatch(sk, VAR_SOL_NH3)) { this->m_sol_nh3 = data; }
+	else if (StringMatch(sk, VAR_SOL_NH4)) { this->m_sol_nh4 = data; }
     else if (StringMatch(sk, VAR_SOL_SORGN)) { this->m_sol_orgn = data; }
     else if (StringMatch(sk, VAR_SOL_HORGP)) { this->m_sol_orgp = data; }
     else if (StringMatch(sk, VAR_SOL_SOLP)) { this->m_sol_solp = data; }
@@ -558,7 +558,7 @@ void NandPim::CalculateMinerandVolati(int i)
         float nvtf = 0.f;
         //Calculate nvtf, equation 3:1.3.1 in SWAT Theory 2009, p192
         nvtf = 0.41f * (m_sote[i] - 5.f) / 10.f;
-        if (m_sol_nh3[i][k] > 0.f && nvtf >= 0.001f)
+        if (m_sol_nh4[i][k] > 0.f && nvtf >= 0.001f)
         {
             float sw25 = 0.f;
             float swwp = 0.f;
@@ -604,7 +604,7 @@ void NandPim::CalculateMinerandVolati(int i)
             //Calculate rnv, equation 3:1.3.6, 3:1.3.7 and 3:1.3.8 in SWAT Theory 2009, p193
             akn = nvtf * swf;
             akv = nvtf * dpf * cecf;
-            rnv = m_sol_nh3[i][k] * (1.f - exp(-akn - akv));
+            rnv = m_sol_nh4[i][k] * (1.f - exp(-akn - akv));
             //Calculate rnit, equation 3:1.3.9 in SWAT Theory 2009, p193
             rnit = 1.f - exp(-akn);
             //Calculate rvol, equation 3:1.3.10 in SWAT Theory 2009, p193
@@ -620,20 +620,20 @@ void NandPim::CalculateMinerandVolati(int i)
                 //equation 3:1.3.12 in SWAT Theory 2009, p194
                 rnit = rnv - rvol;
                 if (rnit < 0)rnit = 0.f;
-                m_sol_nh3[i][k] = max(1e-6f, m_sol_nh3[i][k] - rnit);
+                m_sol_nh4[i][k] = max(1e-6f, m_sol_nh4[i][k] - rnit);
             }
-            if (m_sol_nh3[i][k] < 0)
+            if (m_sol_nh4[i][k] < 0)
             {
-                rnit = rnit + m_sol_nh3[i][k];
-                m_sol_nh3[i][k] = 0.f;
+                rnit = rnit + m_sol_nh4[i][k];
+                m_sol_nh4[i][k] = 0.f;
             }
             m_sol_no3[i][k] = m_sol_no3[i][k] + rnit;
             //calculate ammonia volatilization
-            m_sol_nh3[i][k] = max(1e-6f, m_sol_nh3[i][k] - rvol);
-            if (m_sol_nh3[i][k] < 0)
+            m_sol_nh4[i][k] = max(1e-6f, m_sol_nh4[i][k] - rvol);
+            if (m_sol_nh4[i][k] < 0)
             {
-                rvol = rvol + m_sol_nh3[i][k];
-                m_sol_nh3[i][k] = 0.f;
+                rvol = rvol + m_sol_nh4[i][k];
+                m_sol_nh4[i][k] = 0.f;
             }
             //summary calculations
             m_wshd_voln += rvol * (1.f / m_nCells);
@@ -718,7 +718,7 @@ void NandPim::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
     else if (StringMatch(sk, VAR_SOL_FON)) { *data = this->m_sol_fon; }
     else if (StringMatch(sk, VAR_SOL_FOP)) { *data = this->m_sol_fop; }
     else if (StringMatch(sk, VAR_SOL_NO3)) { *data = this->m_sol_no3; }
-    else if (StringMatch(sk, VAR_SOL_NH3)) { *data = this->m_sol_nh3; }
+    else if (StringMatch(sk, VAR_SOL_NH4)) { *data = this->m_sol_nh4; }
     else if (StringMatch(sk, VAR_SOL_SORGN)) { *data = this->m_sol_orgn; }
     else if (StringMatch(sk, VAR_SOL_HORGP)) { *data = this->m_sol_orgp; }
     else if (StringMatch(sk, VAR_SOL_SOLP)) { *data = this->m_sol_solp; }

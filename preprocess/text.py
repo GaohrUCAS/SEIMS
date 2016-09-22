@@ -83,7 +83,7 @@ SOL_ALB = "SOL_ALB"
 ESCO = "ESCO"
 ## soil N and P concentrate
 SOL_NO3 = "SOL_NO3"
-SOL_NH3 = "SOL_NH3"
+SOL_NH4 = "SOL_NH                                                                                                  4"
 SOL_ORGN = "SOL_ORGN"
 SOL_ORGP = "SOL_ORGP"
 SOL_SOLP = "SOL_SOLP"
@@ -195,7 +195,7 @@ REACH_DISOX = 'DISOX' # 0-50 mg/L
 REACH_BOD = 'BOD'     # 0-1000 mg/L
 REACH_ALGAE = 'ALGAE' # 0-200 mg/L
 REACH_ORGN = 'ORGN'   # 0-100 mg/L
-REACH_NH3 = 'NH3'     # 0-50 mg/L
+REACH_NH4 = 'NH4'     # 0-50 mg/L
 REACH_NO2 = 'NO2'     # 0-100 mg/L
 REACH_NO3 = 'NO3'     # 0-50 mg/L
 REACH_ORGP = 'ORGP'   # 0-25 mg/L

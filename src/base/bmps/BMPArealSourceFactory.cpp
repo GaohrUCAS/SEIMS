@@ -171,7 +171,7 @@ void BMPArealSrcFactory::Dump(ostream *fs)
 
 ArealSourceMgtParams::ArealSourceMgtParams(const bson_t *&bsonTable, bson_iter_t &iter)
         : m_startDate(0), m_endDate(0), m_waterVolume(0.f), m_sedimentConc(0.f), m_TNConc(0.f), m_NO3Conc(0.f),
-          m_NH3Conc(0.f), m_OrgNConc(0.f), m_TPConc(0.f), m_SolPConc(0.f), m_OrgPConc(0.f), m_COD(0.f),
+          m_NH4Conc(0.f), m_OrgNConc(0.f), m_TPConc(0.f), m_SolPConc(0.f), m_OrgPConc(0.f), m_COD(0.f),
 		  m_name(""), m_seqence(-1)
 {
     if (bson_iter_init_find(&iter, bsonTable, BMP_FLD_NAME))
@@ -186,8 +186,8 @@ ArealSourceMgtParams::ArealSourceMgtParams(const bson_t *&bsonTable, bson_iter_t
         m_TNConc = GetFloatFromBSONITER(&iter);
     if (bson_iter_init_find(&iter, bsonTable, BMP_ARSRC_FLD_NO3))
         m_NO3Conc = GetFloatFromBSONITER(&iter);
-    if (bson_iter_init_find(&iter, bsonTable, BMP_ARSRC_FLD_NH3))
-        m_NH3Conc = GetFloatFromBSONITER(&iter);
+    if (bson_iter_init_find(&iter, bsonTable, BMP_ARSRC_FLD_NH4))
+        m_NH4Conc = GetFloatFromBSONITER(&iter);
     if (bson_iter_init_find(&iter, bsonTable, BMP_ARSRC_FLD_ORGN))
         m_OrgNConc = GetFloatFromBSONITER(&iter);
     if (bson_iter_init_find(&iter, bsonTable, BMP_ARSRC_FLD_TP))
@@ -231,7 +231,7 @@ void ArealSourceMgtParams::Dump(ostream *fs)
         *fs << "      End Date: " << utils::ConvertToString(&m_endDate) << endl;
     *fs << "      WaterVolume: " << m_waterVolume << ", Sediment: " << m_sedimentConc <<
     ", TN: " << m_TNConc << ", NO3: " << m_NO3Conc <<
-    ", NH3: " << m_NH3Conc << ", OrgN: " << m_OrgNConc <<
+    ", NH4: " << m_NH4Conc << ", OrgN: " << m_OrgNConc <<
     ", TP: " << m_TPConc << ", MinP: " << m_SolPConc <<
     ", OrgP: " << m_OrgPConc << endl;
 }

@@ -13,7 +13,6 @@ from text import *
 from util import *
 
 
-
 # SEQN              |None  : Unique identifier of soil
 # SNAME             |None  : soil name
 # SOILLAYERS        |None  : (nly) number of soil layers
@@ -43,7 +42,7 @@ from util import *
 # SOL_AWC           |mm H2O: (sol_fc) amount of water available to plants in soil layer at field capacity (fc - wp)
 # SOL_SUMAWC        |mm H2O: (sol_sumfc) amount of water held in soil profile at field capacity
 # POROSITY          |None  : (sol_por) total porosity of soil layer expressed as a fraction of the total volume
-# POREINDEX         |None  : pore disconnectedness index
+# POREINDEX         |None  : pore size distribution index
 # SOL_AVPOR         |None  : (sol_avpor) average porosity for entire soil profile
 # SOL_UL            |mm H2O: (sol_ul) amount of water held in the soil layer at saturation (sat - wp water)
 # SOL_SUMUL         |mm H2O: (sol_sumul) amount of water held in soil profile at saturation
@@ -61,7 +60,7 @@ from util import *
 # VOLCR             |mm    : (volcr) crack volume for soil layer, should be calculated in SEIMS, using moist_ini
 
 # SOL_NO3           |kg/ha : (sol_no3) concentration of nitrate in soil layers
-# SOL_NH3           |kg/ha : (sol_nh3) concentration of ammonium-N in soil layers
+# SOL_NH4           |kg/ha : (sol_nh4) concentration of ammonium-N in soil layers
 # SOL_ORGN          |kg/ha : (sol_orgn) organic N concentration in soil layers
 # SOL_ORGP          |kg/ha : (sol_orgp) organic P concentration in soil layers
 # SOL_SOLP          |kg/ha : (sol_solp) soluble P concentration in soil layers
@@ -118,7 +117,7 @@ class SoilProperty:
         self.ESCO = DEFAULT_NODATA
         # Here after are general soil chemical properties
         self.SOL_NO3 = []
-        self.SOL_NH3 = []
+        self.SOL_NH4 = []
         self.SOL_ORGN = []
         self.SOL_ORGP = []
         self.SOL_SOLP = []
@@ -191,10 +190,10 @@ class SoilProperty:
                 self.SOL_NO3.insert(0, self.SOL_NO3[0])
             else:
                 self.SOL_NO3 = list(numpy.zeros(self.SOILLAYERS))
-            if self.SOL_NH3 != []:
-                self.SOL_NH3.insert(0, self.SOL_NH3[0])
+            if self.SOL_NH4 != []:
+                self.SOL_NH4.insert(0, self.SOL_NH4[0])
             else:
-                self.SOL_NH3 = list(numpy.zeros(self.SOILLAYERS))
+                self.SOL_NH4 = list(numpy.zeros(self.SOILLAYERS))
             if self.SOL_ORGN != []:
                 self.SOL_ORGN.insert(0, self.SOL_ORGN[0])
             else:
@@ -321,10 +320,14 @@ class SoilProperty:
             raise IndexError("Pore disconnectedness index must have a size equal to soil layers number!")
         elif self.POREINDEX == []:
             for i in range(self.SOILLAYERS):
-                fc = self.FIELDCAP[i]
-                wp = self.WILTINGPOINT[i]
-                b = (math.log(1500.) - math.log(33.)) / (math.log(fc) - math.log(wp))
-                self.POREINDEX.append(1.0 / b)
+                # An fitted equation proposed by Cosby et al. (1984) is adopted. By LJ, 2016-9-22
+                b = 0.159 * self.CLAY[i] + 2.91
+                self.POREINDEX.append(b)
+                # previous version, currently deprecated by LJ
+                # fc = self.FIELDCAP[i]
+                # wp = self.WILTINGPOINT[i]
+                # b = (math.log(1500.) - math.log(33.)) / (math.log(fc) - math.log(wp))
+                # self.POREINDEX.append(1.0 / b)
         if self.POROSITY != [] and len(self.POROSITY) != self.SOILLAYERS:
             raise IndexError("Soil Porosity must have a size equal to soil layers number!")
         elif self.POROSITY == []:
@@ -426,9 +429,9 @@ class SoilProperty:
                                        0] - 0.049837 *
                                    self.POROSITY[0] * self.SAND[0] + 0.001608 * math.pow(self.POROSITY[0], 2) *
                                    math.pow(self.SAND[0], 2) + 0.001602 * math.pow(self.POROSITY[0], 2) * math.pow(
-                self.CLAY[0], 2) -
+            self.CLAY[0], 2) -
                                    0.0000136 * math.pow(self.SAND[0], 2) * self.CLAY[0] - 0.003479 * math.pow(
-                self.CLAY[0], 2) *
+            self.CLAY[0], 2) *
                                    self.POROSITY[0] - 0.000799 * math.pow(self.SAND[0], 2) * self.POROSITY[0])
 
         # tmp_sol_up = []  ## according to swat soil_phys.f
@@ -504,9 +507,9 @@ class SoilProperty:
         if self.SOL_NO3 != []:
             for j in range(self.SOILLAYERS):
                 self.SOL_NO3[j] = self.SOL_NO3[j] * wt1[j]
-        if self.SOL_NH3 != []:
+        if self.SOL_NH4 != []:
             for j in range(self.SOILLAYERS):
-                self.SOL_NH3[j] = self.SOL_NH3[j] * wt1[j]
+                self.SOL_NH4[j] = self.SOL_NH4[j] * wt1[j]
         if self.SOL_ORGN != []:
             for j in range(self.SOILLAYERS):
                 self.SOL_ORGN[j] = self.SOL_ORGN[j] * wt1[j]

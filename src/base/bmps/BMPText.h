@@ -73,28 +73,6 @@
 #define BMP_TYPE_TILEDRAIN                14
 #define BMP_TYPE_URBAN                    15
 #define BMP_TYPE_AREALSOURCE				16
-////the hydro climate data columns of pointsource, flowdiversion and reservoir
-//#define BMP_REACH_FLOW_NAME			"flow"
-//#define BMP_REACH_SEDIMENT_NAME		"sediment"
-//#define BMP_REACH_ORGANICN_NAME		"organicN"
-//#define BMP_REACH_ORGANICP_NAME		"organicP"
-//#define BMP_REACH_NO3_NAME			"NO3"
-//#define BMP_REACH_NH3_NAME			"NH3"
-//#define BMP_REACH_NO2_NAME			"NO2"
-//#define BMP_REACH_MINERALP_NAME		"mineralP"
-//
-//#define BMP_REACH_UNKONWN_TYPE		-1
-//#define BMP_REACH_FLOW_TYPE			1
-//#define BMP_REACH_SEDIMENT_TYPE		2
-//#define BMP_REACH_ORGANICN_TYPE		3
-//#define BMP_REACH_ORGANICP_TYPE		4
-//#define BMP_REACH_NO3_TYPE			5
-//#define BMP_REACH_NH3_TYPE			6
-//#define BMP_REACH_NO2_TYPE			7
-//#define BMP_REACH_MINERALP_TYPE		8
-//
-//#define BMP_REACH_X_INDEX				1
-//#define BMP_REACH_Y_INDEX				2
 
 //// Common fields
 #define BMP_FLD_SUB                                    "SUBSCENARIO"
@@ -112,7 +90,7 @@
 #define BMP_PTSRC_FLD_SED                    "SED"
 #define BMP_PTSRC_FLD_TN                        "TN"
 #define BMP_PTSRC_FLD_NO3                    "NO3"
-#define BMP_PTSRC_FLD_NH3                    "NH3"
+#define BMP_PTSRC_FLD_NH4                    "NH4"
 #define BMP_PTSRC_FLD_ORGN                "ORGN"
 #define BMP_PTSRC_FLD_TP                        "TP"
 #define BMP_PTSRC_FLD_SOLP                    "SOLP"
@@ -132,7 +110,7 @@
 #define BMP_ARSRC_FLD_SED                    "SED"
 #define BMP_ARSRC_FLD_TN                        "TN"
 #define BMP_ARSRC_FLD_NO3                    "NO3"
-#define BMP_ARSRC_FLD_NH3                    "NH3"
+#define BMP_ARSRC_FLD_NH4                    "NH4"
 #define BMP_ARSRC_FLD_ORGN                "ORGN"
 #define BMP_ARSRC_FLD_TP                        "TP"
 #define BMP_ARSRC_FLD_SOLP                    "SOLP"
@@ -287,13 +265,13 @@
 
 /// Field index in FertilizerLookup table
 #define FERTILIZER_PARAM_COUNT 10
-/// IFNUM, FMINN, FMINP, FORGN, FORGP, FNH3N, BACTPDB, BACTLPDB, BACTKDDB, MANURE
+/// IFNUM, FMINN, FMINP, FORGN, FORGP, FNH4N, BACTPDB, BACTLPDB, BACTKDDB, MANURE
 #define	FERTILIZER_PARAM_IFNUM_IDX	1
 #define	FERTILIZER_PARAM_FMINN_IDX	2
 #define	FERTILIZER_PARAM_FMINP_IDX	3
 #define	FERTILIZER_PARAM_FORGN_IDX	4
 #define	FERTILIZER_PARAM_FORGP_IDX	5
-#define	FERTILIZER_PARAM_FNH3N_IDX	6
+#define	FERTILIZER_PARAM_FNH4N_IDX	6
 #define	FERTILIZER_PARAM_BACTPDB_IDX	7
 #define	FERTILIZER_PARAM_BATTLPDB_IDX	8
 #define	FERTILIZER_PARAM_BACKTKDDB_IDX	9

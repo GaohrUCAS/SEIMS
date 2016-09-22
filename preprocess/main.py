@@ -30,7 +30,7 @@ if __name__ == "__main__":
     ImportDailyMeteoData(SitesMList)
     ImportDailyPrecData(SitesPList)
     ## Measurement Data, such as discharge, sediment yield.
-    #ImportMeasurementData()
+    ImportMeasurementData()
     ## Spatial Data derived from DEM
     SubbasinDelineation()
     ## Extract parameters from landuse, soil properties etc.

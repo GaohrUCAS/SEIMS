@@ -240,7 +240,7 @@
 #define REACH_BOD					"BOD"
 #define REACH_ALGAE					"ALGAE"
 #define REACH_ORGN					"ORGN"
-#define REACH_NH3					"NH3"
+#define REACH_NH4					"NH4"
 #define REACH_NO2					"NO2"
 #define REACH_NO3					"NO3"
 #define REACH_ORGP					"ORGP"
@@ -510,7 +510,7 @@
 #define VAR_A_BNK "a_bnk"                           /// bank flow recession constant
 #define VAR_ACC "acc"
 #define VAR_ACC_INFIL "AccumuInfil"
-#define VAR_ADDRNH3 "addrnh3"                       /// ammonium added by rainfall (kg/ha)
+#define VAR_ADDRNH4 "addrnh4"                       /// ammonium added by rainfall (kg/ha)
 #define VAR_ADDRNO3 "addrno3"                       /// nitrate added by rainfall (kg/ha)
 #define VAR_AET_PLT "AET_PLT"
 #define VAR_AFERT_AMAXN "afert_AmaxN"
@@ -540,8 +540,8 @@
 #define VAR_CH_ONCO "ch_onco"
 #define VAR_CH_OPCO "ch_opco"
 #define VAR_AMMO_CH "ammoToCh"
-#define VAR_CH_NH3 "ch_nh3"
-#define VAR_CH_NH3Conc "ch_nh3Conc"
+#define VAR_CH_NH4 "ch_nh4"
+#define VAR_CH_NH4Conc "ch_nh4Conc"
 #define VAR_ANION_EXCL "anion_excl"
 #define VAR_AWTR_STRS_ID "awtr_strsID"
 #define VAR_AWTR_STRS_TRIG "awtr_strsTrig"
@@ -798,7 +798,7 @@
 #define VAR_PLANT_P "plant_P"
 #define VAR_PLTET_TOT "plt_et_tot"
 #define VAR_PLTPET_TOT "plt_pet_tot"
-#define VAR_POREID "Poreindex"                      /// pore size distribution index
+#define VAR_POREIDX "Poreindex"                      /// pore size distribution index
 #define VAR_POROST "Porosity"                       /// soil porosity
 #define VAR_POT_NO3 "pot_no3"
 #define VAR_POT_ORGN "pot_orgn"
@@ -914,7 +914,7 @@
 #define VAR_SOL_FOP "sol_fop"                       /// amount of phosphorus stored in the fresh organic (residue) pool(kg P/ha)
 #define VAR_SOL_MP "sol_mp"
 #define VAR_SOL_N "sol_N"
-#define VAR_SOL_NH3 "sol_nh3"                       /// amount of nitrogen stored in the ammonium pool in soil layer
+#define VAR_SOL_NH4 "sol_nh4"                       /// amount of nitrogen stored in the ammonium pool in soil layer
 #define VAR_SOL_NO3 "sol_no3"                       /// amount of nitrogen stored in the nitrate pool in soil layer(kg N/ha)
 #define VAR_SOL_OM "om"
 #define VAR_SOL_SORGN "sol_orgn"                     /// amount of nitrogen stored in the stable organic N pool(kg N/ha)
@@ -1003,7 +1003,7 @@
 #define VAR_WSHD_DNIT "wshd_dnit"                   ///  nitrogen lost from nitrate pool due to denitrification in watershed(kg N/ha)
 #define VAR_WSHD_HMN "wshd_hmn"                     ///  nitrogen moving from active organic to nitrate pool in watershed(kg N/ha)
 #define VAR_WSHD_HMP "wshd_hmp"                     ///  phosphorus moving from organic to labile pool in watershed(kg P/ha)
-#define VAR_WSHD_NITN "wshd_nitn"                   ///  nitrogen moving from the NH3 to the NO3 pool by nitrification in the watershed
+#define VAR_WSHD_NITN "wshd_nitn"                   ///  nitrogen moving from the NH4 to the NO3 pool by nitrification in the watershed
 #define VAR_WSHD_PAL "wshd_pal"                     ///  phosphorus moving from labile mineral to active mineral pool in watershed
 #define VAR_WSHD_PAS "wshd_pas"                     ///  phosphorus moving from active mineral to stable mineral pool in watershed
 #define VAR_WSHD_PLCH "wshd_plch"
@@ -1083,7 +1083,7 @@
 #define DESC_A_BNK "bank flow recession constant"
 #define DESC_ACC "the number of flow accumulation cells of each cell"
 #define DESC_ACC_INFIL "accumulative infiltration"
-#define DESC_ADDRNH3 "ammonium added by rainfall"
+#define DESC_ADDRNH4 "ammonium added by rainfall"
 #define DESC_ADDRNO3 "nitrate added by rainfall"
 #define DESC_AET_PLT "actual amount of plant transpiration, ep_day in SWAT"
 #define DESC_AFERT_AMAXN "Maximum amount of mineral N allowed to be applied in any one year"
@@ -1374,7 +1374,7 @@
 #define DESC_PLANT_P "amount of phosphorus in plant biomass (kg/ha), plantp in SWAT"
 #define DESC_PLTET_TOT "actual ET simulated during life of plant"
 #define DESC_PLTPET_TOT "potential ET simulated during life of plant"
-#define DESC_POREID "pore size distribution index"
+#define DESC_POREIDX "pore size distribution index"
 #define DESC_POROST "soil porosity"
 #define DESC_POT_NO3 "amount of nitrate in pothole water body"
 #define DESC_POT_ORGN "amount of organic N in pothole water body"
@@ -1490,7 +1490,7 @@
 #define DESC_SOL_FOP "amount of phosphorus stored in the fresh organic (residue) pool"
 #define DESC_SOL_MP "??"
 #define DESC_SOL_N "used for orgncswat.f in SWAT. TODO"
-#define DESC_SOL_NH3 "amount of nitrogen stored in the ammonium pool in soil layer"
+#define DESC_SOL_NH4 "amount of nitrogen stored in the ammonium pool in soil layer"
 #define DESC_SOL_NO3 "amount of nitrogen stored in the nitrate pool in soil layer"
 #define DESC_SOL_OM "percent of organic matter in soil"
 #define DESC_SOL_SORGN "amount of nitrogen stored in the stable organic N pool"

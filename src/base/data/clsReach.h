@@ -103,7 +103,7 @@ public:
 
 	float GetOrgN(){return this->orgn;}
 
-	float GetNH3(){return this->nh3;}
+	float GetNH4(){return this->nh4;}
 
 	float GetNO2(){return this->no2;}
 
@@ -191,7 +191,7 @@ private:
 	/// Initial organic nitrogen concentration in the reach.	[mg /l]
 	float orgn;
 	/// Initial ammonia concentration in the reach.	[mg /l]
-	float nh3;
+	float nh4;
 	/// Initial nitrite concentration in the reach
 	float no2;
 	/// Initial nitrate concentration in the reach

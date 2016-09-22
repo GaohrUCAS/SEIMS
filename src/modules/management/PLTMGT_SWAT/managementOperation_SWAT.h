@@ -95,8 +95,8 @@ private:
     float **m_soilFreshOrgN;
     ///    sol_fop(:,:)  |kg P/ha       |amount of phosphorus stored in the fresh organic (residue) pool
     float **m_soilFreshOrgP;
-    ///    sol_nh3(:,:)  |kg N/ha       |amount of nitrogen stored in the ammonium pool in soil layer
-    float **m_soilNH3;
+    ///    sol_nh4(:,:)  |kg N/ha       |amount of nitrogen stored in the ammonium pool in soil layer
+    float **m_soilNH4;
     ///    sol_no3(:,:)  |kg N/ha       |amount of nitrogen stored in the nitrate pool in soil layer
     float **m_soilNO3;
     /// sol_orgn(:,:) |kg N/ha       |amount of nitrogen stored in the stable organic N pool

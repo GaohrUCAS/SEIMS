@@ -151,7 +151,7 @@ private:
     ///amount of phosphorus stored in solution(kg P/ha)
     float **m_sol_solp;
     ///amount of nitrogen stored in the ammonium pool in soil layer(kg/ha)
-    float **m_sol_nh3;
+    float **m_sol_nh4;
     ///water content of soil at -1.5 MPa (wilting point)
     float **m_sol_wpmm;
     ///nitrogen lost from nitrate pool due to denitrification in watershed(kg N/ha)

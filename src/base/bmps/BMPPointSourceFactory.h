@@ -129,8 +129,8 @@ namespace MainBMP
         /// Get NO3 concentration
         float GetNO3() { return m_NO3Conc; }
 
-        /// Get NH3 concentration
-        float GetNH3() { return m_NH3Conc; }
+        /// Get NH4 concentration
+        float GetNH4() { return m_NH4Conc; }
 
         /// Get OrgN concentration
         float GetOrgN() { return m_OrgNConc; }
@@ -163,8 +163,8 @@ namespace MainBMP
         float m_TNConc;
         ///	NO3	Nitrate Nitrogen concentration	mg/L
         float m_NO3Conc;
-        /// NH3	Ammonium Nitrogen concentration	mg/L
-        float m_NH3Conc;
+        /// NH4	Ammonium Nitrogen concentration	mg/L
+        float m_NH4Conc;
         ///	ORGN	Organic Nitrogen concentration	mg/L
         float m_OrgNConc;
         ///	TP	Total phosphorus concentration	mg/L

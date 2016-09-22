@@ -90,8 +90,8 @@ clsReach::clsReach(const bson_t *&bsonTable)
 		this->no3 = GetFloatFromBSONITER(&iterator);
 	if (bson_iter_init_find(&iterator, bsonTable, REACH_NO2))
 		this->no2 = GetFloatFromBSONITER(&iterator);
-	if (bson_iter_init_find(&iterator, bsonTable, REACH_NH3))
-		this->nh3 = GetFloatFromBSONITER(&iterator);
+	if (bson_iter_init_find(&iterator, bsonTable, REACH_NH4))
+		this->nh4 = GetFloatFromBSONITER(&iterator);
 	if (bson_iter_init_find(&iterator, bsonTable, REACH_ORGN))
 		this->orgn = GetFloatFromBSONITER(&iterator);
 	if (bson_iter_init_find(&iterator, bsonTable, REACH_ORGP))

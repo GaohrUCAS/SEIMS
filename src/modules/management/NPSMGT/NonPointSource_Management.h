@@ -33,7 +33,7 @@ private:
 	/// nitrate kg/ha
 	float **m_sol_no3;
 	/// ammonium kg/ha
-	float **m_sol_nh3;
+	float **m_sol_nh4;
 	/// soluble phosphorus kg/ha
 	float **m_sol_solp;
 
