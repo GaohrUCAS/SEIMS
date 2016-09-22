@@ -13,7 +13,7 @@
 ## 	Sed	Sediment concentration	kg/'size'/day																			
 ## 	TN	Total Nitrogen concentration	kg/'size'/day																			
 ## 	NO3	Nitrate Nitrogen concentration	kg/'size'/day																			
-## 	NH3	Ammonium Nitrogen concentration	kg/'size'/day																			
+## 	NH4	Ammonium Nitrogen concentration	kg/'size'/day																			
 ## 	ORGN	Organic Nitrogen concentration	kg/'size'/day																			
 ## 	TP	Total phosphorus concentration	kg/'size'/day																			
 ## 	SOLP	Dissolved (soluble) phosphorus concentration	kg/'size'/day																			
@@ -21,5 +21,5 @@
 ##	CAPEX	capital expenditures	RMB/'size'																			
 ##	OPEX	operation expenses	RMB/'size'/year																			
 ##	INCOME	additional incoime	RMB/'size'/year																			
-SUBSCENARIO	NAME	ARSRC	SEQUENCE	SYear	SMonth	SDay	EYear	EMonth	EDay	Q	SED	TN	NO3	NH3	ORGN	TP	SOLP	ORGP	COD	CAPEX	OPEX	INCOME
+SUBSCENARIO	NAME	ARSRC	SEQUENCE	SYear	SMonth	SDay	EYear	EMonth	EDay	Q	SED	TN	NO3	NH4	ORGN	TP	SOLP	ORGP	COD	CAPEX	OPEX	INCOME
 10001	traditional	10000	0	-9999	-9999	-9999	-9999	-9999	-9999	0	0	0	0	0	0	0	0	0	0	0	0	0

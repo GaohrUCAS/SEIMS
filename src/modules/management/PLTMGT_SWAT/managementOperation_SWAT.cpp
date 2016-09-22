@@ -18,7 +18,7 @@ MGTOpt_SWAT::MGTOpt_SWAT(void) : m_nCells(-1), m_nSub(-1), m_soilLayers(-1),
                                  m_soilRock(NULL), m_soilClay(NULL), m_soilSand(NULL), m_soilSilt(NULL),
         /// Soil related parameters
                                  m_soilActiveOrgN(NULL), m_soilFreshOrgN(NULL), m_soilFreshOrgP(NULL), 
-                                 m_soilNH3(NULL), m_soilNO3(NULL), m_soilStableOrgN(NULL),
+                                 m_soilNH4(NULL), m_soilNO3(NULL), m_soilStableOrgN(NULL),
                                  m_soilOrgP(NULL), m_soilSolP(NULL),
         /// Plant operation related parameters
                                  m_landuseLookup(NULL), m_landuseNum(-1), m_CN2(NULL), m_igro(NULL),m_landCoverCls(NULL),
@@ -326,7 +326,7 @@ void MGTOpt_SWAT::Set2DData(const char *key, int n, int col, float **data)
     else if (StringMatch(sk, VAR_SOL_SORGN)) m_soilStableOrgN = data;
     else if (StringMatch(sk, VAR_SOL_HORGP)) m_soilOrgP = data;
     else if (StringMatch(sk, VAR_SOL_SOLP)) m_soilSolP = data;
-    else if (StringMatch(sk, VAR_SOL_NH3)) m_soilNH3 = data;
+    else if (StringMatch(sk, VAR_SOL_NH4)) m_soilNH4 = data;
     else if (StringMatch(sk, VAR_SOL_NO3)) m_soilNO3 = data;
     else if (StringMatch(sk, VAR_SOL_AORGN)) m_soilActiveOrgN = data;
     else if (StringMatch(sk, VAR_SOL_FON)) m_soilFreshOrgN = data;
@@ -461,7 +461,7 @@ bool MGTOpt_SWAT::CheckInputData(void)
         throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Soil fresh organic N must not be NULL");
     if (m_soilFreshOrgP == NULL)
         throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Soil fresh organic P must not be NULL");
-    if (m_soilNH3 == NULL) throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Soil NH3 must not be NULL");
+    if (m_soilNH4 == NULL) throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Soil NH4 must not be NULL");
     if (m_soilNO3 == NULL) throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Soil NO3 must not be NULL");
     if (m_soilStableOrgN == NULL)
         throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Soil stable organic N must not be NULL");
@@ -817,8 +817,8 @@ void MGTOpt_SWAT::ExecuteFertilizerOperation(int i, int &factoryID, int nOp)
     float fertOrgN = m_fertilizerLookupMap[fertilizerID][FERTILIZER_PARAM_FORGN_IDX];
     //!!    forgp(:)      |kg orgP/kg frt|fraction of fertilizer that is organic P
     float fertOrgP = m_fertilizerLookupMap[fertilizerID][FERTILIZER_PARAM_FORGP_IDX];
-    //!!    fnh3n(:)      |kgNH3-N/kgminN|fraction of mineral N in fertilizer that is NH3-N
-    float fertNH3N = m_fertilizerLookupMap[fertilizerID][FERTILIZER_PARAM_FNH3N_IDX];
+    //!!    fnh4n(:)      |kg NH4-N/kgminN|fraction of mineral N in fertilizer that is NH4-N
+    float fertNH4N = m_fertilizerLookupMap[fertilizerID][FERTILIZER_PARAM_FNH4N_IDX];
     //!!    bactpdb(:)    |# cfu/g   frt |concentration of persistent bacteria in fertilizer
     float bactPDB = m_fertilizerLookupMap[fertilizerID][FERTILIZER_PARAM_BACTPDB_IDX];
     //!!    bactlpdb(:)   |# cfu/g   frt |concentration of less persistent bacteria in fertilizer
@@ -832,7 +832,7 @@ void MGTOpt_SWAT::ExecuteFertilizerOperation(int i, int &factoryID, int nOp)
     //!!    fertp         |kg P/ha       |total amount of phosphorus applied to soil in cell on day
     float fertP = 0.f;
     float fertNO3 = 0.f;
-    float fertNH3 = 0.f;
+    float fertNH4 = 0.f;
     float fertSolP = 0.f;
     /// cfertn       |kg N/ha       |total amount of nitrogen applied to soil during continuous fertilizer operation in cell on day
     float cFertN = 0.f;
@@ -848,7 +848,7 @@ void MGTOpt_SWAT::ExecuteFertilizerOperation(int i, int &factoryID, int nOp)
     {
         if (l == 0) xx = fertilizerSurfFrac;
         if (l == 1) xx = 1.f - fertilizerSurfFrac;
-        m_soilNO3[i][l] += xx * fertilizerKg * (1.f - fertNH3N) * fertMinN;
+        m_soilNO3[i][l] += xx * fertilizerKg * (1.f - fertNH4N) * fertMinN;
         if (m_cswat == 0)
         {
             m_soilFreshOrgN[i][l] += rtof * xx * fertilizerKg * fertOrgN;
@@ -862,7 +862,7 @@ void MGTOpt_SWAT::ExecuteFertilizerOperation(int i, int &factoryID, int nOp)
             float X1 = 0.f, X8 = 0.f, X10 = 0.f, XXX = 0.f, YY = 0.f;
             float ZZ = 0.f, XZ = 0.f, YZ = 0.f, RLN = 0.f, orgc_f = 0.f;
         }
-        m_soilNH3[i][l] += xx * fertilizerKg * fertNH3N * fertMinN;
+        m_soilNH4[i][l] += xx * fertilizerKg * fertNH4N * fertMinN;
         m_soilSolP[i][l] += xx * fertilizerKg * fertMinP;
     }
     /// add bacteria - #cfu/g * t(manure)/ha * 1.e6g/t * ha/10,000m^2 = 100.
@@ -888,8 +888,8 @@ void MGTOpt_SWAT::ExecuteFertilizerOperation(int i, int &factoryID, int nOp)
     //m_bactLessPersistParticle[i] *= (1. - bactKDDB);
 
     /// summary calculations, currently not used for output. TODO in the future.
-    fertNO3 = fertilizerKg * fertMinN * (1.f - fertNH3N);
-    fertNH3 = fertilizerKg * (fertMinN * fertNH3N);
+    fertNO3 = fertilizerKg * fertMinN * (1.f - fertNH4N);
+    fertNH4 = fertilizerKg * (fertMinN * fertNH4N);
     fertOrgN = fertilizerKg * fertOrgN;
     fertOrgP = fertilizerKg * fertOrgP;
     fertSolP = fertilizerKg * fertSolP;
@@ -1158,7 +1158,7 @@ void MGTOpt_SWAT::ExecuteTillageOperation(int i, int &factoryID, int nOp)
             WW1 = soilMixedMass[l] / (soilMixedMass[l] + soilNotMixedMass[l]);
             smix[0] += m_soilNO3[i][l] * WW1;
             smix[1] += m_soilStableOrgN[i][l] * WW1;
-            smix[2] += m_soilNH3[i][l] * WW1;
+            smix[2] += m_soilNH4[i][l] * WW1;
             smix[3] += m_soilSolP[i][l] * WW1;
             smix[4] += m_soilOrgP[i][l] * WW1;
             smix[5] += m_soilActiveOrgN[i][l] * WW1;
@@ -1192,7 +1192,7 @@ void MGTOpt_SWAT::ExecuteTillageOperation(int i, int &factoryID, int nOp)
             WW4 = soilMixedMass[l] / XX;
             m_soilNO3[i][l] = m_soilNO3[i][l] * WW3 + smix[0] * WW4;
             m_soilStableOrgN[i][l] = m_soilStableOrgN[i][l] * WW3 + smix[1] * WW4;
-            m_soilNH3[i][l] = m_soilNH3[i][l] * WW3 + smix[2] * WW4;
+            m_soilNH4[i][l] = m_soilNH4[i][l] * WW3 + smix[2] * WW4;
             m_soilSolP[i][l] = m_soilSolP[i][l] * WW3 + smix[3] * WW4;
             m_soilOrgP[i][l] = m_soilOrgP[i][l] * WW3 + smix[4] * WW4;
             m_soilActiveOrgN[i][l] = m_soilActiveOrgN[i][l] * WW3 + smix[5] * WW4;

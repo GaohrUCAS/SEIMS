@@ -417,7 +417,7 @@ void NutrCH_QUAL2E::SetReaches(clsReaches *reaches)
 			m_chAlgae[i] = tmpReach->GetAlgae();
 			m_chOrgN[i] = tmpReach->GetOrgN();
 			m_chOrgP[i] = tmpReach->GetOrgP();
-			m_chNH4[i] = tmpReach->GetNH3();
+			m_chNH4[i] = tmpReach->GetNH4();
 			m_chNO2[i] = tmpReach->GetNO2();
 			m_chNO3[i] = tmpReach->GetNO3();
 			m_chSolP[i] = tmpReach->GetSolP();
@@ -557,7 +557,7 @@ void NutrCH_QUAL2E::PointSourceLoading()
 			// 1.2 Otherwise, get the nutrient concentration, mg/L
 			float per_wtr = curPtMgt->GetWaterVolume();
 			float per_no3 = curPtMgt->GetNO3();
-			float per_nh4 = curPtMgt->GetNH3();
+			float per_nh4 = curPtMgt->GetNH4();
 			float per_orgn = curPtMgt->GetOrgN();
 			float per_solp = curPtMgt->GetSolP();
 			float per_orgP = curPtMgt->GetOrgP();
@@ -822,8 +822,8 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	float algcon = cvt_amout2conc * m_chAlgae[i];
 	// initial organic N concentration in reach (orgncon mg/L)
 	float orgncon = cvt_amout2conc * m_chOrgN[i];
-	// initial ammonia concentration in reach (nh3con mg/L)
-	float nh3con = cvt_amout2conc * m_chNH4[i];
+	// initial ammonia concentration in reach (nh4con mg/L)
+	float nh4con = cvt_amout2conc * m_chNH4[i];
 	// initial nitrite concentration in reach (no2con mg/L)
 	float no2con = cvt_amout2conc * m_chNO2[i];
 	// initial nitrate concentration in reach (no3con mg/L)
@@ -840,7 +840,7 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	// temperature of water in reach (wtmp deg C)
 	float wtmp = max(m_chTemp[i], 0.1f);
 	// calculate effective concentration of available nitrogen (cinn)
-	float cinn = nh3con + no3con;
+	float cinn = nh4con + no3con;
 
 	// calculate saturation concentration for dissolved oxygen
 	// variable to hold intermediate calculation result
@@ -998,7 +998,7 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	
 	ww = corTempc(m_rk1[i], thm_rk1, wtmp) * cbodcon;
 	xx = corTempc(m_rk4[i], thm_rk4, wtmp) / (tmpChWtDepth * 1000.f);
-	yy = m_ai5 * corTempc(bc1mod, thbc1, wtmp) * nh3con;
+	yy = m_ai5 * corTempc(bc1mod, thbc1, wtmp) * nh4con;
 	zz = m_ai6 * corTempc(bc2mod, thbc2, wtmp) * no2con;
 
 	ddisox = 0.f;
@@ -1041,28 +1041,28 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	if (dorgn > dcoef * orgncon) dorgn = dcoef * orgncon;
 	// calculate fraction of algal nitrogen uptake from ammonia pool
 	float f1 = 0.f;
-	f1 = m_p_n * nh3con / (m_p_n * nh3con + (1.f - m_p_n) * no3con + 1.e-6f);
+	f1 = m_p_n * nh4con / (m_p_n * nh4con + (1.f - m_p_n) * no3con + 1.e-6f);
 
-	//cout<<"subID: "<<i<<", initial nh3 conc: "<<nh3con<<", "<<"initial orgn: "<<orgncon<<", ";
+	//cout<<"subID: "<<i<<", initial nh4 conc: "<<nh4con<<", "<<"initial orgn: "<<orgncon<<", ";
 	// calculate ammonia nitrogen concentration at end of day (dnh4)
 	ww = 0.f;
 	xx = 0.f;
 	yy = 0.f;
 	zz = 0.f;
 	ww = corTempc(m_bc3[i], thbc3, wtmp) * orgncon;
-	xx = corTempc(bc1mod, thbc1, wtmp) * nh3con;
+	xx = corTempc(bc1mod, thbc1, wtmp) * nh4con;
 	yy = corTempc(m_rs3[i], thrs3, wtmp) / (tmpChWtDepth * 1000.f);
 	zz = f1 * m_ai1 * algcon * corTempc(gra, thgra, wtmp);
 	dnh4 = 0.f;
-	dnh4 = nh3con + (ww - xx + yy - zz) * tday;
+	dnh4 = nh4con + (ww - xx + yy - zz) * tday;
 	if (dnh4 < 1.e-6f) dnh4 = 0.f;
-	if (dnh4 > dcoef * nh3con && nh3con > 0.f)
-		dnh4 = dcoef * nh3con;
+	if (dnh4 > dcoef * nh4con && nh4con > 0.f)
+		dnh4 = dcoef * nh4con;
 	//if(i == 12) cout<<"orgncon: "<<orgncon<<", ww: "<<ww<<", xx: "<<xx<<", yy: "<<yy<<", zz: "<<zz<<",\n nh4 out: "<<dnh4<<endl;
 	// calculate concentration of nitrite at end of day (dno2)
 	yy = 0.f;
 	zz = 0.f;
-	yy = corTempc(bc1mod, thbc1, wtmp) * nh3con;
+	yy = corTempc(bc1mod, thbc1, wtmp) * nh4con;
 	zz = corTempc(bc2mod, thbc2, wtmp) * no2con;
 	dno2 = 0.f;
 	dno2 = no2con + (yy - zz) * tday;
@@ -1156,8 +1156,8 @@ void NutrCH_QUAL2E::Get1DData(const char *key, int *n, float **data)
 	else if (StringMatch(sk, VAR_CH_ORGNConc))  *data = m_chOutOrgNConc;
 	else if (StringMatch(sk, VAR_CH_ORGP))  *data = m_chOutOrgP;
 	else if (StringMatch(sk, VAR_CH_ORGPConc))  *data = m_chOutOrgPConc;
-	else if(StringMatch(sk, VAR_CH_NH3))    *data = m_chOutNH4;
-	else if(StringMatch(sk, VAR_CH_NH3Conc))    *data = m_chOutNH4Conc;
+	else if(StringMatch(sk, VAR_CH_NH4))    *data = m_chOutNH4;
+	else if(StringMatch(sk, VAR_CH_NH4Conc))    *data = m_chOutNH4Conc;
 	else if(StringMatch(sk, VAR_CH_DOX))    *data = m_chOutDOx;
 	else if(StringMatch(sk, VAR_CH_DOXConc))    *data = m_chOutDOxConc;
 	else if(StringMatch(sk, VAR_CH_TN))    *data = m_chOutTN;

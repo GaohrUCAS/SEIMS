@@ -90,7 +90,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.AddOutput(VAR_CH_ALGAE, UNIT_KG, DESC_CH_ALGAE, DT_Array1D);
     mdi.AddOutput(VAR_CH_ORGN, UNIT_KG, DESC_CH_ORGN, DT_Array1D);
     mdi.AddOutput(VAR_CH_ORGP, UNIT_KG, DESC_CH_ORGP, DT_Array1D);
-    mdi.AddOutput(VAR_CH_NH3, UNIT_KG, DESC_CH_NH4, DT_Array1D);
+    mdi.AddOutput(VAR_CH_NH4, UNIT_KG, DESC_CH_NH4, DT_Array1D);
     mdi.AddOutput(VAR_CH_NO2, UNIT_KG, DESC_CH_NO2, DT_Array1D);
     mdi.AddOutput(VAR_CH_NO3, UNIT_KG, DESC_CH_NO3, DT_Array1D);
     mdi.AddOutput(VAR_CH_SOLP, UNIT_KG, DESC_CH_SOLP, DT_Array1D);
@@ -103,7 +103,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddOutput(VAR_CH_ALGAEConc, UNIT_CONCENTRATION, DESC_CH_ALGAE, DT_Array1D);
 	mdi.AddOutput(VAR_CH_ORGNConc, UNIT_CONCENTRATION, DESC_CH_ORGN, DT_Array1D);
 	mdi.AddOutput(VAR_CH_ORGPConc, UNIT_CONCENTRATION, DESC_CH_ORGP, DT_Array1D);
-	mdi.AddOutput(VAR_CH_NH3Conc, UNIT_CONCENTRATION, DESC_CH_NH4, DT_Array1D);
+	mdi.AddOutput(VAR_CH_NH4Conc, UNIT_CONCENTRATION, DESC_CH_NH4, DT_Array1D);
 	mdi.AddOutput(VAR_CH_NO2Conc, UNIT_CONCENTRATION, DESC_CH_NO2, DT_Array1D);
 	mdi.AddOutput(VAR_CH_NO3Conc, UNIT_CONCENTRATION, DESC_CH_NO3, DT_Array1D);
 	mdi.AddOutput(VAR_CH_SOLPConc, UNIT_CONCENTRATION, DESC_CH_SOLP, DT_Array1D);

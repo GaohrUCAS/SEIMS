@@ -296,7 +296,7 @@ def GenerateReachTable(folder, db, forCluster):
             dic[REACH_BOD.upper()] = 10
             dic[REACH_ALGAE.upper()] = 0 # 10
             dic[REACH_ORGN.upper()] = 0 # 10
-            dic[REACH_NH3.upper()] = 0 # 1 # 8.
+            dic[REACH_NH4.upper()] = 0 # 1 # 8.
             dic[REACH_NO2.upper()] = 0 # 0.
             dic[REACH_NO3.upper()] = 0 # 1 # 8.
             dic[REACH_ORGP.upper()] = 0 # 10.

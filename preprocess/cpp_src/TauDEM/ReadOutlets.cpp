@@ -114,7 +114,11 @@ int readoutlets(char *outletsfile, int *noutlets, double*& x, double*& y, int*& 
 	int idfld = DBFGetFieldIndex(dbf, "id");
 	if (idfld < 0) // the unique field named "id" is not found
 	{
-		int idfld = DBFGetFieldIndex(dbf, "OBJECTID"); // try "OBJECTID" again, ZhuLJ, 2015/6/16
+		idfld = DBFGetFieldIndex(dbf, "OBJECTID"); // try "OBJECTID" again, ZhuLJ, 2015/6/16
+	}
+	if (idfld < 0) // the unique field named "id" and "objectid" are both not found
+	{
+		idfld = DBFGetFieldIndex(dbf, "POINTID"); // try "pointid" again, ZhuLJ, 2015/9/22
 	}
 	for( int i=0; i<nEntities; i++) {
 		SHPObject * shape = SHPReadObject(shp, i);
@@ -128,7 +132,7 @@ int readoutlets(char *outletsfile, int *noutlets, double*& x, double*& y, int*& 
 	else
 	{
 		// throw exception, added by LJ, 2016-9-18
-		fprintf(stderr, "The unique field id in outlets shapefile: %s should be \"ID\" or \"OBJECTID\"!\n", outletsfile);
+		fprintf(stderr, "The unique field id in outlets shapefile: %s should be \"ID\" or \"OBJECTID\" or \"POINTID\"!\n", outletsfile);
 		fflush(stderr);
 		return -1;
 	}

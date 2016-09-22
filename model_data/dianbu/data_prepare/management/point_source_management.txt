@@ -15,7 +15,7 @@
 ## 	Sed	Sediment concentration	g/cm3			
 ## 	TN	Total Nitrogen concentration	mg/L			
 ## 	NO3	Nitrate Nitrogen concentration	mg/L			
-## 	NH3	Ammonium Nitrogen concentration	mg/L			
+## 	NH4	Ammonium Nitrogen concentration	mg/L			
 ## 	ORGN	Organic Nitrogen concentration	mg/L			
 ## 	TP	Total phosphorus concentration	mg/L			
 ## 	SOLP	Dissolved (soluble) phosphorus concentration	mg/L			
@@ -24,7 +24,7 @@
 ##	OPEX	operation expenses	RMB/'size'/year			
 ##	INCOME	additional incoime	RMB/'size'/year			
 
-SUBSCENARIO	NAME	PTSRC	SEQUENCE	SYear	SMonth	SDay	EYear	EMonth	EDay	Q	SED	TN	NO3	NH3	ORGN	TP	SOLP	ORGP	COD	CAPEX	OPEX	INCOME
+SUBSCENARIO	NAME	PTSRC	SEQUENCE	SYear	SMonth	SDay	EYear	EMonth	EDay	Q	SED	TN	NO3	NH4	ORGN	TP	SOLP	ORGP	COD	CAPEX	OPEX	INCOME
 10001	trad_cattle	10000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.25	0	50.47	10.59090909	38.82	1.059090909	9.47	8.609090909	0.860909091	406.92	0	0	0
 20001	trad_pig	20000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.03	0	34.92	7.663636364	26.49	0.766363636	5.98	5.436363636	0.543636364	267.27	0	0	0
 10002	mgt_cattle	10000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.0125	0	2.9475	1.031818182	1.8125	0.103181818	0.535	0.486363636	0.048636364	44.8075	150	10	0

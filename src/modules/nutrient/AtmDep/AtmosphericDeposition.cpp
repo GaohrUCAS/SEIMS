@@ -16,9 +16,9 @@ AtmosphericDeposition::AtmosphericDeposition(void) :
 		//input
         m_nCells(-1), m_rcn(-1.f), m_rca(-1.f),m_soiLayers(-1),
         m_preci(NULL), m_drydep_no3(-1.f), m_drydep_nh4(-1.f),
-		m_addrno3(-1.f), m_addrnh3(-1.f),
+		m_addrno3(-1.f), m_addrnh4(-1.f),
         //output
-        m_sol_no3(NULL), m_sol_nh3(NULL),  m_wshd_rno3(-1.f)
+        m_sol_no3(NULL), m_sol_nh4(NULL),  m_wshd_rno3(-1.f)
 {
 }
 
@@ -47,8 +47,8 @@ bool AtmosphericDeposition::CheckInputData(void)
         throw ModelException(MID_ATMDEP, "CheckInputData", "The m_drydep_nh4 can not be less than 0.");
 	if (this->m_sol_no3 == NULL)
 		throw ModelException(MID_ATMDEP, "CheckInputData", "The m_sol_no3 can not be NULL.");
-	if (this->m_sol_nh3== NULL)
-		throw ModelException(MID_ATMDEP, "CheckInputData", "The m_sol_nh3 can not be NULL.");
+	if (this->m_sol_nh4== NULL)
+		throw ModelException(MID_ATMDEP, "CheckInputData", "The m_sol_nh4 can not be NULL.");
     return true;
 }
 
@@ -101,10 +101,9 @@ void AtmosphericDeposition::Set2DData(const char *key, int nRows, int nCols, flo
     string sk(key);
     m_soiLayers = nCols;
     if (StringMatch(sk, VAR_SOL_NO3)) this->m_sol_no3 = data;
-    else if (StringMatch(sk, VAR_SOL_NH3)) this->m_sol_nh3 = data;
+    else if (StringMatch(sk, VAR_SOL_NH4)) this->m_sol_nh4 = data;
     else
-        throw ModelException(MID_ATMDEP, "Set2DData", "Parameter " + sk +
-                                                                  " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_ATMDEP, "Set2DData", "Parameter " + sk + " does not exist.");
 }
 
 void AtmosphericDeposition::initialOutputs()
@@ -113,9 +112,9 @@ void AtmosphericDeposition::initialOutputs()
         throw ModelException(MID_ATMDEP, "CheckInputData",
                              "The dimension of the input data can not be less than zero.");
     // allocate the output variables
-    if (m_addrnh3 < 0.f)
+    if (m_addrnh4 < 0.f)
     {
-        m_addrnh3 = 0.f;
+        m_addrnh4 = 0.f;
         m_addrno3 = 0.f;
     }
 	/// initialize m_wshd_rno3 to 0.f at each time step
@@ -135,13 +134,12 @@ int AtmosphericDeposition::Execute()
 			/// Calculate the amount of nitrite and ammonia added to the soil in rainfall
 			/// unit conversion: mg/L * mm = 0.01 * kg/ha (CHECKED)
 			m_addrno3 = 0.01f * m_rcn * m_preci[i];
-			m_addrnh3 = 0.01f * m_rca * m_preci[i];
+			m_addrnh4 = 0.01f * m_rca * m_preci[i];
 			m_sol_no3[i][0] += (m_addrno3 + m_drydep_no3 / 365.f);
-			m_sol_nh3[i][0] += (m_addrnh3 + m_drydep_nh4 / 365.f);
+			m_sol_nh4[i][0] += (m_addrnh4 + m_drydep_nh4 / 365.f);
 			m_wshd_rno3 += (m_addrno3 * (1.f / m_nCells));
 		}
 	}
-	//cout<<"ATMDEP, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
     return 0;
 }
 
@@ -150,18 +148,5 @@ void AtmosphericDeposition::GetValue(const char *key, float *value)
     string sk(key);
     if (StringMatch(sk, VAR_WSHD_RNO3)) *value = m_wshd_rno3; 
     else
-		throw ModelException(MID_ATMDEP, "GetValue",
-                             "Parameter " + sk + " does not exist. Please contact the module developer.");
+		throw ModelException(MID_ATMDEP, "GetValue", "Parameter " + sk + " does not exist.");
 }
-
-//void AtmosphericDeposition::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
-//{
-//    string sk(key);
-//    *nRows = m_nCells;
-//    *nCols = m_soiLayers;
-//    if (StringMatch(sk, VAR_SOL_NO3)) *data = m_sol_no3;
-//	else if (StringMatch(sk, VAR_SOL_NH3)) *data = m_sol_nh3; 
-//    else
-//		throw ModelException(MID_ATMDEP, "Get2DData", "Output " + sk +
-//                                                                   " does not exist in the Atmospheric Deposition module. Please contact the module developer.");
-//}

@@ -86,8 +86,8 @@ def soil_parameters2(dstdir, maskFile, soilSEQNTif, soilSEQNTxt):
                 curSoilIns.ESCO = curFlds[0]
             elif StringMatch(soilPropFlds[j], SOL_NO3):
                 curSoilIns.SOL_NO3 = curFlds
-            elif StringMatch(soilPropFlds[j], SOL_NH3):
-                curSoilIns.SOL_NH3 = curFlds
+            elif StringMatch(soilPropFlds[j], SOL_NH4):
+                curSoilIns.SOL_NH4 = curFlds
             elif StringMatch(soilPropFlds[j], SOL_ORGN):
                 curSoilIns.SOL_ORGN = curFlds
             elif StringMatch(soilPropFlds[j], SOL_SOLP):
