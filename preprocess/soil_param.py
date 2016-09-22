@@ -13,7 +13,6 @@ from text import *
 from util import *
 
 
-
 # SEQN              |None  : Unique identifier of soil
 # SNAME             |None  : soil name
 # SOILLAYERS        |None  : (nly) number of soil layers
@@ -321,10 +320,14 @@ class SoilProperty:
             raise IndexError("Pore disconnectedness index must have a size equal to soil layers number!")
         elif self.POREINDEX == []:
             for i in range(self.SOILLAYERS):
-                fc = self.FIELDCAP[i]
-                wp = self.WILTINGPOINT[i]
-                b = (math.log(1500.) - math.log(33.)) / (math.log(fc) - math.log(wp))
-                self.POREINDEX.append(1.0 / b)
+                # An fitted equation proposed by Cosby et al. (1984) is adopted. By LJ, 2016-9-22
+                b = 0.159 * self.CLAY[i] + 2.91
+                self.POREINDEX.append(b)
+                # previous version, currently deprecated by LJ
+                # fc = self.FIELDCAP[i]
+                # wp = self.WILTINGPOINT[i]
+                # b = (math.log(1500.) - math.log(33.)) / (math.log(fc) - math.log(wp))
+                # self.POREINDEX.append(1.0 / b)
         if self.POROSITY != [] and len(self.POROSITY) != self.SOILLAYERS:
             raise IndexError("Soil Porosity must have a size equal to soil layers number!")
         elif self.POROSITY == []:
@@ -426,9 +429,9 @@ class SoilProperty:
                                        0] - 0.049837 *
                                    self.POROSITY[0] * self.SAND[0] + 0.001608 * math.pow(self.POROSITY[0], 2) *
                                    math.pow(self.SAND[0], 2) + 0.001602 * math.pow(self.POROSITY[0], 2) * math.pow(
-                self.CLAY[0], 2) -
+            self.CLAY[0], 2) -
                                    0.0000136 * math.pow(self.SAND[0], 2) * self.CLAY[0] - 0.003479 * math.pow(
-                self.CLAY[0], 2) *
+            self.CLAY[0], 2) *
                                    self.POROSITY[0] - 0.000799 * math.pow(self.SAND[0], 2) * self.POROSITY[0])
 
         # tmp_sol_up = []  ## according to swat soil_phys.f
