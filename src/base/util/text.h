@@ -798,7 +798,7 @@
 #define VAR_PLANT_P "plant_P"
 #define VAR_PLTET_TOT "plt_et_tot"
 #define VAR_PLTPET_TOT "plt_pet_tot"
-#define VAR_POREID "Poreindex"                      /// pore size distribution index
+#define VAR_POREIDX "Poreindex"                      /// pore size distribution index
 #define VAR_POROST "Porosity"                       /// soil porosity
 #define VAR_POT_NO3 "pot_no3"
 #define VAR_POT_ORGN "pot_orgn"
@@ -1374,7 +1374,7 @@
 #define DESC_PLANT_P "amount of phosphorus in plant biomass (kg/ha), plantp in SWAT"
 #define DESC_PLTET_TOT "actual ET simulated during life of plant"
 #define DESC_PLTPET_TOT "potential ET simulated during life of plant"
-#define DESC_POREID "pore size distribution index"
+#define DESC_POREIDX "pore size distribution index"
 #define DESC_POROST "soil porosity"
 #define DESC_POT_NO3 "amount of nitrate in pothole water body"
 #define DESC_POT_ORGN "amount of organic N in pothole water body"
