@@ -43,7 +43,7 @@ from util import *
 # SOL_AWC           |mm H2O: (sol_fc) amount of water available to plants in soil layer at field capacity (fc - wp)
 # SOL_SUMAWC        |mm H2O: (sol_sumfc) amount of water held in soil profile at field capacity
 # POROSITY          |None  : (sol_por) total porosity of soil layer expressed as a fraction of the total volume
-# POREINDEX         |None  : pore disconnectedness index
+# POREINDEX         |None  : pore size distribution index
 # SOL_AVPOR         |None  : (sol_avpor) average porosity for entire soil profile
 # SOL_UL            |mm H2O: (sol_ul) amount of water held in the soil layer at saturation (sat - wp water)
 # SOL_SUMUL         |mm H2O: (sol_sumul) amount of water held in soil profile at saturation
