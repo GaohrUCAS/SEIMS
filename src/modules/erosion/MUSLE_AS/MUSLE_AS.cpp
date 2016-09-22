@@ -129,7 +129,8 @@ int MUSLE_AS::Execute()
             if (m_snowAccumulation[i] > 0.0001f)
                 Y /= exp(3.f * m_snowAccumulation[i] / 25.4f);  //equation 4 in memo, the snow pack effect
             m_sedimentYield[i] = Y * 1000.f; /// kg
-        }
+		}
+		//if(i == 1000) cout << m_sedimentYield[i] << "," << m_surfaceRunoff[i] << endl;
 		/// particle size distribution of sediment yield
 		m_sandYield[i] = m_sedimentYield[i] * m_detachSand[i];
 		m_siltYield[i] = m_sedimentYield[i] * m_detachSilt[i];
