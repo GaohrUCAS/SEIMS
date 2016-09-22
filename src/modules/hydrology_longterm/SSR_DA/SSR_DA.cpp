@@ -89,7 +89,8 @@ void SSR_DA::FlowInSoil(int id)
                 k = m_ks[id][j];
             else
             {
-                float dcIndex = 2.f / m_poreIndex[id][j] + 3.f; // pore disconnectedness index
+				/// Using Clapp and Hornberger (1978) equation to calculate unsaturated hydraulic conductivity.
+                float dcIndex = 2.f * m_poreIndex[id][j] + 3.f; // pore disconnectedness index
                 k = m_ks[id][j] * pow(m_soilStorage[id][j] / maxSoilWater, dcIndex);
 				if(k < 0.f) k = 0.f;
             }
@@ -238,7 +239,7 @@ void SSR_DA::Set2DData(const char *key, int nrows, int ncols, float **data)
 		m_nSoilLayers = ncols;
 		m_wpmm = data;
 	}
-    else if (StringMatch(sk, VAR_POREID))
+    else if (StringMatch(sk, VAR_POREIDX))
     {
         CheckInputSize(key, nrows);
         m_nSoilLayers = ncols;

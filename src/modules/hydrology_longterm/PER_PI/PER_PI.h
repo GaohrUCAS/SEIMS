@@ -58,7 +58,7 @@ private:
 	float **m_fc;
 	/// water content of soil at -1.5 MPa (wilting point) mm H2O
 	float **m_wp;
-    /// pore index
+    /// pore size distribution index
     float **m_poreIndex;
 	/// amount of water stored in soil layers on current day, sol_st in SWAT
 	float **m_soilStorage;

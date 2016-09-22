@@ -61,7 +61,7 @@ private:
 
 	/// amount of water held in the soil layer at saturation (sat - wp water), mm
 	float **m_satmm;
-	/// porosity index
+	/// pore size distribution index
     float **m_poreIndex;
 
 	/// amount of water available to plants in soil layer at field capacity (AWC=FC-WP), mm
