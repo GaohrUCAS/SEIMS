@@ -186,29 +186,9 @@ void SurrunoffTransfer::initialOutputs()
 	if (this->m_enratio == NULL)
 	{
 		Initialize1DArray(m_nCells, m_enratio, 0.f);
-		for (int i = 0; i < m_nCells; i++)
-		{
-			if (m_sedimentYield[i] < 1.e-4f)
-			{
-				m_sedimentYield[i] = 0.f;
-			}
-			// CREAMS method for calculating enrichment ratio
-			float cy = 0.f;
-			// Calculate sediment calculations, equation 4:2.2.3 in SWAT Theory 2009, p272
-			cy = 0.1f * m_sedimentYield[i] / (m_cellWidth * m_cellWidth * 0.0001f * m_surfr[i] + 1.e-6f) / 1000.f;
-			if (cy > 1.e-6f)
-			{
-				m_enratio[i] = 0.78f * pow(cy, -0.2468f);
-			} else
-			{
-				m_enratio[i] = 0.f;
-			}
-			if (m_enratio[i] > 3.5f)
-			{
-				m_enratio[i] = 3.5f;
-			}
-		}
 	}
+
+	//}
 
     // allocate the output variables
     if (m_sedorgn == NULL)
@@ -239,7 +219,30 @@ int SurrunoffTransfer::Execute()
 {
     if (!CheckInputData())return false;
     this->initialOutputs();
-
+#pragma omp parallel for
+	for (int i = 0; i < m_nCells; i++)
+	{
+		if (m_sedimentYield[i] < 1.e-4f)
+		{
+			m_sedimentYield[i] = 0.f;
+		}
+		// CREAMS method for calculating enrichment ratio
+		float cy = 0.f;
+		// Calculate sediment calculations, equation 4:2.2.3 in SWAT Theory 2009, p272
+		cy = 0.1f * m_sedimentYield[i] / (m_cellWidth * m_cellWidth * 0.0001f * m_surfr[i] + 1.e-6f) / 1000.f;
+		if (cy > 1.e-6f)
+		{
+			m_enratio[i] = 0.78f * pow(cy, -0.2468f);
+		} else
+		{
+			m_enratio[i] = 0.f;
+		}
+		if (m_enratio[i] > 3.5f)
+		{
+			m_enratio[i] = 3.5f;
+		}
+		//if(i == 1000) cout << ""<< m_sedimentYield[i]<<","<< m_surfr[i] << "," << m_enratio[i]<<endl;
+	}
 	#pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
     {

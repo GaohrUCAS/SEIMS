@@ -53,7 +53,7 @@ void IUH_SED_OL::initialOutputs()
             m_cellFlowCols = max(int(m_iuhCell[i][1] + 1), m_cellFlowCols);
         //get m_cellFlowCols, i.e. the maximum of second column of OL_IUH plus 1.
 
-		m_cellSed = new float *[m_nCells];
+		//m_cellSed = new float *[m_nCells];
 		Initialize2DArray(m_nCells, m_cellFlowCols, m_cellSed, 0.f);
 	}
 }
@@ -106,9 +106,7 @@ int IUH_SED_OL::Execute()
         }
         else if (subi >= m_nSubbasins + 1)
         {
-            ostringstream oss;
-            oss << subi;
-            throw ModelException(MID_IUH_SED_OL, "Execute", "The subbasin " + oss.str() + " is invalid.");
+            throw ModelException(MID_IUH_SED_OL, "Execute", "The subbasin " + ValueToString(subi) + " is invalid.");
         }
         m_sedtoCh[subi] += m_cellSed[i][0];
 		m_sedOL[i] = m_cellSed[i][0];

@@ -1058,7 +1058,7 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	if (dnh4 < 1.e-6f) dnh4 = 0.f;
 	if (dnh4 > dcoef * nh3con && nh3con > 0.f)
 		dnh4 = dcoef * nh3con;
-	//cout<<"ww: "<<ww<<", xx: "<<xx<<", yy: "<<yy<<", zz: "<<zz<<", nh4 out: "<<dnh4<<endl;
+	//if(i == 12) cout<<"orgncon: "<<orgncon<<", ww: "<<ww<<", xx: "<<xx<<", yy: "<<yy<<", zz: "<<zz<<",\n nh4 out: "<<dnh4<<endl;
 	// calculate concentration of nitrite at end of day (dno2)
 	yy = 0.f;
 	zz = 0.f;
