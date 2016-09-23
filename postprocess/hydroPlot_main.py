@@ -13,8 +13,8 @@ if __name__ == "__main__":
 
     # dataDir = r'D:\SEIMS_model\Model_data\model_dianbu_30m_longterm'
     dataDir = r'E:\code\Hydro\SEIMS\model_data\dianbu\model_dianbu_30m_longterm'
-    vari_Sim = ["Q", "CH_TNConc", "CH_TN", "CH_TP", "CH_COD", "CH_NH4"]
-    #  "SED",  "CH_NO3",  
+    vari_Sim = ["Q", "SED", "SEDORGNTOCH", "SEDORGPTOCH"]
+    #    "CH_NO3",  "CH_TNConc", "CH_TN", "CH_TP", "CH_COD", "CH_NH4", 
     xlsFile = r'SEIMS_db_vali_2016-09-09.xlsm'
     excelData = ReadObsfromExcel(currentPath() + os.sep + xlsFile)
     sim_date = excelData[0]
