@@ -12,7 +12,7 @@ using namespace std;
 
 SurrunoffTransfer::SurrunoffTransfer(void) :
 //input
-        m_nCells(-1), m_cellWidth(-1), m_soiLayers(-1), m_nSoilLayers(NULL), m_sedimentYield(NULL), m_surfr(NULL),
+        m_nCells(-1), m_cellWidth(-1), m_cellArea(-1), m_soiLayers(-1), m_nSoilLayers(NULL), m_sedimentYield(NULL), m_surfr(NULL),
         m_sol_bd(NULL), m_soilDepth(NULL), m_enratio(NULL),
         m_sol_actp(NULL), m_sol_orgn(NULL), m_sol_orgp(NULL), m_sol_stap(NULL), m_sol_aorgn(NULL), m_sol_fon(NULL),
         m_sol_fop(NULL), m_nSubbasins(-1), m_subbasin(NULL), m_subbasinsInfo(NULL),
@@ -189,7 +189,10 @@ void SurrunoffTransfer::initialOutputs()
 	}
 
 	//}
-
+	if (m_cellArea < 0)
+	{
+		m_cellArea = m_cellWidth * m_cellWidth * 0.0001f; //Unit is ha 
+	}
     // allocate the output variables
     if (m_sedorgn == NULL)
     {
@@ -219,6 +222,15 @@ int SurrunoffTransfer::Execute()
 {
     if (!CheckInputData())return false;
     this->initialOutputs();
+	// initial nutrient to channel for each day
+#pragma omp parallel for
+	for (int i = 0; i < m_nSubbasins+1; i++)
+	{
+		m_sedorgnToCh[i] = 0.f;
+		m_sedorgpToCh[i] = 0.f;
+		m_sedminpaToCh[i] = 0.f;
+		m_sedminpsToCh[i] = 0.f;
+	}
 #pragma omp parallel for
 	for (int i = 0; i < m_nCells; i++)
 	{
@@ -229,7 +241,7 @@ int SurrunoffTransfer::Execute()
 		// CREAMS method for calculating enrichment ratio
 		float cy = 0.f;
 		// Calculate sediment calculations, equation 4:2.2.3 in SWAT Theory 2009, p272
-		cy = 0.1f * m_sedimentYield[i] / (m_cellWidth * m_cellWidth * 0.0001f * m_surfr[i] + 1.e-6f) / 1000.f;
+		cy = 0.1f * m_sedimentYield[i] / (m_cellArea * m_surfr[i] + 1.e-6f) / 1000.f;
 		if (cy > 1.e-6f)
 		{
 			m_enratio[i] = 0.78f * pow(cy, -0.2468f);
@@ -270,15 +282,15 @@ int SurrunoffTransfer::Execute()
 		m_sedminpaToCh[subi] += m_sedminpa[i];
 		m_sedminpsToCh[subi] += m_sedminps[i];
 	}
+	cout << m_sedorgpToCh[12] << endl;
 	// sum all the subbasins and put the sum value in the zero-index of the array
-	float cellArea = m_cellWidth * m_cellWidth * 0.0001f; // ha
 	//for (int i = 1; i < m_nSubbasins + 1; i++)
 	for (vector<int>::iterator it = m_subbasinIDs.begin(); it != m_subbasinIDs.end(); it++)
 	{
-		m_sedorgnToCh[0] += m_sedorgnToCh[*it] * cellArea;
-		m_sedorgpToCh[0] += m_sedorgpToCh[*it] * cellArea;
-		m_sedminpaToCh[0] += m_sedminpaToCh[*it] * cellArea;
-		m_sedminpsToCh[0] += m_sedminpsToCh[*it] * cellArea;
+		m_sedorgnToCh[0] += m_sedorgnToCh[*it] * m_cellArea;
+		m_sedorgpToCh[0] += m_sedorgpToCh[*it] * m_cellArea;
+		m_sedminpaToCh[0] += m_sedminpaToCh[*it] * m_cellArea;
+		m_sedminpsToCh[0] += m_sedminpsToCh[*it] * m_cellArea;
 	}
     return 0;
 }
@@ -297,7 +309,7 @@ void SurrunoffTransfer::OrgnRemoveinSr(int i)
         float concn = 0.f;
         concn = orgninfl * m_enratio[i] / wt;
         //Calculate the amount of organic nitrogen transported with sediment to the stream, equation 4:2.2.1 in SWAT Theory 2009, p271
-        m_sedorgn[i] = 0.001f * concn * m_sedimentYield[i] / 1000.f / (m_cellWidth * m_cellWidth * m_nCells * 0.0001f);	// * 0.0001f, m2 -> ha
+        m_sedorgn[i] = 0.001f * concn * m_sedimentYield[i] / 1000.f / m_cellArea;
         //update soil nitrogen pools
         if (orgninfl > 1.e-6f)
         {
@@ -347,10 +359,11 @@ void SurrunoffTransfer::OrgpAttachedtoSed(int i)
         float concp = 0.f;
         concp = sol_attp * m_enratio[i] / wt;
         //total amount of P removed in sediment erosion (sedp)
-        float sedp = 0.001f * concp * m_sedimentYield[i] / 1000.f / (m_cellWidth * m_cellWidth) / 10000.f;
+        float sedp = 0.001f * concp * m_sedimentYield[i] / 1000.f / m_cellArea;
         m_sedorgp[i] = sedp * sol_attp_o;
         m_sedminpa[i] = sedp * sol_attp_a;
-        m_sedminps[i] = sedp * sol_attp_s;
+		m_sedminps[i] = sedp * sol_attp_s;
+		//if(i==100)cout << "sedp: " << sedp<< ",sol_attp_o: "  << sol_attp_o << endl;
         //modify phosphorus pools
 
         //total amount of P in mineral sediment pools prior to sediment removal (psedd)		// Not used

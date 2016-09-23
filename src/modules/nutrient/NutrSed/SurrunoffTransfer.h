@@ -50,6 +50,8 @@ public:
 private:
     /// cell width of grid map (m)
     float m_cellWidth;
+	/// cell area of grid map (ha)
+	float m_cellArea;
     /// number of cells
     int m_nCells;
     /// soil layers
