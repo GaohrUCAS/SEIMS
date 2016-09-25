@@ -92,7 +92,7 @@ def ReadSimfromTxt(dataDir, data_Sim):
     return simulate
 
 
-## Caiculate Nash coefficient
+## Calculate Nash coefficient
 def NashCoef(qObs, qSimu):
     n = len(qObs)
     ave = sum(qObs) / n
