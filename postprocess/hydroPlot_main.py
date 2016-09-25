@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
 
-
-# import util module located in SEIMS/preprocess
-import sys
-sys.path.append("..")
-from preprocess.util import *
 from hydroPlot import *
+from config import *
 
 if __name__ == "__main__":
+    LoadConfiguration(GetINIfile())
+
     ## @dataDir, data folder, superior directory of "OUTPUT"
-    ## @vari_Sim, Variables list
+    ## @PLOT_VARS, Variables list
 
     # dataDir = r'D:\SEIMS_model\Model_data\model_dianbu_30m_longterm'
-    dataDir = r'E:\code\Hydro\SEIMS\model_data\dianbu\model_dianbu_30m_longterm'
-    vari_Sim = ["Q", "SED", "SEDORGNTOCH", "SEDORGPTOCH"]
-    #    "CH_NO3",  "CH_TNConc", "CH_TN", "CH_TP", "CH_COD", "CH_NH4", 
+    # MODEL_DIR = r'E:\code\Hydro\SEIMS\model_data\dianbu\model_dianbu_30m_longterm'
+    #PLOT_VARS = ["Q", "SED"]
+    #    "CH_NO3",  "CH_TNConc", "CH_TN", "CH_TP", "CH_COD", "CH_NH4", "SEDORGNTOCH", "SEDORGPTOCH"
 
     xlsFile = r'SEIMS_db_vali_2016-09-09.xlsm'
     excelData = ReadObsfromExcel(currentPath() + os.sep + xlsFile)
@@ -30,11 +28,11 @@ if __name__ == "__main__":
 
     ## simulation
     dataSimList = []
-    for i in range(len(vari_Sim)):
-        txtData = ReadSimfromTxt(dataDir, vari_Sim[i])
+    for i in range(len(PLOT_VARS)):
+        txtData = ReadSimfromTxt(MODEL_DIR, PLOT_VARS[i])
         dataSimList.append(txtData)
-    flow_sim = ReadSimfromTxt(dataDir, "Q")
+    flow_sim = ReadSimfromTxt(MODEL_DIR, "Q")
 
     ## Creat multiple plot
-    CreatPlot(sim_date, flow_sim, preci_obs, dataobsList, dataSimList, vari_Sim)
+    CreatPlot(sim_date, flow_sim, preci_obs, dataobsList, dataSimList, PLOT_VARS)
     print "Success!"
