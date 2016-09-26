@@ -4,11 +4,12 @@
 #
 
 import ConfigParser
+from RelativeImportModules import import_parents
+
 # import util module located in SEIMS/preprocess
-import sys
-sys.path.append("..")
-from preprocess.text import *
-from preprocess.util import *
+if __package__ is None:
+    __package__ = import_parents(level = 2)
+from ..preprocess.util import *
 
 # Load model configuration from *.ini file
 cf = ConfigParser.ConfigParser()

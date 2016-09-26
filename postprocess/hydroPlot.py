@@ -189,9 +189,9 @@ def CreatPlot(sim_date, flow, hydro, obsList, simList, vari_Sim):
     plt.show()
 
 
-def currentPath():
-    path = sys.path[0]
-    if os.path.isdir(path):
-        return path
-    elif os.path.isfile(path):
-        return os.path.dirname(path)
+# def currentPath():
+#     path = sys.path[0]
+#     if os.path.isdir(path):
+#         return path
+#     elif os.path.isfile(path):
+#         return os.path.dirname(path)
