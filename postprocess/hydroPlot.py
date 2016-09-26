@@ -177,7 +177,7 @@ def CreatPlot(sim_date, flow, hydro, obsList, simList, vari_Sim):
             plt.xlabel('Date')
             plt.ylabel(vari_Sim[i])
             plt.legend(bbox_to_anchor = (0.03, 0.85), loc = 2, shadow = True)
-            ax.set_ylim(0, float(max(simList[i])) * 1.5 + 1)
+            ax.set_ylim(0, float(max(simList[i])) * 1.5 + 1.e-4)
             ax2 = ax.twinx()
             ax2.set_ylabel(r"Flow (m3/s)")
             ax2.plot(sim_date, flow, label = "Flow", color = "blue", linewidth = 1)
