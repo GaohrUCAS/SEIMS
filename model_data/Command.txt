@@ -67,6 +67,8 @@ python G:\code_zhulj\SEIMS\preprocess\parameters_extraction.py -ini G:\code_zhul
 + 192.168.6.57
   + python G:\code_zhulj\SEIMS\preprocess\import_parameters.py -ini G:\code_zhulj\SEIMS\preprocess\dianbu2_30m_longterm_omp_zhulj_winserver.ini
 
++ postprocess
+  + D:\GaohrWS\GithubPrj\SEIMS\postprocess>python hydroPlot_main.py -ini post_dianbu_30m_longterm_omp_gaohr_win.ini
 
 
 
