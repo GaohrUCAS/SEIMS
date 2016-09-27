@@ -1,18 +1,14 @@
+# -*- coding: utf-8 -*-
+
 import os, sys
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
-import glob
+import numpy, datetime
 import os
 
-def main():
-    """ Connect to MongoDB """
-    try:
-        c = MongoClient(host="localhost", port=27017)
-        print c
-    except ConnectionFailure, e:
-        sys.stderr.write("Could not connect to MongoDB: %s" % e)
-        sys.exit(1)
+a = "2013-10-10 23:40:00"
+# 方法:先转换为时间数组,然后转换为其他格式
+timeArray = datetime.datetime.strptime(a, "%Y-%m-%d %H:%M:%S")
+otherStyleTime = datetime.date.strftime(timeArray, "%Y/%m/%d")
 
-if __name__ == "__main__":
-    moudles_dir = r''
-    main()
+print otherStyleTime

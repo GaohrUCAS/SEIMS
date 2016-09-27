@@ -44,3 +44,14 @@ if PLOTVAR_STRING != '':
     PLOT_VARS = SplitStr(StripStr(PLOTVAR_STRING))
 else:
     raise ValueError("PLOT_VARIABLES illegal defined in [PARAMETERS]!")
+
+# 4. Optional_Parameters
+if 'OPTIONAL_PARAMETERS' in cf.sections():
+    TIME_Start = cf.get('OPTIONAL_PARAMETERS', 'Time_start'.lower())
+    TIME_End = cf.get('OPTIONAL_PARAMETERS', 'Time_end'.lower())
+else:
+    raise ValueError("[OPTIONAL_PARAMETERS] section MUST be existed in *.ini file.")
+TIME_StartArray = datetime.datetime.strptime(TIME_Start, "%Y-%m-%d")
+TIME_EndArray = datetime.datetime.strptime(TIME_End, "%Y-%m-%d")
+if TIME_StartArray > TIME_EndArray:
+    raise ValueError("Wrong time setted in [OPTIONAL_PARAMETERS]!")
