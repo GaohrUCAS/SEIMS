@@ -167,7 +167,7 @@ def CreatPlot(sim_date, flow, preci, simList, vari_Sim, ClimateDB):
             ax2.bar(sim_date, preci, color = "blue", linewidth = 0)
             ax2.set_ylim(float(max(preci)) * 1.5, 0)
             plt.title("Simulation of SEIMS-%s in Dianbu watershed\n" % vari_Sim[i], color = "#aa0903")
-            plt.title("\nNash: %.3f, R2: %.3f" % \
+            plt.title("\nNash: %.3f, R2: %s" % \
                     (NashCoef(obs_flow[0], simList[i]), RSquare(obs_flow[0], simList[i], len(obs_flow[1]))),
                     color = "red", loc = 'right')
 
