@@ -221,29 +221,14 @@ int NutrientTransportSediment::Execute()
 		m_sedminpaToCh[i] = 0.f;
 		m_sedminpsToCh[i] = 0.f;
 	}
-	/* Calculate enrichment ratio for nutrient transport with runoff and sediment
-	 * enrsb.f of SWAT
-	 */
-#pragma omp parallel for
-	for (int i = 0; i < m_nCells; i++)
-	{
-		if (m_sedEroded[i] < 1.e-4f) m_sedEroded[i] = 0.f;
-		// CREAMS method for calculating enrichment ratio
-		m_enratio[i] = NutrCommon::CalEnrichmentRatio(m_sedEroded[i], m_surfaceRunoff[i], m_cellArea);
-		//float cy = 0.f;
-		//// Calculate sediment concentration, equation 4:2.2.3 and 4:2.2.4 in SWAT Theory 2009, p272
-		//cy = 0.1f * m_sedEroded[i] / (m_cellArea * m_surfaceRunoff[i] + 1.e-6f) / 1000.f; /// Mg sed/m^3 H2O
-		//if (cy > 1.e-6f){
-		//	m_enratio[i] = 0.78f * pow(cy, -0.2468f);
-		//} else{
-		//	m_enratio[i] = 0.f;
-		//}
-		//if (m_enratio[i] > 3.5f)m_enratio[i] = 3.5f;
-		//if(i == 1000) cout << ""<< m_sedEroded[i]<<","<< m_surfaceRunoff[i] << "," << m_enratio[i]<<endl;
-	}
+
 #pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
     {
+		if (m_sedEroded[i] < 1.e-4f) m_sedEroded[i] = 0.f;
+		// CREAMS method for calculating enrichment ratio
+		m_enratio[i] = NutrCommon::CalEnrichmentRatio(m_sedEroded[i], m_surfaceRunoff[i], m_cellArea);
+		//if(i == 1000) cout << ""<< m_sedEroded[i]<<","<< m_surfaceRunoff[i] << "," << m_enratio[i]<<endl;
         //Calculates the amount of organic nitrogen removed in surface runoff. orgn.f of SWAT
         OrgnRemoveinSr(i);
         //Calculates the amount of organic and mineral phosphorus attached to sediment in surface runoff. psed.f of SWAT

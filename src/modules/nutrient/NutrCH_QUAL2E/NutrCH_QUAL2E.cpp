@@ -339,7 +339,7 @@ void NutrCH_QUAL2E::Set1DData(const char *key, int n, float *data)
 	else if (StringMatch(sk, VAR_SUR_NO3_TOCH))  { m_surNO3ToCh = data; }
 	else if (StringMatch(sk, VAR_SUR_NH4_TOCH))  { m_surNH4ToCh = data; }
 	else if (StringMatch(sk, VAR_SUR_SOLP_TOCH)) { m_surSolPToCh = data; }
-	else if (StringMatch(sk, VAR_SUR_COD_TOCH)) { m_codToCh = data; }
+	else if (StringMatch(sk, VAR_SUR_COD_TOCH))  { m_codToCh = data; }
     else if (StringMatch(sk, VAR_NO3GW_TOCH))    { m_gwNO3ToCh = data; }
     else if (StringMatch(sk, VAR_MINPGW_TOCH))   { m_gwSolPToCh = data; }
     else if (StringMatch(sk, VAR_SEDORGN_TOCH))  { m_sedOrgNToCh = data; }
@@ -662,7 +662,7 @@ void NutrCH_QUAL2E::AddInputNutrient(int i)
 	if(m_no2ToCh != NULL && m_no2ToCh[i] > 0.f) m_chNO2[i] += m_no2ToCh[i];
 	if(m_codToCh != NULL && m_codToCh[i] > 0.f){
 		m_chCOD[i] += m_codToCh[i];
-		cout<<", added surface, cod: "<<m_chCOD[i]<<", ";
+		//cout<<", added surface, cod: "<<m_chCOD[i]<<", ";
 	}
 	/// add point source loadings to channel
 	if(m_ptNO3ToCh != NULL && m_ptNO3ToCh[i] > 0.f) m_chNO3[i] += m_ptNO3ToCh[i];
