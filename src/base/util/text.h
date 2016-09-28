@@ -636,7 +636,7 @@
 #define VAR_DLAI "DLAI"
 #define VAR_DORMHR "dormhr"
 #define VAR_DORMI "dormi"
-#define VAR_DPST "DPST"                               /// Distribution of depression storage
+#define VAR_DPST "DPST"                               /// depression storage
 #define VAR_DRYDEP_NH4 "drydep_nh4"                 /// atmospheric dry deposition of ammonia (kg/ha)
 #define VAR_DRYDEP_NO3 "drydep_no3"                 /// atmospheric dry deposition of nitrates (kg/ha)
 #define VAR_EP_CH "Ep_ch"                           /// reach evaporation adjustment factor
@@ -801,6 +801,7 @@
 #define VAR_POREIDX "Poreindex"                      /// pore size distribution index
 #define VAR_POROST "Porosity"                       /// soil porosity
 #define VAR_POT_NO3 "pot_no3"
+#define VAR_POT_NH4 "pot_nh4"
 #define VAR_POT_ORGN "pot_orgn"
 #define VAR_POT_SOLPLOSS "pot_solploss"
 #define VAR_POT_ORGP "pot_orgp"
@@ -820,7 +821,7 @@
 #define VAR_PTCOD2CH "ptCODToCh"
 #define VAR_PUPDIS "p_updis"
 #define VAR_QCH "QCH"
-#define VAR_FLOW_OL "OL_Flow"						/// overland flow in each cell calculated during overland routing
+#define VAR_OLFLOW "OL_Flow"						/// overland flow in each cell calculated during overland routing
 #define VAR_QG "QG"                                 /// Groundwater discharge at each reach outlet and at each time step
 #define VAR_QI "QI"                                 /// Interflow at each reach outlet and at each time step
 #define VAR_QOUTLET "QOUTLET"                       /// discharge at the watershed outlet
@@ -874,7 +875,7 @@
 #define VAR_SED_RECH "SEDRECH"
 #define VAR_SED_RECHConc "SEDRECHConc"
 #define VAR_SED_TO_CH "SEDTOCH"
-#define VAR_SED_OL "SED_OL"
+#define VAR_SEDYLD "SED_OL"
 #define VAR_SED_CHI0 "sed_chi"
 #define VAR_SEDMINPA "sedminpa"                     /// amount of active mineral phosphorus adsorbed to sediment in surface runoff
 #define VAR_SEDMINPA_TOCH "sedminpaToCh"
@@ -896,7 +897,7 @@
 #define VAR_SNRD "SNRD"
 #define VAR_SNSB "SNSB"
 #define VAR_SNWB "SNWB"
-#define VAR_SOER "SOER"                             /// soil loss caused by water erosion (t)
+#define VAR_SOER "SOER"                             /// soil loss caused by water erosion
 #define VAR_SOET "SOET"                             /// evaporation from the soil water storage, es_day in SWAT
 #define VAR_SOIL_T10 "soil_t10"
 #define VAR_SOILDEPTH "soilDepth"                       /// depth to bottom of soil layer
@@ -910,8 +911,8 @@
 #define VAR_SOL_CBN "sol_cbn"
 #define VAR_SOL_COV "sol_cov"                    /// amount of residue on soil surface (kg/ha)
 #define VAR_SOL_CRK "sol_crk"                    /// crack volume potential of soil
-#define VAR_SOL_FON "sol_fon"                       /// amount of nitrogen stored in the fresh organic (residue) pool(kg N/ha)
-#define VAR_SOL_FOP "sol_fop"                       /// amount of phosphorus stored in the fresh organic (residue) pool(kg P/ha)
+#define VAR_SOL_FORGN "sol_fon"                       /// amount of nitrogen stored in the fresh organic (residue) pool(kg N/ha)
+#define VAR_SOL_FORGP "sol_fop"                       /// amount of phosphorus stored in the fresh organic (residue) pool(kg P/ha)
 #define VAR_SOL_MP "sol_mp"
 #define VAR_SOL_N "sol_N"
 #define VAR_SOL_NH4 "sol_nh4"                       /// amount of nitrogen stored in the ammonium pool in soil layer
@@ -959,11 +960,12 @@
 #define VAR_SUBBSNID_NUM "SUBBASINID_NUM"                /// number of subbasins
 #define VAR_SUR_NO3 "sur_no3"
 #define VAR_SUR_NO3_TOCH "sur_no3_ToCh"
+#define VAR_SUR_NH4 "sur_nh4"
 #define VAR_SUR_NH4_TOCH "SUR_NH4_TOCH"
 #define VAR_SUR_SOLP "sur_solp"
 #define VAR_SUR_SOLP_TOCH "sur_solp_ToCh"
 #define VAR_SUR_COD_TOCH "sur_cod_ToCH"
-#define VAR_SURU "SURU"                             /// surface runoff generated
+#define VAR_SURU "SURU"                             /// surface runoff
 #define VAR_SWE "SWE"
 #define VAR_SWE0 "swe0"
 #define VAR_T_BASE "T_BASE"
@@ -1377,6 +1379,7 @@
 #define DESC_POREIDX "pore size distribution index"
 #define DESC_POROST "soil porosity"
 #define DESC_POT_NO3 "amount of nitrate in pothole water body"
+#define DESC_POT_NH4 "amount of ammonian in pothole water body"
 #define DESC_POT_ORGN "amount of organic N in pothole water body"
 #define DESC_POT_SOLPLOSS "soluble P loss rate in the pothole (.01 - 0.5)"
 #define DESC_POT_ORGP "amount of organic P in pothole water body"
@@ -1449,7 +1452,7 @@
 #define DESC_SED_OUTLET "Sediment concentration at the watershed outlet"
 #define DESC_SED_RECH "Sediment at each reach outlet at each time step"
 #define DESC_SED_TO_CH "sediment flowing to channel"
-#define DESC_SED_OL "sediment transported to channel at each cell"
+#define DESC_SEDYLD "sediment yield that transported to channel at each cell"
 #define DESC_SEDMINPA " amount of active mineral phosphorus sorbed to sediment in surface runoff"
 #define DESC_SEDMINPA_CH "amount of active mineral phosphorus absorbed to sediment in surface runoff moved to channel"
 #define DESC_SEDMINPS "amount of stable mineral phosphorus sorbed to sediment in surface runoff"
@@ -1486,8 +1489,8 @@
 #define DESC_SOL_CBN "soil carbon content"
 #define DESC_SOL_COV "amount of residue on soil surface"
 #define DESC_SOL_CRK "crack volume potential of soil"
-#define DESC_SOL_FON "amount of nitrogen stored in the fresh organic (residue) pool"
-#define DESC_SOL_FOP "amount of phosphorus stored in the fresh organic (residue) pool"
+#define DESC_SOL_FORGN "amount of nitrogen stored in the fresh organic (residue) pool"
+#define DESC_SOL_FORGP "amount of phosphorus stored in the fresh organic (residue) pool"
 #define DESC_SOL_MP "??"
 #define DESC_SOL_N "used for orgncswat.f in SWAT. TODO"
 #define DESC_SOL_NH4 "amount of nitrogen stored in the ammonium pool in soil layer"
@@ -1536,12 +1539,13 @@
 #define DESC_SUBBSN "The subbasion grid"
 #define DESC_SUBBSNID_NUM "number of subbasins"
 #define DESC_SUR_NO3 "amount of nitrate transported with surface runoff"
-#define DESC_SUR_NO3_CH "amount of nitrate transported with surface runoff to channel"
-#define DESC_SUR_NH4_CH "amount of NH4 transported with surface runoff to channel"
+#define DESC_SUR_NO3_ToCH "amount of nitrate transported with surface runoff to channel"
+#define DESC_SUR_NH4 "amount of ammonian transported with surface runoff"
+#define DESC_SUR_NH4_ToCH "amount of ammonian transported with surface runoff to channel"
 #define DESC_SUR_SOLP "amount of solution phosphorus in surface runoff"
-#define DESC_SUR_SOLP_CH "amount of soluble phosphorus from surface runoff to channel"
-#define DESC_SUR_COD_CH "amount of COD to reach in surface runoff"
-#define DESC_SURU "surface runoff generated"
+#define DESC_SUR_SOLP_ToCH "amount of soluble phosphorus from surface runoff to channel"
+#define DESC_SUR_COD_ToCH "amount of COD to reach in surface runoff"
+#define DESC_SURU "surface runoff"
 #define DESC_SWE "average snow accumulation of the watershed"
 #define DESC_SWE0 "Initial snow water equivalent"
 #define DESC_T_BASE "base or minimum temperature for plant growth"

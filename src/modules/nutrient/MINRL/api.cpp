@@ -85,12 +85,12 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.AddOutput(VAR_WSHD_PAS, UNIT_CONT_KGHA, DESC_WSHD_PAS, DT_Single);
 
     mdi.AddOutput(VAR_SOL_AORGN, UNIT_CONT_KGHA, DESC_SOL_AORGN, DT_Raster2D);
-    mdi.AddOutput(VAR_SOL_FON, UNIT_CONT_KGHA, DESC_SOL_FON, DT_Raster2D);
+    mdi.AddOutput(VAR_SOL_FORGN, UNIT_CONT_KGHA, DESC_SOL_FORGN, DT_Raster2D);
     mdi.AddOutput(VAR_SOL_NO3, UNIT_CONT_KGHA, DESC_SOL_NO3, DT_Raster2D);
     mdi.AddOutput(VAR_SOL_NH4, UNIT_CONT_KGHA, DESC_SOL_NH4, DT_Raster2D);
     mdi.AddOutput(VAR_SOL_SORGN, UNIT_CONT_KGHA, DESC_SOL_SORGN, DT_Raster2D);
 
-	mdi.AddOutput(VAR_SOL_FOP, UNIT_CONT_KGHA, DESC_SOL_FOP, DT_Raster2D);
+	mdi.AddOutput(VAR_SOL_FORGP, UNIT_CONT_KGHA, DESC_SOL_FORGP, DT_Raster2D);
     mdi.AddOutput(VAR_SOL_HORGP, UNIT_CONT_KGHA, DESC_SOL_HORGP, DT_Raster2D);
     mdi.AddOutput(VAR_SOL_SOLP, UNIT_CONT_KGHA, DESC_SOL_SOLP, DT_Raster2D);
     mdi.AddOutput(VAR_SOL_ACTP, UNIT_CONT_KGHA, DESC_SOL_ACTP, DT_Raster2D);
