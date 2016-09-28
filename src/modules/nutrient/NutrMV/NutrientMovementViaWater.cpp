@@ -15,7 +15,7 @@ NutrientMovementViaWater::NutrientMovementViaWater(void) :
         m_nCells(-1), m_cellWidth(-1.f), m_cellArea(-1.f), m_soiLayers(-1), m_sedimentYield(NULL), m_nperco(-1.f), m_phoskd(-1.f), m_pperco(-1.f), m_cod_n(-1.f), 
 		m_cod_k(-1.f), m_qtile(-1.f), m_nSoilLayers(NULL), m_anion_excl(NULL), m_isep_opt(-1), m_ldrain(NULL), m_dis_stream(NULL), m_surfr(NULL), m_flat(NULL),
         m_sol_perco(NULL), m_sol_wsatur(NULL), m_sol_crk(NULL), m_sol_bd(NULL), m_sol_z(NULL), m_sol_thick(NULL),
-        m_sol_om(NULL),m_sol_no3(NULL), m_sol_solp(NULL), 
+        m_sol_cbn(NULL),m_sol_no3(NULL), m_sol_solp(NULL), 
 		m_nSubbasins(-1), m_subbasin(NULL), m_subbasinsInfo(NULL), m_streamLink(NULL),
 		m_routingLayers(NULL), m_nRoutingLayers(-1), m_flowOutIndex(NULL), 
         //output
@@ -146,7 +146,7 @@ bool NutrientMovementViaWater::CheckInputData()
     {
         throw ModelException(MID_NUTRMV, "CheckInputData", "The distribution of soil loss caused by water erosion can not be NULL.");
     }
-    if (this->m_sol_om == NULL)
+    if (this->m_sol_cbn == NULL)
     {
         throw ModelException(MID_NUTRMV, "CheckInputData", "The percent organic matter in soil layer can not be NULL.");
     }
@@ -312,7 +312,7 @@ void NutrientMovementViaWater::Set2DData(const char *key, int nRows, int nCols, 
     else if (StringMatch(sk, VAR_SOL_SOLP)) { m_sol_solp = data; }
     else if (StringMatch(sk, VAR_SOILDEPTH)) { m_sol_z = data; }
     else if (StringMatch(sk, VAR_PERCO)) { m_sol_perco = data; }
-	else if (StringMatch(sk, VAR_SOL_OM)) { m_sol_om = data; }
+	else if (StringMatch(sk, VAR_SOL_CBN)) { m_sol_cbn = data; }
 	else if (StringMatch(sk, VAR_SOILTHICK)) { m_sol_thick = data; }
 	else if (StringMatch(sk, VAR_SOL_UL)) { m_sol_wsatur = data; }
     else
@@ -551,24 +551,19 @@ void NutrientMovementViaWater::SubbasinWaterQuality()
 #pragma omp parallel for
 	for (int i = 0; i < m_nCells; i++)
 	{
-		// calculate water temperature
-		// Stefan and Preudhomme. 1993.  Stream temperature estimation
-		// from air temperature.  Water Res. Bull. p. 27-45
-		// SWAT manual 2.3.13
-// 		float wtmp = 0.f;
-// 		wtmp = 5.f + 0.75f * m_tmean[i];
-// 		if (wtmp < 0.1) wtmp = 0.1f;
-// 		wtmp = wtmp + 273.15f;    // deg C to deg K
+		/// Note, doxq (i.e., dissolved oxygen concentration in the surface runoff on current day)
+		///       is not included here, just because doxq will not be used anywhere. 
+		///       Also, the algorithm will be executed in Qual2E model in channel process.   By LJ
 
-		// water in cell
+		// total amount of water entering main channel on current day, mm
 		float qdr = 0.f;
 		qdr = m_surfr[i] + m_flat[i][0] + m_qtile;
-		if (qdr > 1.e-6f)
+		if (qdr > 1.e-4f)
 		{
 			// kilo moles of phosphorus in nutrient loading to main channel (tp)
 			float tp = 0.f;
 			tp = 100.f * (m_sedorgn[i] + m_surqno3[i]) / qdr;   //100*kg/ha/mm = ppm
-			// regional adjustment on sub chla_a loading
+			// regional adjustment on sub chla_a loading, the default value is 40
 			float chla_subco = 40.f;
 			m_surchl_a[i] = chla_subco * tp;
 			m_surchl_a[i] = m_surchl_a[i] / 1000.f;  // um/L to mg/L
@@ -577,29 +572,14 @@ void NutrientMovementViaWater::SubbasinWaterQuality()
 			if (m_sedimentYield[i] < 1e-4)m_sedimentYield[i] = 0.f;
 			float enratio = NutrCommon::CalEnrichmentRatio(m_sedimentYield[i], m_surfr[i], m_cellArea);
 
-			//// CREAMS method for calculating enrichment ratio, enrsb.f of SWAT
-			//float cy = 0.f;
-			//// Calculate sediment, equation 4:2.2.3 in SWAT Theory 2009, p272
-			//cy = 0.1f * (m_sedimentYield[i] / 1000.f) / (m_cellWidth * m_cellWidth * 0.0001f * m_surfr[i] + 1e-6f);
-			//if (cy > 1e-6f)
-			//{
-			//	enratio = 0.78f * pow(cy, -0.2468f);
-			//} else
-			//{
-			//	enratio = 0.f;
-			//}
-			//if (enratio > 3.5)
-			//{
-			//	enratio = 3.5f;
-			//}
 			// calculate organic carbon loading to main channel
-			float org_c = (m_sol_om[i][0] * 0.58f / 100.f) * enratio * (m_sedimentYield[i] / 1000.f) * 1000.f; /// kg
+			float org_c = (m_sol_cbn[i][0] / 100.f) * enratio * (m_sedimentYield[i] / 1000.f) * 1000.f; /// kg
 			// calculate carbonaceous biological oxygen demand (CBOD) and COD(transform from CBOD)
-			float cbod  = 2.7f * org_c / (qdr * m_cellWidth * m_cellWidth * 1.e-6f); //  mg/L 
+			float cbodu  = 2.7f * org_c / (qdr * m_cellWidth * m_cellWidth * 1.e-6f); //  mg/L 
 			// convert cbod to cod 
 			// The translation relationship is combined Wang Cai-Qin et al. (2014) with 
 			// Guo and Long (1994); Xie et al. (2000); Jin et al. (2005).
-			float cod = m_cod_n * (cbod * (1.f - exp(-5.f * m_cod_k)));
+			float cod = m_cod_n * (cbodu * (1.f - exp(-5.f * m_cod_k)));
 			m_surcod[i] = m_surfr[i] / 1000.f * cod * 10.f;	// mg/L converted to kg/ha
 		} else
 		{

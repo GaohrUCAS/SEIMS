@@ -113,8 +113,8 @@ private:
     float *m_sedorgn;
     /// average air temperature
     float *m_tmean;
-	///percent organic matter in soil layer (%)
-	float **m_sol_om;
+	///percent organic carbon in soil layer (%)
+	float **m_sol_cbn;
 	/// soil thick of each layer (mm)
 	float **m_sol_thick;
 
