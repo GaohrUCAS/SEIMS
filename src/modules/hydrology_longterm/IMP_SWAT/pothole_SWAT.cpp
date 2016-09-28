@@ -7,14 +7,14 @@
 using namespace std;
 
 IMP_SWAT::IMP_SWAT(void) : m_cnv(NODATA_VALUE), m_nCells(-1), m_cellWidth(NODATA_VALUE), m_cellArea(NODATA_VALUE), 
-	m_soilLayers(NULL), m_nSoilLayers(-1), m_routingLayers(NULL), m_nRoutingLayers(-1),
+	m_soilLayers(NULL), m_nSoilLayers(-1), m_routingLayers(NULL), m_nRoutingLayers(-1), m_subbasin(NULL),
 	m_slope(NULL), m_ks(NULL), m_sol_sat(NULL), m_sol_sumfc(NULL), m_soilThick(NULL), m_sol_por(NULL), 
 	m_evLAI(NODATA_VALUE), m_potTilemm(NODATA_VALUE), m_potNo3Decay(NODATA_VALUE), m_potSolPDecay(NODATA_VALUE),
 	m_impoundTrig(NULL), 
-	m_sedYield(NULL), m_sandYield(NULL), m_siltYield(NULL), m_clayYield(NULL), m_smaggreYield(NULL), m_lgaggreYield(NULL),
-	m_netPrec(NULL), m_LAIDay(NULL), m_pet(NULL), m_soilStorage(NULL), m_soilStorageProfile(NULL), 
-	m_surfaceRunoff(NULL), m_surqNo3(NULL), m_surqSolP(NULL), m_sedOrgN(NULL), m_sedOrgP(NULL), m_sedActiveMinP(NULL), m_sedStableMinP(NULL),
-	m_potNo3(NULL), m_potOrgN(NULL), m_potSolP(NULL), m_potOrgP(NULL), m_potActMinP(NULL),
+	m_sedYield(NULL), m_sedToCh(NULL), m_sandYield(NULL), m_siltYield(NULL), m_clayYield(NULL), m_smaggreYield(NULL), m_lgaggreYield(NULL),
+	m_depEvapor(NULL), m_depStorage(NULL), m_LAIDay(NULL), m_pet(NULL), m_soilStorage(NULL), m_soilStorageProfile(NULL), 
+	m_surfaceRunoff(NULL), m_surqNo3(NULL), m_surqNH4(NULL), m_surqSolP(NULL), m_sedOrgN(NULL), m_sedOrgP(NULL), m_sedActiveMinP(NULL), m_sedStableMinP(NULL),
+	m_potNo3(NULL), m_potNH4(NULL), m_potOrgN(NULL), m_potSolP(NULL), m_potOrgP(NULL), m_potActMinP(NULL),
 	m_potStaMinP(NULL), m_potSed(NULL), m_potSand(NULL), m_potSilt(NULL), m_potClay(NULL), m_potSag(NULL), m_potLag(NULL), 
 	m_potVol(NULL), m_potVolMax(NULL), m_potVolLow(NULL), m_potSeep(NULL), m_potEvap(NULL), m_potSurfaceArea(NULL)
 {
@@ -26,6 +26,7 @@ IMP_SWAT::~IMP_SWAT(void)
 {
 	if (m_potSurfaceArea != NULL) Release1DArray(m_potSurfaceArea);
 	if (m_potNo3 != NULL) Release1DArray(m_potNo3);
+	if (m_potNH4 != NULL) Release1DArray(m_potNH4);
 	if (m_potOrgN != NULL) Release1DArray(m_potOrgN);
 	if (m_potSolP != NULL) Release1DArray(m_potSolP);
 	if (m_potOrgP != NULL) Release1DArray(m_potOrgP);
@@ -119,25 +120,34 @@ void IMP_SWAT::SetValue(const char *key, float data)
 void IMP_SWAT::Set1DData(const char *key, int n, float *data)
 {
 	string sk(key);
+
+	if (StringMatch(sk, VAR_SED_TO_CH)){
+		m_sedToCh = data;
+		m_subbasinNum = n - 1;
+		return;
+	}
 	CheckInputSize(key, n);
 	if (StringMatch(sk, VAR_SLOPE))m_slope = data;
 	else if (StringMatch(sk, VAR_SOILLAYERS))m_soilLayers = data;
+	else if (StringMatch(sk, VAR_SUBBSN)) m_subbasin = data;
 	else if (StringMatch(sk, VAR_SOL_SUMAWC)) m_sol_sumfc = data;
 	else if (StringMatch(sk, VAR_IMPOUND_TRIG)) m_impoundTrig = data;
 	else if (StringMatch(sk, VAR_POT_VOLMAXMM)) m_potVolMax = data;
 	else if (StringMatch(sk, VAR_POT_VOLLOWMM)) m_potVolLow = data;
-	else if (StringMatch(sk, VAR_SOER)) m_sedYield = data;
+	else if (StringMatch(sk, VAR_SEDYLD)) m_sedYield = data;
 	else if (StringMatch(sk, VAR_SANDYLD)) m_sandYield = data;
 	else if (StringMatch(sk, VAR_SILTYLD)) m_siltYield = data;
 	else if (StringMatch(sk, VAR_CLAYYLD)) m_clayYield = data;
 	else if (StringMatch(sk, VAR_SAGYLD)) m_smaggreYield = data;
 	else if (StringMatch(sk, VAR_LAGYLD)) m_lgaggreYield = data;
-	else if (StringMatch(sk, VAR_NEPR)) m_netPrec = data;
 	else if (StringMatch(sk, VAR_LAIDAY)) m_LAIDay = data;
 	else if (StringMatch(sk, VAR_PET)) m_pet = data;
 	else if (StringMatch(sk, VAR_SOL_SW)) m_soilStorageProfile = data;
-	else if (StringMatch(sk, VAR_SURU)) m_surfaceRunoff = data;
+	else if (StringMatch(sk, VAR_DEET)) m_depEvapor = data;
+	else if (StringMatch(sk, VAR_DPST)) m_depStorage = data;
+	else if (StringMatch(sk, VAR_OLFLOW)) m_surfaceRunoff = data;
 	else if (StringMatch(sk, VAR_SUR_NO3)) m_surqNo3 = data;
+	else if (StringMatch(sk, VAR_SUR_NH4)) m_surqNH4 = data;
 	else if (StringMatch(sk, VAR_SUR_SOLP)) m_surqSolP = data;
 	else if (StringMatch(sk, VAR_SEDORGN)) m_sedOrgN = data;
 	else if (StringMatch(sk, VAR_SEDORGP)) m_sedOrgP = data;
@@ -169,7 +179,9 @@ void IMP_SWAT::Set2DData(const char *key, int n, int col, float **data)
 void IMP_SWAT::initialOutputs()
 {
 	if (m_potSurfaceArea == NULL) Initialize1DArray(m_nCells, m_potSurfaceArea, 0.f);
+	if (m_potVol == NULL) Initialize1DArray(m_nCells, m_potVol, 0.f);
 	if (m_potNo3 == NULL) Initialize1DArray(m_nCells, m_potNo3, 0.f);
+	if (m_potNH4 == NULL) Initialize1DArray(m_nCells, m_potNH4, 0.f);
 	if (m_potOrgN == NULL) Initialize1DArray(m_nCells, m_potOrgN, 0.f);
 	if (m_potSolP == NULL) Initialize1DArray(m_nCells, m_potSolP, 0.f);
 	if (m_potOrgP == NULL) Initialize1DArray(m_nCells, m_potOrgP, 0.f);
@@ -181,7 +193,7 @@ void IMP_SWAT::initialOutputs()
 	if (m_potClay == NULL) Initialize1DArray(m_nCells, m_potClay, 0.f);
 	if (m_potSag == NULL) Initialize1DArray(m_nCells, m_potSag, 0.f);
 	if (m_potLag == NULL) Initialize1DArray(m_nCells, m_potLag, 0.f);
-	if (m_potVol == NULL) Initialize1DArray(m_nCells, m_potVol, 0.f);
+	/// water loss
 	if (m_potSeep == NULL) Initialize1DArray(m_nCells, m_potSeep, 0.f);
 	if (m_potEvap == NULL) Initialize1DArray(m_nCells, m_potEvap, 0.f);
 }
@@ -217,8 +229,11 @@ void IMP_SWAT::potholeSimulate(int id)
 	float potevmm = 0.f; /// mm, volume of water evaporated from pothole expressed as depth
 	float potev = 0.f; /// m^3, evaporation from impounded water body
 	float spillo = 0.f; /// m^3, amount of water released to the main channel from impounded water body due to spill-over
-	float potpcpmm = 0.f; /// mm, precipitation falling on pothole water body expressed as depth
-	float potpcp = 0.f; /// m^3, precipitation falling on water body
+	
+	/// potpcpmm and potpcp should be implicitly included in (m_depStorage + m_depEvapor) if stated
+	//float potpcpmm = 0.f; /// mm, precipitation falling on pothole water body expressed as depth
+	//float potpcp = 0.f; /// m^3, precipitation falling on water body
+	
 	float potsepmm = 0.f; // mm, seepage from impounded water body expressed as depth
 	float potsep = 0.f; /// m^3, seepage from impounded water body
 	float sumo = 0.f; /// m^3, sum of all releases from water body on current day
@@ -230,6 +245,7 @@ void IMP_SWAT::potholeSimulate(int id)
 	float potsago = 0.f; /// kg, small aggregate
 	float potlago = 0.f; /// kg, large aggregate
 	float potno3o = 0.f; /// kg, no3 amount out of pothole
+	float potnh4o = 0.f; /// kg, nh4 amount out of pothole
 	float potsolpo = 0.f; /// kg, soluble phosphorus out of pothole
 	float potorgno = 0.f;/// kg, orgN out
 	float potorgpo = 0.f; /// kg, orgP out
@@ -244,6 +260,7 @@ void IMP_SWAT::potholeSimulate(int id)
 	float sagloss = 0.f;
 	float lagloss = 0.f;
 	float no3loss = 0.f; /// kg, amount of nitrate lost from water body
+	float nh4loss = 0.f; /// kg, amount of ammonian lost
 	float solploss = 0.f; /// kg, amount of solP lost
 	float orgnloss = 0.f; /// kg, amount of orgN lost
 	float orgploss = 0.f; /// kg, amount of orgP lost
@@ -251,22 +268,34 @@ void IMP_SWAT::potholeSimulate(int id)
 	float minpaloss = 0.f; /// kg, amount of active minP lost
 	/* pot_fr is the fraction of the cell draining into the pothole
 	 * the remainder (1-pot_fr) goes directly to runoff
+	 * currently, we assumed that the entire cell is pothole/impounded area
 	 */
-	float pot_fr = 1.f; /// currently, we assumed that the whole cell is pothole.
+	float pot_fr = 1.f;
 	float qIn = m_surfaceRunoff[id] * pot_fr; /// inflow = surface flow, not include lateral flow, groundwater, etc.
-	float qdayTmp = m_surfaceRunoff[id];
-	qdayTmp *= (1 - pot_fr);
-	//float potloss = qdayTmp - m_surfaceRunoff[id];
+	float qdayTmp = m_surfaceRunoff[id] * (1 - pot_fr); /// qdayTmp is the actual surface runoff generated
+	if (m_depStorage != NULL && m_depStorage[id] > 0.f){
+		qIn += m_depStorage[id]; /// depression storage should be added
+		m_depStorage[id] = 0.f;
+	}
+	if (m_depEvapor != NULL && m_depEvapor[id] > 0.f){
+		qIn += m_depEvapor[id]; /// since the evaporation will be calculated below, the m_depEvapor should be added
+		m_depEvapor[id] = 0.f;
+	}
 	float no3in = m_surqNo3[id]; /// no3 amount in flow
-	
+	float nh4in = 
 	/// update volume of water in pothole
 	m_potVol[id] += qIn;
-	//m_potFlowIn[id] += qIn;
-	/// compute surface area assuming a cone shape, ha
-	//potholeSurfaceArea(id);
-	m_potSurfaceArea[id] = m_cellArea; /// currently, assume to cell area.
+	//m_potFlowIn[id] += qIn; // TODO, this should be routing cell by cell. by lj
+
+	/* compute surface area of pothole
+	 * SWAT assuming a cone shape, ha
+	 * i.e., potholeSurfaceArea(id);
+	 * However, currently, we assume it is cell area
+	 */
+	m_potSurfaceArea[id] = m_cellArea;
 	potvol_ini = m_potVol[id];
 	potsa_ini = m_potSurfaceArea[id];
+
 	/// update sediment in pothole
 	m_potSed[id] += m_sedYield[id] * pot_fr;
 	float m_potSedIn = m_potSed[id];
@@ -280,6 +309,7 @@ void IMP_SWAT::potholeSimulate(int id)
 	float m_potSagIn = m_potSag[id];
 	m_potLag[id] += m_lgaggreYield[id] * pot_fr;
 	float m_potLagIn = m_potLag[id];
+
 	/// update sediment yields
 	float yy = 1.f - pot_fr;
 	m_sedYield[id] *= yy;
@@ -291,16 +321,18 @@ void IMP_SWAT::potholeSimulate(int id)
 
 	/// update forms of N and P in pothole
 	float xx = pot_fr * m_cellArea;
-	m_potNo3[id] += no3in * xx;
-	m_potSolP[id] += m_surqSolP[id] * xx;
+	m_potNo3[id] += m_surqNo3[id] * xx;
+	m_potNH4[id] += m_surqNH4[id] * xx;
 	m_potOrgN[id] += m_sedOrgN[id] * xx;
+	m_potSolP[id] += m_surqSolP[id] * xx;
 	m_potOrgP[id] += m_sedOrgP[id] * xx;
 	m_potActMinP[id] += m_sedActiveMinP[id] * xx;
 	m_potStaMinP[id] += m_sedStableMinP[id] * xx;
 	/// update forms of N and P in surface runoff
 	m_surqNo3[id] *= yy;
-	m_surqSolP[id] *= yy;
+	m_surqNH4[id] *= yy;
 	m_sedOrgN[id] *= yy;
+	m_surqSolP[id] *= yy;
 	m_sedOrgP[id] *= yy;
 	m_sedActiveMinP[id] *= yy;
 	m_sedStableMinP[id] *= yy;
@@ -311,7 +343,7 @@ void IMP_SWAT::potholeSimulate(int id)
 		qdayTmp += (m_potVol[id] - m_potVolMax[id]);
 		spillo = m_potVol[id] - m_potVolMax[id];
 		m_potVol[id] = m_potVolMax[id];
-		if (FloatEqual(spillo + m_potVolMax[id], 0.f))
+		if (FloatEqual(spillo + m_potVolMax[id], 0.f)) // this should not happen
 			xx = 0.f;
 		else
 			xx = spillo / (spillo + m_potVolMax[id]);
@@ -322,8 +354,9 @@ void IMP_SWAT::potholeSimulate(int id)
 		potsago += m_potSag[id] * xx;
 		potlago += m_potLag[id] * xx;
 		potno3o += m_potNo3[id] * xx;
-		potsolpo += m_potSolP[id] * xx;
+		potnh4o += m_potNH4[id] * xx;
 		potorgno += m_potOrgN[id] * xx;
+		potsolpo += m_potSolP[id] * xx;
 		potorgpo += m_potOrgP[id] * xx;
 		potmpao += m_potActMinP[id] * xx;
 		potmpso += m_potStaMinP[id] * xx;
@@ -335,8 +368,9 @@ void IMP_SWAT::potholeSimulate(int id)
 		m_potSag[id] -= potsago;
 		m_potLag[id] -= potlago;
 		m_potNo3[id] -= potno3o;
-		m_potSolP[id] -= potsolpo;
+		m_potNH4[id] -= potnh4o;
 		m_potOrgN[id] -= potorgno;
+		m_potSolP[id] -= potsolpo;
 		m_potOrgP[id] -= potorgpo;
 		m_potStaMinP[id] -= potmpso;
 		m_potActMinP[id] -= potmpao;
@@ -348,12 +382,14 @@ void IMP_SWAT::potholeSimulate(int id)
 		m_smaggreYield[id] += potsago;
 		m_lgaggreYield[id] += potlago;
 		m_surqNo3[id] += potno3o;
-		m_surqSolP[id] += potsolpo;
+		m_surqNH4[id] += potnh4o;
 		m_sedOrgN[id] += potorgno;
+		m_surqSolP[id] += potsolpo;
 		m_sedOrgP[id] += potorgpo;
 		m_sedStableMinP[id] += potmpso;
 		m_sedActiveMinP[id] += potmpao;
 	} /// end if overflow
+
 	/// if no overflow, compute settling and losses, surface inlet tile
 	/// flow, evap, seepage, and redistribute soil water
 	if (m_potVol[id] > UTIL_ZERO)
@@ -614,6 +650,7 @@ void IMP_SWAT::Get1DData(const char *key, int *n, float **data)
 	string sk(key);
 	if (StringMatch(sk, VAR_POT_VOL))
 		*data = m_potVol;
+	else if (StringMatch(sk, VAR_SUR_NH4_TOCH)) *data = m_surqNH4;
 	else
 		throw ModelException(MID_IMP_SWAT, "Get1DData","Parameter" + sk + "does not exist.");
 	*n = m_nCells;

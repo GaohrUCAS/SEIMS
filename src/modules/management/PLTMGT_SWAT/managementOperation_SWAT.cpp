@@ -329,8 +329,8 @@ void MGTOpt_SWAT::Set2DData(const char *key, int n, int col, float **data)
     else if (StringMatch(sk, VAR_SOL_NH4)) m_soilNH4 = data;
     else if (StringMatch(sk, VAR_SOL_NO3)) m_soilNO3 = data;
     else if (StringMatch(sk, VAR_SOL_AORGN)) m_soilActiveOrgN = data;
-    else if (StringMatch(sk, VAR_SOL_FON)) m_soilFreshOrgN = data;
-    else if (StringMatch(sk, VAR_SOL_FOP)) m_soilFreshOrgP = data;
+    else if (StringMatch(sk, VAR_SOL_FORGN)) m_soilFreshOrgN = data;
+    else if (StringMatch(sk, VAR_SOL_FORGP)) m_soilFreshOrgP = data;
     else if (StringMatch(sk, VAR_SOL_ACTP)) m_soilActiveMinP = data;
     else if (StringMatch(sk, VAR_SOL_STAP)) m_soilStableMinP = data;
 	else if (StringMatch(sk, VAR_SOL_RSD)) m_soilRsd = data;

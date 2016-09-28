@@ -9,6 +9,7 @@ mpiexec -n 4 E:\github-zlj\SEIMS_VS\Debug\seims ..\model_data\cluster_model_fenk
 ## TEST COMMAND BY ZHULJ:
 
 + D:\Compile\SEIMS_OMP\Release\seims_omp E:\code\Hydro\SEIMS\model_data\dianbu\model_dianbu_30m_longterm 6 0 127.0.0.1 27017 1
++ python E:\code\Hydro\SEIMS\postprocess\hydroPlot_main.py -ini E:\code\Hydro\SEIMS\postprocess\post_dianbu_30m_longterm_omp_zhulj_win.ini
 
 + D:\Compile\SEIMS_OMP\Release\seims_omp E:\code\Hydro\SEIMS\model_data\dianbu\model_dianbu2_30m_longterm 6 0 192.168.6.55 27017 1
 

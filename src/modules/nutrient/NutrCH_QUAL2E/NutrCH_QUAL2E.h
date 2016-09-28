@@ -1,10 +1,12 @@
 /*!
  * \brief Calculates in-stream nutrient transformations with QUAL2E method.
+ *        watqual.f of SWAT
  * \author Huiran Gao; Junzhi Liu
  * \date Jun 2016
  *
  * \revision LiangJun Zhu
  * \description 1. Add point source loadings nutrients from Scenario.
+ *              2. Add ammonian transported by surface runoff
  */
 
 #pragma once
@@ -20,18 +22,7 @@ using namespace std;
  * \ingroup Nutrient
  * \brief Calculates in-stream nutrient transformations with QUAL2E method.
  */
-/*
- *\breif Musking weight struct
- */
-struct MuskWeights
-{
-    float c1;
-    float c2;
-    float c3;
-    float c4;
-    float dt;
-    int n;  ///< number of division of the origin time step
-};
+
 /*!
  * \class NutrCH_QUAL2E
  * \ingroup NutrCH_QUAL2E
@@ -174,6 +165,8 @@ private:
     float *m_latNO3ToCh;
     /// amount of nitrate transported with surface runoff
     float *m_surNO3ToCh;
+	/// amount of ammonian transported with surface runoff
+	float *m_surNH4ToCh;
     /// amount of soluble phosphorus in surface runoff
     float *m_surSolPToCh;
     /// nitrate loading to reach in groundwater

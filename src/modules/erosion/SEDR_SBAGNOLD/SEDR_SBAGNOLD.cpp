@@ -275,7 +275,7 @@ void SEDR_SBAGNOLD::SetValue(const char *key, float value)
         m_Chs0 = value;
     }
 	else if (StringMatch(sk, VAR_SED_CHI0)) m_sedChi0 = value;
-	else if (StringMatch(sk, VAR_VCD)) m_VCD = value;
+	else if (StringMatch(sk, VAR_VCD)) m_VCD = (int)value;
     else
         throw ModelException(MID_SEDR_SBAGNOLD, "SetValue", "Parameter " + sk + " does not exist.");
 }

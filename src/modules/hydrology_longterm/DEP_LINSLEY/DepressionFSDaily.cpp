@@ -16,10 +16,10 @@
 #include <omp.h>
 
 DepressionFSDaily::DepressionFSDaily(void) : m_nCells(-1),m_depCo(NODATA_VALUE),
-                                             m_depCap(NULL), m_impoundTriger(NULL),m_potVol(NULL),
+                                             m_depCap(NULL), 
 											 m_pet(NULL), m_ei(NULL), m_pe(NULL),
                                              m_sd(NULL), m_ed(NULL), m_sr(NULL)
-{
+{//m_impoundTriger(NULL),m_potVol(NULL),
 }
 
 DepressionFSDaily::~DepressionFSDaily(void)
@@ -128,10 +128,10 @@ int DepressionFSDaily::Execute()
             m_ed[i] = 0.f;
             m_sd[i] = 0.f;
         }
-		if (m_impoundTriger != NULL && FloatEqual(m_impoundTriger[i], 0.f)){
-			m_potVol[i] += m_sr[i];
-			m_potVol[i] += m_sd[i];
-		}
+		//if (m_impoundTriger != NULL && FloatEqual(m_impoundTriger[i], 0.f)){
+		//	m_potVol[i] += m_sr[i];
+		//	m_potVol[i] += m_sd[i];
+		//}
     }
     return true;
 }
@@ -158,9 +158,7 @@ void DepressionFSDaily::SetValue(const char *key, float data)
     if (StringMatch(sk, VAR_DEPREIN)) m_depCo = data;
     else if (StringMatch(sk, VAR_OMP_THREADNUM))omp_set_num_threads((int) data); 
     else
-        throw ModelException(MID_DEP_LINSLEY, "SetValue", "Parameter " + sk
-                                                          +
-                                                          " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_DEP_LINSLEY, "SetValue", "Parameter " + sk + " does not exist.");
 }
 
 void DepressionFSDaily::Set1DData(const char *key, int n, float *data)
@@ -176,8 +174,8 @@ void DepressionFSDaily::Set1DData(const char *key, int n, float *data)
         m_pet = data;
     else if (StringMatch(sk, VAR_EXCP))
         m_pe = data;
-	else if (StringMatch(sk, VAR_IMPOUND_TRIG)) m_impoundTriger = data;
-	else if (StringMatch(sk, VAR_POT_VOL)) m_potVol = data;
+	//else if (StringMatch(sk, VAR_IMPOUND_TRIG)) m_impoundTriger = data;
+	//else if (StringMatch(sk, VAR_POT_VOL)) m_potVol = data;
     else
         throw ModelException(MID_DEP_LINSLEY, "Set1DData", "Parameter " + sk+" does not exist.");
 }
@@ -194,7 +192,5 @@ void DepressionFSDaily::Get1DData(const char *key, int *n, float **data)
     else if (StringMatch(sk, VAR_SURU))
         *data = m_sr;
     else
-        throw ModelException(MID_DEP_LINSLEY, "Get1DData", "Output " + sk
-                                                           +
-                                                           " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_DEP_LINSLEY, "Get1DData", "Output " + sk+" does not exist.");
 }

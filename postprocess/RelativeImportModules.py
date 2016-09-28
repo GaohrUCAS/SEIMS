@@ -8,14 +8,14 @@ from pathlib2 import Path
 #     1_level_example
 #
 #         if __name__ == '__main__' and __package__ is None:
-#             import_parents()
+#             __package__ import_parents()
 #
 #         from . import module
 #         from .module.submodule import thing
 #     3_level_example
 #
 #         if __name__ == '__main__' and __package__ is None:
-#             import_parents(level=3)
+#             __package__ = import_parents(level=3)
 #
 #         from ... import module
 #         from ...module.submodule import thing

@@ -715,8 +715,8 @@ void NandPim::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
     *nRows = m_nCells;
     *nCols = m_soilLayers;
     if (StringMatch(sk, VAR_SOL_AORGN)) { *data = this->m_sol_aorgn; }
-    else if (StringMatch(sk, VAR_SOL_FON)) { *data = this->m_sol_fon; }
-    else if (StringMatch(sk, VAR_SOL_FOP)) { *data = this->m_sol_fop; }
+    else if (StringMatch(sk, VAR_SOL_FORGN)) { *data = this->m_sol_fon; }
+    else if (StringMatch(sk, VAR_SOL_FORGP)) { *data = this->m_sol_fop; }
     else if (StringMatch(sk, VAR_SOL_NO3)) { *data = this->m_sol_no3; }
     else if (StringMatch(sk, VAR_SOL_NH4)) { *data = this->m_sol_nh4; }
     else if (StringMatch(sk, VAR_SOL_SORGN)) { *data = this->m_sol_orgn; }

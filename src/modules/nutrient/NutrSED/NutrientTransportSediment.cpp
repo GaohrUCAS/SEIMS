@@ -1,5 +1,5 @@
 #include <iostream>
-#include "SurrunoffTransfer.h"
+#include "NutrientTransportSediment.h"
 #include "MetadataInfo.h"
 #include <cmath>
 #include <iostream>
@@ -10,18 +10,21 @@
 
 using namespace std;
 
-SurrunoffTransfer::SurrunoffTransfer(void) :
-//input
-        m_nCells(-1), m_cellWidth(-1), m_cellArea(-1), m_soiLayers(-1), m_nSoilLayers(NULL), m_sedimentYield(NULL), m_surfr(NULL),
+NutrientTransportSediment::NutrientTransportSediment(void) :
+		//input
+        m_nCells(-1), m_cellWidth(-1.f), m_cellArea(-1.f), m_soiLayers(-1), m_nSoilLayers(NULL), 
+		m_nSubbasins(-1), m_subbasin(NULL), m_subbasinsInfo(NULL),
         m_sol_bd(NULL), m_soilDepth(NULL), m_enratio(NULL),
-        m_sol_actp(NULL), m_sol_orgn(NULL), m_sol_orgp(NULL), m_sol_stap(NULL), m_sol_aorgn(NULL), m_sol_fon(NULL),
-        m_sol_fop(NULL), m_nSubbasins(-1), m_subbasin(NULL), m_subbasinsInfo(NULL),
+        m_sol_actp(NULL), m_sol_stap(NULL), m_sol_fop(NULL), m_sol_orgp(NULL), 
+        m_sol_orgn(NULL), m_sol_aorgn(NULL), m_sol_fon(NULL),
+		m_sedEroded(NULL), m_surfaceRunoff(NULL),
         //outputs
-        m_sedorgn(NULL), m_sedorgp(NULL), m_sedminpa(NULL), m_sedminps(NULL)
+        m_sedorgn(NULL), m_sedorgp(NULL), m_sedminpa(NULL), m_sedminps(NULL),
+		m_sedorgnToCh(NULL), m_sedorgpToCh(NULL), m_sedminpaToCh(NULL), m_sedminpsToCh(NULL)
 {
 }
 
-SurrunoffTransfer::~SurrunoffTransfer(void)
+NutrientTransportSediment::~NutrientTransportSediment(void)
 {
 	if (m_enratio != NULL) Release1DArray(m_enratio);
 
@@ -36,7 +39,7 @@ SurrunoffTransfer::~SurrunoffTransfer(void)
 	if (m_sedminpsToCh != NULL) Release1DArray(m_sedminpsToCh);
 }
 
-bool SurrunoffTransfer::CheckInputSize(const char *key, int n)
+bool NutrientTransportSediment::CheckInputSize(const char *key, int n)
 {
     if (n <= 0)
 		throw ModelException(MID_NUTRSED,"CheckInputSize","Input data for "+string(key) +" is invalid. The size could not be less than zero.\n");
@@ -51,13 +54,13 @@ bool SurrunoffTransfer::CheckInputSize(const char *key, int n)
     return true;
 }
 
-bool SurrunoffTransfer::CheckInputData()
+bool NutrientTransportSediment::CheckInputData()
 {
     if (this->m_nCells <= 0)
     {
         throw ModelException(MID_NUTRSED, "CheckInputData", "The input data can not be less than zero.");
     }
-    if (this->m_cellWidth <= 0)
+    if (this->m_cellWidth < 0.f)
     {
         throw ModelException(MID_NUTRSED, "CheckInputData", "The cell width can not be less than zero.");
     }
@@ -69,11 +72,11 @@ bool SurrunoffTransfer::CheckInputData()
     {
         throw ModelException(MID_NUTRSED, "CheckInputData", "Soil layers number must not be NULL.");
     }
-    if (this->m_sedimentYield == NULL)
+    if (this->m_sedEroded == NULL)
     {
         throw ModelException(MID_NUTRSED, "CheckInputData", "The distribution of soil loss caused by water erosion can not be NULL.");
     }
-    if (this->m_surfr == NULL)
+    if (this->m_surfaceRunoff == NULL)
     {
         throw ModelException(MID_NUTRSED, "CheckInputData", "The distribution of surface runoff generated data can not be NULL.");
     }
@@ -121,11 +124,10 @@ bool SurrunoffTransfer::CheckInputData()
 	if (m_subbasinIDs.empty()) throw ModelException(MID_NUTRSED, "CheckInputData", "The subbasin IDs can not be EMPTY.");
 	if (m_subbasinsInfo == NULL)
 		throw ModelException(MID_NUTRSED, "CheckInputData", "The parameter: m_subbasinsInfo has not been set.");
-
     return true;
 }
 
-void SurrunoffTransfer::SetValue(const char *key, float value)
+void NutrientTransportSediment::SetValue(const char *key, float value)
 {
     string sk(key);
     if (StringMatch(sk, VAR_OMP_THREADNUM)) omp_set_num_threads((int) value);
@@ -134,30 +136,24 @@ void SurrunoffTransfer::SetValue(const char *key, float value)
         throw ModelException(MID_NUTRSED, "SetValue", "Parameter " + sk +" does not exist.");
 }
 
-void SurrunoffTransfer::Set1DData(const char *key, int n, float *data)
+void NutrientTransportSediment::Set1DData(const char *key, int n, float *data)
 {
     if (!this->CheckInputSize(key, n)) return;
 
     string sk(key);
 	if (StringMatch(sk, VAR_SUBBSN))
 		m_subbasin = data;
-    else if (StringMatch(sk, VAR_SED_OL))
-        this->m_sedimentYield = data;
 	else if (StringMatch(sk, VAR_SOILLAYERS))
-	{
 		m_nSoilLayers = data;
-	}
-    else if (StringMatch(sk, VAR_FLOW_OL))
-    {
-        this->m_surfr = data;
-    }
+    else if (StringMatch(sk, VAR_SEDYLD))
+        this->m_sedEroded = data;
+    else if (StringMatch(sk, VAR_OLFLOW))
+        this->m_surfaceRunoff = data;
     else
-    {
-        throw ModelException(MID_NUTRSED, "Set1DData", "Parameter " + sk +" does not exist.");
-    }
+        throw ModelException(MID_NUTRSED, "Set1DData", "Parameter " + sk + " does not exist.");
 }
 
-void SurrunoffTransfer::Set2DData(const char *key, int nRows, int nCols, float **data)
+void NutrientTransportSediment::Set2DData(const char *key, int nRows, int nCols, float **data)
 {
     if (!this->CheckInputSize(key, nRows)) return;
     string sk(key);
@@ -167,16 +163,15 @@ void SurrunoffTransfer::Set2DData(const char *key, int nRows, int nCols, float *
     else if (StringMatch(sk, VAR_SOL_AORGN)) { this->m_sol_aorgn = data; }
     else if (StringMatch(sk, VAR_SOL_SORGN)) { this->m_sol_orgn = data; }
     else if (StringMatch(sk, VAR_SOL_HORGP)) { this->m_sol_orgp = data; }
-    else if (StringMatch(sk, VAR_SOL_FOP)) { this->m_sol_fop = data; }
-    else if (StringMatch(sk, VAR_SOL_FON)) { this->m_sol_fon = data; }
+    else if (StringMatch(sk, VAR_SOL_FORGP)) { this->m_sol_fop = data; }
+    else if (StringMatch(sk, VAR_SOL_FORGN)) { this->m_sol_fon = data; }
     else if (StringMatch(sk, VAR_SOL_ACTP)) { this->m_sol_actp = data; }
     else if (StringMatch(sk, VAR_SOL_STAP)) { this->m_sol_stap = data; }
-    //else if (StringMatch(sk, VAR_SOL_MP)) {this -> m_sol_mp = data;}
     else
         throw ModelException(MID_NUTRSED, "Set2DData", "Parameter " + sk + " does not exist.");
 }
 
-void SurrunoffTransfer::initialOutputs()
+void NutrientTransportSediment::initialOutputs()
 {
     if (this->m_nCells <= 0)
     {
@@ -184,11 +179,7 @@ void SurrunoffTransfer::initialOutputs()
     }
 	// initial enrichment ratio
 	if (this->m_enratio == NULL)
-	{
 		Initialize1DArray(m_nCells, m_enratio, 0.f);
-	}
-
-	//}
 	if (m_cellArea < 0)
 	{
 		m_cellArea = m_cellWidth * m_cellWidth * 0.0001f; //Unit is ha 
@@ -206,10 +197,9 @@ void SurrunoffTransfer::initialOutputs()
 		Initialize1DArray(m_nSubbasins+1, m_sedminpaToCh, 0.f);
 		Initialize1DArray(m_nSubbasins+1, m_sedminpsToCh, 0.f);
     }
-    //if(m_sol_mp == NULL) {Initialize2DArray(m_nCells, m_soiLayers, m_sol_mp, 0.f);}
 }
 
-void SurrunoffTransfer::SetSubbasins(clsSubbasins *subbasins)
+void NutrientTransportSediment::SetSubbasins(clsSubbasins *subbasins)
 {
 	if(m_subbasinsInfo == NULL){
 		m_subbasinsInfo = subbasins;
@@ -218,7 +208,7 @@ void SurrunoffTransfer::SetSubbasins(clsSubbasins *subbasins)
 	}
 }
 
-int SurrunoffTransfer::Execute()
+int NutrientTransportSediment::Execute()
 {
     if (!CheckInputData())return false;
     this->initialOutputs();
@@ -231,33 +221,14 @@ int SurrunoffTransfer::Execute()
 		m_sedminpaToCh[i] = 0.f;
 		m_sedminpsToCh[i] = 0.f;
 	}
+
 #pragma omp parallel for
-	for (int i = 0; i < m_nCells; i++)
-	{
-		if (m_sedimentYield[i] < 1.e-4f)
-		{
-			m_sedimentYield[i] = 0.f;
-		}
-		// CREAMS method for calculating enrichment ratio
-		float cy = 0.f;
-		// Calculate sediment calculations, equation 4:2.2.3 in SWAT Theory 2009, p272
-		cy = 0.1f * m_sedimentYield[i] / (m_cellArea * m_surfr[i] + 1.e-6f) / 1000.f;
-		if (cy > 1.e-6f)
-		{
-			m_enratio[i] = 0.78f * pow(cy, -0.2468f);
-		} else
-		{
-			m_enratio[i] = 0.f;
-		}
-		if (m_enratio[i] > 3.5f)
-		{
-			m_enratio[i] = 3.5f;
-		}
-		//if(i == 1000) cout << ""<< m_sedimentYield[i]<<","<< m_surfr[i] << "," << m_enratio[i]<<endl;
-	}
-	#pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
     {
+		if (m_sedEroded[i] < 1.e-4f) m_sedEroded[i] = 0.f;
+		// CREAMS method for calculating enrichment ratio
+		m_enratio[i] = NutrCommon::CalEnrichmentRatio(m_sedEroded[i], m_surfaceRunoff[i], m_cellArea);
+		//if(i == 1000) cout << ""<< m_sedEroded[i]<<","<< m_surfaceRunoff[i] << "," << m_enratio[i]<<endl;
         //Calculates the amount of organic nitrogen removed in surface runoff. orgn.f of SWAT
         OrgnRemoveinSr(i);
         //Calculates the amount of organic and mineral phosphorus attached to sediment in surface runoff. psed.f of SWAT
@@ -282,7 +253,7 @@ int SurrunoffTransfer::Execute()
 		m_sedminpaToCh[subi] += m_sedminpa[i];
 		m_sedminpsToCh[subi] += m_sedminps[i];
 	}
-	cout << m_sedorgpToCh[12] << endl;
+	//cout << m_sedorgpToCh[12] << endl;
 	// sum all the subbasins and put the sum value in the zero-index of the array
 	//for (int i = 1; i < m_nSubbasins + 1; i++)
 	for (vector<int>::iterator it = m_subbasinIDs.begin(); it != m_subbasinIDs.end(); it++)
@@ -295,7 +266,7 @@ int SurrunoffTransfer::Execute()
     return 0;
 }
 
-void SurrunoffTransfer::OrgnRemoveinSr(int i)
+void NutrientTransportSediment::OrgnRemoveinSr(int i)
 {
     for (int k = 0; k < (int)m_nSoilLayers[i]; k++)
     {
@@ -309,7 +280,7 @@ void SurrunoffTransfer::OrgnRemoveinSr(int i)
         float concn = 0.f;
         concn = orgninfl * m_enratio[i] / wt;
         //Calculate the amount of organic nitrogen transported with sediment to the stream, equation 4:2.2.1 in SWAT Theory 2009, p271
-        m_sedorgn[i] = 0.001f * concn * m_sedimentYield[i] / 1000.f / m_cellArea;
+        m_sedorgn[i] = 0.001f * concn * m_sedEroded[i] / 1000.f / m_cellArea;
         //update soil nitrogen pools
         if (orgninfl > 1.e-6f)
         {
@@ -335,7 +306,7 @@ void SurrunoffTransfer::OrgnRemoveinSr(int i)
     }
 }
 
-void SurrunoffTransfer::OrgpAttachedtoSed(int i)
+void NutrientTransportSediment::OrgpAttachedtoSed(int i)
 {
     for (int k = 0; k < (int)m_nSoilLayers[i]; k++)
     {
@@ -359,7 +330,7 @@ void SurrunoffTransfer::OrgpAttachedtoSed(int i)
         float concp = 0.f;
         concp = sol_attp * m_enratio[i] / wt;
         //total amount of P removed in sediment erosion (sedp)
-        float sedp = 0.001f * concp * m_sedimentYield[i] / 1000.f / m_cellArea;
+        float sedp = 0.001f * concp * m_sedEroded[i] / 1000.f / m_cellArea;
         m_sedorgp[i] = sedp * sol_attp_o;
         m_sedminpa[i] = sedp * sol_attp_a;
 		m_sedminps[i] = sedp * sol_attp_s;
@@ -403,67 +374,57 @@ void SurrunoffTransfer::OrgpAttachedtoSed(int i)
     }
 }
 
-void SurrunoffTransfer::Get1DData(const char *key, int *n, float **data)
+void NutrientTransportSediment::Get1DData(const char *key, int *n, float **data)
 {
 	initialOutputs();
     string sk(key);
-    if (StringMatch(sk, VAR_SEDORGN)) 
-	{ 
+    if (StringMatch(sk, VAR_SEDORGN)){ 
 		*data = this->m_sedorgn; 
 		*n = m_nCells;
 	}
-    else if (StringMatch(sk, VAR_SEDORGP)) 
-	{ 
+    else if (StringMatch(sk, VAR_SEDORGP)){ 
 		*data = this->m_sedorgp; 
 		*n = m_nCells;
 	}
-    else if (StringMatch(sk, VAR_SEDMINPA)) 
-	{ 
+    else if (StringMatch(sk, VAR_SEDMINPA)){ 
 		*data = this->m_sedminpa; 
 		*n = m_nCells;
 	}
-    else if (StringMatch(sk, VAR_SEDMINPS)) 
-	{ 
+    else if (StringMatch(sk, VAR_SEDMINPS)){ 
 		*data = this->m_sedminps; 
 		*n = m_nCells;
 	}
-	else if(StringMatch(sk, VAR_SEDORGN_TOCH))
-	{
+	else if(StringMatch(sk, VAR_SEDORGN_TOCH)){
 		*data = m_sedorgnToCh; 
 		*n = m_nSubbasins + 1;
 	}
-	else if(StringMatch(sk, VAR_SEDORGP_TOCH))
-	{
+	else if(StringMatch(sk, VAR_SEDORGP_TOCH)){
 		*data = m_sedorgpToCh; 
 		*n = m_nSubbasins + 1;
 	}
-	else if(StringMatch(sk, VAR_SEDMINPA_TOCH))
-	{
+	else if(StringMatch(sk, VAR_SEDMINPA_TOCH)){
 		*data = m_sedminpaToCh; 
 		*n = m_nSubbasins + 1;
 	}
-	else if(StringMatch(sk, VAR_SEDMINPS_TOCH))
-	{
+	else if(StringMatch(sk, VAR_SEDMINPS_TOCH)){
 		*data = m_sedminpsToCh; 
 		*n = m_nSubbasins + 1;
 	}
     else
-    {
         throw ModelException(MID_NUTRSED, "Get1DData","Parameter " + sk + " does not exist");
-    }
 }
 
-void SurrunoffTransfer::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
+void NutrientTransportSediment::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
 {
 	initialOutputs();
     string sk(key);
     *nRows = m_nCells;
     *nCols = m_soiLayers;
     if (StringMatch(sk, VAR_SOL_AORGN)) { *data = this->m_sol_aorgn; }
-    else if (StringMatch(sk, VAR_SOL_FON)) { *data = this->m_sol_fon; }
+    else if (StringMatch(sk, VAR_SOL_FORGN)) { *data = this->m_sol_fon; }
     else if (StringMatch(sk, VAR_SOL_SORGN)) { *data = this->m_sol_orgn; }
     else if (StringMatch(sk, VAR_SOL_HORGP)) { *data = this->m_sol_orgp; }
-    else if (StringMatch(sk, VAR_SOL_FOP)) { *data = this->m_sol_fop; }
+    else if (StringMatch(sk, VAR_SOL_FORGP)) { *data = this->m_sol_fop; }
     else if (StringMatch(sk, VAR_SOL_STAP)) { *data = this->m_sol_stap; }
     else if (StringMatch(sk, VAR_SOL_ACTP)) { *data = this->m_sol_actp; }
     else

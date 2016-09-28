@@ -195,12 +195,11 @@ void IUH_SED_OL::Get1DData(const char *key, int *n, float **data)
 		*n = m_nSubbasins + 1;
 		return;
 	}
-	else if (StringMatch(sk, VAR_SED_OL))
+	else if (StringMatch(sk, VAR_SEDYLD))
 	{
 		*data = m_sedOL;
 		*n = m_nCells;
 	}
-
     else
-        throw ModelException(MID_IUH_SED_OL, "Get1DData", "Result " + sk + " does not exist in current method.");
+        throw ModelException(MID_IUH_SED_OL, "Get1DData", "Result " + sk + " does not exist.");
 }

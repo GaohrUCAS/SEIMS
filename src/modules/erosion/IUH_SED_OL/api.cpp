@@ -39,7 +39,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddInput(VAR_SOER, UNIT_KG, DESC_SOER, Source_Module, DT_Raster1D);
 
 	mdi.AddOutput(VAR_SED_TO_CH, UNIT_KG, DESC_SED_TO_CH, DT_Array1D);
-	mdi.AddOutput(VAR_SED_OL, UNIT_KG, DESC_SED_OL, DT_Raster1D);
+	mdi.AddOutput(VAR_SEDYLD, UNIT_KG, DESC_SEDYLD, DT_Raster1D);
 
     // set the dependencies
     //mdi.AddDependency("DEP_FS", "Depression Storage module");

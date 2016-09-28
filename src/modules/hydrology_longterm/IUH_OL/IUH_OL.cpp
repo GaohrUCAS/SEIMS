@@ -196,7 +196,7 @@ void IUH_OL::Get1DData(const char *key, int *n, float **data)
         *data = this->m_Q_SBOF;
 		*n = this->m_nSubbasins + 1;
     }
-	else if (StringMatch(sk, VAR_FLOW_OL))
+	else if (StringMatch(sk, VAR_OLFLOW))
 	{
 		*data = this->m_OL_Flow;
 		*n = this->m_nCells;

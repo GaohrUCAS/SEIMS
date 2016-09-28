@@ -55,15 +55,9 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.AddOutput(VAR_MINPGW_TOCH, UNIT_KG, DESC_MINPGW_CH, DT_Array1D);
 	mdi.AddOutput(VAR_GWNO3, UNIT_KG, DESC_GWNO3, DT_Array1D);
 	mdi.AddOutput(VAR_GWSOLP, UNIT_KG, DESC_GWSOLP_CONC, DT_Array1D);
-	//mdi.AddOutput(VAR_REVAP_NO3, UNIT_KG, )
 
     string res = mdi.GetXMLDocument();
     char *tmp = new char[res.size() + 1];
     strprintf(tmp, res.size() + 1, "%s", res.c_str());
     return tmp;
 }
-
-//mdi.AddParameter(Tag_CellSize, UNIT_NON_DIM, DESC_CellSize, Source_ParameterDB, DT_Single);
-/// these two parameters are imported from VAR_REACH_PARAM, by lj
-//mdi.AddParameter(VAR_GWNO3, UNIT_KGM3, DESC_GWNO3, Source_ParameterDB, DT_Raster1D);
-//mdi.AddParameter(VAR_GWMINP, UNIT_KGM3, DESC_GWSOLP, Source_ParameterDB, DT_Raster1D);
