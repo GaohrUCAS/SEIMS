@@ -2,7 +2,7 @@
 #include <string>
 #include "api.h"
 #include "util.h"
-#include "NutrientRemviaSr.h"
+#include "NutrientMovementViaWater.h"
 #include <iostream>
 #include "SimulationModule.h"
 #include "MetadataInfo.h"
@@ -10,7 +10,7 @@
 
 extern "C" SEIMS_MODULE_API SimulationModule *GetInstance()
 {
-    return new NutrientRemviaSr();
+    return new NutrientMovementViaWater();
 }
 
 //! function to return the XML Metadata document string
@@ -63,8 +63,8 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     // set input from other modules
     //mdi.AddInput(VAR_WSHD_PLCH, UNIT_CONT_KGHA, DESC_WSHD_PLCH, Source_Module, DT_Single);
 	//surface related inputs
-    mdi.AddInput(VAR_FLOW_OL, UNIT_DEPTH_MM, DESC_OLFLOW, Source_Module, DT_Raster1D);
-    mdi.AddInput(VAR_SED_OL, UNIT_KG, DESC_SED_OL, Source_Module, DT_Raster1D);
+    mdi.AddInput(VAR_OLFLOW, UNIT_DEPTH_MM, DESC_OLFLOW, Source_Module, DT_Raster1D);
+    mdi.AddInput(VAR_SEDYLD, UNIT_KG, DESC_SEDYLD, Source_Module, DT_Raster1D);
 	//soil related inputs
 	mdi.AddInput(VAR_PERCO, UNIT_DEPTH_MM, DESC_PERCO, Source_Module, DT_Raster2D);
 	mdi.AddInput(VAR_SSRU, UNIT_DEPTH_MM, DESC_SSRU, Source_Module, DT_Raster2D);
@@ -79,20 +79,20 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.AddOutput(VAR_WSHD_PLCH, UNIT_CONT_KGHA, DESC_WSHD_PLCH, DT_Single);
 	//surface related
     mdi.AddOutput(VAR_SUR_NO3, UNIT_CONT_KGHA, DESC_SUR_NO3, DT_Raster1D);
+	mdi.AddOutput(VAR_SUR_NH4, UNIT_CONT_KGHA, DESC_SUR_NH4, DT_Raster1D);
     mdi.AddOutput(VAR_SUR_SOLP, UNIT_CONT_KGHA, DESC_SUR_SOLP, DT_Raster1D);
-	//soil related
+	mdi.AddOutput(VAR_COD, UNIT_CONT_KGHA, DESC_COD, DT_Raster1D);
+    mdi.AddOutput(VAR_CHL_A, UNIT_CONCENTRATION, DESC_CHL_A, DT_Raster1D);
 	mdi.AddOutput(VAR_LATNO3, UNIT_CONT_KGHA, DESC_LATNO3, DT_Raster1D);
 	//to groundwater
 	mdi.AddOutput(VAR_PERCO_N_GW, UNIT_KG, DESC_PERCO_N, DT_Array1D);
 	mdi.AddOutput(VAR_PERCO_P_GW, UNIT_KG, DESC_PERCO_P, DT_Array1D);
 	//to channel
 	mdi.AddOutput(VAR_LATNO3_TOCH, UNIT_KG, DESC_LATNO3_CH, DT_Array1D);
-	mdi.AddOutput(VAR_SUR_NO3_TOCH, UNIT_KG, DESC_SUR_NO3_CH, DT_Array1D);
-	mdi.AddOutput(VAR_SUR_SOLP_TOCH, UNIT_KG, DESC_SUR_SOLP_CH, DT_Array1D);
-	mdi.AddOutput(VAR_SUR_COD_TOCH, UNIT_KG, DESC_SUR_COD_CH, DT_Array1D);
-
-	mdi.AddOutput(VAR_COD, UNIT_CONT_KGHA, DESC_COD, DT_Raster1D);
-    mdi.AddOutput(VAR_CHL_A, UNIT_CONCENTRATION, DESC_CHL_A, DT_Raster1D);
+	mdi.AddOutput(VAR_SUR_NO3_TOCH, UNIT_KG, DESC_SUR_NO3_ToCH, DT_Array1D);
+	mdi.AddOutput(VAR_SUR_NH4_TOCH, UNIT_KG, DESC_SUR_NH4_ToCH, DT_Array1D);
+	mdi.AddOutput(VAR_SUR_SOLP_TOCH, UNIT_KG, DESC_SUR_SOLP_ToCH, DT_Array1D);
+	mdi.AddOutput(VAR_SUR_COD_TOCH, UNIT_KG, DESC_SUR_COD_ToCH, DT_Array1D);
 
     string res = mdi.GetXMLDocument();
     char *tmp = new char[res.size() + 1];

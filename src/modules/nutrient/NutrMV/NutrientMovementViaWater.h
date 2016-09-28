@@ -1,39 +1,39 @@
 /*!
- * \file NutrientRemviaSr.h
- * \brief Simulates the loss of nitrate and phosphorus via surface runoff, lateral flow, tile flow, and percolation out of the profile.
+ * \file NutrientMovementViaWater.h
+ * \brief Simulates the loss of nitrate and phosphorus via surface runoff, 
+ *        lateral flow, tile flow, and percolation out of the profile.
+ *        Method of SWAT
  * \author Huiran Gao
  * \date May 2016
  */
 
-
 #pragma once
-#ifndef SEIMS_NutRemv_PARAMS_INCLUDE
-#define SEIMS_NutRemv_PARAMS_INCLUDE
 
 #include <string>
 #include "api.h"
 #include "SimulationModule.h"
+#include "NutrientCommon.h"
 
 using namespace std;
 
-/** \defgroup NutRemv
+/** \defgroup NutrMV
  * \ingroup Nutrient
  * \brief Simulates the loss of nitrate and phosphorus via surface runoff, lateral flow, tile flow, and percolation out of the profile.
  */
 
 /*!
- * \class NutrientRemviaSr
- * \ingroup NutRemv
+ * \class NutrientMovementViaWater
+ * \ingroup NutrMV
  *
  * \brief Nutrient removed and loss in surface runoff, lateral flow, tile flow, and percolation out of the profile
  *
  */
 
-class NutrientRemviaSr : public SimulationModule
+class NutrientMovementViaWater : public SimulationModule
 {
 public:
-    NutrientRemviaSr(void);
-    ~NutrientRemviaSr(void);
+    NutrientMovementViaWater(void);
+    ~NutrientMovementViaWater(void);
 
     virtual void Set1DData(const char *key, int n, float *data);
     virtual void Set2DData(const char *key, int nRows, int nCols, float **data);
@@ -41,13 +41,14 @@ public:
     virtual int Execute();
     virtual void GetValue(const char *key, float *value);
     virtual void Get1DData(const char *key, int *n, float **data);
-    virtual void Get2DData(const char *key, int *nRows, int *nCols, float ***data);
+    //virtual void Get2DData(const char *key, int *nRows, int *nCols, float ***data);
 	virtual void SetSubbasins(clsSubbasins *subbasins);
 
 private:
-
     /// cell width of grid map (m)
     float m_cellWidth;
+	/// cell area, ha
+	float m_cellArea;
     /// number of cells
     int m_nCells;
     /// soil layers
@@ -66,9 +67,9 @@ private:
     float m_pperco;
     /// nitrate percolation coefficient (0-1)
     float m_nperco;
-	/// Conversion factor
+	/// Conversion factor from CBOD to COD
 	float m_cod_n;
-	/// Reaction coefficient
+	/// Reaction coefficient from CBOD to COD
 	float m_cod_k;
 
     /// distribution of soil loss caused by water erosion
@@ -126,12 +127,14 @@ private:
 	float *m_perco_p;
     /// amount of nitrate transported with surface runoff, kg/ha
     float *m_surqno3;
+	/// amount of ammonian transported with surface runoff, kg/ha
+	float *m_surqnh4;
     /// amount of soluble phosphorus in surface runoff
     float *m_surqsolp;
     /// carbonaceous oxygen demand of surface runoff
-    float *m_cod;
+    float *m_surcod;
     /// chlorophyll-a concentration in water yield
-    float *m_chl_a;
+    float *m_surchl_a;
     /// dissolved oxygen concentration in the surface runoff
     //float* m_doxq;
     /// dissolved oxygen saturation concentration
@@ -140,6 +143,7 @@ private:
 	// N and P to channel
 	float *m_latno3ToCh;  // amount of nitrate transported with lateral flow to channel, kg
 	float *m_sur_no3ToCh; // amount of nitrate transported with surface runoff to channel, kg
+	float *m_sur_nh4ToCh; // amount of ammonian transported with surface runoff to channel, kg
 	float *m_sur_solpToCh;// amount of soluble phosphorus in surface runoff to channel, kg
 	float *m_perco_n_gw;  // amount of nitrate percolating past bottom of soil profile sum by sub-basin, kg
 	float *m_perco_p_gw;  // amount of solute P percolating past bottom of soil profile sum by sub-basin, kg
@@ -169,7 +173,6 @@ private:
 
 
 private:
-
     /*!
      * \brief check the input data. Make sure all the input data is available.
      * \return bool The validity of the input data.
@@ -186,40 +189,37 @@ private:
     bool CheckInputSize(const char *, int);
 
     /*!
-    * \brief Calculate the loss of nitrate via surface runoff, lateral flow, tile flow, and percolation out of the profile.
-     * mainly rewrited from nlch.f of SWAT
+     * \brief Calculate the loss of nitrate via surface runoff, lateral flow, tile flow, and percolation out of the profile.
+     *        mainly rewrited from nlch.f of SWAT
 	 * 1. nitrate loss with surface flow
 	 * 2. nitrate loss with subsurface flow (routing considered)
 	 * 3. nitrate loss with percolation
-    */
+     */
     void NitrateLoss();
 
     /*!
-    * \brief Calculates the amount of phosphorus lost from the soil
-    *        profile in runoff and the movement of soluble phosphorus from the first
-    *        to the second layer via percolation.
-    *		 rewrite from solp.f of SWAT
-    */
+     * \brief Calculates the amount of phosphorus lost from the soil
+     *        profile in runoff and the movement of soluble phosphorus from the first
+     *        to the second layer via percolation.
+     *		 rewrite from solp.f of SWAT
+     */
     void PhosphorusLoss();
 	/*
 	 * \brief compute loadings of chlorophyll-a, BOD, and dissolved oxygen to the main channel
 	 *        rewrite from subwq.f of SWAT
 	 */
 	void SubbasinWaterQuality();
-    /*!
-    * \brief Calculate enrichment ratio.
-     *
-     * \return void
-     */
-    float *CalculateEnrRatio();
+    ///*!
+    // * \brief Calculate enrichment ratio.
+    // * enrsb.f of SWAT
+    // * \return void
+    // */
+    //float *CalculateEnrRatio();
 
     void initialOutputs();
 
 	void SumBySubbasin();
 };
-
-#endif
-
 
 
 

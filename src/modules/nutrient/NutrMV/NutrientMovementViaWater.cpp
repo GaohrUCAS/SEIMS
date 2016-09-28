@@ -1,5 +1,5 @@
 #include <iostream>
-#include "NutrientRemviaSr.h"
+#include "NutrientMovementViaWater.h"
 #include "MetadataInfo.h"
 #include <cmath>
 #include <iostream>
@@ -10,52 +10,58 @@
 
 using namespace std;
 
-NutrientRemviaSr::NutrientRemviaSr(void) :
-//input
-        m_nCells(-1), m_cellWidth(-1), m_soiLayers(-1), m_sedimentYield(NULL), m_nperco(-1), m_phoskd(-1), m_pperco(-1), m_cod_n(-1), 
-		m_cod_k(-1), m_qtile(-1), m_nSoilLayers(NULL), m_anion_excl(NULL), m_isep_opt(-1), m_ldrain(NULL), m_dis_stream(NULL), m_surfr(NULL), m_flat(NULL),
+NutrientMovementViaWater::NutrientMovementViaWater(void) :
+		//input
+        m_nCells(-1), m_cellWidth(-1.f), m_cellArea(-1.f), m_soiLayers(-1), m_sedimentYield(NULL), m_nperco(-1.f), m_phoskd(-1.f), m_pperco(-1.f), m_cod_n(-1.f), 
+		m_cod_k(-1.f), m_qtile(-1.f), m_nSoilLayers(NULL), m_anion_excl(NULL), m_isep_opt(-1), m_ldrain(NULL), m_dis_stream(NULL), m_surfr(NULL), m_flat(NULL),
         m_sol_perco(NULL), m_sol_wsatur(NULL), m_sol_crk(NULL), m_sol_bd(NULL), m_sol_z(NULL), m_sol_thick(NULL),
-        m_sol_om(NULL), m_flowOutIndex(NULL), m_nSubbasins(-1), m_subbasin(NULL), m_subbasinsInfo(NULL), m_streamLink(NULL),
-		m_routingLayers(NULL), m_nRoutingLayers(-1),
+        m_sol_om(NULL),m_sol_no3(NULL), m_sol_solp(NULL), 
+		m_nSubbasins(-1), m_subbasin(NULL), m_subbasinsInfo(NULL), m_streamLink(NULL),
+		m_routingLayers(NULL), m_nRoutingLayers(-1), m_flowOutIndex(NULL), 
         //output
-        m_latno3(NULL), m_perco_n(NULL), m_perco_p(NULL), m_surqno3(NULL), m_sol_no3(NULL), m_surqsolp(NULL), m_wshd_plch(-1),
-		m_latno3ToCh(NULL), m_sur_no3ToCh(NULL), m_sur_codToCh(NULL), m_sur_solpToCh(NULL), m_perco_n_gw(NULL), m_perco_p_gw(NULL),
-        m_sol_solp(NULL), m_cod(NULL), m_chl_a(NULL) //,m_doxq(), m_soxy()
+        m_latno3(NULL), m_latno3ToCh(NULL), m_wshd_plch(-1.f),
+		m_surqno3(NULL), m_surqnh4(NULL), m_surqsolp(NULL), m_surcod(NULL), m_surchl_a(NULL),
+		m_perco_n(NULL), m_perco_p(NULL), m_perco_n_gw(NULL), m_perco_p_gw(NULL),
+		m_sur_no3ToCh(NULL), m_sur_nh4ToCh(NULL), m_sur_solpToCh(NULL), m_sur_codToCh(NULL)
 {
 }
 
-NutrientRemviaSr::~NutrientRemviaSr(void)
+NutrientMovementViaWater::~NutrientMovementViaWater(void)
 {
 	if (m_latno3 != NULL) Release1DArray(m_latno3);
+	if (m_latno3ToCh != NULL) Release1DArray(m_latno3ToCh);
+
+	if (m_surqno3 != NULL) Release1DArray(m_surqno3);
+	if (m_surqnh4 != NULL) Release1DArray(m_surqnh4);
+	if (m_surqsolp != NULL) Release1DArray(m_surqsolp);
+	if (m_surcod != NULL) Release1DArray(m_surcod);
+	if (m_surchl_a != NULL) Release1DArray(m_surchl_a);
+
+	if (m_sur_no3ToCh != NULL) Release1DArray(m_sur_no3ToCh);
+	if (m_sur_nh4ToCh != NULL) Release1DArray(m_sur_nh4ToCh);
+	if (m_sur_solpToCh != NULL) Release1DArray(m_sur_solpToCh);
+	if (m_sur_codToCh != NULL) Release1DArray(m_sur_codToCh);
+
 	if (m_perco_n != NULL) Release1DArray(m_perco_n);
 	if (m_perco_p != NULL) Release1DArray(m_perco_p);
-	if (m_surqno3 != NULL) Release1DArray(m_surqno3);
-	if (m_surqsolp != NULL) Release1DArray(m_surqsolp);
-	if (m_cod != NULL) Release1DArray(m_cod);
-	if (m_chl_a != NULL) Release1DArray(m_chl_a);
-
-	if(m_latno3ToCh != NULL) Release1DArray(m_latno3ToCh);
-	if(m_sur_no3ToCh != NULL) Release1DArray(m_sur_no3ToCh);
-	if(m_sur_solpToCh != NULL) Release1DArray(m_sur_solpToCh);
-	if(m_sur_codToCh != NULL) Release1DArray(m_sur_codToCh);
-	if(m_perco_n_gw != NULL) Release1DArray(m_perco_n_gw);
-	if(m_perco_p_gw != NULL) Release1DArray(m_perco_p_gw);
+	if (m_perco_n_gw != NULL) Release1DArray(m_perco_n_gw);
+	if (m_perco_p_gw != NULL) Release1DArray(m_perco_p_gw);
 }
 
-void NutrientRemviaSr::SumBySubbasin()
+void NutrientMovementViaWater::SumBySubbasin()
 {
 	// reset to zero
 	for(int subi = 0; subi <= m_nSubbasins; subi++)
 	{
+		m_latno3ToCh[subi] = 0.f;
 		m_sur_no3ToCh[subi] = 0.f;
+		m_sur_nh4ToCh[subi] = 0.f;
 		m_sur_solpToCh[subi] = 0.f;
+		m_sur_codToCh[subi] = 0.f;
 		m_perco_n_gw[subi] = 0.f;
 		m_perco_p_gw[subi] = 0.f;
-		m_sur_codToCh[subi] = 0.f;
-		m_latno3ToCh[subi] = 0.f;
 	}
-
-	float cellArea = m_cellWidth * m_cellWidth * 0.0001f; //ha
+	
 	// sum by subbasin
 	for (int i = 0; i < m_nCells; i++)
 	{
@@ -64,16 +70,17 @@ void NutrientRemviaSr::SumBySubbasin()
 		if (m_nSubbasins == 1)
 			subi = 1;
 		else if (subi >= m_nSubbasins + 1)
-			throw ModelException(MID_NUTRSED, "Execute", "The subbasin ID " + ValueToString(subi) + " is invalid.");
+			throw ModelException(MID_NUTRMV, "Execute", "The subbasin ID " + ValueToString(subi) + " is invalid.");
 
-		m_sur_no3ToCh[subi] += m_surqno3[i] * cellArea; // kg/ha * ha = kg
-		m_sur_solpToCh[subi] += m_surqsolp[i] * cellArea;
-		m_sur_codToCh[subi] += m_cod[i] * cellArea;
+		m_sur_no3ToCh[subi] += m_surqno3[i] * m_cellArea; // kg/ha * ha = kg
+		m_sur_nh4ToCh[subi] += m_surqnh4[i] * m_cellArea;
+		m_sur_solpToCh[subi] += m_surqsolp[i] * m_cellArea;
+		m_sur_codToCh[subi] += m_surcod[i] * m_cellArea;
 		//if(i == 1762)
 		//	cout<<"sum by subbasin: perocN: "<<m_perco_n[i]<<endl;
 		float ratio2gw = 1.f;
-		m_perco_n_gw[subi] += m_perco_n[i] * cellArea * ratio2gw;
-		m_perco_p_gw[subi] += m_perco_p[i] * cellArea * ratio2gw;
+		m_perco_n_gw[subi] += m_perco_n[i] * m_cellArea * ratio2gw;
+		m_perco_p_gw[subi] += m_perco_p[i] * m_cellArea * ratio2gw;
 		if(m_streamLink[i] > 0)
 			m_latno3ToCh[subi] += m_latno3[i];
 	}
@@ -84,6 +91,7 @@ void NutrientRemviaSr::SumBySubbasin()
 	{
 		m_sur_no3ToCh[0] += m_sur_no3ToCh[i];
 		//cout<<"subID: "<<i<<", surNo3ToCh: "<<m_sur_no3ToCh[i]<<endl;
+		m_sur_nh4ToCh[0] += m_sur_nh4ToCh[i];
 		m_sur_solpToCh[0] += m_sur_solpToCh[i];
 		m_sur_codToCh[0] += m_sur_codToCh[i];
 		m_latno3ToCh[0] += m_latno3ToCh[i];
@@ -92,7 +100,7 @@ void NutrientRemviaSr::SumBySubbasin()
 	}
 }
 
-bool NutrientRemviaSr::CheckInputSize(const char *key, int n)
+bool NutrientMovementViaWater::CheckInputSize(const char *key, int n)
 {
     if (n <= 0)
     {
@@ -116,7 +124,7 @@ bool NutrientRemviaSr::CheckInputSize(const char *key, int n)
     return true;
 }
 
-bool NutrientRemviaSr::CheckInputData()
+bool NutrientMovementViaWater::CheckInputData()
 {
     if (this->m_nCells <= 0)
     {
@@ -218,11 +226,10 @@ bool NutrientRemviaSr::CheckInputData()
 		throw ModelException(MID_NUTRMV, "CheckInputData", "The subbasin IDs can not be EMPTY.");
 	if (m_subbasinsInfo == NULL)
 		throw ModelException(MID_NUTRMV, "CheckInputData", "The parameter: m_subbasinsInfo has not been set.");
-
     return true;
 }
 
-void NutrientRemviaSr::SetSubbasins(clsSubbasins *subbasins)
+void NutrientMovementViaWater::SetSubbasins(clsSubbasins *subbasins)
 {
 	if(m_subbasinsInfo == NULL){
 		m_subbasinsInfo = subbasins;
@@ -231,7 +238,7 @@ void NutrientRemviaSr::SetSubbasins(clsSubbasins *subbasins)
 	}
 }
 
-void NutrientRemviaSr::SetValue(const char *key, float value)
+void NutrientMovementViaWater::SetValue(const char *key, float value)
 {
     string sk(key);
     if (StringMatch(sk, VAR_OMP_THREADNUM))
@@ -239,7 +246,10 @@ void NutrientRemviaSr::SetValue(const char *key, float value)
         omp_set_num_threads((int) value);
     }
     //else if (StringMatch(sk, Tag_CellSize)) { this->m_nCells = value; }
-    else if (StringMatch(sk, Tag_CellWidth)) { this->m_cellWidth = value; }
+    else if (StringMatch(sk, Tag_CellWidth)) { 
+		this->m_cellWidth = value;
+		this->m_cellArea = m_cellWidth * m_cellWidth * 0.0001f; /// ha
+	}
     else if (StringMatch(sk, VAR_QTILE)) { this->m_qtile = value; }
     else if (StringMatch(sk, VAR_NPERCO)) { this->m_nperco = value; }
     else if (StringMatch(sk, VAR_PPERCO)) { this->m_pperco = value; }
@@ -247,18 +257,17 @@ void NutrientRemviaSr::SetValue(const char *key, float value)
 	else if (StringMatch(sk, VAR_ISEP_OPT)) { this->m_isep_opt = value; }
 	else if (StringMatch(sk, VAR_COD_N)) { this->m_cod_n = value; }
 	else if (StringMatch(sk, VAR_COD_K)) { this->m_cod_k = value; }
-	//else if (StringMatch(sk, VAR_WSHD_PLCH)) m_wshd_plch = value;
     else
     {
         throw ModelException(MID_NUTRMV, "SetValue", "Parameter " + sk + " does not exist.");
     }
 }
 
-void NutrientRemviaSr::Set1DData(const char *key, int n, float *data)
+void NutrientMovementViaWater::Set1DData(const char *key, int n, float *data)
 {
     if (!this->CheckInputSize(key, n)) return;
     string sk(key);
-    if (StringMatch(sk, VAR_FLOW_OL)) 
+    if (StringMatch(sk, VAR_OLFLOW)) 
 		m_surfr = data; 
 	else if (StringMatch(sk, VAR_SUBBSN))
 		m_subbasin = data;
@@ -274,7 +283,7 @@ void NutrientRemviaSr::Set1DData(const char *key, int n, float *data)
 		m_sol_crk = data; 
 	else if (StringMatch(sk, VAR_SOILLAYERS)) 
 		m_nSoilLayers = data; 
-    else if (StringMatch(sk, VAR_SED_OL))
+    else if (StringMatch(sk, VAR_SEDYLD))
 		this->m_sedimentYield = data;
 	else if (StringMatch(sk, Tag_FLOWOUT_INDEX_D8))
 		m_flowOutIndex = data;
@@ -286,7 +295,7 @@ void NutrientRemviaSr::Set1DData(const char *key, int n, float *data)
         throw ModelException(MID_NUTRMV, "Set1DData", "Parameter " + sk + " does not exist.");
 }
 
-void NutrientRemviaSr::Set2DData(const char *key, int nRows, int nCols, float **data)
+void NutrientMovementViaWater::Set2DData(const char *key, int nRows, int nCols, float **data)
 {
 	string sk(key);
 	if (StringMatch(sk, Tag_ROUTING_LAYERS))
@@ -310,7 +319,7 @@ void NutrientRemviaSr::Set2DData(const char *key, int nRows, int nCols, float **
         throw ModelException(MID_NUTRMV, "Set2DData", "Parameter " + sk + " does not exist.");
 }
 
-void NutrientRemviaSr::initialOutputs()
+void NutrientMovementViaWater::initialOutputs()
 {
     if (this->m_nCells <= 0)
     {
@@ -321,32 +330,29 @@ void NutrientRemviaSr::initialOutputs()
 	if (m_perco_n == NULL) Initialize1DArray(m_nCells, m_perco_n, 0.f);
 	if (m_perco_p == NULL) Initialize1DArray(m_nCells, m_perco_p, 0.f);
 	if (m_surqno3 == NULL) Initialize1DArray(m_nCells, m_surqno3, 0.f);
+	if (m_surqnh4 == NULL) Initialize1DArray(m_nCells, m_surqnh4, 0.f);
 	if (m_surqsolp == NULL) Initialize1DArray(m_nCells, m_surqsolp, 0.f);
 
 	if (m_latno3ToCh == NULL) Initialize1DArray(m_nSubbasins+1, m_latno3ToCh, 0.f);
 	if (m_sur_no3ToCh == NULL) Initialize1DArray(m_nSubbasins+1, m_sur_no3ToCh, 0.f);
+	if (m_sur_nh4ToCh == NULL) Initialize1DArray(m_nSubbasins+1, m_sur_nh4ToCh, 0.f);
 	if (m_sur_solpToCh == NULL) Initialize1DArray(m_nSubbasins+1, m_sur_solpToCh, 0.f);
 	if (m_sur_codToCh == NULL) Initialize1DArray(m_nSubbasins+1, m_sur_codToCh, 0.f);
 	if (m_perco_n_gw == NULL) Initialize1DArray(m_nSubbasins+1, m_perco_n_gw, 0.f);
 	if (m_perco_p_gw == NULL) Initialize1DArray(m_nSubbasins+1, m_perco_p_gw, 0.f);
 
-    if (m_cod == NULL)
-    {
-		Initialize1DArray(m_nCells, m_cod, 0.f);
-		Initialize1DArray(m_nCells, m_chl_a, 0.f);
-    }
-    if (m_wshd_plch < 0)
-    {
-        m_wshd_plch = 0.f;
-    }
+    if (m_surcod == NULL) Initialize1DArray(m_nCells, m_surcod, 0.f);
+	if (m_surchl_a == NULL) Initialize1DArray(m_nCells, m_surchl_a, 0.f);
+    if (m_wshd_plch < 0) m_wshd_plch = 0.f;
+
     // input variables
-    if (m_flat == NULL) { Initialize2DArray(m_nCells, m_soiLayers, m_flat, 0.0001f); }
-    if (m_sol_perco == NULL) { Initialize2DArray(m_nCells, m_soiLayers, m_sol_perco, 0.0001f); }
-    if (m_ldrain == NULL) { Initialize1DArray(m_nCells, m_ldrain, -1.f); }
+    if (m_flat == NULL) Initialize2DArray(m_nCells, m_soiLayers, m_flat, 0.0001f);
+    if (m_sol_perco == NULL) Initialize2DArray(m_nCells, m_soiLayers, m_sol_perco, 0.0001f);
+    if (m_ldrain == NULL) Initialize1DArray(m_nCells, m_ldrain, -1.f);
     m_qtile = 0.0001f;
 }
 
-int NutrientRemviaSr::Execute()
+int NutrientMovementViaWater::Execute()
 {
     CheckInputData();
     initialOutputs();
@@ -371,7 +377,7 @@ int NutrientRemviaSr::Execute()
     return 0;
 }
 
-void NutrientRemviaSr::NitrateLoss()
+void NutrientMovementViaWater::NitrateLoss()
 {
 // 	float tmpPercN = NODATA_VALUE;
 // 	int tmpIdx = -1;
@@ -486,7 +492,7 @@ void NutrientRemviaSr::NitrateLoss()
 	//cout<<endl;
 }
 
-void NutrientRemviaSr::PhosphorusLoss()
+void NutrientMovementViaWater::PhosphorusLoss()
 {
 #pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
@@ -536,11 +542,11 @@ void NutrientRemviaSr::PhosphorusLoss()
             //}
         }
         // summary calculation
-        m_wshd_plch = m_wshd_plch + vap * (1 / m_nCells);
+        m_wshd_plch = m_wshd_plch + vap * (1.f / m_nCells);
     }
 }
 
-void NutrientRemviaSr::SubbasinWaterQuality()
+void NutrientMovementViaWater::SubbasinWaterQuality()
 {
 #pragma omp parallel for
 	for (int i = 0; i < m_nCells; i++)
@@ -564,30 +570,28 @@ void NutrientRemviaSr::SubbasinWaterQuality()
 			tp = 100.f * (m_sedorgn[i] + m_surqno3[i]) / qdr;   //100*kg/ha/mm = ppm
 			// regional adjustment on sub chla_a loading
 			float chla_subco = 40.f;
-			m_chl_a[i] = chla_subco * tp;
-			m_chl_a[i] = m_chl_a[i] / 1000.f;  // um/L to mg/L
+			m_surchl_a[i] = chla_subco * tp;
+			m_surchl_a[i] = m_surchl_a[i] / 1000.f;  // um/L to mg/L
 
 			// calculate enrichment ratio
-			float enratio;
-			if (m_sedimentYield[i] < 1e-4)
-			{
-				m_sedimentYield[i] = 0.f;
-			}
-			// CREAMS method for calculating enrichment ratio, enrsb.f of SWAT
-			float cy = 0.f;
-			// Calculate sediment, equation 4:2.2.3 in SWAT Theory 2009, p272
-			cy = 0.1f * (m_sedimentYield[i] / 1000.f) / (m_cellWidth * m_cellWidth * 0.0001f * m_surfr[i] + 1e-6f);
-			if (cy > 1e-6f)
-			{
-				enratio = 0.78f * pow(cy, -0.2468f);
-			} else
-			{
-				enratio = 0.f;
-			}
-			if (enratio > 3.5)
-			{
-				enratio = 3.5f;
-			}
+			if (m_sedimentYield[i] < 1e-4)m_sedimentYield[i] = 0.f;
+			float enratio = NutrCommon::CalEnrichmentRatio(m_sedimentYield[i], m_surfr[i], m_cellArea);
+
+			//// CREAMS method for calculating enrichment ratio, enrsb.f of SWAT
+			//float cy = 0.f;
+			//// Calculate sediment, equation 4:2.2.3 in SWAT Theory 2009, p272
+			//cy = 0.1f * (m_sedimentYield[i] / 1000.f) / (m_cellWidth * m_cellWidth * 0.0001f * m_surfr[i] + 1e-6f);
+			//if (cy > 1e-6f)
+			//{
+			//	enratio = 0.78f * pow(cy, -0.2468f);
+			//} else
+			//{
+			//	enratio = 0.f;
+			//}
+			//if (enratio > 3.5)
+			//{
+			//	enratio = 3.5f;
+			//}
 			// calculate organic carbon loading to main channel
 			float org_c = (m_sol_om[i][0] * 0.58f / 100.f) * enratio * (m_sedimentYield[i] / 1000.f) * 1000.f; /// kg
 			// calculate carbonaceous biological oxygen demand (CBOD) and COD(transform from CBOD)
@@ -596,16 +600,16 @@ void NutrientRemviaSr::SubbasinWaterQuality()
 			// The translation relationship is combined Wang Cai-Qin et al. (2014) with 
 			// Guo and Long (1994); Xie et al. (2000); Jin et al. (2005).
 			float cod = m_cod_n * (cbod * (1.f - exp(-5.f * m_cod_k)));
-			m_cod[i] = m_surfr[i] / 1000.f * cod * 10.f;	// mg/L converted to kg/ha
+			m_surcod[i] = m_surfr[i] / 1000.f * cod * 10.f;	// mg/L converted to kg/ha
 		} else
 		{
-			m_chl_a[i] = 0.f;
-			m_cod[i] = 0.f;
+			m_surchl_a[i] = 0.f;
+			m_surcod[i] = 0.f;
 		}
 	}
 }
 
-void NutrientRemviaSr::GetValue(const char *key, float *value)
+void NutrientMovementViaWater::GetValue(const char *key, float *value)
 {
     string sk(key);
     if (StringMatch(sk, VAR_WSHD_PLCH))
@@ -614,7 +618,7 @@ void NutrientRemviaSr::GetValue(const char *key, float *value)
 		throw ModelException(MID_NUTRMV, "GetValue", "Parameter " + sk + " does not exist."); 
 }
 
-void NutrientRemviaSr::Get1DData(const char *key, int *n, float **data)
+void NutrientMovementViaWater::Get1DData(const char *key, int *n, float **data)
 {
     string sk(key);
 	initialOutputs();
@@ -638,6 +642,11 @@ void NutrientRemviaSr::Get1DData(const char *key, int *n, float **data)
 		*data = this->m_surqno3; 
 		*n = m_nCells;
 	}
+	else if (StringMatch(sk, VAR_SUR_NH4)) 
+	{
+		*data = this->m_surqnh4; 
+		*n = m_nCells;
+	}
     else if (StringMatch(sk, VAR_SUR_SOLP)) 
 	{
 		*data = this->m_surqsolp; 
@@ -645,12 +654,12 @@ void NutrientRemviaSr::Get1DData(const char *key, int *n, float **data)
 	}
     else if (StringMatch(sk, VAR_COD)) 
 	{
-		*data = this->m_cod; 
+		*data = this->m_surcod; 
 		*n = m_nCells;
 	}
     else if (StringMatch(sk, VAR_CHL_A)) 
 	{
-		*data = this->m_chl_a; 
+		*data = this->m_surchl_a; 
 		*n = m_nCells;
 	}
 	else if(StringMatch(sk, VAR_LATNO3_TOCH))
@@ -661,6 +670,11 @@ void NutrientRemviaSr::Get1DData(const char *key, int *n, float **data)
 	else if(StringMatch(sk, VAR_SUR_NO3_TOCH))
 	{
 		*data = m_sur_no3ToCh;
+		*n = m_nSubbasins + 1;
+	}
+	else if(StringMatch(sk, VAR_SUR_NH4_TOCH))
+	{
+		*data = m_sur_nh4ToCh;
 		*n = m_nSubbasins + 1;
 	}
 	else if(StringMatch(sk, VAR_SUR_SOLP_TOCH))
@@ -676,20 +690,20 @@ void NutrientRemviaSr::Get1DData(const char *key, int *n, float **data)
     else
         throw ModelException(MID_NUTRMV, "Get1DData", "Parameter " + sk + " does not exist.");                
 }
-void NutrientRemviaSr::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
-{
-	initialOutputs();
-    string sk(key);
-    *nRows = m_nCells;
-    *nCols = m_soiLayers;
-    if (StringMatch(sk, VAR_SOL_NO3))
-    {
-        *data = this->m_sol_no3;
-    }
-    else if (StringMatch(sk, VAR_SOL_SOLP))
-    {
-        *data = this->m_sol_solp;
-    }
-    else
-        throw ModelException(MID_NUTRMV, "Get2DData", "Output " + sk+" does not exist.");
-}
+//void NutrientMovementViaWater::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
+//{
+//	initialOutputs();
+//    string sk(key);
+//    *nRows = m_nCells;
+//    *nCols = m_soiLayers;
+//    if (StringMatch(sk, VAR_SOL_NO3))
+//    {
+//        *data = this->m_sol_no3;
+//    }
+//    else if (StringMatch(sk, VAR_SOL_SOLP))
+//    {
+//        *data = this->m_sol_solp;
+//    }
+//    else
+//        throw ModelException(MID_NUTRMV, "Get2DData", "Output " + sk+" does not exist.");
+//}
