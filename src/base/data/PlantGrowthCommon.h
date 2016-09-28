@@ -1,5 +1,4 @@
 /*!
- * \file PlantGrowthCommon.h
  * \brief Define some common used function in Plant growth module, e.g., BIO_EPIC
  * \author Zhiqiang Yu
  * \date 2011-8-10
