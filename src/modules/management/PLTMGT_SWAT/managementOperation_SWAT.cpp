@@ -31,7 +31,8 @@ MGTOpt_SWAT::MGTOpt_SWAT(void) : m_nCells(-1), m_nSub(-1), m_soilLayers(-1),
                                  m_soilRsd(NULL), m_frStrsWa(NULL), m_cropLookup(NULL), m_cropNum(-1),
                                  m_lastSoilRootDepth(NULL),
         /// Fertilizer operation
-                                 m_fertilizerLookup(NULL), m_fertilizerNum(-1), m_cswat(0),
+                                 m_fertilizerLookup(NULL), m_fertilizerNum(-1), m_CbnModel(0),
+								 m_soilManureC(NULL), m_soilManureN(NULL), m_soilManureP(NULL),
         /// Irrigation
                                  m_irrFlag(NULL), m_appliedWater(NULL), m_irrSurfQWater(NULL), m_deepWaterDepth(NULL),
                                  m_shallowWaterDepth(NULL), m_impoundVolume(NODATA_VALUE),
@@ -164,7 +165,7 @@ void MGTOpt_SWAT::SetValue(const char *key, float data)
 {
     string sk(key);
     if (StringMatch(sk, VAR_OMP_THREADNUM)) omp_set_num_threads((int) data);
-    else if (StringMatch(sk, VAR_CSWAT)) m_cswat = (int) data;
+    else if (StringMatch(sk, VAR_CSWAT)) m_CbnModel = (int) data;
     else if (StringMatch(sk, Tag_CellWidth)) m_cellWidth = data;
     else
         throw ModelException(MID_PLTMGT_SWAT, "SetValue", "Parameter " + sk + " does not exist.");
@@ -390,7 +391,7 @@ bool MGTOpt_SWAT::CheckInputData(void)
     if (m_soilLayers <= 0)
         throw ModelException(MID_PLTMGT_SWAT, "CheckInputData",
                              "The layer number of the input 2D raster data can not be less than zero.");
-    if (m_cswat < 0) throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Carbon modeling method must be 0, 1, or 2");
+    if (m_CbnModel < 0) throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Carbon modeling method must be 0, 1, or 2");
     /// DT_Raster
     if (m_subBsnID == NULL) throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "SubBasin ID must not be NULL");
     if (m_landUse == NULL) throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Landuse must not be NULL");
@@ -796,9 +797,11 @@ void MGTOpt_SWAT::ExecuteIrrigationOperation(int i, int &factoryID, int nOp)
 void MGTOpt_SWAT::ExecuteFertilizerOperation(int i, int &factoryID, int nOp)
 {
     /// translate from fert.f, remains CSWAT = 1 and 2 to be done!!! by LJ
+	/// CSWAT = 1 and 2, were implemented on 2016-9-29, by LJ.
+
     //initializeFertilizerLookup();
     FertilizerOperation *curOperation = (FertilizerOperation *) m_mgtFactory[factoryID]->GetOperations()[nOp];
-    /// initialize parameters
+    /// fertilizer type, ifrt
     int fertilizerID = curOperation->FertilizerID();
     /// kg/ha         |amount of fertilizer applied to HRU
     float fertilizerKg = curOperation->FertilizerKg();
@@ -849,18 +852,68 @@ void MGTOpt_SWAT::ExecuteFertilizerOperation(int i, int &factoryID, int nOp)
         if (l == 0) xx = fertilizerSurfFrac;
         if (l == 1) xx = 1.f - fertilizerSurfFrac;
         m_soilNO3[i][l] += xx * fertilizerKg * (1.f - fertNH4N) * fertMinN;
-        if (m_cswat == 0)
+        if (m_CbnModel == 0)
         {
             m_soilFreshOrgN[i][l] += rtof * xx * fertilizerKg * fertOrgN;
             m_soilActiveOrgN[i][l] += (1.f - rtof) * xx * fertilizerKg * fertOrgN;
             m_soilFreshOrgP[i][l] += rtof * xx * fertilizerKg * fertOrgP;
             m_soilActiveOrgN[i][l] += (1.f - rtof) * xx * fertilizerKg * fertOrgP;
-        } else if (m_cswat == 1) /// C-FARM one carbon pool model /// TODO
+        } else if (m_CbnModel == 1) /// C-FARM one carbon pool model
         {
-        } else if (m_cswat == 2) /// CENTURY model /// TODO
+			m_soilManureC[i][l] += xx * fertilizerKg * fertOrgN * 10.f;
+			m_soilManureN[i][l] += xx * fertilizerKg * fertOrgN;
+			m_soilManureP[i][l] += xx * fertilizerKg * fertOrgP;
+        } else if (m_CbnModel == 2) /// CENTURY model for C/N cycling
         {
             float X1 = 0.f, X8 = 0.f, X10 = 0.f, XXX = 0.f, YY = 0.f;
-            float ZZ = 0.f, XZ = 0.f, YZ = 0.f, RLN = 0.f, orgc_f = 0.f;
+            float ZZ = 0.f, XZ = 0.f, YZ = 0.f, RLN = 0.f;
+			/// the fraction of organic carbon in fertilizer, for most fertilizers orgc_f is set to 0.
+			float orgc_f = 0.f;
+			m_soilFreshOrgP[i][l] += rtof * xx * fertilizerKg * fertOrgP;
+			m_soilOrgP[i][l] += (1.f - rtof) * xx * fertilizerKg * fertOrgP;
+			/// allocate organic fertilizer to slow (SWAT active) N pool
+			m_sol_HSN[i][l] += (1.f - rtof) * xx * fertilizerKg * fertOrgN;
+			m_soilActiveOrgN[i][l] = m_sol_HSN[i][l];
+			/// X1 is fertilizer applied to layer (kg/ha)
+			X1 = xx * fertilizerKg;
+			// X8 is organic carbon applied (kg C/ha)
+			X8 - X1 * orgc_f;
+			/// RLN is calculated as a function of C:N ration in fertilizer
+			RLN = 0.175f * (orgc_f) / (fertMinN + fertOrgN + 1.e-5f);
+			/// X10 is the fraction of carbon in fertilizer that is allocated to metabolic litter C pool
+			X10 = 0.85f - 0.018f * RLN;
+			if (X10 < 0.01f) X10 = 0.01f;
+			else if (X10 > 0.7f) X10 = 0.7f;
+
+			/// XXX is the amount of organic carbon allocated to metabolic litter C pool
+			XXX = X8 * X10;
+			m_sol_LMC[i][l] += XXX;
+			/// YY is the amount of fertilizer (including C and N) allocated into metabolic litter SOM pool
+			YY = X1 * X10;
+			m_sol_LM[i][l] += YY;
+			/// ZZ is amount of organic N allocated to metabolic litter N pool
+			ZZ = X1 * rtof * fertOrgN * X10;
+			m_sol_LMN[i][l] += ZZ;
+
+			/// remaining organic N is allocated to structural litter N pool
+			m_sol_LSN[i][l] += X1 * fertOrgN - ZZ;
+			/// XZ is the amount of organic carbon allocated to structural litter C pool   
+			XZ = X1 *orgc_f-XXX;
+			m_sol_LSC[i][l] += XZ;
+			/// assuming lignin C fraction of organic carbon to be 0.175; 
+			float lignin_C_frac = 0.175f;
+			/// updating lignin amount in structural litter pool
+			m_sol_LSLC[i][l] += XZ * lignin_C_frac;
+			/// non-lignin part of the structural litter C is also updated;
+			m_sol_LSLNC[i][l] += XZ * (1.f - lignin_C_frac);
+			/// YZ is the amount of fertilizer (including C and N) allocated into structural litter SOM pool
+			YZ = X1 - YY;
+			m_sol_LS[i][l] += YZ;
+			/// assuming lignin fraction of the organic fertilizer allocated into structure litter SOM pool to be 0.175
+			float lingnin_SOM_frac = 0.175f;
+			/// update lignin weight in structural litter.
+			m_sol_LSL[i][l] += YZ * lingnin_SOM_frac;
+			m_soilFreshOrgN[i][l] = m_sol_LMN[i][l] + m_sol_LSN[i][l];
         }
         m_soilNH4[i][l] += xx * fertilizerKg * fertNH4N * fertMinN;
         m_soilSolP[i][l] += xx * fertilizerKg * fertMinP;
@@ -895,9 +948,6 @@ void MGTOpt_SWAT::ExecuteFertilizerOperation(int i, int &factoryID, int nOp)
     fertSolP = fertilizerKg * fertSolP;
     fertN += (fertilizerKg + cFertN) * (fertMinN + fertOrgN);
     fertP += (fertilizerKg + cFertP) * (fertMinP + fertOrgP);
-
-    //m_tillageFertN[i] += fertN;
-    //m_tillageFertP[i] += fertP;
 }
 
 void MGTOpt_SWAT::ExecutePesticideOperation(int i, int &factoryID, int nOp)
@@ -971,7 +1021,7 @@ void MGTOpt_SWAT::ExecuteHarvestKillOperation(int i, int &factoryID, int nOp)
     if (yield < 0.f) yield = 0.f;
     if (resnew < 0.f) resnew = 0.f;
     if (rtresnew < 0.f) rtresnew = 0.f;
-    if (m_cswat == 2)
+    if (m_CbnModel == 2)
     {/// TODO
     }
     /// calculate nutrient removed with yield
@@ -1208,11 +1258,11 @@ void MGTOpt_SWAT::ExecuteTillageOperation(int i, int &factoryID, int nOp)
             m_soilClay[i][l] = (m_soilClay[i][l] * soilNotMixedMass[l] + smix[16] * soilMixedMass[l]) / soilMass[l];
             m_soilSilt[i][l] = (m_soilSilt[i][l] * soilNotMixedMass[l] + smix[17] * soilMixedMass[l]) / soilMass[l];
             m_soilSand[i][l] = (m_soilSand[i][l] * soilNotMixedMass[l] + smix[18] * soilMixedMass[l]) / soilMass[l];
-            if (m_cswat == 1)
+            if (m_CbnModel == 1)
             {
                 /// TODO
             }
-            if (m_cswat == 2)
+            if (m_CbnModel == 2)
             {
                 /// TODO
             }
@@ -1619,6 +1669,7 @@ void MGTOpt_SWAT::Get1DData(const char *key, int *n, float **data)
 {
 	initialOutputs();
     string sk(key);
+	*n = m_nCells;
         /// plant operation
     if (StringMatch(sk, VAR_HITARG)) *data = m_HarvestIdxTarg;
     else if (StringMatch(sk, VAR_BIOTARG)) *data = m_BiomassTarg;
@@ -1649,7 +1700,22 @@ void MGTOpt_SWAT::Get1DData(const char *key, int *n, float **data)
     else if (StringMatch(sk, VAR_IMPOUND_TRIG)) *data = m_impoundTriger;
 	else if (StringMatch(sk, VAR_POT_VOLMAXMM)) *data = m_potVolMax;
 	else if (StringMatch(sk, VAR_POT_VOLLOWMM)) *data = m_potVolLow;
-    *n = m_nCells;
+	else
+		throw ModelException(MID_PLTMGT_SWAT, "Get1DData", "Parameter " + sk + " is not existed!");
+}
+
+void MGTOpt_SWAT::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
+{
+	initialOutputs();
+	string sk(key);
+	*nRows = m_nCells;
+	*nCols = m_soilLayers;
+	/// fertilizer operation
+	if (StringMatch(sk, VAR_SOL_MC)) *data = m_soilManureC;
+	else if (StringMatch(sk, VAR_SOL_MN)) *data = m_soilManureN;
+	else if (StringMatch(sk, VAR_SOL_MP)) *data = m_soilManureP;
+	else
+		throw ModelException(MID_PLTMGT_SWAT, "Get1DData", "Parameter " + sk + " is not existed!");
 }
 
 void MGTOpt_SWAT::initialOutputs()
@@ -1703,6 +1769,12 @@ void MGTOpt_SWAT::initialOutputs()
 		if (m_autoAnnMaxAppliedMinN == NULL) Initialize1DArray(m_nCells, m_autoAnnMaxAppliedMinN, 0.f);
 		if (m_autoFertEfficiency == NULL) Initialize1DArray(m_nCells, m_autoFertEfficiency, 0.f);
 		if (m_autoFertSurface == NULL) Initialize1DArray(m_nCells, m_autoFertSurface, 0.f);
+	}
+	if (m_CbnModel == 1)
+	{
+		if (m_soilManureC == NULL) Initialize2DArray(m_nCells, m_soilLayers, m_soilManureC, 0.f);
+		if (m_soilManureN == NULL) Initialize2DArray(m_nCells, m_soilLayers, m_soilManureN, 0.f);
+		if (m_soilManureP == NULL) Initialize2DArray(m_nCells, m_soilLayers, m_soilManureP, 0.f);
 	}
     /// impound/release operation
 	if (find(definedMgtCodes.begin(), definedMgtCodes.end(), BMP_PLTOP_ReleaseImpound) != definedMgtCodes.end())
