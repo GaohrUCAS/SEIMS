@@ -68,7 +68,12 @@ private:
     float *m_nSoilLayers;
     /// maximum soil layers
     int m_soilLayers;
-
+	/* carbon modeling method
+     *   = 0 Static soil carbon (old mineralization routines)
+     *   = 1 C-FARM one carbon pool model
+     *   = 2 Century model
+	 */
+    int m_CbnModel;
 	/* phosphorus model selection
 	 * 0: original method
 	 * 1: dynamic coefficient method by White et al., 2009
@@ -112,6 +117,8 @@ private:
 	float **m_sol_z;
 	///Percent of clay content
 	float **m_sol_clay;
+	/// percent of rock content
+	float **m_sol_rock;
 	/// thick of each soil layer
 	float **m_sol_thick;
 	///amount of nitrogen stored in the active organic (humic) nitrogen pool(kg N/ha)
@@ -124,9 +131,33 @@ private:
     float **m_sol_actp;
     ///amount of phosphorus in the soil layer stored in the stable mineral phosphorus pool
     float **m_sol_stap;
-
-    ///output data
-    
+	
+	///output data
+	
+	/************************************************************************/
+	/*    CENTURY model related parameters (initialized and output)  20     */
+	/************************************************************************/
+	float **m_sol_WOC; ///
+	float **m_sol_WON; ///
+	float **m_sol_BM; ///
+	float **m_sol_BMC; ///
+	float **m_sol_BMN; /// 
+	float **m_sol_HP; /// mass of OM in passive humus
+	float **m_sol_HS; /// mass of OM in slow humus
+	float **m_sol_HSC; /// mass of C present in slow humus
+	float **m_sol_HSN; /// mass of N present in slow humus
+	float **m_sol_HPC; /// mass of C present in passive humus
+	float **m_sol_HPN; /// mass of N present in passive humus
+	float **m_sol_LM; /// metabolic litter SOM pool
+	float **m_sol_LMC; /// metabolic litter C pool
+	float **m_sol_LMN; /// metabolic litter N pool
+	float **m_sol_LSC; /// structural litter C pool
+	float **m_sol_LSN; /// structural litter N pool
+	float **m_sol_LS; /// structural litter SOM pool
+	float **m_sol_LSL; /// lignin weight in structural litter
+	float **m_sol_LSLC; /// lignin amount in structural litter pool
+	float **m_sol_LSLNC; /// non-lignin part of the structural litter C
+	/************************************************************************/
     ///amount of nitrogen moving from active organic to nitrate pool in soil profile on current day in cell(kg N/ha)
     float *m_hmntl;
     ///amount of phosphorus moving from the organic to labile pool in soil profile on current day in cell(kg P/ha)

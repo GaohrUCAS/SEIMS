@@ -204,10 +204,11 @@ private:
     int m_fertilizerNum;
     /// map for m_fertilizerLookup
     map<int, float *> m_fertilizerLookupMap;
-    /// carbon modeling method. TODO
-    ///   = 0 Static soil carbon (old mineralization routines)
-    ///   = 1 C-FARM one carbon pool model
-    ///   = 2 Century model
+    /* carbon modeling method
+     *   = 0 Static soil carbon (old mineralization routines)
+     *   = 1 C-FARM one carbon pool model
+     *   = 2 Century model
+	 */
     int m_CbnModel;
 	/**** 1 - C-FARM model ****/
 	/// manure organic carbon in soil, kg/ha
@@ -228,18 +229,20 @@ private:
 	float **m_sol_LSLC; /// lignin amount in structural litter pool
 	float **m_sol_LSLNC; /// non-lignin part of the structural litter C
 
-	float **m_sol_HSC; ///
-	float **m_sol_BMC; ///
-	float **m_sol_BMN; ///
-	float **m_sol_HPC; ///
-	float **m_sol_HPN; ///
-	float **m_sol_RNMN; ///
-	float **m_sol_RSPC; ///
-	float **m_sol_WOC; ///
-	float **m_sol_WON; ///
-	float **m_sol_HP; ///
-	float **m_sol_HS; ///
-	float **m_sol_BM; ///
+	
+	//float **m_sol_WOC; ///
+	//float **m_sol_WON; ///
+	//float **m_sol_BM; ///
+	//float **m_sol_BMC; ///
+	//float **m_sol_BMN; ///
+	//float **m_sol_HP; ///
+	//float **m_sol_HS; ///
+	//float **m_sol_HSC; ///
+	//float **m_sol_HPC; ///
+	//float **m_sol_HPN; ///
+
+	//float **m_sol_RNMN; ///
+	//float **m_sol_RSPC; ///
 
     /** Irrigation operation related **/
 
