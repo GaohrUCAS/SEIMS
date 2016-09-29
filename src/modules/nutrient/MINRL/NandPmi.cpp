@@ -32,7 +32,8 @@ NandPim::NandPim(void) :
 		m_rmptl(NULL), m_rwntl(NULL), m_wdntl(NULL), m_rmp1tl(NULL), m_roctl(NULL),
 		/// watershed scale statistics
 		m_wshd_dnit(-1.f), m_wshd_hmn(-1.f), m_wshd_hmp(-1.f), m_wshd_rmn(-1.f), m_wshd_rmp(-1.f), 
-        m_wshd_rwn(-1.f), m_wshd_nitn(-1.f), m_wshd_voln(-1.f), m_wshd_pal(-1.f), m_wshd_pas(-1.f)	
+        m_wshd_rwn(-1.f), m_wshd_nitn(-1.f), m_wshd_voln(-1.f), m_wshd_pal(-1.f), m_wshd_pas(-1.f),
+		m_solP_model(0)
 {
 }
 
@@ -138,8 +139,7 @@ void NandPim::SetValue(const char *key, float value)
     else if (StringMatch(sk, VAR_CDN)) { this->m_cdn = value; }
     else if (StringMatch(sk, VAR_PSP)) { this->m_psp = value; }
     else
-        throw ModelException(MID_MINRL, "SetValue", "Parameter " + sk +
-                                                    " does not exist. Please contact the module developer.");
+        throw ModelException(MID_MINRL, "SetValue", "Parameter " + sk + " does not exist.");
 }
 
 void NandPim::Set1DData(const char *key, int n, float *data)
@@ -234,7 +234,6 @@ void NandPim::initialOutputs()
 				zdst = exp(-m_sol_z[i][k] / 1000.f);
 				m_sol_no3[i][k] = 10.f * zdst * 0.7f;
 				m_sol_no3[i][k] *= wt1;	// mg/kg => kg/ha
-
 				//if(k == 0) outfile << m_sol_no3[i][k];
 			}
 			/// if m_sol_orgn is not provided, then initialize it.
@@ -266,34 +265,33 @@ void NandPim::initialOutputs()
 
 			float solp = 0.f;
 			float actp = 0.f;
-			// Set active pool based on dynamic PSP MJW
-			if (conv_wt != 0)
+			if (m_solP_model == 0)// Set active pool based on dynamic PSP MJW
 			{
-				solp = (m_sol_solp[i][k] / conv_wt) * 1000000.f;
+				// Allow Dynamic PSP Ratio
+				if (conv_wt != 0) solp = (m_sol_solp[i][k] / conv_wt) * 1000000.f;
+				else
+					throw ModelException(MID_MINRL, "initialOutputs", "Please check the bulk density and soil thickness data.");
+				if (m_sol_clay[i][k] > 0.f)
+				{
+					m_psp = -0.045f * log(m_sol_clay[i][k]) + (0.001f * solp);
+					m_psp = m_psp - (0.035f * m_sol_cbn[i][k]) + 0.43f;
+				} else
+				{
+					m_psp = 0.4f;
+				}
+				// Limit PSP range
+				if (m_psp < .05f) m_psp = 0.05f; 
+				else if(m_psp > 0.9f) m_psp = 0.9f;
 			}
 			
-			float psp = 0.f;
-			if (m_sol_clay[i][k] > 0.f)
-			{
-				psp = -0.045f * log(m_sol_clay[i][k]) + (0.001f * solp);
-				psp = psp - (0.035f * m_sol_cbn[i][k]) + 0.43f;
-			} else
-			{
-				psp = 0.4f;
-			}
+			m_sol_actp[i][k] = m_sol_solp[i][k] * (1.f - m_psp) / m_psp;
 
-			// Limit PSP range
-			if (psp < .05f) psp = 0.05f; 
-			else if(psp > 0.9f) psp = 0.9f;
-			m_sol_actp[i][k] = m_sol_solp[i][k] * (1.f - psp) / psp;
-
-			// Set Stable pool based on dynamic coefficient
-			if (conv_wt != 0)
-			{
+			if (m_solP_model == 0) // Set Stable pool based on dynamic coefficient
+			{                      // From White et al 2009 
 				// convert to concentration for ssp calculation
 				actp = m_sol_actp[i][k] / conv_wt * 1000000.f;
 				solp = m_sol_solp[i][k] / conv_wt * 1000000.f;
-				// estimate Total Mineral P in this soil
+				// estimate Total Mineral P in this soil based on data from sharpley 2004
 				float ssp = 0.;
 				ssp = 25.044f * pow((actp + solp), -0.3833f);
 				// limit SSP Range
