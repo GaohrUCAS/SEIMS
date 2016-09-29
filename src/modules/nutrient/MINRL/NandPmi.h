@@ -69,6 +69,11 @@ private:
     /// maximum soil layers
     int m_soilLayers;
 
+	/* phosphorus model selection
+	 * 0: original method
+	 * 1: dynamic coefficient method by White et al., 2009
+	 */
+	int m_solP_model;
     ///input data
     
     ///rate factor for humus mineralization on active organic N

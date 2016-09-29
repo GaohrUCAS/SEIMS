@@ -44,7 +44,9 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.AddParameter(VAR_SOILTHICK, UNIT_DEPTH_MM, DESC_SOILTHICK, Source_ParameterDB, DT_Raster2D);
     mdi.AddParameter(VAR_SOL_BD, UNIT_DENSITY, DESC_SOL_BD, Source_ParameterDB, DT_Raster2D);
     mdi.AddParameter(VAR_SOL_CBN, UNIT_PERCENT, DESC_SOL_CBN, Source_ParameterDB, DT_Raster2D);
+	/// for 1-C-FARM on carbon pool model
     mdi.AddParameter(VAR_SOL_N, UNIT_CONT_KGHA, DESC_SOL_N, Source_ParameterDB, DT_Raster2D);
+
     mdi.AddParameter(VAR_CLAY, UNIT_PERCENT, DESC_CLAY, Source_ParameterDB, DT_Raster2D);
     mdi.AddParameter(VAR_SILT, UNIT_PERCENT, DESC_SILT, Source_ParameterDB, DT_Raster2D);
     mdi.AddParameter(VAR_SAND, UNIT_PERCENT, DESC_SAND, Source_ParameterDB, DT_Raster2D);
@@ -137,6 +139,10 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.AddOutput(VAR_AFERT_NYLDT, UNIT_NON_DIM, DESC_AFERT_NYLDT, DT_Raster1D);
     mdi.AddOutput(VAR_AFERT_FRTEFF, UNIT_NON_DIM, DESC_AFERT_FRTEFF, DT_Raster1D);
     mdi.AddOutput(VAR_AFERT_FRTSURF, UNIT_NON_DIM, DESC_AFERT_FRTSURF, DT_Raster1D);
+	/// for 1-C-FARM on carbon pool model
+	mdi.AddOutput(VAR_SOL_MC, UNIT_CONT_KGHA, DESC_SOL_MC, DT_Raster2D);
+	mdi.AddOutput(VAR_SOL_MN, UNIT_CONT_KGHA, DESC_SOL_MN, DT_Raster2D);
+	mdi.AddOutput(VAR_SOL_MP, UNIT_CONT_KGHA, DESC_SOL_MP, DT_Raster2D);
     //// outputs of grazing operation
     mdi.AddOutput(VAR_GRZ_DAYS, UNIT_NON_DIM, DESC_GRZ_DAYS, DT_Raster1D);
     mdi.AddOutput(VAR_GRZ_FLAG, UNIT_NON_DIM, DESC_GRZ_FLAG, DT_Raster1D);

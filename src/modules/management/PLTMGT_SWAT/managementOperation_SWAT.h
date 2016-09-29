@@ -4,7 +4,8 @@
  * \date June 2016
  *           1. Source code of SWAT include: readmgt.f, operatn.f, sched_mgt.f, plantop.f, harvkillop.f, harvestop.f, killop.f, newtillmix.f, etc.
  *           2. Preliminary implemented version, not include grazing, auto fertilizer, etc. See detail please find the TODOs.
- * 
+ * \date 2016-9-29
+ * \description: 1. Add the CENTURY model related code, mainly include fert.f, newtillmix.f, and harvestop.f
  */
 #pragma once
 
@@ -207,7 +208,38 @@ private:
     ///   = 0 Static soil carbon (old mineralization routines)
     ///   = 1 C-FARM one carbon pool model
     ///   = 2 Century model
-    int m_cswat;
+    int m_CbnModel;
+	/**** 1 - C-FARM model ****/
+	/// manure organic carbon in soil, kg/ha
+	float **m_soilManureC;
+	/// manure organic nitrogen in soil, kg/ha
+	float **m_soilManureN;
+	/// manure organic phosphorus in soil, kg/ha
+	float **m_soilManureP;
+	/**** 2 - CENTURY model ****/
+	float **m_sol_HSN; /// slow Nitrogen pool in soil, equals to soil active organic n pool in SWAT
+	float **m_sol_LM; /// metabolic litter SOM pool
+	float **m_sol_LMC; /// metabolic litter C pool
+	float **m_sol_LMN; /// metabolic litter N pool
+	float **m_sol_LSC; /// structural litter C pool
+	float **m_sol_LSN; /// structural litter N pool
+	float **m_sol_LS; /// structural litter SOM pool
+	float **m_sol_LSL; /// lignin weight in structural litter
+	float **m_sol_LSLC; /// lignin amount in structural litter pool
+	float **m_sol_LSLNC; /// non-lignin part of the structural litter C
+
+	float **m_sol_HSC; ///
+	float **m_sol_BMC; ///
+	float **m_sol_BMN; ///
+	float **m_sol_HPC; ///
+	float **m_sol_HPN; ///
+	float **m_sol_RNMN; ///
+	float **m_sol_RSPC; ///
+	float **m_sol_WOC; ///
+	float **m_sol_WON; ///
+	float **m_sol_HP; ///
+	float **m_sol_HS; ///
+	float **m_sol_BM; ///
 
     /** Irrigation operation related **/
 
@@ -346,6 +378,8 @@ public:
     void Set1DData(const char *key, int n, float *data);
 
     void Get1DData(const char *key, int *n, float **data);
+
+	void Get2DData(const char *key, int *nRows, int *nCols, float ***data);
 
     void Set2DData(const char *key, int n, int col, float **data);
 
