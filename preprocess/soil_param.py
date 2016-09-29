@@ -20,7 +20,7 @@ from util import *
 # SOILTHICK         |mm    : soil thickness for calculation convenient
 # OM                |%     : organic matter content (weight percent)
 # SOL_CBN           |%     : (sol_cbn) percent organic carbon in soil layer
-# SOL_N             |%     : (sol_n) used when using CSWAT (TODO)
+# SOL_N             |%     : (sol_n) used when using CSWAT = 1, i.e, C-FARM one carbon pool model
 # CLAY              |%     : (sol_clay) percent clay content in soil material,diameter < 0.002 mm
 # SILT              |%     : (sol_silt) percent silt content in soil material,diameter between 0.002 mm and 0.05 mm
 # SAND              |%     : (sol_sand) percent sand content in soil material,diameter between 0.05 mm and 2 mm
@@ -225,17 +225,18 @@ class SoilProperty:
                 if self.OM[i] == DEFAULT_NODATA:
                     self.OM[i] = self.OM[i - 1] * numpy.exp(-self.SOILTHICK[i])  # mm
         # Calculate sol_cbn = sol_om * 0.58
-        for i in range(self.SOILLAYERS):
-            if self.OM[i] * 0.58 < UTIL_ZERO:
-                self.SOL_CBN.append(0.10)
-            else:
-                self.SOL_CBN.append(self.OM[i] * 0.58)
+        if self.SOL_CBN == [] or len(self.SOL_CBN) != self.SOILLAYERS:
+            self.SOL_CBN = []
+            for i in range(self.SOILLAYERS):
+                if self.OM[i] * 0.58 < UTIL_ZERO:
+                    self.SOL_CBN.append(0.1)
+                else:
+                    self.SOL_CBN.append(self.OM[i] * 0.58)
         # Calculate sol_n = sol_cbn/11.
-        for i in range(self.SOILLAYERS):
-            if self.OM[i] * 0.58 < UTIL_ZERO:
-                self.SOL_N.append(0.10 / 11.0)
-            else:
-                self.SOL_N.append(self.OM[i] * 0.58 / 11.0)
+        if self.SOL_N == [] or len(self.SOL_N) != self.SOILLAYERS:
+            self.SOL_N = []
+            for i in range(self.SOILLAYERS):
+                self.SOL_N.append(self.SOL_CBN[i] / 11.)
         if self.CLAY == [] or len(self.CLAY) != self.SOILLAYERS or DEFAULT_NODATA in self.CLAY:
             raise IndexError("Clay content must have a size equal to NLAYERS and should not include NODATA (-9999)!")
         if self.SILT == [] or len(self.SILT) != self.SOILLAYERS or DEFAULT_NODATA in self.SILT:
@@ -434,41 +435,6 @@ class SoilProperty:
             self.CLAY[0], 2) *
                                    self.POROSITY[0] - 0.000799 * math.pow(self.SAND[0], 2) * self.POROSITY[0])
 
-        # tmp_sol_up = []  ## according to swat soil_phys.f
-        # tmp_sol_wp = []
-        # tmp_dep = []
-        # xx = 0
-        # for i in range(self.SOILLAYERS):
-        #     dep = self.SOILDEPTH[i] - xx
-        #     xx = self.SOILDEPTH[i]
-        #     tmp_dep.append(dep)
-        # for i in range(self.SOILLAYERS):
-        #     sol_wp = 0.4 * self.CLAY[i] * 0.01 * self.DENSITY[i]
-        #     sol_por = 1. - self.DENSITY[i] / 2.65
-        #     sol_up = sol_wp + self.AWC[i]
-        #     if sol_por <= sol_up:
-        #         sol_up = sol_por - 0.05
-        #         sol_wp = sol_up - self.AWC[i]
-        #         if sol_wp <= 0:
-        #             sol_up = sol_por * 0.75
-        #             sol_wp = sol_por * 0.25
-        #     tmp_sol_up.append(sol_up)
-        #     tmp_sol_wp.append(sol_wp)
-        # if self.SOL_SUMUL == 0:
-        #     for i in range(self.SOILLAYERS):
-        #         self.SOL_SUMUL += (self.POROSITY[i] - tmp_sol_wp[i]) * tmp_dep[i]
-        # if self.SOL_SUMFC == 0:
-        #     for i in range(self.SOILLAYERS):
-        #         self.SOL_SUMFC += (tmp_sol_up[i] - tmp_sol_wp[i]) * tmp_dep[i]
-        # if self.SOL_SUMWP == 0:
-        #     for i in range(self.SOILLAYERS):
-        #         self.SOL_SUMWP += tmp_sol_wp[i] * tmp_dep[i]
-        # if self.SOL_SUMPOR == 0:
-        #     for i in range(self.SOILLAYERS):
-        #         self.SOL_SUMPOR += self.POROSITY[i] * tmp_dep[i]
-        # if self.SOL_AVPOR == DEFAULT_NODATA:
-        #     self.SOL_AVPOR = self.SOL_SUMPOR / self.SOILDEPTH[self.SOILLAYERS - 1]
-
 
         if self.SOL_ALB == DEFAULT_NODATA:
             self.SOL_ALB = 0.2227 * math.exp(-1.8672 * self.SOL_CBN[0])
@@ -504,19 +470,19 @@ class SoilProperty:
         wt1 = []
         for j in range(self.SOILLAYERS):
             wt1.append(self.DENSITY[j] * self.SOILTHICK[j] * 10.)  ## g/kg => kg/ha
-        if self.SOL_NO3 != []:
+        if self.SOL_NO3 != [] and len(self.SOL_NO3) == self.SOILLAYERS:
             for j in range(self.SOILLAYERS):
                 self.SOL_NO3[j] = self.SOL_NO3[j] * wt1[j]
-        if self.SOL_NH4 != []:
+        if self.SOL_NH4 != [] and len(self.SOL_NH4) == self.SOILLAYERS:
             for j in range(self.SOILLAYERS):
                 self.SOL_NH4[j] = self.SOL_NH4[j] * wt1[j]
-        if self.SOL_ORGN != []:
+        if self.SOL_ORGN != [] and len(self.SOL_ORGN) == self.SOILLAYERS:
             for j in range(self.SOILLAYERS):
                 self.SOL_ORGN[j] = self.SOL_ORGN[j] * wt1[j]
-        if self.SOL_SOLP != []:
+        if self.SOL_SOLP != [] and len(self.SOL_SOLP) == self.SOILLAYERS:
             for j in range(self.SOILLAYERS):
                 self.SOL_SOLP[j] = self.SOL_SOLP[j] * wt1[j]
-        if self.SOL_ORGP != []:
+        if self.SOL_ORGP != [] and len(self.SOL_ORGP) == self.SOILLAYERS:
             for j in range(self.SOILLAYERS):
                 self.SOL_ORGP[j] = self.SOL_ORGP[j] * wt1[j]
 
