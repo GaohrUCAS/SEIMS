@@ -46,6 +46,8 @@ MGTOpt_SWAT::MGTOpt_SWAT(void) : m_nCells(-1), m_nSub(-1), m_soilLayers(-1),
         //m_bactPersistPlt(NULL), m_bactPersistSol(NULL), m_bactPersistParticle(NULL),
         /// Tillage operation
                                  m_tillageLookup(NULL), m_soilActiveMinP(NULL), m_soilStableMinP(NULL),
+				/// tillage factor on SOM decomposition, used by CENTURY model
+								 m_tillage_switch(NULL), m_tillage_depth(NULL), m_tillage_days(NULL), m_tillage_factor(NULL),
         /// auto fertilizer operation
                                  m_fertilizerID(NULL), m_NStressCode(NULL), m_autoNStress(NULL),
                                  m_autoMaxAppliedN(NULL), m_autoAnnMaxAppliedMinN(NULL),
@@ -57,7 +59,8 @@ MGTOpt_SWAT::MGTOpt_SWAT(void) : m_nCells(-1), m_nSub(-1), m_soilLayers(-1),
 								 m_sol_sat(NULL), m_soilStorage(NULL), m_soilStorageProfile(NULL),
 		/// CENTURY C/N cycling related variables
 								m_sol_HSN(NULL), m_sol_LM(NULL), m_sol_LMC(NULL), m_sol_LMN(NULL), m_sol_LSC(NULL), 
-								m_sol_LSN(NULL), m_sol_LS(NULL), m_sol_LSL(NULL), m_sol_LSLC(NULL), m_sol_LSLNC(NULL), 
+								m_sol_LSN(NULL), m_sol_LS(NULL), m_sol_LSL(NULL), m_sol_LSLC(NULL), m_sol_LSLNC(NULL),
+								m_sol_BMN(NULL), m_sol_HPN(NULL),
         /// Temporary parameters
                                  m_doneOpSequence(NULL),
 								 m_initialized(false)
@@ -351,19 +354,18 @@ void MGTOpt_SWAT::Set2DData(const char *key, int n, int col, float **data)
 	else if (StringMatch(sk, VAR_SOL_LSL)) m_sol_LSL = data;
 	else if (StringMatch(sk, VAR_SOL_LSLC)) m_sol_LSLC = data;
 	else if (StringMatch(sk, VAR_SOL_LSLNC)) m_sol_LSLNC = data;
-
 	//else if (StringMatch(sk, VAR_SOL_WON)) m_sol_WON = data;
 	//else if (StringMatch(sk, VAR_SOL_BM)) m_sol_BM = data;
 	//else if (StringMatch(sk, VAR_SOL_BMC)) m_sol_BMC = data;
-	//else if (StringMatch(sk, VAR_SOL_BMN)) m_sol_BMN = data;
+	else if (StringMatch(sk, VAR_SOL_BMN)) 
+		m_sol_BMN = data;
 	//else if (StringMatch(sk, VAR_SOL_HP)) m_sol_HP = data;
 	//else if (StringMatch(sk, VAR_SOL_HS)) m_sol_HS = data;
 	//else if (StringMatch(sk, VAR_SOL_HSC)) m_sol_HSC = data;
 	//else if (StringMatch(sk, VAR_SOL_HPC)) m_sol_HPC = data;
-	//else if (StringMatch(sk, VAR_SOL_HPN)) m_sol_HPN = data;
+	else if (StringMatch(sk, VAR_SOL_HPN)) m_sol_HPN = data;
 	//else if (StringMatch(sk, VAR_SOL_RNMN)) m_sol_RNMN = data;
 	//else if (StringMatch(sk, VAR_SOL_RSPC)) m_sol_RSPC = data;
-
     else
         throw ModelException(MID_PLTMGT_SWAT, "Set2DData", "Parameter " + sk + " does not exist.");
 }
@@ -1184,8 +1186,8 @@ void MGTOpt_SWAT::ExecuteTillageOperation(int i, int &factoryID, int nOp)
     float emix = 0.f, dtil = 0.f, XX = 0.f, WW1 = 0.f, WW2 = 0.f;
     float WW3 = 0.f, WW4 = 0.f, maxmix = 0.f;
     float *soilMass = new float[(int) m_nSoilLayers[i]];
-    float *soilMixedMass = new float[(int) m_nSoilLayers[i]];
-    float *soilNotMixedMass = new float[(int) m_nSoilLayers[i]];
+    float *soilMixedMass = new float[(int) m_nSoilLayers[i]];  /// mass of soil mixed for the layer
+    float *soilNotMixedMass = new float[(int) m_nSoilLayers[i]];  /// mass of soil not mixed for the layer
 
     if (bmix > UTIL_ZERO)
     {
@@ -1200,7 +1202,7 @@ void MGTOpt_SWAT::ExecuteTillageOperation(int i, int &factoryID, int nOp)
     }
     if (tillID >= 1)
     {
-        /// TODO, this is associated with erosion modules.
+        /// TODO, this is associated with erosion modules. Drainmod tile equations
         ///Updated dynamic depressional storage D.Moriasi 4/8/2014
         //cumei(jj)   = 0.
         //cumeira(jj) = 0.
@@ -1208,12 +1210,20 @@ void MGTOpt_SWAT::ExecuteTillageOperation(int i, int &factoryID, int nOp)
         //cumrai(jj)  = 0.
         //ranrns_hru(jj) = ranrns(idtill)
     }
+	if (m_CbnModel == 2) /// DSSAT tillage
+	{
+		m_tillage_days[i] = 0;
+		m_tillage_depth[i] = dtil;
+		m_tillage_switch[i] = 1;
+	}
     ///  smix(:)     |varies        |amount of substance in soil profile that is being redistributed between mixed layers
     int npmx = 0; /// number of different pesticides, TODO in next version
-    float *smix = new float[22 + npmx + 12];
-    for (int k = 0; k < 22 + npmx + 12; k++)
-        smix[k] = 0.f;
-    /// incorporate bacteria, no mixing, and bost from transport
+    //float *smix = new float[22 + npmx + 12];
+    //for (int k = 0; k < 22 + npmx + 12; k++)
+    //    smix[k] = 0.f;
+	float *smix(NULL);
+	Initialize1DArray(22 + npmx + 12, smix, 0.f);
+    /// incorporate bacteria, no mixing, and lost from transport
     if (dtil > 10.f)
     {
         //m_bactPersistSol[i] *= (1. - emix);
@@ -1223,8 +1233,9 @@ void MGTOpt_SWAT::ExecuteTillageOperation(int i, int &factoryID, int nOp)
     }
     /// calculate max mixing to preserve target surface residue
     /// Assume residue in all other layers is negligible to simplify calculation and remove depth dependency
-    /// TODO, m_minResidue is defined in OPS which should be implemented later. By LJ
-    float m_minResidue = 0.f;
+    /// TODO, m_minResidue is defined in OPS files in SWAT as residue management operation, 
+	///       which should be implemented later as BMP operation. By LJ
+    float m_minResidue = 10.f; /// currently, set m_minResidue to 10 as default.
     if (m_minResidue > 1.f && bmix < 0.001f)
     {
         maxmix = 1.f - m_minResidue / m_soilRsd[i][0];
@@ -1233,7 +1244,7 @@ void MGTOpt_SWAT::ExecuteTillageOperation(int i, int &factoryID, int nOp)
     }
     for (int l = 0; l < (int) m_nSoilLayers[i]; l++)
     {
-        soilMass[l] = (m_soilThick[i][l] / 1000.f) * 10000.f * m_soilBD[i][l] * 1000.f * (1 - m_soilRock[i][l] / 100.f);
+        soilMass[l] = 10000.f * m_soilThick[i][l] * m_soilBD[i][l] * (1 - m_soilRock[i][l] / 100.f);
         soilMixedMass[l] = 0.f;
         soilNotMixedMass[l] = 0.f;
     }
@@ -1269,9 +1280,12 @@ void MGTOpt_SWAT::ExecuteTillageOperation(int i, int &factoryID, int nOp)
             smix[8] += m_soilFreshOrgP[i][l] * WW1;
             smix[9] += m_soilStableMinP[i][l] * WW1;
             smix[10] += m_soilRsd[i][l] * WW1;
-            //smix[11] += m_soilMC[i][l] * WW1; /// TODO when cswat == 1 is done. by LJ
-            //smix[12] += m_soilMN[i][l] * WW1;
-            //smix[13] += m_soilMP[i][l] * WW1;
+			if (m_CbnModel == 1) /// C-FARM one carbon pool model
+			{
+				smix[11] += m_soilManureC[i][l] * WW1;
+				smix[12] += m_soilManureN[i][l] * WW1;
+				smix[13] += m_soilManureP[i][l] * WW1;
+			}
 
             /// 2. concentration based mixing
             WW2 = XX + soilMixedMass[l];
@@ -1284,7 +1298,25 @@ void MGTOpt_SWAT::ExecuteTillageOperation(int i, int &factoryID, int nOp)
             for (int k = 0; k < npmx; k++)
             {
                 /// TODO
+				/// smix[19+k] += sol_pst(k,jj,l) * WW1
             }
+			/// 4. For CENTURY model
+			if (m_CbnModel == 2)
+			{
+				smix[19+npmx+1] += m_sol_LSC[i][l] * WW1;
+				smix[19+npmx+2] += m_sol_LSLC[i][l] * WW1;
+				smix[19+npmx+3] += m_sol_LSLNC[i][l] * WW1;
+				smix[19+npmx+4] += m_sol_LMC[i][l] * WW1;
+				smix[19+npmx+5] += m_sol_LM[i][l] * WW1;
+				smix[19+npmx+6] += m_sol_LSL[i][l] * WW1;
+				smix[19+npmx+7] += m_sol_LS[i][l] * WW1;
+
+				smix[19+npmx+8] += m_sol_LSN[i][l] * WW1;
+				smix[19+npmx+9] += m_sol_LMN[i][l] * WW1;
+				smix[19+npmx+10] += m_sol_BMN[i][l] * WW1;
+				smix[19+npmx+11] += m_sol_HSN[i][l] * WW1;
+				smix[19+npmx+12] += m_sol_HPN[i][l] * WW1;
+			}
             XX += soilMixedMass[l];
         }
         for (int l = 0; l < (int) m_nSoilLayers[i]; l++)
@@ -1304,26 +1336,49 @@ void MGTOpt_SWAT::ExecuteTillageOperation(int i, int &factoryID, int nOp)
             m_soilStableMinP[i][l] = m_soilStableMinP[i][l] * WW3 + smix[9] * WW4;
             m_soilRsd[i][l] = m_soilRsd[i][l] * WW3 + smix[10] * WW4;
             if (m_soilRsd[i][l] < 1.e-10f) m_soilRsd[i][l] = 1.e-10f;
-
+			if (m_CbnModel == 1)
+			{
+				m_soilManureC[i][l] = m_soilManureC[i][l] * WW3 + smix[11] * WW4;
+				m_soilManureN[i][l] = m_soilManureN[i][l] * WW3 + smix[12] * WW4;
+				m_soilManureP[i][l] = m_soilManureP[i][l] * WW3 + smix[13] * WW4;
+			}
             m_soilCarbon[i][l] = (m_soilCarbon[i][l] * soilNotMixedMass[l] + smix[14] * soilMixedMass[l]) / soilMass[l];
-            m_soilN[i][l] = (m_soilN[i][l] * soilNotMixedMass[l] + smix[15] * soilMixedMass[l]) / soilMass[l];
+			m_soilN[i][l] = (m_soilN[i][l] * soilNotMixedMass[l] + smix[15] * soilMixedMass[l]) / soilMass[l];
             m_soilClay[i][l] = (m_soilClay[i][l] * soilNotMixedMass[l] + smix[16] * soilMixedMass[l]) / soilMass[l];
             m_soilSilt[i][l] = (m_soilSilt[i][l] * soilNotMixedMass[l] + smix[17] * soilMixedMass[l]) / soilMass[l];
             m_soilSand[i][l] = (m_soilSand[i][l] * soilNotMixedMass[l] + smix[18] * soilMixedMass[l]) / soilMass[l];
-            if (m_CbnModel == 1)
+			
+			for (int k = 0; k < npmx; k++)
+			{
+				/// TODO
+				/// sol_pst(k,jj,l) = sol_pst(k,jj,l) * WW3 + smix(20+k) * WW4
+			}
+			if (m_CbnModel == 2)
             {
-                /// TODO
+				m_sol_LSC[i][l] = m_sol_LSC[i][l] * WW3 + smix[19+npmx+1] * WW4;
+				m_sol_LSLC[i][l] = m_sol_LSLC[i][l] * WW3 + smix[19+npmx+2] * WW4;
+				m_sol_LSLNC[i][l] = m_sol_LSLNC[i][l] * WW3 + smix[19+npmx+3] * WW4;
+				m_sol_LMC[i][l] = m_sol_LMC[i][l] * WW3 + smix[19+npmx+4] * WW4;
+				m_sol_LM[i][l] = m_sol_LM[i][l] * WW3 + smix[19+npmx+5] * WW4;
+				m_sol_LSL[i][l] = m_sol_LSL[i][l] * WW3 + smix[19+npmx+6] * WW4;
+				m_sol_LS[i][l] = m_sol_LS[i][l] * WW3 + smix[19+npmx+7] * WW4;
+				m_sol_LSN[i][l] = m_sol_LSN[i][l] * WW3 + smix[19+npmx+8] * WW4;
+				m_sol_LMN[i][l] = m_sol_LMN[i][l] * WW3 + smix[19+npmx+9] * WW4;
+				m_sol_BMN[i][l] = m_sol_BMN[i][l] * WW3 + smix[19+npmx+10] * WW4;
+				m_sol_HSN[i][l] = m_sol_HSN[i][l] * WW3 + smix[19+npmx+11] * WW4;
+				m_sol_HPN[i][l] = m_sol_HPN[i][l] * WW3 + smix[19+npmx+12] * WW4;
             }
-            if (m_CbnModel == 2)
-            {
-                /// TODO
-            }
+			if (m_CbnModel == 1)
+			{
+				/// TODO
+				/// call tillfactor(jj,bmix,emix,dtil,sol_thick)
+			}
         }
     }
     if (cnop > 1.e-4f) m_CN2[i] = cnop;
-	Release1DArray(soilMass);
-	Release1DArray(soilMixedMass);
-	Release1DArray(soilNotMixedMass);
+	if (soilMass != NULL) Release1DArray(soilMass);
+	if (soilMixedMass != NULL) Release1DArray(soilMixedMass);
+	if (soilNotMixedMass != NULL) Release1DArray(soilNotMixedMass);
 }
 
 void MGTOpt_SWAT::ExecuteHarvestOnlyOperation(int i, int &factoryID, int nOp)
@@ -1821,12 +1876,13 @@ void MGTOpt_SWAT::initialOutputs()
 		if (m_autoAnnMaxAppliedMinN == NULL) Initialize1DArray(m_nCells, m_autoAnnMaxAppliedMinN, 0.f);
 		if (m_autoFertEfficiency == NULL) Initialize1DArray(m_nCells, m_autoFertEfficiency, 0.f);
 		if (m_autoFertSurface == NULL) Initialize1DArray(m_nCells, m_autoFertSurface, 0.f);
-	}
-	if (m_CbnModel == 1)
-	{
-		if (m_soilManureC == NULL) Initialize2DArray(m_nCells, m_soilLayers, m_soilManureC, 0.f);
-		if (m_soilManureN == NULL) Initialize2DArray(m_nCells, m_soilLayers, m_soilManureN, 0.f);
-		if (m_soilManureP == NULL) Initialize2DArray(m_nCells, m_soilLayers, m_soilManureP, 0.f);
+
+		if (m_CbnModel == 1)
+		{
+			if (m_soilManureC == NULL) Initialize2DArray(m_nCells, m_soilLayers, m_soilManureC, 0.f);
+			if (m_soilManureN == NULL) Initialize2DArray(m_nCells, m_soilLayers, m_soilManureN, 0.f);
+			if (m_soilManureP == NULL) Initialize2DArray(m_nCells, m_soilLayers, m_soilManureP, 0.f);
+		}
 	}
     /// impound/release operation
 	if (find(definedMgtCodes.begin(), definedMgtCodes.end(), BMP_PLTOP_ReleaseImpound) != definedMgtCodes.end())
@@ -1834,6 +1890,16 @@ void MGTOpt_SWAT::initialOutputs()
 		if (m_impoundTriger == NULL) Initialize1DArray(m_nCells, m_impoundTriger, 1.f);
 		if (m_potVolMax == NULL) Initialize1DArray(m_nCells, m_potVolMax, 0.f);
 		if (m_potVolLow == NULL) Initialize1DArray(m_nCells, m_potVolLow, 0.f);
+	}
+	/// tillage
+	if (find(definedMgtCodes.begin(), definedMgtCodes.end(), BMP_PLTOP_Tillage) != definedMgtCodes.end())
+	{
+		if (m_CbnModel == 2){
+			if (m_tillage_days == NULL) Initialize1DArray(m_nCells, m_tillage_days, 0);
+			if (m_tillage_switch == NULL) Initialize1DArray(m_nCells, m_tillage_switch, 0);
+			if (m_tillage_depth == NULL) Initialize1DArray(m_nCells, m_tillage_depth, 0.f);
+			if (m_tillage_factor == NULL) Initialize1DArray(m_nCells, m_tillage_factor, 0.f);
+		}
 	}
 	if (m_doneOpSequence == NULL) Initialize1DArray(m_nCells, m_doneOpSequence, -1);
 	m_initialized = true;

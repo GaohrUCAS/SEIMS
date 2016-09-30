@@ -229,17 +229,22 @@ private:
 	float **m_sol_LSLC; /// lignin amount in structural litter pool
 	float **m_sol_LSLNC; /// non-lignin part of the structural litter C
 
-	
+	/// tillage factor on SOM decomposition, used by CENTURY model
+	int *m_tillage_switch;
+	float *m_tillage_depth;
+	int *m_tillage_days;
+	float *m_tillage_factor;
+
 	//float **m_sol_WOC; ///
 	//float **m_sol_WON; ///
 	//float **m_sol_BM; ///
 	//float **m_sol_BMC; ///
-	//float **m_sol_BMN; ///
+	float **m_sol_BMN; ///
 	//float **m_sol_HP; ///
 	//float **m_sol_HS; ///
 	//float **m_sol_HSC; ///
 	//float **m_sol_HPC; ///
-	//float **m_sol_HPN; ///
+	float **m_sol_HPN; ///
 
 	//float **m_sol_RNMN; ///
 	//float **m_sol_RSPC; ///

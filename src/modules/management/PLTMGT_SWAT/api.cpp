@@ -130,12 +130,12 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	//mdi.AddInput(VAR_SOL_WON, UNIT_CONT_KGHA, DESC_SOL_WON, Source_Module_Optional, DT_Raster2D);
 	//mdi.AddInput(VAR_SOL_BM, UNIT_CONT_KGHA, DESC_SOL_BM, Source_Module_Optional, DT_Raster2D);
 	//mdi.AddInput(VAR_SOL_BMC, UNIT_CONT_KGHA, DESC_SOL_BMC, Source_Module_Optional, DT_Raster2D);
-	//mdi.AddInput(VAR_SOL_BMN, UNIT_CONT_KGHA, DESC_SOL_BMN, Source_Module_Optional, DT_Raster2D);
+	mdi.AddInput(VAR_SOL_BMN, UNIT_CONT_KGHA, DESC_SOL_BMN, Source_Module, DT_Raster2D);
 	//mdi.AddInput(VAR_SOL_HP, UNIT_CONT_KGHA, DESC_SOL_HP, Source_Module_Optional, DT_Raster2D);
 	//mdi.AddInput(VAR_SOL_HS, UNIT_CONT_KGHA, DESC_SOL_HS, Source_Module_Optional, DT_Raster2D);
 	//mdi.AddInput(VAR_SOL_HSC, UNIT_CONT_KGHA, DESC_SOL_HSC, Source_Module_Optional, DT_Raster2D);
 	//mdi.AddInput(VAR_SOL_HPC, UNIT_CONT_KGHA, DESC_SOL_HPC, Source_Module_Optional, DT_Raster2D);
-	//mdi.AddInput(VAR_SOL_HPN, UNIT_CONT_KGHA, DESC_SOL_HPN, Source_Module_Optional, DT_Raster2D);
+	mdi.AddInput(VAR_SOL_HPN, UNIT_CONT_KGHA, DESC_SOL_HPN, Source_Module_Optional, DT_Raster2D);
 	//mdi.AddInput(VAR_SOL_RNMN, UNIT_CONT_KGHA, DESC_SOL_RNMN, Source_Module_Optional, DT_Raster2D);
 	//mdi.AddInput(VAR_SOL_RSPC, UNIT_CONT_KGHA, DESC_SOL_RSPC, Source_Module_Optional, DT_Raster2D);
 
