@@ -1,5 +1,4 @@
 /*!
- * \file base_VariableData.cpp
  * \brief Base class of variable data
  *
  * Base class used to store various versions of the variable data
@@ -16,13 +15,13 @@
 
 base_VariableData::base_VariableData(void)
 {
-	m_Dimension = DT_Unknown;
+    m_Dimension = DT_Unknown;
 }
 
 
 base_VariableData::base_VariableData(const base_VariableData &obj)
 {
-	m_Dimension = obj.m_Dimension;
+    m_Dimension = obj.m_Dimension;
 }
 
 
@@ -31,15 +30,15 @@ base_VariableData::~base_VariableData(void)
 }
 
 
-base_VariableData& base_VariableData::operator= (const base_VariableData &obj)
+base_VariableData &base_VariableData::operator=(const base_VariableData &obj)
 {
-	m_Dimension = obj.m_Dimension;
-	return *this;
+    m_Dimension = obj.m_Dimension;
+    return *this;
 }
 
 
 dimensionTypes base_VariableData::Dimension(void)
 {
-	return DT_Unknown;
+    return DT_Unknown;
 }
 

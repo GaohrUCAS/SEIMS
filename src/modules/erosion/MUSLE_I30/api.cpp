@@ -30,26 +30,26 @@ extern "C" SEIMS_MODULE_API const char* MetadataInformation()
 	mdi.SetHelpfile("MUSLE_I30.chm");
 
 	mdi.AddParameter("cellwidth","m","the width (length) of cell","mask.asc",DT_Single);
-	mdi.AddParameter("USLE_C","","the cover management factor","ParameterDB_Sediment",DT_MapWindowRaster);
-	mdi.AddParameter("USLE_P","","the erosion control practice factor ","ParameterDB_Sediment",DT_MapWindowRaster);
-	mdi.AddParameter("USLE_K","","the soil erodibility factor","ParameterDB_Sediment",DT_MapWindowRaster);
-	mdi.AddParameter("flow_acc","","the number of flow accumulation cells of each cell","ParameterDB_Sediment",DT_MapWindowRaster);
-	mdi.AddParameter("slope","%","slope of the cell","ParameterDB_WaterBalance",DT_MapWindowRaster);
+	mdi.AddParameter("USLE_C","","the cover management factor","ParameterDB_Sediment",DT_Raster1D);
+	mdi.AddParameter("USLE_P","","the erosion control practice factor ","ParameterDB_Sediment",DT_Raster1D);
+	mdi.AddParameter("USLE_K","","the soil erodibility factor","ParameterDB_Sediment",DT_Raster1D);
+	mdi.AddParameter("flow_acc","","the number of flow accumulation cells of each cell","ParameterDB_Sediment",DT_Raster1D);
+	mdi.AddParameter("slope","%","slope of the cell","ParameterDB_WaterBalance",DT_Raster1D);
 
-	mdi.AddParameter("T0_s","hr","time of concentration","ParameterDB_Sediment",DT_MapWindowRaster);
+	mdi.AddParameter("T0_s","hr","time of concentration","ParameterDB_Sediment",DT_Raster1D);
 	mdi.AddParameter("adj_pkr","","peak rate adjustment factor","ParameterDB_Sediment",DT_Single);
 	mdi.AddParameter("rain_yrs","","number of yeares of data used to obtain values for RAINHHMX","ParameterDB_Sediment",DT_Single);
 
 	mdi.AddParameter("p_stat","","static information of precipitation","HydroclimateDB",DT_Array2D);
 
 	//input from other module	
-	mdi.AddInput("D_SURU","mm","surface runoff","Module",DT_MapWindowRaster);		//from depression module
-	mdi.AddInput("D_SNAC","mm","snow accumulation","Module",DT_MapWindowRaster);	//from snow water balance module
-	mdi.AddInput("D_P","mm","precipitation","Module",DT_MapWindowRaster);			//from interpolation module
-	mdi.AddInput("D_SNME","mm","snow melt","Module",DT_MapWindowRaster);			//from snow melt module
+	mdi.AddInput("D_SURU","mm","surface runoff","Module",DT_Raster1D);		//from depression module
+	mdi.AddInput("D_SNAC","mm","snow accumulation","Module",DT_Raster1D);	//from snow water balance module
+	mdi.AddInput("D_P","mm","precipitation","Module",DT_Raster1D);			//from interpolation module
+	mdi.AddInput("D_SNME","mm","snow melt","Module",DT_Raster1D);			//from snow melt module
 
 	// set the output variables
-	mdi.AddOutput("SOER","metric tons", "distribution of soil erosion", DT_MapWindowRaster);
+	mdi.AddOutput("SOER","metric tons", "distribution of soil erosion", DT_Raster1D);
 
 	// write out the XML file.
 

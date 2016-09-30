@@ -1,45 +1,25 @@
-Welcome to SEIMS
-==========
+
+# SEIMS
+
+**SEIMS**, shorted for **Spatially Explicit Integrated Modeling System**, is an integrated, parallized, distributed, and continuous **Wa**tershed modeling and **S**cenario **A**nalysis.
+
+SEIMS is written by **C++** with support of OpenMP and MPI. **Python** is used for organizing the preprocessing and postprocessing workflow. The basic programming framework makes it possible for cross-platform, such as Windows, Linux, and even for macOS (not tested yet).
+
+SEIMS contains several module classes, include **Hydrology, Erosion, Nutrient, Plant Growth, BMP Management**. Algorithms of watershed processes are adopted from SWAT, LISEM, WetSpa Extension, DHSVM, CASC2D, etc.
+
+SEIMS is still under development and any constructive feedback will be welcome and appreciate.
+
+Wiki
 ----------
+More information about SEIMS please refer to [SEIMS Wiki](https://github.com/seims/SEIMS/wiki).
 
-**SEIMS** is short for **Spatially Explicit Integrated Modeling System** and is originally developed by **Dr.** Junzhi Liu and **Prof.** A-Xing Zhu et al. since 2010 in Lreis Lab., IGSNRR, CAS, China.
 
-Here are some brief information about SEIMS:
-
-Firstly hosted on Github in 2015/6/8.
-
-Language: C++, Python
-
-Parallel: OpenMP and MPI
-
-Platform: Windows and linux cluster
-
-Modules:  **Hydrology, Erosion, Nutrient, Plant Growth**
-
-Compile
-----------
-~~~
-cd <build path>
-cmake <SEIMS source path> [-DVERSION=MPI]
-~~~
-
-Preprocessing
-----------
-
-See [Preprocessing](doc/Preprocess.md) for more detail.
-
-Postprocessing
-----------
-TO BE CONTINUE.
-
-Developer
-----------
-For helping developers to contribute to SEIMS, we prepared a detail manual.
-See [Mannual for Developers](doc/Developers.md) for more information.
-
-Contact
+Contact Us
 ----------
 Dr.Junzhi Liu (liujunzhi@njnu.edu.cn)
 
 Liangjun Zhu (zlj@lreis.ac.cn)
+
+*Updated: 2016-7-15*
+
 

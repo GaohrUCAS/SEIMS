@@ -1,4 +1,4 @@
-#ifndef Application_H
+﻿#ifndef Application_H
 #define Application_H
 
 /***************************************************************************
@@ -21,16 +21,18 @@
 
 namespace GPRO
 {
-  class Application 
-  {
+    class Application
+    {
     public:
-	  static bool START(ProgramType programType, int argc, char *argv[]);
-      static bool END();
+        static bool START(ProgramType programType, int argc, char *argv[]);
 
-	public:
-      static ProgramType _programType;
-  };
+        static bool END();
+
+    public:
+        static ProgramType _programType;
+    };
 };
 
 
 #endif
+

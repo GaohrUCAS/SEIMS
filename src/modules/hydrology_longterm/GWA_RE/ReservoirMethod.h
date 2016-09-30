@@ -12,7 +12,7 @@
 *	Revision: Zhiqiang Yu
 *	Date:	  2011-2-18
 *	Description:
-*	1.  Add judgement to calculation of EG (Revap). The average percolation of 
+*	1.  Add judgment to calculation of EG (Revap). The average percolation of 
 *		one subbasin is first calculated. If the percolation is less than 0.01,
 *		EG is set to 0 directly. (in function setInputs of class subbasin)
 *	2.	Add member variable m_isRevapChanged to class subbasin. This variable 
@@ -24,11 +24,17 @@
 *	Date:		2011-3-14
 *	Description:
 *	1.	Add codes to process the groundwater which comes from bank storage in 
-*		channel routing module. The water volumn of this part of groundwater is
-*		added to the groudwater storage. The input variable "T_GWNEW" is used
+*		channel routing module. The water volume of this part of groundwater is
+*		added to the groundwater storage. The input variable "T_GWNEW" is used
 *		for this purpose. One additional parameter is added to function setInputs 
 *		of class subbasin. See equation 8 in memo "Channel water balance" for detailed
 *		reference.
+*	
+*	Revision:	Liang-Jun Zhu
+*	Date:		2016-7-27
+*	Description:
+*	1.	Move subbasin class to base/data module for sharing with other modules
+*	2.	
 */
 
 #ifndef SEIMS_GWA_RESERVOIR_METHOD_INCLUED
@@ -38,122 +44,165 @@
 #include <vector>
 #include <map>
 #include "api.h"
-#include "subbasin.h"
+#include "clsSubbasin.h"
 #include "SimulationModule.h"
 
 using namespace std;
 /** \defgroup GWA_RE
  * \ingroup Hydrology_longterm
- * \brief Reservoir Method to calculate groundwater balance and baseflow
+ * \brief Reservoir Method to calculate groundwater balance and baseflow of longterm model
  *
  */
 
 /*!
  * \class ReservoirMethod
  * \ingroup GWA_RE
- * \brief Reservoir Method to calculate groundwater balance and baseflow
+ * \brief Reservoir Method to calculate groundwater balance and baseflow of longterm model
  * 
  */
 class ReservoirMethod : public SimulationModule
 {
 public:
-	ReservoirMethod(void);
-	~ReservoirMethod(void);
+    ReservoirMethod(void);
 
-	virtual void SetValue(const char* key, float value);
-	virtual void Set1DData(const char* key, int n, float* data);
-	virtual void Set2DData(const char* key, int nrows, int ncols, float** data);
+    ~ReservoirMethod(void);
 
-	virtual int Execute(void);
+    virtual void SetValue(const char *key, float value);
 
-	virtual void Get1DData(const char* key, int* nRows, float **data);
-	virtual void Get2DData(const char* key, int* nRows, int* nCols, float ***data);
+    virtual void Set1DData(const char *key, int n, float *data);
 
-	//virtual TimeStepType GetTimeStepType()
-	//{
-	//	return TIMESTEP_CHANNEL;
-	//};
+    virtual void Set2DData(const char *key, int nrows, int ncols, float **data);
+
+	virtual void SetSubbasins(clsSubbasins *);
+
+    virtual int Execute(void);
+
+    virtual void Get1DData(const char *key, int *nRows, float **data);
+
+    virtual void Get2DData(const char *key, int *nRows, int *nCols, float ***data);
+
+    //virtual TimeStepType GetTimeStepType()
+    //{
+    //	return TIMESTEP_CHANNEL;
+    //};
 
 private:
 
-	/**
-	*	@brief check the input data. Make sure all the input data is available.
-	*
-	*	@return bool The validity of the input data.
-	*/
-	bool CheckInputData(void);
+    /**
+    *	@brief check the input data. Make sure all the input data is available.
+    *
+    *	@return bool The validity of the input data.
+    */
+    bool CheckInputData(void);
 
-	/**
-	*	@brief check the input size. Make sure all the input data have same dimension.
-	*	
-	*	@param key: The key of the input data
-	*	@param n: The input data dimension
-	*	@return bool The validity of the dimension
-	*/
-	bool CheckInputSize(const char*,int n);
+    /**
+    *	@brief check the input size. Make sure all the input data have same dimension.
+    *
+    *	@param key: The key of the input data
+    *	@param n: The input data dimension
+    *	@return bool The validity of the dimension
+    */
+    bool CheckInputSize(const char *, int n);
 
-	void clearInputs(void);
+	/*
+	 * \brief initial outputs as default values
+	 */
+	void initialOutputs();
 private:
-	//inputs
-	/// time step (hr)
-	int		m_TimeStep;
-	//! Valid cells number
-	int		m_nCells;
-	/// cell size of the grid (m)
-	float	m_CellWidth;
-	int		m_nSoilLayers;
-	float	m_upSoilDepth;
+    //inputs
+    
+    //! time step (hr)  sec?
+    int m_TimeStep;
+    //! Valid cells number
+    int m_nCells;
+    //! cell size of the grid (m)
+    float m_CellWidth;
+	//! maximum soil layers number
+    int m_nSoilLayers;
+	//! soil layers number of each cell
+	float *m_soilLayers;
+	//! soil thickness of each layer
+	float **m_soilThick;
 
-	/// the amount of water percolated from the soil water reservoir and input to the groundwater reservoir from the percolation module(mm)
-	float **m_perc;
-	/// evaporation from interception storage (mm) from the interception module
-	float* m_D_EI;
-	/// evaporation from the depression storage (mm) from the depression module
-	float* m_D_ED;
-	/// evaporation from the soil water storage (mm) from the soil ET module
-	float* m_D_ES;
-	/// PET(mm) from the interpolation module
-	float* m_D_PET;
-	/// initial ground water storage (or at time t-1)
-	float m_GW0;
-	/// maximum ground water storage
-	float m_GWMAX;
-	float *m_gwStore;
-	/// groundwater Revap coefficient
+    //float m_upSoilDepth;
+
+	//! groundwater Revap coefficient
 	float m_dp_co;
-	/// Baseflow recession coefficient
+	//! baseflow recession coefficient
 	float m_Kg;
-	/// baseflow recession exponent
+	//! baseflow recession exponent
 	float m_Base_ex;
-	/// 1D array of valid cells to store subbasin ID 
-	///float* m_Subbasin;
-	/// the average slope of the subbasin
-	float* m_Slope;
-	/// the average slope of the watershed
-	///float m_Slope_basin;
-	float* m_petSubbasin;
+    //! the amount of water percolated from the soil water reservoir and input to the groundwater reservoir from the percolation module(mm)
+    float **m_perc;
+    //! evaporation from interception storage (mm) from the interception module
+    float *m_D_EI;
+    //! evaporation from the depression storage (mm) from the depression module
+    float *m_D_ED;
+    //! evaporation from the soil water storage (mm) from the soil ET module
+    float *m_D_ES;
+	//! actual amount of transpiration (mm H2O)
+	float *m_plantEP;
+    //! PET(mm) from the PET modules
+    float *m_D_PET;
+    //! initial ground water storage (or at time t-1)
+    float m_GW0;
+    //! maximum ground water storage
+    float m_GWMAX;
+	//! 
+	float *m_petSubbasin;
+	//! 
+    float *m_gwStore;
 
-	float **m_soilMoisture;
-	float *m_rootDepth;
+    /// slope (percent, or drop/distance, or tan) of each cell
+    float *m_Slope;
+    
+	//! soil storage
+    float **m_soilStorage;
+	//! soil depth of each layer, the maximum soil depth is used here, i.e., m_soilDepth[i][(int)m_soilLayers[i]]
+    float **m_soilDepth;
+	//! ground water from bank storage, passed from channel routing module
+    float *m_VgroundwaterFromBankStorage; 
+
+    
+    //output
+	//!
+	float *m_T_Perco;
+	//!
+	float *m_T_PerDep;
+	//! 
+    float *m_T_RG;
+	//! 
+    float *m_T_QG;
+	//! 
+    float *m_D_Revap;
+	//!
+	float *m_T_Revap;
+	//! groundwater water balance statistics
+    float **m_T_GWWB;
+
+	////! subbasin grid
+ //   float *m_subbasin;
+	//! subbasin number
+    int m_nSubbasins;
+	//! subbasin IDs
+	vector<int> m_subbasinIDs;
+	////! selected count of output subbasin
+ //   int m_subbasinSelectedCount;
+	////! subbasin selected to output
+ //   float *m_subbasinSelected;
+	bool m_firstRun;
+	//! All subbasins information,\sa clsSubbasins, \sa Subbasin
+	clsSubbasins *m_subbasinsInfo;
+	////! vector of all Subbasin instances 
+	// vector<Subbasin *> m_subbasinList;
 	
-	float* m_VgroundwaterFromBankStorage; //ground water from bank storage, passed from channel routing module
-
-	//output
-	float* m_T_RG;
-	float* m_T_QG; 
-	float* m_D_Revap;
-	float** m_T_GWWB;
-
-
-	//used to output timeseries result for soil water balance
-	float* m_subbasin;				//subbasin grid
-	int m_subbasinSelectedCount;
-	float* m_subbasinSelected;		//subbasin selected to output
-	vector<subbasin*> m_subbasinList;
-	int m_nSubbasins;
-	//map<int, vector<int>* > m_cellListMap;
-
-	void getSubbasinList();
+	/*
+	 * \brief Set groundwater related subbasin parameters
+	 * \sa Subbasin
+	 * \sa clsSubbasins
+	 */
+    void setSubbasinInfos();
 };
+
 #endif
 

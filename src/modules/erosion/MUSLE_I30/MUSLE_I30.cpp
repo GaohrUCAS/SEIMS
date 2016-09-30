@@ -1,6 +1,6 @@
 #include "MUSLE_I30.h"
 #include "MetadataInfo.h"
-#include "SEIMSException.h"
+#include "ModelException.h"
 #include "util.h"
 
 MUSLE_I30::MUSLE_I30(void)
@@ -45,23 +45,23 @@ MUSLE_I30::~MUSLE_I30(void)
 
 bool MUSLE_I30::CheckInputData(void)
 {
-	if(this->m_Date <=0)			throw SEIMSException("MUSLE_I30","CheckInputData","You have not set the time.");
-	if(m_cellSize <= 0)				throw SEIMSException("MUSLE_I30","CheckInputData","The dimension of the input data can not be less than zero.");
-	if(m_cellWidth <= 0)			throw SEIMSException("MUSLE_I30","CheckInputData","The cell width can not be less than zero.");
-	if(this->m_usle_c == NULL)		throw SEIMSException("MUSLE_I30","CheckInputData","The factor C can not be NULL.");
-	if(this->m_usle_k == NULL)		throw SEIMSException("MUSLE_I30","CheckInputData","The factor K can not be NULL.");
-	if(this->m_usle_p == NULL)		throw SEIMSException("MUSLE_I30","CheckInputData","The factor P can not be NULL.");
-	if(this->m_flowacc == NULL)		throw SEIMSException("MUSLE_I30","CheckInputData","The flow accumulation can not be NULL.");
-	if(this->m_slope == NULL)		throw SEIMSException("MUSLE_I30","CheckInputData","The slope can not be NULL.");
-	if(this->m_snowAccumulation == NULL)	throw SEIMSException("MUSLE_I30","CheckInputData","The snow accumulation can not be NULL.");
-	if(this->m_surfaceRunoff == NULL)		throw SEIMSException("MUSLE_I30","CheckInputData","The surface runoff can not be NULL.");
+	if(this->m_Date <=0)			throw ModelException("MUSLE_I30","CheckInputData","You have not set the time.");
+	if(m_cellSize <= 0)				throw ModelException("MUSLE_I30","CheckInputData","The dimension of the input data can not be less than zero.");
+	if(m_cellWidth <= 0)			throw ModelException("MUSLE_I30","CheckInputData","The cell width can not be less than zero.");
+	if(this->m_usle_c == NULL)		throw ModelException("MUSLE_I30","CheckInputData","The factor C can not be NULL.");
+	if(this->m_usle_k == NULL)		throw ModelException("MUSLE_I30","CheckInputData","The factor K can not be NULL.");
+	if(this->m_usle_p == NULL)		throw ModelException("MUSLE_I30","CheckInputData","The factor P can not be NULL.");
+	if(this->m_flowacc == NULL)		throw ModelException("MUSLE_I30","CheckInputData","The flow accumulation can not be NULL.");
+	if(this->m_slope == NULL)		throw ModelException("MUSLE_I30","CheckInputData","The slope can not be NULL.");
+	if(this->m_snowAccumulation == NULL)	throw ModelException("MUSLE_I30","CheckInputData","The snow accumulation can not be NULL.");
+	if(this->m_surfaceRunoff == NULL)		throw ModelException("MUSLE_I30","CheckInputData","The surface runoff can not be NULL.");
 
-	if(this->m_p_stat == NULL)		throw SEIMSException("MUSLE_I30","CheckInputData","The p_stat can not be NULL.");
-	if(this->m_p == NULL)			throw SEIMSException("MUSLE_I30","CheckInputData","The precipitation can not be NULL.");
-	if(this->m_snowMelt == NULL)	throw SEIMSException("MUSLE_I30","CheckInputData","The snow melt can not be NULL.");
-	if(this->m_t_concentration == NULL)		throw SEIMSException("MUSLE_I30","CheckInputData","The time of concentration can not be NULL.");
-	if(this->m_adj_pkr <=0)			throw SEIMSException("MUSLE_I30","CheckInputData","You have not set adj_pkr.");
-	if(this->m_rain_yrs <=0)		throw SEIMSException("MUSLE_I30","CheckInputData","You have not set ran_yrs.");
+	if(this->m_p_stat == NULL)		throw ModelException("MUSLE_I30","CheckInputData","The p_stat can not be NULL.");
+	if(this->m_p == NULL)			throw ModelException("MUSLE_I30","CheckInputData","The precipitation can not be NULL.");
+	if(this->m_snowMelt == NULL)	throw ModelException("MUSLE_I30","CheckInputData","The snow melt can not be NULL.");
+	if(this->m_t_concentration == NULL)		throw ModelException("MUSLE_I30","CheckInputData","The time of concentration can not be NULL.");
+	if(this->m_adj_pkr <=0)			throw ModelException("MUSLE_I30","CheckInputData","You have not set adj_pkr.");
+	if(this->m_rain_yrs <=0)		throw ModelException("MUSLE_I30","CheckInputData","You have not set ran_yrs.");
 
 	return true;
 }
@@ -137,7 +137,8 @@ float MUSLE_I30::getPeakRunoffRate(int cell)
 	else			p = 0.0f;
 
 	struct tm datestruture;
-	localtime_s(&datestruture,&m_Date);			//get month
+	LocalTime(m_Date, &datestruture);
+	//localtime_s(&datestruture,&m_Date);			//get month
 	float max = 1.0f - exp(-125.0f / (p + 5));	//eq.1:3.2.3 p66
 	float a15 = triangularDistribution(0.02083f,m_alpha_month[datestruture.tm_mon],max,&m_rndseed); //eq.1:3.2.4-5 p67
 
@@ -241,7 +242,7 @@ bool MUSLE_I30::CheckInputSize(const char* key, int n)
 {
 	if(n<=0)
 	{
-		throw SEIMSException("MUSLE_I30","CheckInputSize","Input data for "+string(key) +" is invalid. The size could not be less than zero.");
+		throw ModelException("MUSLE_I30","CheckInputSize","Input data for "+string(key) +" is invalid. The size could not be less than zero.");
 		return false;
 	}
 	if(this->m_cellSize != n)
@@ -249,7 +250,7 @@ bool MUSLE_I30::CheckInputSize(const char* key, int n)
 		if(this->m_cellSize <=0) this->m_cellSize = n;
 		else
 		{
-			throw SEIMSException("MUSLE_I30","CheckInputSize","Input data for "+string(key) +" is invalid. All the input data should have same size.");
+			throw ModelException("MUSLE_I30","CheckInputSize","Input data for "+string(key) +" is invalid. All the input data should have same size.");
 			return false;
 		}
 	}
@@ -263,7 +264,7 @@ void MUSLE_I30::SetValue(const char* key, float data)
 	if(StringMatch(sk,"cellwidth"))			this->m_cellWidth = int(data);
 	else if(StringMatch(sk,"adj_pkr"))		this->m_adj_pkr = data;
 	else if(StringMatch(sk,"rain_yrs"))		this->m_rain_yrs = data;
-	else									throw SEIMSException("MUSLE_I30","SetValue","Parameter " + sk 
+	else									throw ModelException("MUSLE_I30","SetValue","Parameter " + sk 
 		+ " does not exist in MUSLE_I30 method. Please contact the module developer.");
 	
 }
@@ -286,7 +287,7 @@ void MUSLE_I30::Set1DData(const char* key, int n, float* data)
 	else if(StringMatch(s,"T0_s"))			this->m_t_concentration = data;
 	else if(StringMatch(s,"D_P"))			this->m_p = data;
 	else if(StringMatch(s,"D_SNME"))		this->m_snowMelt = data;
-	else									throw SEIMSException("MUSLE_I30","SetValue","Parameter " + s + 
+	else									throw ModelException("MUSLE_I30","SetValue","Parameter " + s + 
 		" does not exist in MUSLE_I30 method. Please contact the module developer.");
 
 }
@@ -296,12 +297,12 @@ void MUSLE_I30::Set2DData(const char* key, int nRows, int nCols, float** data)
 	string s(key);
 	if(StringMatch(s,"p_stat"))			
 	{
-		if(nRows != 12) throw SEIMSException("MUSLE_I30","SetValue","p_stat must have 12 rows.");
-		if(nCols != 3) throw SEIMSException("MUSLE_I30","SetValue","p_stat must have 3 columns");
+		if(nRows != 12) throw ModelException("MUSLE_I30","SetValue","p_stat must have 12 rows.");
+		if(nCols != 3) throw ModelException("MUSLE_I30","SetValue","p_stat must have 3 columns");
 
 		this->m_p_stat = data;
 	}
-	else									throw SEIMSException("MUSLE_I30","SetValue","Parameter " + s + " does not exist in MUSLE_I30 method. Please contact the module developer.");
+	else									throw ModelException("MUSLE_I30","SetValue","Parameter " + s + " does not exist in MUSLE_I30 method. Please contact the module developer.");
 }
 
 void MUSLE_I30::Get1DData(const char* key, int* n, float** data)
@@ -311,7 +312,7 @@ void MUSLE_I30::Get1DData(const char* key, int* n, float** data)
 	{
 		*data = this->m_sedimentYield;
 	}
-	else									throw SEIMSException("MUSLE_I30","getResult","Result " + sk + " does not exist in MUSLE_I30 method. Please contact the module developer.");
+	else									throw ModelException("MUSLE_I30","getResult","Result " + sk + " does not exist in MUSLE_I30 method. Please contact the module developer.");
 
 	*n = this->m_cellSize;
 }
