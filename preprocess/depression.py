@@ -4,7 +4,8 @@
 # Author: Junzhi Liu
 # Revised: Liang-Jun Zhu, 2016-7-6
 # Note: Code optimization by using numpy.
-# TODO: Add stream order modification, according to depression.ave of WetSpa.
+# TODO: 1. Add stream order modification, according to depression.ave of WetSpa.
+# TODO: 2. Add another depressional storage method according to SWAT, depstor.f
 import sqlite3
 from config import *
 
