@@ -53,6 +53,31 @@ NandPim::~NandPim(void)
 	if(m_wdntl != NULL) Release1DArray(m_wdntl);
 	if(m_rmp1tl != NULL) Release1DArray(m_rmp1tl);
 	if(m_roctl != NULL) Release1DArray(m_roctl);
+	/// release CENTURY related variables
+	if (m_sol_WOC != NULL) Release2DArray(m_nCells, m_sol_WOC);
+	if (m_sol_WON != NULL) Release2DArray(m_nCells, m_sol_WON);
+	if (m_sol_BM != NULL) Release2DArray(m_nCells, m_sol_BM);
+	if (m_sol_BMC != NULL) Release2DArray(m_nCells, m_sol_BMC);
+	if (m_sol_BMN != NULL) Release2DArray(m_nCells, m_sol_BMN);
+	if (m_sol_HP != NULL) Release2DArray(m_nCells, m_sol_HP);
+	if (m_sol_HS != NULL) Release2DArray(m_nCells, m_sol_HS);
+	if (m_sol_HSC != NULL) Release2DArray(m_nCells, m_sol_HSC);
+	if (m_sol_HSN != NULL) Release2DArray(m_nCells, m_sol_HSN);
+	if (m_sol_HPC != NULL) Release2DArray(m_nCells, m_sol_HPC);
+	if (m_sol_HPN != NULL) Release2DArray(m_nCells, m_sol_HPN);
+	if (m_sol_LM != NULL) Release2DArray(m_nCells, m_sol_LM);
+	if (m_sol_LMC != NULL) Release2DArray(m_nCells, m_sol_LMC);
+	if (m_sol_LMN != NULL) Release2DArray(m_nCells, m_sol_LMN);
+	if (m_sol_LSC != NULL) Release2DArray(m_nCells, m_sol_LSC);
+	if (m_sol_LSN != NULL) Release2DArray(m_nCells, m_sol_LSN);
+	if (m_sol_LS != NULL) Release2DArray(m_nCells, m_sol_LS);
+	if (m_sol_LSL != NULL) Release2DArray(m_nCells, m_sol_LSL);
+	if (m_sol_LSLC != NULL) Release2DArray(m_nCells, m_sol_LSLC);
+	if (m_sol_LSLNC != NULL) Release2DArray(m_nCells, m_sol_LSLNC);
+	//if (m_sol_RNMN != NULL) Release2DArray(m_nCells, m_sol_RNMN);
+	//if (m_sol_RSPC != NULL) Release2DArray(m_nCells, m_sol_RSPC);
+
+
 }
 
 bool NandPim::CheckInputSize(const char *key, int n)
@@ -348,6 +373,10 @@ void NandPim::initialOutputs()
 			Initialize2DArray(m_nCells, m_soilLayers, m_sol_LSL, 0.f);
 			Initialize2DArray(m_nCells, m_soilLayers, m_sol_LSLC, 0.f);
 			Initialize2DArray(m_nCells, m_soilLayers, m_sol_LSLNC, 0.f);
+
+
+			//Initialize2DArray(m_nCells, m_soilLayers, m_sol_RNMN, 0.f);
+			//Initialize2DArray(m_nCells, m_soilLayers, m_sol_RSPC, 0.f);
 
 #pragma omp parallel for
 			for (int i = 0; i < m_nCells; i++)
