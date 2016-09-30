@@ -55,6 +55,9 @@ MGTOpt_SWAT::MGTOpt_SWAT(void) : m_nCells(-1), m_nSub(-1), m_soilLayers(-1),
         /// Release or impound operation
                                  m_impoundTriger(NULL), m_potVol(NULL), m_potVolMax(NULL),m_potVolLow(NULL),
 								 m_sol_sat(NULL), m_soilStorage(NULL), m_soilStorageProfile(NULL),
+		/// CENTURY C/N cycling related variables
+								m_sol_HSN(NULL), m_sol_LM(NULL), m_sol_LMC(NULL), m_sol_LMN(NULL), m_sol_LSC(NULL), 
+								m_sol_LSN(NULL), m_sol_LS(NULL), m_sol_LSL(NULL), m_sol_LSLC(NULL), m_sol_LSLNC(NULL), 
         /// Temporary parameters
                                  m_doneOpSequence(NULL),
 								 m_initialized(false)
@@ -337,6 +340,30 @@ void MGTOpt_SWAT::Set2DData(const char *key, int n, int col, float **data)
 	else if (StringMatch(sk, VAR_SOL_RSD)) m_soilRsd = data;
 	else if (StringMatch(sk, VAR_SOL_UL)) m_sol_sat = data;
 	else if (StringMatch(sk, VAR_SOL_ST)) m_soilStorage = data;
+	/// inputs for CENTURY C/N cycling model in stated and necessary
+	else if (StringMatch(sk, VAR_SOL_HSN)) m_sol_HSN = data;
+	else if (StringMatch(sk, VAR_SOL_LM)) m_sol_LM = data;
+	else if (StringMatch(sk, VAR_SOL_LMC)) m_sol_LMC = data;
+	else if (StringMatch(sk, VAR_SOL_LMN)) m_sol_LMN = data;
+	else if (StringMatch(sk, VAR_SOL_LSC)) m_sol_LSC = data;
+	else if (StringMatch(sk, VAR_SOL_LSN)) m_sol_LSN = data;
+	else if (StringMatch(sk, VAR_SOL_LS)) m_sol_LS = data;
+	else if (StringMatch(sk, VAR_SOL_LSL)) m_sol_LSL = data;
+	else if (StringMatch(sk, VAR_SOL_LSLC)) m_sol_LSLC = data;
+	else if (StringMatch(sk, VAR_SOL_LSLNC)) m_sol_LSLNC = data;
+
+	//else if (StringMatch(sk, VAR_SOL_WON)) m_sol_WON = data;
+	//else if (StringMatch(sk, VAR_SOL_BM)) m_sol_BM = data;
+	//else if (StringMatch(sk, VAR_SOL_BMC)) m_sol_BMC = data;
+	//else if (StringMatch(sk, VAR_SOL_BMN)) m_sol_BMN = data;
+	//else if (StringMatch(sk, VAR_SOL_HP)) m_sol_HP = data;
+	//else if (StringMatch(sk, VAR_SOL_HS)) m_sol_HS = data;
+	//else if (StringMatch(sk, VAR_SOL_HSC)) m_sol_HSC = data;
+	//else if (StringMatch(sk, VAR_SOL_HPC)) m_sol_HPC = data;
+	//else if (StringMatch(sk, VAR_SOL_HPN)) m_sol_HPN = data;
+	//else if (StringMatch(sk, VAR_SOL_RNMN)) m_sol_RNMN = data;
+	//else if (StringMatch(sk, VAR_SOL_RSPC)) m_sol_RSPC = data;
+
     else
         throw ModelException(MID_PLTMGT_SWAT, "Set2DData", "Parameter " + sk + " does not exist.");
 }
@@ -392,6 +419,31 @@ bool MGTOpt_SWAT::CheckInputData(void)
         throw ModelException(MID_PLTMGT_SWAT, "CheckInputData",
                              "The layer number of the input 2D raster data can not be less than zero.");
     if (m_CbnModel < 0) throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Carbon modeling method must be 0, 1, or 2");
+	else if (m_CbnModel == 2)
+	{
+		/// Check for the CENTURY required initialized variables
+		if (m_sol_HSN == NULL)
+			ModelException(MID_PLTMGT_SWAT, "CheckInputData", "m_sol_HSN must not be NULL.");
+		if (m_sol_LM == NULL)
+			ModelException(MID_PLTMGT_SWAT, "CheckInputData", "m_sol_LM must not be NULL.");
+		if (m_sol_LMC == NULL)
+			ModelException(MID_PLTMGT_SWAT, "CheckInputData", "m_sol_LMC must not be NULL.");
+		if (m_sol_LMN == NULL)
+			ModelException(MID_PLTMGT_SWAT, "CheckInputData", "m_sol_LMN must not be NULL.");
+		if (m_sol_LSC == NULL)
+			ModelException(MID_PLTMGT_SWAT, "CheckInputData", "m_sol_LSC must not be NULL.");
+		if (m_sol_LSN == NULL)
+			ModelException(MID_PLTMGT_SWAT, "CheckInputData", "m_sol_LSN must not be NULL.");
+		if (m_sol_LS == NULL)
+			ModelException(MID_PLTMGT_SWAT, "CheckInputData", "m_sol_LS must not be NULL.");
+		if (m_sol_LSL == NULL)
+			ModelException(MID_PLTMGT_SWAT, "CheckInputData", "m_sol_LSL must not be NULL.");
+		if (m_sol_LSLC == NULL)
+			ModelException(MID_PLTMGT_SWAT, "CheckInputData", "m_sol_LSLC must not be NULL.");
+		if (m_sol_LSLNC == NULL)
+			ModelException(MID_PLTMGT_SWAT, "CheckInputData", "m_sol_LSLNC must not be NULL.");
+
+	}
     /// DT_Raster
     if (m_subBsnID == NULL) throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "SubBasin ID must not be NULL");
     if (m_landUse == NULL) throw ModelException(MID_PLTMGT_SWAT, "CheckInputData", "Landuse must not be NULL");
