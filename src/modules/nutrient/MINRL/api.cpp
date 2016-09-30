@@ -118,9 +118,9 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddOutput(VAR_SOL_LSL, UNIT_CONT_KGHA, DESC_SOL_LSL, DT_Raster2D);
 	mdi.AddOutput(VAR_SOL_LSLC, UNIT_CONT_KGHA, DESC_SOL_LSLC, DT_Raster2D);
 	mdi.AddOutput(VAR_SOL_LSLNC, UNIT_CONT_KGHA, DESC_SOL_LSLNC, DT_Raster2D);
-
-	mdi.AddOutput(VAR_SOL_RNMN, UNIT_CONT_KGHA, DESC_SOL_RNMN, DT_Raster2D);
-	mdi.AddOutput(VAR_SOL_RSPC, UNIT_CONT_KGHA, DESC_SOL_RSPC, DT_Raster2D);
+	/// sol_rnmn and sol_rspc will be used in carbon_zhang2.f90, need to be added by Huiran.
+	//mdi.AddOutput(VAR_SOL_RNMN, UNIT_CONT_KGHA, DESC_SOL_RNMN, DT_Raster2D);
+	//mdi.AddOutput(VAR_SOL_RSPC, UNIT_CONT_KGHA, DESC_SOL_RSPC, DT_Raster2D);
 
     string res = mdi.GetXMLDocument();
     char *tmp = new char[res.size() + 1];

@@ -33,7 +33,13 @@ NandPim::NandPim(void) :
 		/// watershed scale statistics
 		m_wshd_dnit(-1.f), m_wshd_hmn(-1.f), m_wshd_hmp(-1.f), m_wshd_rmn(-1.f), m_wshd_rmp(-1.f), 
         m_wshd_rwn(-1.f), m_wshd_nitn(-1.f), m_wshd_voln(-1.f), m_wshd_pal(-1.f), m_wshd_pas(-1.f),
-		m_solP_model(0),m_CbnModel(0)
+		m_solP_model(0),m_CbnModel(0),
+		/// CENTURY model related variables
+		m_sol_WOC(NULL), m_sol_WON(NULL), m_sol_BM(NULL), m_sol_BMC(NULL), m_sol_BMN(NULL), 
+		m_sol_HP(NULL), m_sol_HS(NULL), m_sol_HSC(NULL), m_sol_HSN(NULL), m_sol_HPC(NULL), 
+		m_sol_HPN(NULL), m_sol_LM(NULL), m_sol_LMC(NULL), m_sol_LMN(NULL), m_sol_LSC(NULL), 
+		m_sol_LSN(NULL), m_sol_LS(NULL), m_sol_LSL(NULL), m_sol_LSLC(NULL), m_sol_LSLNC(NULL)
+		//m_sol_RNMN(NULL), m_sol_RSPC(NULL)
 {
 }
 
@@ -313,6 +319,7 @@ void NandPim::initialOutputs()
 		 }
 	}
 	/**** initialization of CENTURY model related variables *****/
+	/****                soil_chem.f of SWAT                *****/
 	if (m_CbnModel == 2)
 	{
 		/// definition of temporary parameters
@@ -802,6 +809,30 @@ void NandPim::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
     else if (StringMatch(sk, VAR_SOL_ACTP)) { *data = this->m_sol_actp; }
     else if (StringMatch(sk, VAR_SOL_STAP)) { *data = this->m_sol_stap; }
 	else if (StringMatch(sk, VAR_SOL_RSD)) {*data = this->m_sol_rsd;}
+	/// 2-CENTURY C/N cycling related variables
+	else if (StringMatch(sk, VAR_SOL_WOC)) {*data = this->m_sol_WOC;}
+	else if (StringMatch(sk, VAR_SOL_WON)) {*data = this->m_sol_WON;}
+	else if (StringMatch(sk, VAR_SOL_BM)) {*data = this->m_sol_BM;}
+	else if (StringMatch(sk, VAR_SOL_BMC)) {*data = this->m_sol_BMC;}
+	else if (StringMatch(sk, VAR_SOL_BMN)) {*data = this->m_sol_BMN;}
+	else if (StringMatch(sk, VAR_SOL_HP)) {*data = this->m_sol_HP;}
+	else if (StringMatch(sk, VAR_SOL_HS)) {*data = this->m_sol_HS;}
+	else if (StringMatch(sk, VAR_SOL_HSC)) {*data = this->m_sol_HSC;}
+	else if (StringMatch(sk, VAR_SOL_HSN)) {*data = this->m_sol_HSN;}
+	else if (StringMatch(sk, VAR_SOL_HPC)) {*data = this->m_sol_HPC;}
+	else if (StringMatch(sk, VAR_SOL_HPN)) {*data = this->m_sol_HPN;}
+	else if (StringMatch(sk, VAR_SOL_LM)) {*data = this->m_sol_LM;}
+	else if (StringMatch(sk, VAR_SOL_LMC)) {*data = this->m_sol_LMC;}
+	else if (StringMatch(sk, VAR_SOL_LMN)) {*data = this->m_sol_LMN;}
+	else if (StringMatch(sk, VAR_SOL_LSC)) {*data = this->m_sol_LSC;}
+	else if (StringMatch(sk, VAR_SOL_LSN)) {*data = this->m_sol_LSN;}
+	else if (StringMatch(sk, VAR_SOL_LS)) {*data = this->m_sol_LS;}
+	else if (StringMatch(sk, VAR_SOL_LSL)) {*data = this->m_sol_LSL;}
+	else if (StringMatch(sk, VAR_SOL_LSLC)) {*data = this->m_sol_LSLC;}
+	else if (StringMatch(sk, VAR_SOL_LSLNC)) {*data = this->m_sol_LSLNC;}
+	// need to be confirmed by huiran.
+	//else if (StringMatch(sk, VAR_SOL_RNMN)) {*data = this->m_sol_RNMN;}
+	//else if (StringMatch(sk, VAR_SOL_RSPC)) {*data = this->m_sol_RSPC;}
     else
         throw ModelException(MID_MINRL, "Get2DData", "Parameter " + sk + " does not exist.");
 }

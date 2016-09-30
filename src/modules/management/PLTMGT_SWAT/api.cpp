@@ -113,6 +113,34 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 
 	mdi.AddInput(VAR_SOL_ST, UNIT_DEPTH_MM, DESC_SOL_ST, Source_Module, DT_Raster2D);
 	mdi.AddInput(VAR_SOL_SW, UNIT_DEPTH_MM, DESC_SOL_SW, Source_Module, DT_Raster1D); /// sol_sw in SWAT
+	
+	/**** set inputs for CENTURY C/N cycling model derived from NMINRL module, if CSWAT = 2. As optional inputs. ****/
+	/// for fertilizer operation
+	mdi.AddInput(VAR_SOL_HSN, UNIT_CONT_KGHA, DESC_SOL_HSN, Source_Module_Optional, DT_Raster2D);
+	mdi.AddInput(VAR_SOL_LM, UNIT_CONT_KGHA, DESC_SOL_LM, Source_Module_Optional, DT_Raster2D);
+	mdi.AddInput(VAR_SOL_LMC, UNIT_CONT_KGHA, DESC_SOL_LMC, Source_Module_Optional, DT_Raster2D);
+	mdi.AddInput(VAR_SOL_LMN, UNIT_CONT_KGHA, DESC_SOL_LMN, Source_Module_Optional, DT_Raster2D);
+	mdi.AddInput(VAR_SOL_LSC, UNIT_CONT_KGHA, DESC_SOL_LSC, Source_Module_Optional, DT_Raster2D);
+	mdi.AddInput(VAR_SOL_LSN, UNIT_CONT_KGHA, DESC_SOL_LSN, Source_Module_Optional, DT_Raster2D);
+	mdi.AddInput(VAR_SOL_LS, UNIT_CONT_KGHA, DESC_SOL_LS, Source_Module_Optional, DT_Raster2D);
+	mdi.AddInput(VAR_SOL_LSL, UNIT_CONT_KGHA, DESC_SOL_LSL, Source_Module_Optional, DT_Raster2D);
+	mdi.AddInput(VAR_SOL_LSLC, UNIT_CONT_KGHA, DESC_SOL_LSLC, Source_Module_Optional, DT_Raster2D);
+	mdi.AddInput(VAR_SOL_LSLNC, UNIT_CONT_KGHA, DESC_SOL_LSLNC, Source_Module_Optional, DT_Raster2D);
+
+	//mdi.AddInput(VAR_SOL_WON, UNIT_CONT_KGHA, DESC_SOL_WON, Source_Module_Optional, DT_Raster2D);
+	//mdi.AddInput(VAR_SOL_BM, UNIT_CONT_KGHA, DESC_SOL_BM, Source_Module_Optional, DT_Raster2D);
+	//mdi.AddInput(VAR_SOL_BMC, UNIT_CONT_KGHA, DESC_SOL_BMC, Source_Module_Optional, DT_Raster2D);
+	//mdi.AddInput(VAR_SOL_BMN, UNIT_CONT_KGHA, DESC_SOL_BMN, Source_Module_Optional, DT_Raster2D);
+	//mdi.AddInput(VAR_SOL_HP, UNIT_CONT_KGHA, DESC_SOL_HP, Source_Module_Optional, DT_Raster2D);
+	//mdi.AddInput(VAR_SOL_HS, UNIT_CONT_KGHA, DESC_SOL_HS, Source_Module_Optional, DT_Raster2D);
+	//mdi.AddInput(VAR_SOL_HSC, UNIT_CONT_KGHA, DESC_SOL_HSC, Source_Module_Optional, DT_Raster2D);
+	//mdi.AddInput(VAR_SOL_HPC, UNIT_CONT_KGHA, DESC_SOL_HPC, Source_Module_Optional, DT_Raster2D);
+	//mdi.AddInput(VAR_SOL_HPN, UNIT_CONT_KGHA, DESC_SOL_HPN, Source_Module_Optional, DT_Raster2D);
+	//mdi.AddInput(VAR_SOL_RNMN, UNIT_CONT_KGHA, DESC_SOL_RNMN, Source_Module_Optional, DT_Raster2D);
+	//mdi.AddInput(VAR_SOL_RSPC, UNIT_CONT_KGHA, DESC_SOL_RSPC, Source_Module_Optional, DT_Raster2D);
+
+
+	
 	/// set the output variables
 
     ///// outputs of plant operation. NO NEED TO OUTPUT?
