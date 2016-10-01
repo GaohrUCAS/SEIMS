@@ -14,7 +14,7 @@ python XXX.py -ini XXX.ini
 	+ [PATH]下的MODEL_DIR，该目录中需有OUTPUT文件夹
 	+ [MONGODB]所有参数
 	+ [PARAMETERS]下的PLOT_VARIABLES，用于定于输出图标的变量，无需加引号，需与OUTPUT目录下TXT文件名一致，如Q, SED, CH_TN, 等，多个名称用空格分割
-
+	+ [OPTIONAL_PARAMETERS]：Time_start 与Time_end 设定作图起止日期，格式为`yyyy-mm-dd`
 
 ## TODO
 
