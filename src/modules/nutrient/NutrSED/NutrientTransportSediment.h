@@ -1,9 +1,14 @@
-
 /*!
- * \file SurrunoffTransfer.h
+ * \file NutrientTransportSediment.h
  * \brief Nutrient removed and lost in surface runoff.
  * \author Huiran Gao
  * \date April 2016
+ * 
+ * \revised Liang-Jun Zhu
+ * \date 2016-9-28
+ * \description: 1. Code revision.
+ *               2. 
+ * \TODO         1. Ammonian adsorbed to soil should be considered.
  */
 
 #pragma once
@@ -11,27 +16,27 @@
 #include <string>
 #include "api.h"
 #include "SimulationModule.h"
-
+#include "NutrientCommon.h"
 using namespace std;
-/** \defgroup SurTra
+/** \defgroup NUTRSED
  * \ingroup Nutrient
- * \brief Nutrient removed and lost in surface runoff.
+ * \brief Nutrient removed and lost with the eroded and transported sediment.
  */
 
 /*!
- * \class SurrunoffTransfer
- * \ingroup SurTra
+ * \class NutrientTransportSediment
+ * \ingroup NUTRSED
  *
- * \brief Nutrient removed and lost in surface runoff
+ * \brief Nutrient removed and lost with the eroded and transported sediment.
  *
  */
 
-class SurrunoffTransfer : public SimulationModule
+class NutrientTransportSediment : public SimulationModule
 {
 public:
-    SurrunoffTransfer(void);
+    NutrientTransportSediment(void);
 
-    ~SurrunoffTransfer(void);
+    ~NutrientTransportSediment(void);
 
     virtual void Set1DData(const char *key, int n, float *data);
 
@@ -64,10 +69,10 @@ private:
 
     ///inputs
 
-    //distribution of soil loss caused by water erosion
-    float *m_sedimentYield;
-    //distribution of surface runoff generated
-    float *m_surfr;
+    // soil loss caused by water erosion
+    float *m_sedEroded;
+    // surface runoff generated
+    float *m_surfaceRunoff;
     //bulk density of the soil
     float **m_sol_bd;
     //depth to bottom of soil layer
@@ -97,25 +102,25 @@ private:
 
 	/// output to channel
 
-	float *m_sedorgnToCh;  // amount of organic N in surface runoff to channel
-	float *m_sedorgpToCh;  // amount of organic P in surface runoff to channel
-	float *m_sedminpaToCh; // amount of active mineral P in surface runoff to channel
-	float *m_sedminpsToCh; // amount of stable mineral P in surface runoff to channel
+	float *m_sedorgnToCh;  // amount of organic N in surface runoff to channel, kg
+	float *m_sedorgpToCh;  // amount of organic P in surface runoff to channel, kg
+	float *m_sedminpaToCh; // amount of active mineral P in surface runoff to channel, kg
+	float *m_sedminpsToCh; // amount of stable mineral P in surface runoff to channel, kg
 
     ///input & output
-    //amount of nitrogen stored in the active organic (humic) nitrogen pool
+    //amount of nitrogen stored in the active organic (humic) nitrogen pool, kg N/ha
     float **m_sol_aorgn;
-    //amount of nitrogen stored in the fresh organic (residue) pool
+    //amount of nitrogen stored in the fresh organic (residue) pool, kg N/ha
     float **m_sol_fon;
-    //amount of nitrogen stored in the stable organic N pool
+    //amount of nitrogen stored in the stable organic N pool, kg N/ha
     float **m_sol_orgn;
-    //amount of phosphorus stored in the organic P pool
+    //amount of phosphorus stored in the organic P pool, kg P/ha
     float **m_sol_orgp;
-    //amount of phosphorus stored in the fresh organic (residue) pool
+    //amount of phosphorus stored in the fresh organic (residue) pool, kg P/ha
     float **m_sol_fop;
-    //amount of phosphorus in the soil layer stored in the stable mineral phosphorus pool
+    //amount of phosphorus in the soil layer stored in the stable mineral phosphorus pool, kg P/ha
     float **m_sol_stap;
-    //amount of phosphorus stored in the active mineral phosphorus pool
+    //amount of phosphorus stored in the active mineral phosphorus pool, kg P/ha
     float **m_sol_actp;
 
 private:
@@ -137,14 +142,14 @@ private:
 
     /*!
     * \brief calculates the amount of organic nitrogen removed in surface runoff.
-     *
+     * orgn.f of SWAT
      * \return void
      */
     void OrgnRemoveinSr(int i);
 
     /*!
-    * \brief Calculates the amount of organic and mineral phosphorus attached to sediment in surface runoff.
-     *
+     * \brief Calculates the amount of organic and mineral phosphorus attached to sediment in surface runoff.
+     * psed.f of SWAT
      * \return void
      */
     void OrgpAttachedtoSed(int i);

@@ -3,7 +3,8 @@
  * \author Liang-Jun Zhu
  * \date Sep 2016
  *           1. Source code of SWAT include: pothole.f
- * 
+ *           2. Add the simulation of Ammonia n transported with surface runoff, 2016-9-27
+ *           3. Add m_depEvapor and m_depStorage from DEP_LENSLEY module
  */
 #pragma once
 
@@ -29,6 +30,10 @@ private:
 	float *m_soilLayers;
 	/// max soil layers
 	int m_nSoilLayers;
+	/// subbasin ID
+	float *m_subbasin;
+	/// subbasin number
+	int m_subbasinNum;
 	/**
     *	@brief Routing layers according to the flow direction
     *
@@ -63,15 +68,21 @@ private:
 	/// surface area of impounded area, ha
 	float *m_potSurfaceArea;
 	/// net precipitation
-	float *m_netPrec;
+	//float *m_netPrec;
 	/// lai in the current day
 	float *m_LAIDay;
 	/// pet
 	float *m_pet;
-	/// surface runoff generated
+	/// evaporation from depression, mm
+	float *m_depEvapor;
+	/// depression storage, mm
+	float *m_depStorage;
+	/// surface runoff, mm
 	float *m_surfaceRunoff;
-	/// sediment caused by erosion
+	/// sediment yield transported on each cell, kg
 	float *m_sedYield;
+	/// sediment yield transported to channel, kg
+	float *m_sedToCh;
 	//! sand yield
 	float *m_sandYield;
 	//! silt yield
@@ -88,6 +99,8 @@ private:
 	float *m_soilStorageProfile;
 	/// amount of nitrate transported with surface runoff
 	float *m_surqNo3;
+	/// amount of ammonian transported with surface runoff
+	float *m_surqNH4;
 	/// amount of soluble phosphorus transported with surface runoff
 	float *m_surqSolP;
 	/// 
@@ -101,6 +114,8 @@ private:
 
 	/// no3 amount kg
 	float *m_potNo3;
+	/// nh4 amount kg
+	float *m_potNH4;
 	/// orgN amount kg
 	float *m_potOrgN;
 	/// soluble phosphorus loss rate    1/day

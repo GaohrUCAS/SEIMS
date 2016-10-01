@@ -23,7 +23,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.SetEmail(SEIMS_EMAIL);
     mdi.SetID(MDESC_NUTRCH_QUAL2E);
     mdi.SetName(MDESC_NUTRCH_QUAL2E);
-    mdi.SetVersion("1.0");
+    mdi.SetVersion("1.1");
     mdi.SetWebsite(SEIMS_SITE);
     mdi.SetHelpfile("NutrCH_QUAL2E.html");
 
@@ -69,9 +69,10 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddInput(VAR_PRECHWTDEPTH, UNIT_LEN_M, DESC_PRECHWTDEPTH, Source_Module, DT_Array1D);
 	/// input from hillslope
 	//nutrient from surface water
-	mdi.AddInput(VAR_SUR_NO3_TOCH, UNIT_KG, DESC_SUR_NO3_CH, Source_Module, DT_Array1D);
-	mdi.AddInput(VAR_SUR_SOLP_TOCH, UNIT_KG, DESC_SUR_SOLP_CH, Source_Module, DT_Array1D);
-	mdi.AddInput(VAR_SUR_COD_TOCH, UNIT_KG, DESC_SUR_COD_CH, Source_Module, DT_Array1D);
+	mdi.AddInput(VAR_SUR_NO3_TOCH, UNIT_KG, DESC_SUR_NO3_ToCH, Source_Module, DT_Array1D);
+	mdi.AddInput(VAR_SUR_NH4_TOCH, UNIT_KG, DESC_SUR_NH4_ToCH, Source_Module, DT_Array1D);
+	mdi.AddInput(VAR_SUR_SOLP_TOCH, UNIT_KG, DESC_SUR_SOLP_ToCH, Source_Module, DT_Array1D);
+	mdi.AddInput(VAR_SUR_COD_TOCH, UNIT_KG, DESC_SUR_COD_ToCH, Source_Module, DT_Array1D);
 	mdi.AddInput(VAR_SEDORGN_TOCH, UNIT_KG, DESC_SEDORGN_CH, Source_Module, DT_Array1D);
 	mdi.AddInput(VAR_SEDORGP_TOCH, UNIT_KG, DESC_SEDORGP_CH, Source_Module, DT_Array1D);
 	
@@ -121,6 +122,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddOutput(VAR_CHSTR_NO3, UNIT_KG, DESC_CHSTR_NO3, DT_Array1D);
 	mdi.AddOutput(VAR_CHSTR_TN, UNIT_KG, DESC_CHSTR_TN, DT_Array1D);
 	mdi.AddOutput(VAR_CHSTR_TP, UNIT_KG, DESC_CHSTR_TP, DT_Array1D);
+
     string res = mdi.GetXMLDocument();
     char *tmp = new char[res.size() + 1];
     strprintf(tmp, res.size() + 1, "%s", res.c_str());
