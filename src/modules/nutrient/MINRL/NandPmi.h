@@ -79,6 +79,12 @@ private:
 	 * 1: dynamic coefficient method by White et al., 2009
 	 */
 	int m_solP_model;
+
+	/// days since P application
+	float *m_a_days;
+	/// days since P deficit
+	float *m_b_days;
+
     ///input data
     
     ///rate factor for humus mineralization on active organic N
@@ -89,6 +95,7 @@ private:
 	float m_sdnco;
     ///Phosphorus availability index. The fraction of fertilizer P remaining in labile pool after initial rapid phase of P sorption
     float m_psp;
+	float m_ssp;
     //rate coefficient for denitrification
     float m_cdn;
     ///land cover code from crop.dat
@@ -248,6 +255,13 @@ private:
      * \return void
      */
     void CalculatePflux(int i);
+
+	/*!
+    * \brief Calculate C flux.
+     *
+     * \return void
+     */
+    void CalculateCflux(int i);
 
     void initialOutputs();
 

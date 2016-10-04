@@ -18,9 +18,9 @@ using namespace std;
 
 NandPim::NandPim(void) :
 		//input
-        m_nCells(-1), m_cellWidth(-1.f), m_soilLayers(-1), m_cmn(-1.f), m_cdn(-1.f), m_sdnco(-1.f),m_nactfr(-1.f), m_psp(-1.f),
+        m_nCells(-1), m_cellWidth(-1.f), m_soilLayers(-1), m_cmn(-1.f), m_cdn(-1.f), m_sdnco(-1.f),m_nactfr(-1.f), m_psp(-1.f), m_ssp(-1.f),
         m_nSoilLayers(NULL), m_sol_z(NULL), m_sol_thick(NULL), m_sol_clay(NULL), m_sol_bd(NULL),
-        m_landcover(NULL), m_rsdco_pl(NULL), m_sol_cbn(NULL), 
+        m_landcover(NULL), m_rsdco_pl(NULL), m_sol_cbn(NULL), m_a_days(NULL), m_b_days(NULL),
         m_sol_wpmm(NULL),  m_sol_awc(NULL),
         m_sol_solp(NULL), m_sol_orgp(NULL),m_sol_actp(NULL), m_sol_stap(NULL),  m_sol_fop(NULL), 
         m_sol_no3(NULL),m_sol_nh4(NULL),m_sol_orgn(NULL), m_sol_aorgn(NULL), m_sol_fon(NULL),
@@ -53,6 +53,8 @@ NandPim::~NandPim(void)
 	if(m_wdntl != NULL) Release1DArray(m_wdntl);
 	if(m_rmp1tl != NULL) Release1DArray(m_rmp1tl);
 	if(m_roctl != NULL) Release1DArray(m_roctl);
+	if (m_a_days != NULL) Release1DArray(m_a_days);
+	if (m_b_days != NULL) Release1DArray(m_b_days);
 	/// release CENTURY related variables
 	if (m_sol_WOC != NULL) Release2DArray(m_nCells, m_sol_WOC);
 	if (m_sol_WON != NULL) Release2DArray(m_nCells, m_sol_WON);
@@ -120,6 +122,8 @@ bool NandPim::CheckInputData()
 		throw ModelException(MID_MINRL, "CheckInputData", "The m_sdnco can not be less than 0.");
     if (this->m_psp <0)
         throw ModelException(MID_MINRL, "CheckInputData", "The m_psp can not be less than 0.");
+	if (this->m_ssp <0)
+		throw ModelException(MID_MINRL, "CheckInputData", "The m_ssp can not be less than 0.");
 	if (this->m_sol_clay == NULL)
 		throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_clay can not be NULL.");
     if (this->m_sol_z == NULL)
@@ -130,6 +134,10 @@ bool NandPim::CheckInputData()
 	//	throw ModelException(MID_MINRL, "CheckInputData", "The residue on soil surface can not be NULL.");
 	//if (m_sol_rsd == NULL)
 	//	throw ModelException(MID_MINRL, "CheckInputData", "The organic matter in soil classified as residue can not be NULL.");
+	if (this->m_a_days == NULL)
+		throw ModelException(MID_MINRL, "CheckInputData", "The m_a_days can not be NULL.");
+	if (this->m_b_days == NULL)
+		throw ModelException(MID_MINRL, "CheckInputData", "The m_b_days can not be NULL.");
 	if (this->m_sol_thick == NULL)
 		throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_thick can not be NULL.");
 	if (this->m_sol_bd == NULL)
@@ -168,7 +176,8 @@ void NandPim::SetValue(const char *key, float value)
 	else if (StringMatch(sk, VAR_SDNCO)) { this->m_sdnco = value; }
     else if (StringMatch(sk, VAR_CMN)) { this->m_cmn = value; }
     else if (StringMatch(sk, VAR_CDN)) { this->m_cdn = value; }
-    else if (StringMatch(sk, VAR_PSP)) { this->m_psp = value; }
+	else if (StringMatch(sk, VAR_PSP)) { this->m_psp = value; }
+	else if (StringMatch(sk, VAR_SSP)) { this->m_ssp = value; }
 	else if (StringMatch(sk, VAR_CSWAT)) { this->m_CbnModel = value; }
     else
         throw ModelException(MID_MINRL, "SetValue", "Parameter " + sk + " does not exist.");
@@ -184,6 +193,8 @@ void NandPim::Set1DData(const char *key, int n, float *data)
 	else if (StringMatch(sk, VAR_SOL_COV)) { this->m_sol_cov = data; }
 	else if (StringMatch(sk, VAR_SOILLAYERS)) { this->m_nSoilLayers = data; }
 	else if (StringMatch(sk, VAR_SOTE)) { this->m_sote = data; }
+	else if (StringMatch(sk, VAR_A_DAYS)) { this->m_a_days = data; }
+	else if (StringMatch(sk, VAR_B_DAYS)) { this->m_b_days = data; }
     else
         throw ModelException(MID_MINRL, "Set1DData", "Parameter " + sk +
                                                     " does not exist. Please contact the module developer.");
@@ -223,6 +234,8 @@ void NandPim::initialOutputs()
 	if(m_wdntl == NULL) Initialize1DArray(m_nCells, m_wdntl, 0.f);
 	if(m_rmp1tl == NULL) Initialize1DArray(m_nCells, m_rmp1tl, 0.f);
 	if(m_roctl == NULL) Initialize1DArray(m_nCells, m_roctl, 0.f);
+	if(m_a_days == NULL) Initialize1DArray(m_nCells, m_a_days, 0.f);
+	if(m_b_days == NULL) Initialize1DArray(m_nCells, m_b_days, 0.f);
 	if(m_sol_cov == NULL || m_sol_rsd == NULL)
 	{
 		Initialize1DArray(m_nCells, m_sol_cov, m_sol_rsdin);
@@ -757,33 +770,176 @@ void NandPim::CalculateMinerandVolati(int i)
 
 void NandPim::CalculatePflux(int i)
 {
-    //slow equilibration rate constant (bk)
-    float bk = 0.0006f;
-    float rto = m_psp / (1 - m_psp);
+	float wt1 = 0.f;
+	float conv_wt = 0.f;
     for (int k = 0; k < (int)m_nSoilLayers[i]; k++)
     {
-        float rmn1 = 0.f;
-        rmn1 = (m_sol_solp[i][k] - m_sol_actp[i][k] * rto);
-        if (rmn1 > 0.f) rmn1 *= 0.1f;
-        if (rmn1 < 0.f)rmn1 *= 0.6f;
-        rmn1 = min(rmn1, m_sol_solp[i][k]);
-        //amount of phosphorus moving from the active mineral to the stable mineral pool in the soil layer (roc)
-        float roc = 0;
-        //Calculate roc, equation 3:2.3.4 and 3:2.3.5 in SWAT Theory 2009, p215
-        roc = bk * (4.f * m_sol_actp[i][k] - m_sol_stap[i][k]);
-        if (roc < 0)roc *= 0.1f;
-        roc = min(roc, m_sol_actp[i][k]);
-        m_sol_stap[i][k] = m_sol_stap[i][k] + roc;
-        if (m_sol_stap[i][k] < 0)m_sol_stap[i][k] = 0.f;
-        m_sol_actp[i][k] = m_sol_actp[i][k] - roc + rmn1;
-        if (m_sol_actp[i][k] < 0)m_sol_actp[i][k] = 0.f;
-        m_sol_solp[i][k] = m_sol_solp[i][k] - rmn1;
-        if (m_sol_solp[i][k] < 0)m_sol_solp[i][k] = 0.f;
-        m_wshd_pas += roc * (1.f / m_nCells);
-        m_wshd_pal += rmn1 * (1.f / m_nCells);
-        m_roctl[i] += roc;
-        m_rmp1tl[i] += rmn1;
+		// mg/kg => kg/ha
+		wt1 = m_sol_bd[i][k] * m_sol_thick[i][k] / 100.f;
+		// kg/kg => kg/ha
+		conv_wt = 1.e6f * wt1;
+
+		// make sure that no zero or negative pool values come in
+		if (m_sol_solp[i][k] <= 1.e-6) m_sol_solp[i][k] = 1.e-6f;
+		if (m_sol_actp[i][k] <= 1.e-6) m_sol_actp[i][k] = 1.e-6f;
+		if (m_sol_stap[i][k] <= 1.e-6) m_sol_stap[i][k] = 1.e-6f;
+
+		// Convert kg/ha to ppm so that it is more meaningful to compare between soil layers
+		float solp = 0.f;
+		float actp = 0.f;
+		float stap = 0.f;
+		solp = m_sol_solp[i][k] / conv_wt * 1000000.f;
+		actp = m_sol_actp[i][k] / conv_wt * 1000000.f;
+		stap = m_sol_stap[i][k]/ conv_wt * 1000000.f;
+
+		// ***************Soluble - Active Transformations***************	
+		// Dynamic PSP Ratio
+		float psp = 0.f;
+		//PSP = -0.045*log (% clay) + 0.001*(Solution P, mg kg-1) - 0.035*(% Organic C) + 0.43
+		if (m_sol_clay[i][k] > 0.f)
+		{
+			psp = -0.045f * log(m_sol_clay[i][k])+ (0.001f * solp) ;
+			psp = psp - (0.035f  * m_sol_cbn[i][k]) + 0.43f;
+		} else 
+		{
+			psp = 0.4f;
+		} 		
+		// Limit PSP range
+		if (psp <.1f)  psp = 0.1f;
+		if (psp > 0.7f)  psp = 0.7f;
+
+		// Calculate smoothed PSP average 
+		if (m_psp > 0.f) psp = (m_psp * 29.f + psp * 1.f) / 30;
+		// Store PSP for tomarrows smoothing calculation
+		m_psp = psp;
+
+		//***************Dynamic Active/Soluble Transformation Coeff******************
+		// Calculate P balance
+		float rto = psp / (1.f - psp);
+		float rmn1 = 0.f;
+		rmn1 = m_sol_solp[i][k] - m_sol_actp[i][k] * rto; // P imbalance
+		// Move P between the soluble and active pools based on vadas et al., 2006
+		if (rmn1 >= 0.f) // Net movement from soluble to active	
+		{
+			rmn1 = max(rmn1, (-1 * m_sol_solp[i][k]));
+			// Calculate dynamic coefficient		
+			float vara = 0.918f * (exp(-4.603f * psp));          
+			float varb = (-0.238f * log(vara)) - 1.126f;
+			float arate = 0.f;
+			if (m_a_days[i] >0)
+			{
+				arate = vara * pow(m_a_days[i], varb);
+			} 
+			else
+			{
+				arate = vara ; // ? arate = vara * (1) ** varb; ?
+			}
+			// limit rate coefficient from 0.05 to .5 helps on day 1 when a_days is zero
+			if (arate > 0.5f) arate  = 0.5f;
+			if (arate < 0.1f) arate  = 0.1f;
+			rmn1 = arate * rmn1;
+			m_a_days[i] = m_a_days[i]  + 1.f; // add a day to the imbalance counter
+			m_b_days[i] = 0;
+		}
+
+		if (rmn1 < 0.f) // Net movement from Active to Soluble
+		{
+			rmn1 = min(rmn1, m_sol_actp[i][k]);
+			// Calculate dynamic coefficient
+			float base = 0.f;
+			float varc = 0.f;
+			base = (-1.08f * psp) + 0.79f;
+			varc = base * (exp (-0.29f));
+			// limit varc from 0.1 to 1
+			if (varc > 1.f) varc  = 1.f;
+			if (varc < .1f) varc  = .1f;
+			rmn1 = rmn1 * varc;
+			m_a_days[i] = 0.f;
+			m_b_days[i] = m_b_days[i]  + 1.f; // add a day to the imbalance counter
+		}
+
+		//*************** Active - Stable Transformations ******************
+		// Estimate active stable transformation rate coeff
+		// original value was .0006
+		// based on linear regression rate coeff = 0.005 @ 0% CaCo3 0.05 @ 20% CaCo3
+		float as_p_coeff = 0.f;
+		float sol_cal = 2.8f;
+		as_p_coeff = 0.0023f * sol_cal + 0.005f;
+		if (as_p_coeff > 0.05f) as_p_coeff = 0.05f;
+		if (as_p_coeff < 0.002f) as_p_coeff = 0.002f;
+		// Estimate active/stable pool ratio
+		// Generated from sharpley 2003
+		float xx = 0.f;
+		float ssp = 0.f;
+		xx = actp + (actp * rto);
+		if (xx > 1.e-6f) ssp = 25.044f * pow(xx, -0.3833f);
+		// limit ssp to range in measured data
+		if (ssp > 10.f) ssp = 10.f;
+		if (ssp < 0.7f) ssp = 0.7f;
+		// Smooth ssp, no rapid changes
+		if (m_ssp > 0.f) ssp = (ssp + m_ssp * 99.f) / 100.f;
+		float roc = 0.f;
+		roc = ssp * (m_sol_actp[i][k] + m_sol_actp[i][k] * rto);
+		roc = roc - m_sol_stap[i][k];
+		roc = as_p_coeff * roc;
+		// Store todays ssp for tomarrow's calculation
+		m_ssp = ssp;
+
+		// **************** Account for Soil Water content, do not allow movement in dry soil************
+		float wetness = 0.f;
+		wetness = (m_soilStorage[i][k] / m_sol_awc[i][k]); // range from 0-1 1 = field cap
+		if (wetness >1.f)  wetness = 1.f;
+		if (wetness <0.25f)  wetness = 0.25f;
+		rmn1 = rmn1 * wetness;
+		roc  = roc  * wetness;
+
+		// If total P is greater than 10,000 mg/kg do not allow transformations at all
+		if ((solp + actp + stap) < 10000.f) 
+		{
+			// Allow P Transformations
+			m_sol_stap[i][k] = m_sol_stap[i][k] + roc;
+			if (m_sol_stap[i][k] < 0.f) m_sol_stap[i][k] = 0.f;
+			m_sol_actp[i][k] = m_sol_actp[i][k] - roc + rmn1;
+			if (m_sol_actp[i][k] < 0.f) m_sol_actp[i][k] = 0.f;
+			m_sol_solp[i][k] = m_sol_solp[i][k] - rmn1;
+			if (m_sol_solp[i][k] < 0.f) m_sol_solp[i][k] = 0.f;
+
+			// Add water soluble P pool assume 1:5 ratio based on sharpley 2005 et al
+			m_wshd_pas += roc * (1.f / m_nCells);
+			m_wshd_pal += rmn1 * (1.f / m_nCells);
+			m_roctl[i] += roc;
+			m_rmp1tl[i] += rmn1;
+		}
+		
+		//////////////////////// pminrl.f ///////////////////////////
+// 		float bk = .0006f;
+//         float rmn1 = 0.f;
+//         rmn1 = (m_sol_solp[i][k] - m_sol_actp[i][k] * rto);
+//         if (rmn1 > 0.f) rmn1 *= 0.1f;
+//         if (rmn1 < 0.f)rmn1 *= 0.6f;
+//         rmn1 = min(rmn1, m_sol_solp[i][k]);
+//         //amount of phosphorus moving from the active mineral to the stable mineral pool in the soil layer (roc)
+//         float roc = 0;
+//         //Calculate roc, equation 3:2.3.4 and 3:2.3.5 in SWAT Theory 2009, p215
+//         roc = bk * (4.f * m_sol_actp[i][k] - m_sol_stap[i][k]);
+//         if (roc < 0)roc *= 0.1f;
+//         roc = min(roc, m_sol_actp[i][k]);
+//         m_sol_stap[i][k] = m_sol_stap[i][k] + roc;
+//         if (m_sol_stap[i][k] < 0)m_sol_stap[i][k] = 0.f;
+//         m_sol_actp[i][k] = m_sol_actp[i][k] - roc + rmn1;
+//         if (m_sol_actp[i][k] < 0)m_sol_actp[i][k] = 0.f;
+//         m_sol_solp[i][k] = m_sol_solp[i][k] - rmn1;
+//         if (m_sol_solp[i][k] < 0)m_sol_solp[i][k] = 0.f;
+//         m_wshd_pas += roc * (1.f / m_nCells);
+//         m_wshd_pal += rmn1 * (1.f / m_nCells);
+//         m_roctl[i] += roc;
+//         m_rmp1tl[i] += rmn1;
     }
+}
+
+void NandPim::CalculateCflux(int i)
+{//TODO
+
 }
 
 void NandPim::GetValue(const char *key, float *value)
@@ -816,6 +972,8 @@ void NandPim::Get1DData(const char *key, int *n, float **data)
 	else if (StringMatch(sk, VAR_RMP1TL)) { *data = this->m_rmp1tl; }
 	else if (StringMatch(sk, VAR_ROCTL)) { *data = this->m_roctl; }
 	else if (StringMatch(sk, VAR_SOL_COV)){*data = this->m_sol_cov;}
+	else if (StringMatch(sk, VAR_A_DAYS)){*data = this->m_a_days;}
+	else if (StringMatch(sk, VAR_B_DAYS)){*data = this->m_b_days;}
 	else
 		throw ModelException(MID_MINRL, "Get1DData", "Parameter " + sk + " does not exist.");
 	*n = this->m_nCells;

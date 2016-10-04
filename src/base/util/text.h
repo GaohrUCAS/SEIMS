@@ -816,6 +816,7 @@
 #define VAR_PPERCO "pperco"
 #define VAR_PPT "PPT"
 #define VAR_PSP "psp"                               /// Phosphorus availability index
+#define VAR_SSP "ssp" 
 #define VAR_PTTN2CH "ptTNToCh"
 #define VAR_PTTP2CH "ptTPToCh"
 #define VAR_PTCOD2CH "ptCODToCh"
@@ -1050,6 +1051,10 @@
 #define VAR_DP_OUTLET "disolvp_outlet"
 #define VAR_COD_OUTLET "cod_outlet"
 #define VAR_CHL_OUTLET "chlora_outlet"
+
+#define VAR_A_DAYS "a_days"
+#define VAR_B_DAYS "b_days"
+
 //////////////////////////////////////////////////////////////////////////
 /// Define units common used in SEIMS, in case of inconsistency //////////
 /// By LiangJun Zhu, HuiRan Gao ///
@@ -1420,6 +1425,7 @@
 #define DESC_PPERCO "phosphorus percolation coefficient"
 #define DESC_PPT "maximum amount of transpiration (plant et)"
 #define DESC_PSP "Phosphorus availability index"
+#define DESC_SSP "Phosphorus availability index"
 #define DESC_PTTN2CH "total nitrogen loaded from point sources"
 #define DESC_PTTP2CH "total phosphrus loaded from point sources"
 #define DESC_PTCOD2CH "total COD loaded from point sources"
@@ -1662,6 +1668,9 @@
 #define DESC_DP_OUTLET "disolvp concentration at the watershed outlet"
 #define DESC_COD_OUTLET "cod concentration at the watershed outlet"
 #define DESC_CHL_OUTLET "chlora concentration at the watershed outlet"
+
+#define DESC_A_DAYS "days since P Application"
+#define DESC_B_DAYS "days since P deficit"
 
 //////////////////////////////////////////////////////////////////////////
 /// Define MongoDB related constant strings used in SEIMS and preprocess//
