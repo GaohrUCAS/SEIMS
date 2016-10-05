@@ -85,6 +85,11 @@ private:
 	/// days since P deficit
 	float *m_b_days;
 
+	/// tillage factor on SOM decomposition, used by CENTURY model
+	int *m_tillage_switch;
+	float *m_tillage_depth;
+	int *m_tillage_days;
+	float *m_tillage_factor;
     ///input data
     
     ///rate factor for humus mineralization on active organic N
@@ -137,7 +142,13 @@ private:
     ///amount of phosphorus stored in the active mineral phosphorus pool
     float **m_sol_actp;
     ///amount of phosphorus in the soil layer stored in the stable mineral phosphorus pool
-    float **m_sol_stap;
+	float **m_sol_stap;
+	/// amount of water held in the soil layer at saturation
+	float **m_sol_wsatur;
+	/// porosity mm/mm
+	float **m_sol_por;
+	/// percent sand content of soil material
+	float **m_sand;
 	
 	///output data
 	
@@ -164,6 +175,8 @@ private:
 	float **m_sol_LSL; /// lignin weight in structural litter
 	float **m_sol_LSLC; /// lignin amount in structural litter pool
 	float **m_sol_LSLNC; /// non-lignin part of the structural litter C
+	float **m_sol_RNMN; /// non
+	float **m_sol_RSPC; /// non
 	/************************************************************************/
     ///amount of nitrogen moving from active organic to nitrate pool in soil profile on current day in cell(kg N/ha)
     float *m_hmntl;
