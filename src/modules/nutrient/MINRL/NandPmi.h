@@ -79,6 +79,17 @@ private:
 	 * 1: dynamic coefficient method by White et al., 2009
 	 */
 	int m_solP_model;
+
+	/// days since P application
+	float *m_a_days;
+	/// days since P deficit
+	float *m_b_days;
+
+	/// tillage factor on SOM decomposition, used by CENTURY model
+	int *m_tillage_switch;
+	float *m_tillage_depth;
+	int *m_tillage_days;
+	float *m_tillage_factor;
     ///input data
     
     ///rate factor for humus mineralization on active organic N
@@ -89,6 +100,7 @@ private:
 	float m_sdnco;
     ///Phosphorus availability index. The fraction of fertilizer P remaining in labile pool after initial rapid phase of P sorption
     float m_psp;
+	float m_ssp;
     //rate coefficient for denitrification
     float m_cdn;
     ///land cover code from crop.dat
@@ -130,7 +142,13 @@ private:
     ///amount of phosphorus stored in the active mineral phosphorus pool
     float **m_sol_actp;
     ///amount of phosphorus in the soil layer stored in the stable mineral phosphorus pool
-    float **m_sol_stap;
+	float **m_sol_stap;
+	/// amount of water held in the soil layer at saturation
+	float **m_sol_wsatur;
+	/// porosity mm/mm
+	float **m_sol_por;
+	/// percent sand content of soil material
+	float **m_sand;
 	
 	///output data
 	
@@ -157,6 +175,8 @@ private:
 	float **m_sol_LSL; /// lignin weight in structural litter
 	float **m_sol_LSLC; /// lignin amount in structural litter pool
 	float **m_sol_LSLNC; /// non-lignin part of the structural litter C
+	float **m_sol_RNMN; /// non
+	float **m_sol_RSPC; /// non
 	/************************************************************************/
     ///amount of nitrogen moving from active organic to nitrate pool in soil profile on current day in cell(kg N/ha)
     float *m_hmntl;
@@ -248,6 +268,13 @@ private:
      * \return void
      */
     void CalculatePflux(int i);
+
+	/*!
+    * \brief Calculate C flux.
+     *
+     * \return void
+     */
+    void CalculateCflux(int i);
 
     void initialOutputs();
 

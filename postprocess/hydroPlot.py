@@ -150,7 +150,7 @@ def CreatPlot(sim_date, flow, preci, simList, vari_Sim, ClimateDB):
     timeStart = datetime.date.strftime(sim_date[0], "%Y-%m-%d")
     timeEnd = datetime.date.strftime(sim_date[len(sim_date) - 1], "%Y-%m-%d")
     for i in range(len(vari_Sim)):
-        #plt.figure(i)
+        plt.figure(i)
         fig, ax = plt.subplots(figsize = (12, 4))
         if vari_Sim[i] == "Q":
             obs_flow = SearchObs(timeStart, timeEnd, 'Q', ClimateDB)
