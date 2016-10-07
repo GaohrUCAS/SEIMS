@@ -56,6 +56,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.AddParameter(VAR_SOL_SORGN, UNIT_CONT_KGHA, DESC_SOL_SORGN, Source_ParameterDB, DT_Raster2D);
     mdi.AddParameter(VAR_SOL_HORGP, UNIT_CONT_KGHA, DESC_SOL_HORGP, Source_ParameterDB, DT_Raster2D);
     mdi.AddParameter(VAR_SOL_SOLP, UNIT_CONT_KGHA, DESC_SOL_SOLP, Source_ParameterDB, DT_Raster2D);
+	mdi.AddParameter(VAR_SOL_UL, UNIT_DEPTH_MM, DESC_SOL_UL, Source_ParameterDB, DT_Raster2D);
 	mdi.AddParameter(VAR_POROST, UNIT_VOL_FRA_M3M3, DESC_POROST, Source_ParameterDB, DT_Raster2D);
 	mdi.AddParameter(VAR_SAND, UNIT_PERCENT, DESC_SAND, Source_ParameterDB, DT_Raster2D);
 	
@@ -66,8 +67,15 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddInput(VAR_SOTE, UNIT_TEMP_DEG, DESC_SOTE, Source_Module, DT_Raster1D);
     mdi.AddInput(VAR_SOL_ST, UNIT_DEPTH_MM, DESC_SOL_ST, Source_Module, DT_Raster2D);
 
+	/// tillage operation during CENTURY model
+	mdi.AddInput(VAR_TILLAGE_DAYS, UNIT_DAY, DESC_TILLAGE_DAYS, Source_Module_Optional, DT_Raster1D);
+	mdi.AddInput(VAR_TILLAGE_DEPTH, UNIT_DAY, DESC_TILLAGE_DEPTH, Source_Module_Optional, DT_Raster1D);
+	mdi.AddInput(VAR_TILLAGE_SWITCH, UNIT_DAY, DESC_TILLAGE_SWITCH, Source_Module_Optional, DT_Raster1D);
+	mdi.AddInput(VAR_TILLAGE_FACTOR, UNIT_DAY, DESC_TILLAGE_FACTOR, Source_Module_Optional, DT_Raster1D);
+
 	mdi.AddOutput(VAR_SOL_COV, UNIT_CONT_KGHA, DESC_SOL_COV, DT_Raster1D);
 	mdi.AddOutput(VAR_SOL_RSD, UNIT_CONT_KGHA, DESC_SOL_RSD, DT_Raster2D);
+
     // set the output variables
 	
     mdi.AddOutput(VAR_HMNTL, UNIT_CONT_KGHA, DESC_HMNTL, DT_Raster1D);
