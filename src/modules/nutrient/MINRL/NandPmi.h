@@ -1,6 +1,6 @@
 /*!
  * \brief Daily nitrogen and phosphorus mineralization and immobilization.
- * From nminrl.f, nitvol.f, pminrl.f of SWAT
+ * From nminrl.f, nitvol.f, pminrl.f, and pminrl2.f of SWAT
  * \author Huiran Gao
  * \date April 2016
  *
@@ -14,15 +14,12 @@
 /** \defgroup MINRL
  * \ingroup Nutrient
  * \brief Daily nitrogen and phosphorus mineralization and immobilization.
- * From nminrl.f, nitvol.f, pminrl.f of SWAT
+ * From nminrl.f, nitvol.f, pminrl.f, and pminrl2.f of SWAT
  * \author Huiran Gao
  * \date April 2016
  */
 
 #pragma once
-#ifndef SEIMS_NMINRL_PARAMS_INCLUDE
-#define SEIMS_MINRL_PARAMS_INCLUDE
-
 #include <string>
 #include "api.h"
 #include "SimulationModule.h"
@@ -86,9 +83,9 @@ private:
 	float *m_b_days;
 
 	/// tillage factor on SOM decomposition, used by CENTURY model
-	int *m_tillage_switch;
+	float *m_tillage_switch;
 	float *m_tillage_depth;
-	int *m_tillage_days;
+	float *m_tillage_days;
 	float *m_tillage_factor;
     ///input data
     
@@ -279,5 +276,3 @@ private:
     void initialOutputs();
 
 };
-
-#endif

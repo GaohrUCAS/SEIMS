@@ -75,15 +75,15 @@ Biomass_EPIC::~Biomass_EPIC(void)
 	if (m_biomass != NULL) Release1DArray(m_biomass);
 }
 
-void Biomass_EPIC::SetValue(const char *key, float data)
+void Biomass_EPIC::SetValue(const char *key, float value)
 {
     string sk(key);
-    if (StringMatch(sk, VAR_CO2)) m_co2 = data;
-    else if (StringMatch(sk, VAR_OMP_THREADNUM)) omp_set_num_threads((int) data);
-    else if (StringMatch(sk, VAR_NUPDIS)) m_NUpDis = data;
-    else if (StringMatch(sk, VAR_PUPDIS)) m_PUpDis = data;
-    else if (StringMatch(sk, VAR_NFIXCO)) m_NFixCoef = data;
-    else if (StringMatch(sk, VAR_NFIXMX)) m_NFixMax = data;
+    if (StringMatch(sk, VAR_CO2)) m_co2 = value;
+    else if (StringMatch(sk, VAR_OMP_THREADNUM)) omp_set_num_threads((int) value);
+    else if (StringMatch(sk, VAR_NUPDIS)) m_NUpDis = value;
+    else if (StringMatch(sk, VAR_PUPDIS)) m_PUpDis = value;
+    else if (StringMatch(sk, VAR_NFIXCO)) m_NFixCoef = value;
+    else if (StringMatch(sk, VAR_NFIXMX)) m_NFixMax = value;
     else
         throw ModelException(MID_BIO_EPIC, "SetValue", "Parameter " + sk + " does not exist.");
 }

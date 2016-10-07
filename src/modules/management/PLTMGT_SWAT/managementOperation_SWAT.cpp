@@ -27,9 +27,10 @@ MGTOpt_SWAT::MGTOpt_SWAT(void) : m_nCells(-1), m_nSub(-1), m_soilLayers(-1),
                                  m_dormFlag(NULL), m_havstIdx(NULL), m_havstIdxAdj(NULL),
                                  m_LAIMaxFr(NULL), m_oLAI(NULL), m_frPlantN(NULL), m_plantN(NULL), m_plantP(NULL),
                                  m_pltET(NULL), m_pltPET(NULL), m_frRoot(NULL), m_biomass(NULL),
-        /// Harvest and Kill operation
+        /// Harvest and Kill, harvest, harvgrain operation
                                  m_soilRsd(NULL), m_frStrsWa(NULL), m_cropLookup(NULL), m_cropNum(-1),
                                  m_lastSoilRootDepth(NULL),
+								 m_grainc_d(NULL), m_stoverc_d(NULL), m_rsdc_d(NULL),
         /// Fertilizer operation
                                  m_fertilizerLookup(NULL), m_fertilizerNum(-1), m_CbnModel(0),
 								 m_soilManureC(NULL), m_soilManureN(NULL), m_soilManureP(NULL),
@@ -357,8 +358,7 @@ void MGTOpt_SWAT::Set2DData(const char *key, int n, int col, float **data)
 	//else if (StringMatch(sk, VAR_SOL_WON)) m_sol_WON = data;
 	//else if (StringMatch(sk, VAR_SOL_BM)) m_sol_BM = data;
 	//else if (StringMatch(sk, VAR_SOL_BMC)) m_sol_BMC = data;
-	else if (StringMatch(sk, VAR_SOL_BMN)) 
-		m_sol_BMN = data;
+	else if (StringMatch(sk, VAR_SOL_BMN)) m_sol_BMN = data;
 	//else if (StringMatch(sk, VAR_SOL_HP)) m_sol_HP = data;
 	//else if (StringMatch(sk, VAR_SOL_HS)) m_sol_HS = data;
 	//else if (StringMatch(sk, VAR_SOL_HSC)) m_sol_HSC = data;
@@ -1026,7 +1026,13 @@ void MGTOpt_SWAT::ExecuteHarvestKillOperation(int i, int &factoryID, int nOp)
     float bio_leaf = m_cropLookupMap[(int) m_landCover[i]][CROP_PARAM_IDX_BIO_LEAF];
     float cnyld = m_cropLookupMap[(int) m_landCover[i]][CROP_PARAM_IDX_CNYLD];
     float cpyld = m_cropLookupMap[(int) m_landCover[i]][CROP_PARAM_IDX_CPYLD];
-    if (m_HarvestIdxTarg[i] > 0.f)
+    
+	/// calculate modifier for autofertilization target nitrogen content
+	// TODO
+	//tnyld(j) = 0.
+	//tnyld(j) = (1. - rwt(j)) * bio_ms(j) * pltfr_n(j) * auto_eff(j)
+	
+	if (m_HarvestIdxTarg[i] > 0.f)
         hiad1 = m_HarvestIdxTarg[i];
     else
     {
@@ -1040,7 +1046,7 @@ void MGTOpt_SWAT::ExecuteHarvestKillOperation(int i, int &factoryID, int nOp)
     /// check if yield is from above or below ground
     float yield = 0.f, resnew = 0.f, rtresnew = 0.f;
 
-    /// stover fraction during harvestkill operation
+    /// stover fraction during harvest and kill operation
     float hi_ovr = curOperation->HarvestIndexOverride();
     float xx = curOperation->StoverFracRemoved();
     if (xx < UTIL_ZERO)
@@ -1075,8 +1081,13 @@ void MGTOpt_SWAT::ExecuteHarvestKillOperation(int i, int &factoryID, int nOp)
     if (yield < 0.f) yield = 0.f;
     if (resnew < 0.f) resnew = 0.f;
     if (rtresnew < 0.f) rtresnew = 0.f;
+
     if (m_CbnModel == 2)
-    {/// TODO
+    {
+		m_grainc_d[i] += yield * 0.42;
+		m_stoverc_d[i] += (m_biomass[i] - yield - rtresnew) * 0.42 * xx;
+		m_rsdc_d[i] += resnew * 0.42;
+		m_rsdc_d[i] += rtresnew * 0.42;
     }
     /// calculate nutrient removed with yield
     float yldpst = 0.f, yieldn = 0.f, yieldp = 0.f;
@@ -1101,12 +1112,113 @@ void MGTOpt_SWAT::ExecuteHarvestKillOperation(int i, int &factoryID, int nOp)
     m_soilFreshOrgN[i][0] = max(m_soilFreshOrgN[i][0], 0.f);
     m_soilFreshOrgP[i][0] = max(m_soilFreshOrgP[i][0], 0.f);
 
+	/// define variables of CENTURY model
+	float BLG1 = 0.f, BLG2 = 0.f, BLG3 = 0.f, CLG = 0.f;
+	float sf = 0.f, sol_min_n = 0.f, resnew_n = 0.f, resnew_ne = 0.f;
+	float LMF = 0.f, LSF = 0.f, LSLF = 0.f, LSNF = 0.f, LMNF = 0.f;
+	float RLN = 0.f, RLR = 0.f;
+	/// insert new biomass of CENTURY model
+	if (m_CbnModel == 2)
+	{
+		BLG1 = 0.01f / 0.10f;
+		BLG2 = 0.99f;
+		BLG3 = 0.10f;
+		float XX = log(0.5f/BLG1 - 0.5f);
+		BLG2 = (XX - log(1.f/BLG2 - 1.f))/(1.f - 0.5f);
+		BLG1 = XX + 0.5f * BLG2;
+		CLG = BLG3 * m_phuAcc[i]/(m_phuAcc[i]+exp(BLG1-BLG2*m_phuAcc[i]));
+		sf = 0.05f;
+		sol_min_n = m_soilNO3[i][0]+m_soilNH4[i][0];
+		resnew = resnew;
+		resnew_n = ff1 * (m_plantN[i] - yieldn);
+		resnew_ne = resnew_n + sf * sol_min_n;
+
+		RLN = resnew * CLG / (resnew_n + 1.e-5f);
+		RLR = min(0.8f, resnew * CLG / (resnew + 1.e-5f));
+		LMF = 0.85f - 0.018f * RLN;
+		if(LMF < 0.01f) LMF = 0.01f;
+		else if(LMF>0.7f) LMF = 0.7f;
+		LSF = 1.f - LMF;
+		m_sol_LM[i][0] += LMF * resnew;
+		m_sol_LS[i][0] += LSF * resnew;
+
+		m_sol_LSL[i][0] += RLR * resnew;
+		m_sol_LSC[i][0] += 0.42f * LSF * resnew;
+
+		m_sol_LSLC[i][0] += RLR * 0.42f * resnew;
+		m_sol_LSLNC[i][0] = m_sol_LSC[i][0] - m_sol_LSLC[i][0];
+
+		if (resnew_n > (0.42f * LSF * resnew / 150.f))
+		{
+			m_sol_LSN[i][0] += 0.42f * LSF * resnew / 150.f;
+			m_sol_LMN[i][0] += resnew_n - (0.42f * LSF * resnew / 150.f) + 1.e-25f;
+		}
+		else
+		{
+			m_sol_LSN[i][0] += resnew_n;
+			m_sol_LMN[i][0] += 1.e-25f;
+		}
+		m_sol_LMC[i][0] += 0.42*LMF*resnew;
+		/// update no3 and nh4 in soil
+		m_soilNO3[i][0] *= (1.f - sf);
+		m_soilNH4[i][0] *= (1.f - sf);
+	}
+	/// end insert new biomass of CENTURY model
+
     /// allocate dead roots, N, P to soil layers
     for (int l = 0; l < m_nSoilLayers[i]; l++)
     {
         m_soilRsd[i][l] += rtfr[l] * rtresnew;
         m_soilFreshOrgN[i][l] += rtfr[l] * ff2 * (m_plantN[i] - yieldn);
         m_soilFreshOrgP[i][l] += rtfr[l] * ff2 * (m_plantP[i] - yieldp);
+
+		/// insert new biomass of CENTURY model
+		if (m_CbnModel == 2)
+		{
+			if (l == 1) sf = 0.05f;
+			else sf = 0.1f;
+
+			sol_min_n = m_soilNO3[i][l]+m_soilNH4[i][l]; // kg/ha
+			resnew = rtfr[l] * rtresnew;
+			resnew_n = rtfr[l] * ff2 * (m_plantN[i] - yieldn);
+			resnew_ne = resnew_n + sf * sol_min_n;
+
+			RLN = resnew * CLG / (resnew_n + 1.e-5f);
+			RLR = min(0.8f, resnew * CLG/1000.f / (resnew/1000.f + 1.e-5f));
+			LMF = 0.85f - 0.018f * RLN;
+			if (LMF < 0.01f) LMF = 0.01f;
+			else if (LMF > 0.7f) LMF = 0.7f;
+
+			LSF = 1.f - LMF;
+			m_sol_LM[i][l] += LMF * resnew;
+			m_sol_LS[i][l] += LSF * resnew;
+
+			/// here a simplified assumption of 0.5 LSL
+			LSLF = 0.f;
+			LSLF = CLG;
+
+			m_sol_LSL[i][l] += RLR * LSF * resnew;
+			m_sol_LSC[i][l] += 0.42 * LSF * resnew;
+
+			m_sol_LSLC[i][l] += RLR * 0.42f * LSF * resnew;
+			m_sol_LSLNC[i][l] = m_sol_LSC[i][l] - m_sol_LSLC[i][l];
+
+			if (resnew_ne > (0.42f * LSF * resnew / 150.f))
+			{
+				m_sol_LSN[i][l] += 0.42f * LSF * resnew / 150.f;
+				m_sol_LMN[i][l] += resnew_ne - (0.42f * LSF * resnew / 150.f) + 1.e-25f;
+			}
+			else
+			{
+				m_sol_LSN[i][l] += resnew_ne;
+				m_sol_LMN[i][l] += 1.e-25f;
+			}
+			m_sol_LMC[i][l] += 0.42f * LMF * resnew;
+			/// update no3 and nh4 in soil 
+			m_soilNO3[i][l] *= (1.f - sf);
+			m_soilNH4[i][l] *= (1.f - sf);
+		}
+		/// end insert new biomass of CENTURY model
     }
     if (cnop > 0.f)
         m_CN2[i] = cnop; /// TODO: Is necessary to isolate the curno.f function for SUR_CN?
@@ -1731,6 +1843,14 @@ int MGTOpt_SWAT::Execute()
 {
     CheckInputData();  /// essential input data, other inputs for specific management operation will be check separately.
     initialOutputs(); /// all possible outputs will be initialized to avoid NULL pointer problems.
+	/// initialize arrays at the beginning of the current day, derived from sim_initday.f of SWAT
+#pragma omp parallel for
+	for (int i = 0; i < m_nCells; i++)
+	{
+		if (m_grainc_d != NULL) m_grainc_d[i] = 0.f;
+		if (m_stoverc_d != NULL) m_stoverc_d[i] = 0.f;
+		if (m_rsdc_d != NULL) m_rsdc_d[i] = 0.f;
+	}
 #pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
     {
@@ -1807,6 +1927,11 @@ void MGTOpt_SWAT::Get1DData(const char *key, int *n, float **data)
     else if (StringMatch(sk, VAR_IMPOUND_TRIG)) *data = m_impoundTriger;
 	else if (StringMatch(sk, VAR_POT_VOLMAXMM)) *data = m_potVolMax;
 	else if (StringMatch(sk, VAR_POT_VOLLOWMM)) *data = m_potVolLow;
+	/// tillage operation of CENTURY model
+	else if (StringMatch(sk, VAR_TILLAGE_DAYS)) *data = m_tillage_days;
+	else if (StringMatch(sk, VAR_TILLAGE_DEPTH)) *data = m_tillage_depth;
+	else if (StringMatch(sk, VAR_TILLAGE_FACTOR)) *data = m_tillage_factor;
+	else if (StringMatch(sk, VAR_TILLAGE_SWITCH)) *data = m_tillage_switch;
 	else
 		throw ModelException(MID_PLTMGT_SWAT, "Get1DData", "Parameter " + sk + " is not existed!");
 }
@@ -1895,10 +2020,20 @@ void MGTOpt_SWAT::initialOutputs()
 	if (find(definedMgtCodes.begin(), definedMgtCodes.end(), BMP_PLTOP_Tillage) != definedMgtCodes.end())
 	{
 		if (m_CbnModel == 2){
-			if (m_tillage_days == NULL) Initialize1DArray(m_nCells, m_tillage_days, 0);
-			if (m_tillage_switch == NULL) Initialize1DArray(m_nCells, m_tillage_switch, 0);
+			if (m_tillage_days == NULL) Initialize1DArray(m_nCells, m_tillage_days, 0.f);
+			if (m_tillage_switch == NULL) Initialize1DArray(m_nCells, m_tillage_switch, 0.f);
 			if (m_tillage_depth == NULL) Initialize1DArray(m_nCells, m_tillage_depth, 0.f);
 			if (m_tillage_factor == NULL) Initialize1DArray(m_nCells, m_tillage_factor, 0.f);
+		}
+	}
+	/// harvestkill 
+	if (find(definedMgtCodes.begin(), definedMgtCodes.end(), BMP_PLTOP_HarvestKill) != definedMgtCodes.end())
+	{
+		if (m_CbnModel == 2)
+		{
+			if (m_grainc_d == NULL) Initialize1DArray(m_nCells, m_grainc_d, 0.f);
+			if (m_stoverc_d == NULL) Initialize1DArray(m_nCells, m_stoverc_d, 0.f);
+			if (m_rsdc_d == NULL) Initialize1DArray(m_nCells, m_rsdc_d, 0.f);
 		}
 	}
 	if (m_doneOpSequence == NULL) Initialize1DArray(m_nCells, m_doneOpSequence, -1);
