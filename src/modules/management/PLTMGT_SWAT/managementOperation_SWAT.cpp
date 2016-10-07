@@ -27,9 +27,10 @@ MGTOpt_SWAT::MGTOpt_SWAT(void) : m_nCells(-1), m_nSub(-1), m_soilLayers(-1),
                                  m_dormFlag(NULL), m_havstIdx(NULL), m_havstIdxAdj(NULL),
                                  m_LAIMaxFr(NULL), m_oLAI(NULL), m_frPlantN(NULL), m_plantN(NULL), m_plantP(NULL),
                                  m_pltET(NULL), m_pltPET(NULL), m_frRoot(NULL), m_biomass(NULL),
-        /// Harvest and Kill operation
+        /// Harvest and Kill, harvest, harvgrain operation
                                  m_soilRsd(NULL), m_frStrsWa(NULL), m_cropLookup(NULL), m_cropNum(-1),
                                  m_lastSoilRootDepth(NULL),
+								 m_grainc_d(NULL), m_stoverc_d(NULL), m_rsdc_d(NULL),
         /// Fertilizer operation
                                  m_fertilizerLookup(NULL), m_fertilizerNum(-1), m_CbnModel(0),
 								 m_soilManureC(NULL), m_soilManureN(NULL), m_soilManureP(NULL),
@@ -1026,7 +1027,13 @@ void MGTOpt_SWAT::ExecuteHarvestKillOperation(int i, int &factoryID, int nOp)
     float bio_leaf = m_cropLookupMap[(int) m_landCover[i]][CROP_PARAM_IDX_BIO_LEAF];
     float cnyld = m_cropLookupMap[(int) m_landCover[i]][CROP_PARAM_IDX_CNYLD];
     float cpyld = m_cropLookupMap[(int) m_landCover[i]][CROP_PARAM_IDX_CPYLD];
-    if (m_HarvestIdxTarg[i] > 0.f)
+    
+	/// calculate modifier for autofertilization target nitrogen content
+	// TODO
+	//tnyld(j) = 0.
+	//tnyld(j) = (1. - rwt(j)) * bio_ms(j) * pltfr_n(j) * auto_eff(j)
+	
+	if (m_HarvestIdxTarg[i] > 0.f)
         hiad1 = m_HarvestIdxTarg[i];
     else
     {
@@ -1040,7 +1047,7 @@ void MGTOpt_SWAT::ExecuteHarvestKillOperation(int i, int &factoryID, int nOp)
     /// check if yield is from above or below ground
     float yield = 0.f, resnew = 0.f, rtresnew = 0.f;
 
-    /// stover fraction during harvestkill operation
+    /// stover fraction during harvest and kill operation
     float hi_ovr = curOperation->HarvestIndexOverride();
     float xx = curOperation->StoverFracRemoved();
     if (xx < UTIL_ZERO)
@@ -1075,8 +1082,13 @@ void MGTOpt_SWAT::ExecuteHarvestKillOperation(int i, int &factoryID, int nOp)
     if (yield < 0.f) yield = 0.f;
     if (resnew < 0.f) resnew = 0.f;
     if (rtresnew < 0.f) rtresnew = 0.f;
+
     if (m_CbnModel == 2)
-    {/// TODO
+    {
+		m_grainc_d[i] += yield * 0.42;
+		m_stoverc_d[i] += (m_biomass[i] - yield - rtresnew) * 0.42 * xx;
+		m_rsdc_d[i] += resnew * 0.42;
+		m_rsdc_d[i] += rtresnew * 0.42;
     }
     /// calculate nutrient removed with yield
     float yldpst = 0.f, yieldn = 0.f, yieldp = 0.f;
@@ -1100,6 +1112,18 @@ void MGTOpt_SWAT::ExecuteHarvestKillOperation(int i, int &factoryID, int nOp)
     m_soilRsd[i][0] = max(m_soilRsd[i][0], 0.f);
     m_soilFreshOrgN[i][0] = max(m_soilFreshOrgN[i][0], 0.f);
     m_soilFreshOrgP[i][0] = max(m_soilFreshOrgP[i][0], 0.f);
+
+	/// define variables of CENTURY model
+	float BLG1 = 0.f, BLG2 = 0.f, BLG3 = 0.f, CLG = 0.f;
+	float sf = 0.f, sol_min_n = 0.f, resnew_n = 0.f, resnew_ne = 0.f;
+	float LMF = 0.f, LSF = 0.f, LSLF = 0.f, LSNF = 0.f, LMNF = 0.f;
+	/// insert new biomass of CENTURY model
+	if (m_CbnModel == 2)
+	{
+		BLG1 = 0.01f / 0.10f;
+		BLG2 = 0.99f;
+
+	}
 
     /// allocate dead roots, N, P to soil layers
     for (int l = 0; l < m_nSoilLayers[i]; l++)
@@ -1731,6 +1755,14 @@ int MGTOpt_SWAT::Execute()
 {
     CheckInputData();  /// essential input data, other inputs for specific management operation will be check separately.
     initialOutputs(); /// all possible outputs will be initialized to avoid NULL pointer problems.
+	/// initialize arrays at the beginning of the current day, derived from sim_initday.f of SWAT
+#pragma omp parallel for
+	for (int i = 0; i < m_nCells; i++)
+	{
+		if (m_grainc_d != NULL) m_grainc_d[i] = 0.f;
+		if (m_stoverc_d != NULL) m_stoverc_d[i] = 0.f;
+		if (m_rsdc_d != NULL) m_rsdc_d[i] = 0.f;
+	}
 #pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
     {
@@ -1899,6 +1931,16 @@ void MGTOpt_SWAT::initialOutputs()
 			if (m_tillage_switch == NULL) Initialize1DArray(m_nCells, m_tillage_switch, 0);
 			if (m_tillage_depth == NULL) Initialize1DArray(m_nCells, m_tillage_depth, 0.f);
 			if (m_tillage_factor == NULL) Initialize1DArray(m_nCells, m_tillage_factor, 0.f);
+		}
+	}
+	/// harvestkill 
+	if (find(definedMgtCodes.begin(), definedMgtCodes.end(), BMP_PLTOP_HarvestKill) != definedMgtCodes.end())
+	{
+		if (m_CbnModel == 2)
+		{
+			if (m_grainc_d == NULL) Initialize1DArray(m_nCells, m_grainc_d, 0.f);
+			if (m_stoverc_d == NULL) Initialize1DArray(m_nCells, m_stoverc_d, 0.f);
+			if (m_rsdc_d == NULL) Initialize1DArray(m_nCells, m_rsdc_d, 0.f);
 		}
 	}
 	if (m_doneOpSequence == NULL) Initialize1DArray(m_nCells, m_doneOpSequence, -1);

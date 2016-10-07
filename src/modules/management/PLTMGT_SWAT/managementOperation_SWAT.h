@@ -234,17 +234,17 @@ private:
 	float *m_tillage_depth;
 	int *m_tillage_days;
 	float *m_tillage_factor;
+	float **m_sol_BMN; ///
+	float **m_sol_HPN; ///
 
 	//float **m_sol_WOC; ///
 	//float **m_sol_WON; ///
 	//float **m_sol_BM; ///
 	//float **m_sol_BMC; ///
-	float **m_sol_BMN; ///
 	//float **m_sol_HP; ///
 	//float **m_sol_HS; ///
 	//float **m_sol_HSC; ///
 	//float **m_sol_HPC; ///
-	float **m_sol_HPN; ///
 
 	//float **m_sol_RNMN; ///
 	//float **m_sol_RSPC; ///
@@ -308,6 +308,24 @@ private:
 
     /// stsol_rd(:) |mm            |storing last soil root depth for use in harvestkillop/killop /// defined in swu.f
     float *m_lastSoilRootDepth;
+	/**** Daily carbon change by different means (entire soil profile for each cell) ****/
+	/**** For 2-CENTURY C/N cycling model, these variables will be initialized as 0  ****/
+	/**** at the beginning of the current day ****/
+	/**** 1 harvest, 2 harvestkill, 3 harvgrain op ****/
+	float *m_grainc_d; /// 1,2,3
+	float *m_rsdc_d; /// 1, 2
+	float *m_stoverc_d; /// 2
+
+	float *m_sedc_d;
+	float *m_surfqc_d;
+	float *m_latc_d;
+	float *m_percc_d;
+	float *m_foc_d;
+	float *m_NPPC_d;
+	float *m_soc_d;
+	float *m_rspc_d;
+	float *m_emitc_d; // include biomass_c eaten by grazing, burnt
+
 
     /** tillage operation related **/
 
