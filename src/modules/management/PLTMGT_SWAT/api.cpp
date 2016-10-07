@@ -178,6 +178,12 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.AddOutput(VAR_IMPOUND_TRIG, UNIT_NON_DIM, DESC_IMPOUND_TRIG, DT_Raster1D);
 	mdi.AddOutput(VAR_POT_VOLMAXMM, UNIT_DEPTH_MM, DESC_POT_VOLMAXMM, DT_Raster1D);
 	mdi.AddOutput(VAR_POT_VOLLOWMM, UNIT_DEPTH_MM, DESC_POT_VOLLOWMM, DT_Raster1D);
+	/// outputs of tillage operation during CENTURY model
+	mdi.AddOutput(VAR_TILLAGE_DAYS, UNIT_DAY, DESC_TILLAGE_DAYS, DT_Raster1D);
+	mdi.AddOutput(VAR_TILLAGE_DEPTH, UNIT_DAY, DESC_TILLAGE_DEPTH, DT_Raster1D);
+	mdi.AddOutput(VAR_TILLAGE_SWITCH, UNIT_DAY, DESC_TILLAGE_SWITCH, DT_Raster1D);
+	mdi.AddOutput(VAR_TILLAGE_FACTOR, UNIT_DAY, DESC_TILLAGE_FACTOR, DT_Raster1D);
+
     /// write out the XML file.
     res = mdi.GetXMLDocument();
 
