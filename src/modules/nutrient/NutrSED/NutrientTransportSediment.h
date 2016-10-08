@@ -7,7 +7,7 @@
  * \revised Liang-Jun Zhu
  * \date 2016-9-28
  * \description: 1. Code revision.
- *               2. 
+ *               2. Add CENTURY model of calculating organic nitrogen removed in surface runoff
  * \TODO         1. Ammonian adsorbed to soil should be considered.
  */
 
@@ -63,7 +63,16 @@ private:
     float *m_nSoilLayers;
     /// maximum soil layers
     int m_soiLayers;
-
+	/// soil rock content, %
+	float **m_sol_rock;
+	/// sol_ul, soil saturated water amount, mm
+	float **m_sol_wsatur;
+	/* carbon modeling method
+     *   = 0 Static soil carbon (old mineralization routines)
+     *   = 1 C-FARM one carbon pool model
+     *   = 2 Century model
+	 */
+    int m_CbnModel;
 	/// enrichment ratio
 	float *m_enratio;
 
@@ -75,10 +84,9 @@ private:
     float *m_surfaceRunoff;
     //bulk density of the soil
     float **m_sol_bd;
-    //depth to bottom of soil layer
-    float **m_soilDepth;
-    ////??
-    //float **m_sol_mp;
+    // thickness of soil layer
+	float **m_soilThick;
+
 
 	/// subbasin related
 	/// the total number of subbasins
@@ -123,6 +131,32 @@ private:
     //amount of phosphorus stored in the active mineral phosphorus pool, kg P/ha
     float **m_sol_actp;
 
+	/// for CENTURY C/Y cycling model
+	/// inputs from other modules
+	float **m_sol_LSN;
+	float **m_sol_LMN;
+	float **m_sol_HPN;
+	float **m_sol_HSN;
+	float **m_sol_HPC;
+	float **m_sol_HSC;
+	float **m_sol_LMC;
+	float **m_sol_LSC;
+	float **m_sol_LS;
+	float **m_sol_LM;
+	float **m_sol_LSL;
+	float **m_sol_LSLC;
+	float **m_sol_LSLNC;
+	float **m_sol_BMC;
+	float **m_sol_WOC;
+	float **m_sol_perco;
+	float **m_sol_laterq;
+	/// outputs
+	float **m_sol_latC; /// lateral flow Carbon loss in each soil layer
+	float **m_sol_percoC; /// percolation Carbon loss in each soil layer
+	float *m_laterC; /// lateral flow Carbon loss in soil profile
+	float *m_percoC; /// percolation Carbon loss in soil profile
+	float *m_sedCLoss; /// amount of C lost with sediment pools 
+
 private:
 
     /*!
@@ -130,7 +164,11 @@ private:
      * \return bool The validity of the input data.
      */
     bool CheckInputData(void);
-
+	/*!
+     * \brief check the input data for running CENTURY model. Make sure all the input data is available.
+     * \return bool The validity of the input data.
+     */
+	bool CheckInputData_CENTURY(void);
     /*!
      * \brief check the input size. Make sure all the input data have same dimension.
      *
@@ -141,18 +179,25 @@ private:
     bool CheckInputSize(const char *, int);
 
     /*!
-    * \brief calculates the amount of organic nitrogen removed in surface runoff.
+     * \brief calculates the amount of organic nitrogen removed in surface runoff.
      * orgn.f of SWAT
      * \return void
      */
-    void OrgnRemoveinSr(int i);
+    void OrgNRemovedInRunoff_StaticMethod(int i);
+
+	/*!
+     * \brief calculates the amount of organic nitrogen removed in surface runoff.
+     * NCsed_leach.f90 of SWAT
+     * \return void
+     */
+    void OrgNRemovedInRunoff_CENTURY(int i);
 
     /*!
      * \brief Calculates the amount of organic and mineral phosphorus attached to sediment in surface runoff.
      * psed.f of SWAT
      * \return void
      */
-    void OrgpAttachedtoSed(int i);
+    void OrgPAttachedtoSed(int i);
 
     void initialOutputs();
 

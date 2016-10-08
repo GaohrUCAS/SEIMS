@@ -918,6 +918,7 @@
 #define VAR_SOL_MN "sol_mn"
 #define VAR_SOL_MP "sol_mp"
 #define VAR_SOL_N "sol_N"
+
 /// CENTURY model for C/N cycling
 #define	VAR_SOL_BMC	"sol_BMC"
 #define	VAR_SOL_BMN	"sol_BMN"
@@ -941,6 +942,12 @@
 #define	VAR_SOL_HP	"sol_HP"
 #define	VAR_SOL_HS	"sol_HS"
 #define	VAR_SOL_BM	"sol_BM"
+
+#define VAR_SOL_LATERAL_C "sol_latc"
+#define VAR_SOL_PERCO_C "sol_percoc"
+#define VAR_LATERAL_C "latc"
+#define VAR_PERCO_C "percoc"
+#define VAR_SEDLOSS_C "sedc"
 
 #define VAR_SOL_NH4 "sol_nh4"                       /// amount of nitrogen stored in the ammonium pool in soil layer
 #define VAR_SOL_NO3 "sol_no3"                       /// amount of nitrogen stored in the nitrate pool in soil layer(kg N/ha)
@@ -1554,6 +1561,11 @@
 #define	DESC_SOL_WON	"NEED to figure out"
 #define	DESC_SOL_HP	"mass of OM in passive humus"
 #define	DESC_SOL_HS	"mass of OM in slow humus"
+#define DESC_SOL_LATERAL_C "lateral flow Carbon loss in each soil layer"
+#define DESC_SOL_PERCO_C "percolation Carbon loss in each soil layer"
+#define DESC_LATERAL_C "lateral flow Carbon loss in soil profile"
+#define DESC_PERCO_C "percolation Carbon loss in soil profile"
+#define DESC_SEDLOSS_C "amount of C lost with sediment"
 
 #define DESC_SOL_NH4 "amount of nitrogen stored in the ammonium pool in soil layer"
 #define DESC_SOL_NO3 "amount of nitrogen stored in the nitrate pool in soil layer"
