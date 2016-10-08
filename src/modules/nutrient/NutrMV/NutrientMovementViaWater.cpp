@@ -17,7 +17,8 @@ NutrientMovementViaWater::NutrientMovementViaWater(void) :
         m_sol_perco(NULL), m_sol_wsatur(NULL), m_sol_crk(NULL), m_sol_bd(NULL), m_sol_z(NULL), m_sol_thick(NULL),
         m_sol_cbn(NULL),m_sol_no3(NULL), m_sol_solp(NULL), 
 		m_nSubbasins(-1), m_subbasin(NULL), m_subbasinsInfo(NULL), m_streamLink(NULL),
-		m_routingLayers(NULL), m_nRoutingLayers(-1), m_flowOutIndex(NULL), 
+		m_routingLayers(NULL), m_nRoutingLayers(-1), m_flowOutIndex(NULL),
+		m_sedc_d(NULL),
         //output
         m_latno3(NULL), m_latno3ToCh(NULL), m_wshd_plch(-1.f),
 		m_surqno3(NULL), m_surqnh4(NULL), m_surqsolp(NULL), m_surcod(NULL), m_surchl_a(NULL),
@@ -257,6 +258,7 @@ void NutrientMovementViaWater::SetValue(const char *key, float value)
 	else if (StringMatch(sk, VAR_ISEP_OPT)) { this->m_isep_opt = value; }
 	else if (StringMatch(sk, VAR_COD_N)) { this->m_cod_n = value; }
 	else if (StringMatch(sk, VAR_COD_K)) { this->m_cod_k = value; }
+	else if (StringMatch(sk, VAR_CSWAT)) { this->m_CbnModel = value; }
     else
     {
         throw ModelException(MID_NUTRMV, "SetValue", "Parameter " + sk + " does not exist.");
@@ -291,6 +293,8 @@ void NutrientMovementViaWater::Set1DData(const char *key, int n, float *data)
 		m_sedorgn = data; 
     else if (StringMatch(sk, VAR_TMEAN)) 
 		m_tmean = data;
+	else if (StringMatch(sk, VAR_SEDLOSS_C))
+		m_sedc_d = data;
     else
         throw ModelException(MID_NUTRMV, "Set1DData", "Parameter " + sk + " does not exist.");
 }
@@ -355,6 +359,10 @@ void NutrientMovementViaWater::initialOutputs()
 int NutrientMovementViaWater::Execute()
 {
     CheckInputData();
+	if (m_CbnModel == 2) /// check input data
+	{
+		if (m_sedc_d == NULL) throw ModelException(MID_NUTRMV, "CheckInputData", "The amount of C lost with sediment must not be NULL.");
+	}
     initialOutputs();
     // compute nitrate movement leaching
 	//cout<<"NUTRMV-exec, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
@@ -573,7 +581,11 @@ void NutrientMovementViaWater::SubbasinWaterQuality()
 			float enratio = NutrCommon::CalEnrichmentRatio(m_sedimentYield[i], m_surfr[i], m_cellArea);
 
 			// calculate organic carbon loading to main channel
-			float org_c = (m_sol_cbn[i][0] / 100.f) * enratio * (m_sedimentYield[i] / 1000.f) * 1000.f; /// kg
+			float org_c = 0.f;  /// kg
+			if (m_CbnModel == 2)
+				org_c = m_sedc_d[i] * m_cellArea;
+			else
+				org_c = (m_sol_cbn[i][0] / 100.f) * enratio * (m_sedimentYield[i] / 1000.f) * 1000.f;
 			// calculate carbonaceous biological oxygen demand (CBOD) and COD(transform from CBOD)
 			float cbodu  = 2.7f * org_c / (qdr * m_cellWidth * m_cellWidth * 1.e-6f); //  mg/L 
 			// convert cbod to cod 

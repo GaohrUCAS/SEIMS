@@ -57,7 +57,12 @@ private:
     int m_soiLayers;
 	/// stream link
 	float *m_streamLink;
-
+	/* carbon modeling method
+     *   = 0 Static soil carbon (old mineralization routines)
+     *   = 1 C-FARM one carbon pool model
+     *   = 2 Century model
+	 */
+    int m_CbnModel;
     /// input data
     /// drainage tile flow in soil profile
     float m_qtile;
@@ -170,8 +175,9 @@ private:
     /// amount of phosphorus stored in solution
     float **m_sol_solp;
 
-
-
+	/* CENTURY C/N cycling model related */
+	/// amount of C lost with sediment, kg/ha, input from NUTRSED module
+	float *m_sedc_d;
 private:
     /*!
      * \brief check the input data. Make sure all the input data is available.
