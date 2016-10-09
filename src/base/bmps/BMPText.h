@@ -250,6 +250,7 @@
 #define	CROP_PARAM_IDX_ALAI_MIN	38
 #define	CROP_PARAM_IDX_BIO_LEAF	39
 
+#define CROP_PADDYRICE 33
 
 /// Field index in TillageLookup table
 #define TILLAGE_PARAM_COUNT                7
@@ -277,6 +278,8 @@
 #define	FERTILIZER_PARAM_BACKTKDDB_IDX	9
 #define	FERTILIZER_PARAM_MANURE_IDX	10
 
+/// Fertilizer ID
+#define FERTILIZER_ID_UREA 4
 /// Field index in LanduseLookup table
 #define LANDUSE_PARAM_COUNT 49
 #define	LANDUSE_PARAM_LANDUSE_ID_IDX	1

@@ -6,6 +6,7 @@
  *           2. Preliminary implemented version, not include grazing, auto fertilizer, etc. See detail please find the TODOs.
  * \date 2016-9-29
  * \description: 1. Add the CENTURY model related code, mainly include fert.f, newtillmix.f, and harvestop.f
+ *               2. Update fertilizer operation for paddy rice, i.e., ExecuteFertilizerOperation()
  */
 #pragma once
 
@@ -237,18 +238,6 @@ private:
 	float **m_sol_BMN; ///
 	float **m_sol_HPN; ///
 
-	//float **m_sol_WOC; ///
-	//float **m_sol_WON; ///
-	//float **m_sol_BM; ///
-	//float **m_sol_BMC; ///
-	//float **m_sol_HP; ///
-	//float **m_sol_HS; ///
-	//float **m_sol_HSC; ///
-	//float **m_sol_HPC; ///
-
-	//float **m_sol_RNMN; ///
-	//float **m_sol_RSPC; ///
-
     /** Irrigation operation related **/
 
     /// irrigation flag
@@ -263,8 +252,6 @@ private:
     float *m_deepWaterDepth;
     ///shallst | mm H2O        |depth of water in shallow aquifer
     float *m_shallowWaterDepth;
-    /// pot_vol(:)     |m**3 H2O      |current volume of water stored in the depression/impounded area
-    float m_impoundVolume;
     /// potsa(:)       |ha            |surface area of impounded water body
     float m_impoundArea;
     /// deepirr(:)  |mm H2O        |amount of water removed from deep aquifer for irrigation
@@ -374,14 +361,21 @@ private:
 
     /* |release/impound action code:
            |0 begin impounding water
-           |1 release impounded water*/
+           |1 release impounded water
+	 */
     float *m_impoundTriger;
-	/// volume   mm
+	/// volume of water stored in the depression/impounded area, mm
 	float *m_potVol;
 	/// maximum volume of water stored in the depression/impounded area, mm
 	float *m_potVolMax;
 	/// low depth ...., mm
 	float *m_potVolLow;
+	/// no3 amount kg
+	float *m_potNo3;
+	/// nh4 amount kg
+	float *m_potNH4;
+	/// soluble phosphorus amount, kg
+	float *m_potSolP;
 	/// amount of water held in the soil layer at saturation (sat - wp water), mm
 	float **m_sol_sat;
 	/// soil water storage (mm)

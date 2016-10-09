@@ -109,7 +109,10 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     //mdi.AddInput(VAR_DEEPST, UNIT_DEPTH_MM, DESC_DEEPST, Source_Module, DT_Raster1D);
     //mdi.AddInput(VAR_SHALLST, UNIT_DEPTH_MM, DESC_SHALLST, Source_Module, DT_Raster1D);
 	mdi.AddInput(VAR_SBGS, UNIT_DEPTH_MM, DESC_SBGS, Source_Module, DT_Array1D);
-    mdi.AddInput(VAR_POT_VOL, UNIT_DEPTH_MM, DESC_POT_VOL, Source_Module_Optional, DT_Raster1D);
+    mdi.AddInput(VAR_POT_VOL, UNIT_DEPTH_MM, DESC_POT_VOL, Source_Module_Optional, DT_Raster1D); /// IMP_SWAT
+	mdi.AddInput(VAR_POT_NO3, UNIT_KG, DESC_POT_NO3, Source_Module_Optional, DT_Raster1D);
+	mdi.AddInput(VAR_POT_NH4, UNIT_KG, DESC_POT_NH4, Source_Module_Optional, DT_Raster1D);
+	mdi.AddInput(VAR_POT_SOLP, UNIT_PER_DAY, DESC_POT_SOLP, Source_Module_Optional, DT_Raster1D);
 
 	mdi.AddInput(VAR_SOL_ST, UNIT_DEPTH_MM, DESC_SOL_ST, Source_Module, DT_Raster2D);
 	mdi.AddInput(VAR_SOL_SW, UNIT_DEPTH_MM, DESC_SOL_SW, Source_Module, DT_Raster1D); /// sol_sw in SWAT

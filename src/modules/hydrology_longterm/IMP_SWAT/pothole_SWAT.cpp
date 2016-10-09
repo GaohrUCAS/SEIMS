@@ -16,7 +16,8 @@ IMP_SWAT::IMP_SWAT(void) : m_cnv(NODATA_VALUE), m_nCells(-1), m_cellWidth(NODATA
 	m_surfaceRunoff(NULL), m_surqNo3(NULL), m_surqNH4(NULL), m_surqSolP(NULL), m_sedOrgN(NULL), m_sedOrgP(NULL), m_sedActiveMinP(NULL), m_sedStableMinP(NULL),
 	m_potNo3(NULL), m_potNH4(NULL), m_potOrgN(NULL), m_potSolP(NULL), m_potOrgP(NULL), m_potActMinP(NULL),
 	m_potStaMinP(NULL), m_potSed(NULL), m_potSand(NULL), m_potSilt(NULL), m_potClay(NULL), m_potSag(NULL), m_potLag(NULL), 
-	m_potVol(NULL), m_potVolMax(NULL), m_potVolLow(NULL), m_potSeep(NULL), m_potEvap(NULL), m_potSurfaceArea(NULL)
+	m_potVol(NULL), m_potVolMax(NULL), m_potVolLow(NULL), m_potSeep(NULL), m_potEvap(NULL), m_potSurfaceArea(NULL),
+	m_kVolat(NODATA_VALUE), m_kNitri(NODATA_VALUE)
 {
 	//m_potSedIn(NULL), m_potSandIn(NULL), m_potSiltIn(NULL), m_potClayIn(NULL), m_potSagIn(NULL), m_potLagIn(NULL),
 }
@@ -101,18 +102,21 @@ bool IMP_SWAT::CheckInputData()
 	return true;
 }
 
-void IMP_SWAT::SetValue(const char *key, float data)
+void IMP_SWAT::SetValue(const char *key, float value)
 {
 	string sk(key);
 	if(StringMatch(sk, Tag_CellWidth)){
-		m_cellWidth = data;
+		m_cellWidth = value;
 		m_cellArea = m_cellWidth * m_cellWidth * 1.e-6f; // m2 ==> ha
 		m_cnv = 10.f * m_cellArea; // mm/ha => m^3
 	}
-	else if (StringMatch(sk, VAR_EVLAI)) m_evLAI = data;
-	else if (StringMatch(sk, VAR_POT_TILEMM)) m_potTilemm = data;
-	else if (StringMatch(sk, VAR_POT_NO3DECAY)) m_potNo3Decay = data;
-	else if (StringMatch(sk, VAR_POT_SOLPDECAY)) m_potSolPDecay = data;
+	else if (StringMatch(sk, Tag_TimeStep)) m_timestep = value;
+	else if (StringMatch(sk, VAR_EVLAI)) m_evLAI = value;
+	else if (StringMatch(sk, VAR_POT_TILEMM)) m_potTilemm = value;
+	else if (StringMatch(sk, VAR_POT_NO3DECAY)) m_potNo3Decay = value;
+	else if (StringMatch(sk, VAR_POT_SOLPDECAY)) m_potSolPDecay = value;
+	else if (StringMatch(sk, VAR_KV_PADDY)) m_kVolat = value;
+	else if (StringMatch(sk, VAR_KN_PADDY)) m_kNitri = value;
 	else
 		throw ModelException(MID_IMP_SWAT, "SetValue", "Parameter " + sk + " does not exist.");
 }
@@ -429,8 +433,17 @@ void IMP_SWAT::potholeSimulate(int id)
 		m_potOrgP[id] *= 0.75f * drcla;
 		m_potActMinP[id] *= 0.75f * drcla;
 		m_potStaMinP[id] *= 0.75f * drcla;
-		m_potNo3[id] *= (1.f - m_potNo3Decay);
+		///m_potNo3[id] *= (1.f - m_potNo3Decay);
 		m_potSolP[id] *= (1.f - m_potSolPDecay);
+		/*
+		 * first-order kinetics is adopted from Chowdary et al., 2004
+		 * to account for volatilization, nitrification, and denitrification in impounded water
+		 */
+		float nh3V = m_potNH4[id] * (1.f - exp(m_kVolat * m_timestep / 86400.f));
+		float no3N = m_potNH4[id] * (1.f - exp(m_kNitri * m_timestep / 86400.f));
+		/// update
+		m_potNH4[id] -= (nh3V + no3N);
+		m_potNo3[id] += no3N;
 
 		/// compute flow from surface inlet tile
 		tileo = min(m_potTilemm, m_potVol[id]);
@@ -494,6 +507,11 @@ void IMP_SWAT::potholeSimulate(int id)
 			m_potNo3[id] -= no3loss;
 			m_surqNo3[id] += no3loss / m_cellArea;
 
+			nh4loss = m_potNH4[id] * tileo / potvol_tile;
+			nh4loss = min(nh4loss, m_potNH4[id]);
+			m_potNH4[id] -= nh4loss;
+			m_surqNH4[id] += nh4loss / m_cellArea;
+
 			solploss = m_potSolP[id] * tileo / potvol_tile;
 			solploss = min(solploss, m_potSolP[id]);
 			m_potSolP[id] -= solploss;
@@ -553,6 +571,10 @@ void IMP_SWAT::potholeSimulate(int id)
 			no3loss = m_potNo3[id] * potsep / potvol_sep;
 			no3loss = min(no3loss, m_potNo3[id]);
 			m_potNo3[id] -= no3loss;
+
+			nh4loss = m_potNH4[id] * potsep / potvol_sep;
+			nh4loss = min(nh4loss, m_potNH4[id]);
+			m_potNH4[id] -= nh4loss;
 
 			solploss = m_potSolP[id] * potsep / potvol_sep;
 			solploss = min(solploss, m_potSolP[id]);
@@ -623,33 +645,37 @@ void IMP_SWAT::releaseWater(int id)
 	m_smaggreYield[id] += m_potSag[id] * xx;
 	m_lgaggreYield[id] += m_potLag[id] * xx;
 	m_surqNo3[id] += m_potNo3[id] * xx;
+	m_surqNH4[id] += m_potNH4[id] *xx;
 	m_surqSolP[id] += m_potSolP[id] * xx;
 	m_sedOrgN[id] += m_potOrgN[id] * xx;
 	m_sedOrgP[id] += m_potOrgP[id] * xx;
 	m_sedStableMinP[id] += m_potActMinP[id] * xx;
 	m_sedActiveMinP[id] += m_potStaMinP[id] * xx;
 
-	m_potVol[id] *= (1 - xx);
-	m_potSed[id] *= (1 - xx);
-	m_potSand[id] *= (1 - xx);
-	m_potSilt[id] *= (1 - xx);
-	m_potClay[id] *= (1 - xx);
-	m_potSag[id] *= (1 - xx);
-	m_potLag[id] *= (1 - xx);
-	m_potNo3[id] *= (1 - xx);
-	m_potSolP[id] *= (1 - xx);
-	m_potOrgN[id] *= (1 - xx);
-	m_potOrgP[id] *= (1 - xx);
-	m_potActMinP[id] *= (1 - xx);
-	m_potStaMinP[id] *= (1 - xx);
+	m_potVol[id] *= (1.f - xx);
+	m_potSed[id] *= (1.f - xx);
+	m_potSand[id] *= (1.f - xx);
+	m_potSilt[id] *= (1.f - xx);
+	m_potClay[id] *= (1.f - xx);
+	m_potSag[id] *= (1.f - xx);
+	m_potLag[id] *= (1.f - xx);
+	m_potNo3[id] *= (1.f - xx);
+	m_potNH4[id] *= (1.f - xx);
+	m_potSolP[id] *= (1.f - xx);
+	m_potOrgN[id] *= (1.f - xx);
+	m_potOrgP[id] *= (1.f - xx);
+	m_potActMinP[id] *= (1.f - xx);
+	m_potStaMinP[id] *= (1.f - xx);
 }
 
 void IMP_SWAT::Get1DData(const char *key, int *n, float **data)
 {
 	initialOutputs();
 	string sk(key);
-	if (StringMatch(sk, VAR_POT_VOL))
-		*data = m_potVol;
+	if (StringMatch(sk, VAR_POT_VOL))*data = m_potVol;
+	else if (StringMatch(sk, VAR_POT_NO3)) *data = m_potNo3;
+	else if (StringMatch(sk, VAR_POT_NH4)) *data = m_potNH4;
+	else if (StringMatch(sk, VAR_POT_SOLP)) *data = m_potSolP;
 	else if (StringMatch(sk, VAR_SUR_NH4_TOCH)) *data = m_surqNH4;
 	else
 		throw ModelException(MID_IMP_SWAT, "Get1DData","Parameter" + sk + "does not exist.");
