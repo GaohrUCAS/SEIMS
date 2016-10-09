@@ -228,3 +228,5 @@ Climate	Weight_P	Weight Coefficient of Precipitation	none	ALL	-9999		NC	-9999	-9
 Climate	Weight_PET	Weight Coefficient of Potential Evapotranspiration	none	ALL	-9999		NC	-9999	-9999	Y
 Climate	Weight_T	Weight Coefficient of Temperature	none	ALL	-9999		NC	-9999	-9999	Y
 WaterBalance	Wiltingpoint	Plant wilting point moisture	m3/m3	ALL	-9999	1	RC	1.2	0.8	Y
+Nutrient	kv_paddy	volatilization rate constant in impounded water body	/day	IMP_SWAT	0.4	0	AC	0.8	0.043	Y
+Nutrient	kn_paddy	nitrification rate constant in impounded water body	/day	IMP_SWAT	0.5	0	AC	2	0.02	Y
