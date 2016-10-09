@@ -11,7 +11,7 @@
  *        3. m_hmntl etc. variables should be DT_Raster1D rather than DT_Single since they are soil profile values in cell!
  */
 
-/** \defgroup MINRL
+/** \defgroup NUTR_TF
  * \ingroup Nutrient
  * \brief Daily nitrogen and phosphorus mineralization and immobilization.
  * From nminrl.f, nitvol.f, pminrl.f, and pminrl2.f of SWAT
@@ -27,20 +27,20 @@
 using namespace std;
 
 /*!
- * \class NandPmi
- * \ingroup MINRL
+ * \class Nutrient_Transformation
+ * \ingroup NUTR_TF
  *
  * \brief Daily nitrogen and phosphorus mineralization and immobilization.
  *  Considering fresh organic material (plant residue) and active and stable humus material.
  *
  */
 
-class NandPim : public SimulationModule
+class Nutrient_Transformation : public SimulationModule
 {
 public:
-    NandPim(void);
+    Nutrient_Transformation(void);
 
-    ~NandPim(void);
+    ~Nutrient_Transformation(void);
 
     virtual void Set1DData(const char *key, int n, float *data);
 
@@ -72,8 +72,8 @@ private:
 	 */
     int m_CbnModel;
 	/* phosphorus model selection
-	 * 0: original method
-	 * 1: dynamic coefficient method by White et al., 2009
+	 * 0: dynamic coefficient method by White et al., 2009
+	 * 1: original method
 	 */
 	int m_solP_model;
 
@@ -246,33 +246,39 @@ private:
     bool CheckInputSize(const char *, int);
 
     /*!
-    * \brief estimates daily nitrogen and phosphorus mineralization and immobilization.
-     *
+     * \brief estimates daily nitrogen and phosphorus mineralization and immobilization.
+     *        considering fresh organic material (plant residue) and active and stable humus material
+	 *        Execute when CSWAT = 0, rewrite from nminrl.f of SWAT 
      * \return void
      */
-    void CalculateMinerandImmobi(int i);
-
-    /*!
-    * \brief estimates daily mineralization (NH3 to NO3) and volatilization of NH3.
-     *
+    void Mineralization_StaticCarbonMethod(int i);
+	/*!
+     * \brief simulates organic C, N, and P cycling in soil using C-FARM one carbon model
+	 *        Execute when CSWAT = 1, rewrite from carbon_new.f and ndenit.f of SWAT
+	 * \TODO THIS IS ON THE TODO LIST.
      * \return void
      */
-    void CalculateMinerandVolati(int i);
+    void Mineralization_CFARMOneCarbonModel(int i);
+	/*!
+	 * \brief simulates organic C, N, and P cycling in soil using CENTURY model
+	 *        Execute when CSWAT = 2, rewrite from carbon_zhang.f90 and ndenit.f of SWAT
+     * \return void
+     */
+    void Mineralization_CENTURYModel(int i);
+    /*!
+     * \brief estimates daily mineralization (NH3 to NO3) and volatilization of NH3.
+     *        rewrite from nitvol.f of SWAT
+     * \return void
+     */
+    void Volatilization(int i);
 
     /*!
-    * \brief Calculate P flux between the labile, active mineral and stable mineral p pools.
-     *
+     * \brief Calculate P flux between the labile, active mineral and stable mineral p pools.
+     *        rewrite from pminrl, and pminrl2 according to solP_model
+	 * \TODO In current version, the solP_model is set to 0, i.e., pminrl2 is used as default
      * \return void
      */
     void CalculatePflux(int i);
-
-	/*!
-    * \brief Calculate C flux.
-     *
-     * \return void
-     */
-    void CalculateCflux(int i);
-
+	/// initial outputs
     void initialOutputs();
-
 };

@@ -1,11 +1,5 @@
-/*!
- * \ingroup minRL
- * \author Huiran Gao
- * \date April 2016
- */
-
 #include <iostream>
-#include "NandPmi.h"
+#include "Nutrient_Transformation.h"
 #include "MetadataInfo.h"
 #include <cmath>
 #include <iostream>
@@ -16,7 +10,7 @@
 
 using namespace std;
 
-NandPim::NandPim(void) :
+Nutrient_Transformation::Nutrient_Transformation(void) :
 		//input
         m_nCells(-1), m_cellWidth(-1.f), m_soilLayers(-1), m_cmn(-1.f), m_cdn(-1.f), m_sdnco(-1.f),m_nactfr(-1.f), m_psp(-1.f), m_ssp(-1.f),
         m_nSoilLayers(NULL), m_sol_z(NULL), m_sol_thick(NULL), m_sol_clay(NULL), m_sol_bd(NULL),
@@ -45,7 +39,7 @@ NandPim::NandPim(void) :
 {
 }
 
-NandPim::~NandPim(void)
+Nutrient_Transformation::~Nutrient_Transformation(void)
 {
 	if(m_hmntl != NULL) Release1DArray(m_hmntl);
 	if(m_hmptl != NULL) Release1DArray(m_hmptl);
@@ -82,10 +76,10 @@ NandPim::~NandPim(void)
 	if (m_sol_RSPC != NULL) Release2DArray(m_nCells, m_sol_RSPC);
 }
 
-bool NandPim::CheckInputSize(const char *key, int n)
+bool Nutrient_Transformation::CheckInputSize(const char *key, int n)
 {
     if (n <= 0)
-        throw ModelException(MID_MINRL, "CheckInputSize",
+        throw ModelException(MID_NUTR_TF, "CheckInputSize",
                              "Input data for " + string(key) + " is invalid. The size could not be less than zero.");
     if (m_nCells != n)
     {
@@ -93,83 +87,83 @@ bool NandPim::CheckInputSize(const char *key, int n)
             m_nCells = n;
         else
         {
-			throw ModelException(MID_MINRL, "CheckInputSize", "Input data for " + string(key) + " is invalid with size: "+ ValueToString(n) +
+			throw ModelException(MID_NUTR_TF, "CheckInputSize", "Input data for " + string(key) + " is invalid with size: "+ ValueToString(n) +
 				". The origin size is " + ValueToString(m_nCells) + ".\n");
         }
     }
     return true;
 }
 
-bool NandPim::CheckInputData()
+bool Nutrient_Transformation::CheckInputData()
 {
     if (this->m_nCells <= 0)
-        throw ModelException(MID_MINRL, "CheckInputData", "The input data can not be less than zero.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The input data can not be less than zero.");
     if (this->m_soilLayers < 0)
-        throw ModelException(MID_MINRL, "CheckInputData", "The maximum soil layers number can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The maximum soil layers number can not be NULL.");
     if (this->m_cellWidth < 0)
-        throw ModelException(MID_MINRL, "CheckInputData", "The cell width can not be less than 0.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The cell width can not be less than 0.");
     if (this->m_nSoilLayers == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The soil layers can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The soil layers can not be NULL.");
     if (this->m_cmn <0)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_cmn can not be less than 0.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_cmn can not be less than 0.");
     if (this->m_cdn <0)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_cdn can not be less than 0.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_cdn can not be less than 0.");
     if (this->m_landcover == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_landcover can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_landcover can not be NULL.");
     if (this->m_nactfr <0)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_nactfr can not be less than 0.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_nactfr can not be less than 0.");
 	if (this->m_sdnco <0)
-		throw ModelException(MID_MINRL, "CheckInputData", "The m_sdnco can not be less than 0.");
+		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sdnco can not be less than 0.");
     if (this->m_psp <0)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_psp can not be less than 0.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_psp can not be less than 0.");
 	if (this->m_ssp <0)
-		throw ModelException(MID_MINRL, "CheckInputData", "The m_ssp can not be less than 0.");
+		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_ssp can not be less than 0.");
 	if (this->m_sol_clay == NULL)
-		throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_clay can not be NULL.");
+		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_clay can not be NULL.");
     if (this->m_sol_z == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_z can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_z can not be NULL.");
 	if (this->m_sol_rsdin == NULL)
-		throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_rsdin can not be NULL.");
+		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_rsdin can not be NULL.");
 	//if (m_sol_cov == NULL)
-	//	throw ModelException(MID_MINRL, "CheckInputData", "The residue on soil surface can not be NULL.");
+	//	throw ModelException(MID_NUTR_TF, "CheckInputData", "The residue on soil surface can not be NULL.");
 	//if (m_sol_rsd == NULL)
-	//	throw ModelException(MID_MINRL, "CheckInputData", "The organic matter in soil classified as residue can not be NULL.");
+	//	throw ModelException(MID_NUTR_TF, "CheckInputData", "The organic matter in soil classified as residue can not be NULL.");
 	if (this->m_a_days == NULL)
-		throw ModelException(MID_MINRL, "CheckInputData", "The m_a_days can not be NULL.");
+		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_a_days can not be NULL.");
 	if (this->m_b_days == NULL)
-		throw ModelException(MID_MINRL, "CheckInputData", "The m_b_days can not be NULL.");
+		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_b_days can not be NULL.");
 	if (this->m_sol_thick == NULL)
-		throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_thick can not be NULL.");
+		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_thick can not be NULL.");
 	if (this->m_sol_bd == NULL)
-		throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_bd can not be NULL.");
+		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_bd can not be NULL.");
     if (this->m_rsdco_pl == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_rsdco_pl can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_rsdco_pl can not be NULL.");
     if (this->m_sol_cbn == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_cbn can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_cbn can not be NULL.");
     if (this->m_sol_awc == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_awc can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_awc can not be NULL.");
     if (this->m_sol_wpmm == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_wpmm can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_wpmm can not be NULL.");
     if (this->m_sol_no3 == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_no3 can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_no3 can not be NULL.");
     if (this->m_sol_nh4 == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_nh4 can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_nh4 can not be NULL.");
     if (this->m_sol_orgn == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_orgn can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_orgn can not be NULL.");
     if (this->m_sol_orgp == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_orgp can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_orgp can not be NULL.");
     if (this->m_sol_solp == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_solp can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_solp can not be NULL.");
     if (this->m_soilStorage == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_soilStorage can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_soilStorage can not be NULL.");
     if (this->m_sote == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sote can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sote can not be NULL.");
 	if (this->m_sol_wsatur == NULL)
-		throw ModelException(MID_MINRL, "CheckInputData", "The amount of water held in the soil layer at saturation data can not be NULL.");
+		throw ModelException(MID_NUTR_TF, "CheckInputData", "The amount of water held in the soil layer at saturation data can not be NULL.");
     return true;
 }
 
-void NandPim::SetValue(const char *key, float value)
+void Nutrient_Transformation::SetValue(const char *key, float value)
 {
     string sk(key);
     if (StringMatch(sk, VAR_OMP_THREADNUM)) omp_set_num_threads((int) value); 
@@ -182,10 +176,10 @@ void NandPim::SetValue(const char *key, float value)
 	else if (StringMatch(sk, VAR_SSP)) { this->m_ssp = value; }
 	else if (StringMatch(sk, VAR_CSWAT)) { this->m_CbnModel = value; }
     else
-        throw ModelException(MID_MINRL, "SetValue", "Parameter " + sk + " does not exist.");
+        throw ModelException(MID_NUTR_TF, "SetValue", "Parameter " + sk + " does not exist.");
 }
 
-void NandPim::Set1DData(const char *key, int n, float *data)
+void Nutrient_Transformation::Set1DData(const char *key, int n, float *data)
 {
     if (!this->CheckInputSize(key, n)) return;
     string sk(key);
@@ -203,10 +197,10 @@ void NandPim::Set1DData(const char *key, int n, float *data)
 	else if (StringMatch(sk, VAR_TILLAGE_FACTOR)) m_tillage_factor = data;
 	else if (StringMatch(sk, VAR_TILLAGE_SWITCH)) m_tillage_switch = data;
     else
-        throw ModelException(MID_MINRL, "Set1DData", "Parameter " + sk + " does not exist.");
+        throw ModelException(MID_NUTR_TF, "Set1DData", "Parameter " + sk + " does not exist.");
 }
 
-void NandPim::Set2DData(const char *key, int nRows, int nCols, float **data)
+void Nutrient_Transformation::Set2DData(const char *key, int nRows, int nCols, float **data)
 {
     if (!this->CheckInputSize(key, nRows)) return;
     string sk(key);
@@ -230,10 +224,10 @@ void NandPim::Set2DData(const char *key, int nRows, int nCols, float **data)
 	else if (StringMatch(sk, VAR_POROST)) m_sol_por = data;
 	else if (StringMatch(sk, VAR_SAND)) m_sand = data;
     else
-        throw ModelException(MID_MINRL, "Set2DData", "Parameter " + sk + " does not exist.");
+        throw ModelException(MID_NUTR_TF, "Set2DData", "Parameter " + sk + " does not exist.");
 }
 
-void NandPim::initialOutputs()
+void Nutrient_Transformation::initialOutputs()
 {
 	if(m_hmntl == NULL) Initialize1DArray(m_nCells, m_hmntl, 0.f);
 	if(m_hmptl == NULL) Initialize1DArray(m_nCells, m_hmptl, 0.f);
@@ -253,13 +247,6 @@ void NandPim::initialOutputs()
 		for (int i = 0; i < m_nCells; i++)
 			m_sol_rsd[i][0] = m_sol_cov[i];
 	}
-	/// tillage. Commented by LJ, inputs from PLTMGT_SWAT module
-	//if (m_CbnModel == 2){
-	//	if (m_tillage_days == NULL) Initialize1DArray(m_nCells, m_tillage_days, 0);
-	//	if (m_tillage_switch == NULL) Initialize1DArray(m_nCells, m_tillage_switch, 0);
-	//	if (m_tillage_depth == NULL) Initialize1DArray(m_nCells, m_tillage_depth, 0.f);
-	//	if (m_tillage_factor == NULL) Initialize1DArray(m_nCells, m_tillage_factor, 0.f);
-	//}
 	// initial input soil chemical in first run
 	if(m_sol_no3 == NULL) Initialize2DArray(m_nCells, m_soilLayers, m_sol_no3, 0.f);
 	if(m_sol_fon == NULL || m_sol_fop == NULL || m_sol_aorgn == NULL || 
@@ -332,7 +319,7 @@ void NandPim::initialOutputs()
 					// Allow Dynamic PSP Ratio
 					if (conv_wt != 0) solp = (m_sol_solp[i][k] / conv_wt) * 1000000.f;
 					}else{
-						throw ModelException(MID_MINRL, "initialOutputs", "Please check the bulk density and soil thickness data.");
+						throw ModelException(MID_NUTR_TF, "initialOutputs", "Please check the bulk density and soil thickness data.");
 					if (m_sol_clay[i][k] > 0.f)
 					{
 						psp = -0.045f * log(m_sol_clay[i][k]) + (0.001f * solp);
@@ -469,27 +456,32 @@ void NandPim::initialOutputs()
     }
 }
 
-int NandPim::Execute()
+int Nutrient_Transformation::Execute()
 {
     CheckInputData();
     initialOutputs();
 #pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
     {
-        //Calculate daily nitrogen and phosphorus mineralization and immobilization
-        CalculateMinerandImmobi(i);
+        // compute nitrogen and phosphorus mineralization
+		if (m_CbnModel == 0)
+			Mineralization_StaticCarbonMethod(i);
+		else if (m_CbnModel == 1)
+			Mineralization_CFARMOneCarbonModel(i);
+		else if (m_CbnModel == 2)
+			Mineralization_CENTURYModel(i);
+		else /// throw exception if Carbon method invalid
+			throw ModelException(MID_NUTR_TF, "ComputeCNPCycling", "Carbon modeling method must be 0, 1, or 2.");
         //Calculate daily mineralization (NH3 to NO3) and volatilization of NH3
-        CalculateMinerandVolati(i);
+        Volatilization(i);
         //Calculate P flux between the labile, active mineral and stable mineral P pools
         CalculatePflux(i);
-		//Calculate C flux
-		CalculateCflux(i);
     }
 	//cout<<"minRL, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
     return 0;
 }
 
-void NandPim::CalculateMinerandImmobi(int i)
+void Nutrient_Transformation::Mineralization_StaticCarbonMethod(int i)
 {
     //soil layer (k)
     for (int k = 0; k < (int)m_nSoilLayers[i]; k++)
@@ -691,7 +683,12 @@ void NandPim::CalculateMinerandImmobi(int i)
     }
 }
 
-void NandPim::CalculateMinerandVolati(int i)
+void Nutrient_Transformation::Mineralization_CFARMOneCarbonModel(int i)
+{
+	/// TODO
+}
+
+void Nutrient_Transformation::Volatilization(int i)
 {
     //soil layer (k)
     float kk = 0.f;
@@ -785,7 +782,7 @@ void NandPim::CalculateMinerandVolati(int i)
     }
 }
 
-void NandPim::CalculatePflux(int i)
+void Nutrient_Transformation::CalculatePflux(int i)
 {
 	float wt1 = 0.f;
 	float conv_wt = 0.f;
@@ -953,22 +950,20 @@ void NandPim::CalculatePflux(int i)
     }
 }
 
-void NandPim::CalculateCflux(int i)
+void Nutrient_Transformation::Mineralization_CENTURYModel(int i)
 {
 	/// update tillage related variables if stated. Code from subbasin.f of SWAT, line 153-164
-	if (m_CbnModel == 2)
-	{	/// if CENTURY model, and tillage operation has been operated
-		if (m_tillage_days != NULL && m_tillage_days[i] > 0.f)
+	/// if CENTURY model, and tillage operation has been operated
+	if (m_tillage_days != NULL && m_tillage_days[i] > 0.f)
+	{
+		if (m_tillage_days[i] >= 30.f)
 		{
-			if (m_tillage_days[i] >= 30.f)
-			{
-				m_tillage_switch[i] = 0.f;
-				m_tillage_days[i] = 0.f;
-			} 
-			else
-			{
-				m_tillage_days[i] += 1.f;
-			}
+			m_tillage_switch[i] = 0.f;
+			m_tillage_days[i] = 0.f;
+		} 
+		else
+		{
+			m_tillage_days[i] += 1.f;
 		}
 	}
 	
@@ -1029,9 +1024,9 @@ void NandPim::CalculateCflux(int i)
 	float WMIN = 0.f, DMDN = 0.f, wdn = 0.f, Delta_BMC = 0.f, DeltaWN = 0.f;
 	/// calculate tillage factor using DSSAT
 	if (m_tillage_switch[i] == 1 && m_tillage_days[i] <= 30.f) 
-		m_tillage_factor[i] = 1.6f;
-	else
-		m_tillage_factor[i] = 1.f;
+			m_tillage_factor[i] = 1.6f;
+		else
+			m_tillage_factor[i] = 1.f;
 
 	/// calculate C/N dynamics for each soil layer
 	for (int k = 0; k < (int)m_nSoilLayers[i]; k++)
@@ -1450,7 +1445,7 @@ void NandPim::CalculateCflux(int i)
 	}	
 }
 
-void NandPim::GetValue(const char *key, float *value)
+void Nutrient_Transformation::GetValue(const char *key, float *value)
 {
     string sk(key);
     if (StringMatch(sk, VAR_WSHD_DNIT)) { *value = this->m_wshd_dnit; }
@@ -1464,10 +1459,10 @@ void NandPim::GetValue(const char *key, float *value)
     else if (StringMatch(sk, VAR_WSHD_PAL)) { *value = this->m_wshd_pal; }
     else if (StringMatch(sk, VAR_WSHD_PAS)) { *value = this->m_wshd_pas; }
     else
-        throw ModelException(MID_MINRL, "GetValue", "Parameter " + sk + " does not exist.");
+        throw ModelException(MID_NUTR_TF, "GetValue", "Parameter " + sk + " does not exist.");
 }
 
-void NandPim::Get1DData(const char *key, int *n, float **data)
+void Nutrient_Transformation::Get1DData(const char *key, int *n, float **data)
 {
 	initialOutputs();
 	string sk(key);
@@ -1483,11 +1478,11 @@ void NandPim::Get1DData(const char *key, int *n, float **data)
 	else if (StringMatch(sk, VAR_A_DAYS)){*data = this->m_a_days;}
 	else if (StringMatch(sk, VAR_B_DAYS)){*data = this->m_b_days;}
 	else
-		throw ModelException(MID_MINRL, "Get1DData", "Parameter " + sk + " does not exist.");
+		throw ModelException(MID_NUTR_TF, "Get1DData", "Parameter " + sk + " does not exist.");
 	*n = this->m_nCells;
 }
 
-void NandPim::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
+void Nutrient_Transformation::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
 {
 	initialOutputs();
     string sk(key);
@@ -1529,5 +1524,5 @@ void NandPim::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
 	else if (StringMatch(sk, VAR_SOL_RNMN)) {*data = this->m_sol_RNMN;}
 	else if (StringMatch(sk, VAR_SOL_RSPC)) {*data = this->m_sol_RSPC;}
     else
-        throw ModelException(MID_MINRL, "Get2DData", "Parameter " + sk + " does not exist.");
+        throw ModelException(MID_NUTR_TF, "Get2DData", "Parameter " + sk + " does not exist.");
 }

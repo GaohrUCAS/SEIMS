@@ -464,11 +464,11 @@
 #define MDESC_SEDR_SBAGNOLD                        "Sediment channel routing using variable channel dimension method as used in SWAT."
 
 /// Nutrient
-/// nitrogen and phosphorus mineralization and immobilization
-#define MCLS_MINRL "Daily nitrogen and phosphorus mineralization and immobilization"
-#define MCLSDESC_MINRL "Daily nitrogen and phosphorus mineralization and immobilization considering fresh organic material (plant residue) and active and stable humus material."
-#define MID_MINRL "MINRL"
-#define MDESC_MINRL "Daily nitrogen and phosphorus mineralization and immobilization considering fresh organic material (plant residue) and active and stable humus material."
+/// carbon, nitrogen, and phosphorus mineralization and immobilization etc
+#define MCLS_NUTRCYC "nutrient cycling"
+#define MCLSDESC_NUTRCYC "Carbon, nitrogen, and phosphorus cycling"
+#define MID_NUTR_TF "NUTR_TF"
+#define MDESC_NUTR_TF "Daily nitrogen and phosphorus mineralization and immobilization considering fresh organic material (plant residue) and active and stable humus material."
 /// Nutrient removed and loss in surface runoff
 #define MCLS_NUTRSED "Nutrient removed and loss in surface runoff, lateral flow, tile flow, and percolation out of the profile."
 #define MCLSDESC_NUTRSED "Nutrient removed and loss in surface runoff, lateral flow, tile flow, and percolation out of the profile."

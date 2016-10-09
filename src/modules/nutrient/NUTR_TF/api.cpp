@@ -2,7 +2,7 @@
 #include <string>
 #include "api.h"
 #include "util.h"
-#include "NandPmi.h"
+#include "Nutrient_Transformation.h"
 #include <iostream>
 #include "SimulationModule.h"
 #include "MetadataInfo.h"
@@ -10,22 +10,22 @@
 
 extern "C" SEIMS_MODULE_API SimulationModule *GetInstance()
 {
-    return new NandPim();
+    return new Nutrient_Transformation();
 }
 
 //! function to return the XML Metadata document string
 extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 {
     MetadataInfo mdi;
-    mdi.SetAuthor("Huiran Gao");
-    mdi.SetClass(MCLS_MINRL, MCLSDESC_MINRL);
-    mdi.SetDescription(MDESC_MINRL);
+    mdi.SetAuthor("Huiran Gao, LiangJun Zhu");
+    mdi.SetClass(MCLS_NUTRCYC, MCLSDESC_NUTRCYC);
+    mdi.SetDescription(MDESC_NUTR_TF);
     mdi.SetEmail(SEIMS_EMAIL);
-    mdi.SetID(MDESC_MINRL);
-    mdi.SetName(MDESC_MINRL);
-    mdi.SetVersion("1.0");
+    mdi.SetID(MDESC_NUTR_TF);
+    mdi.SetName(MDESC_NUTR_TF);
+    mdi.SetVersion("1.1");
     mdi.SetWebsite(SEIMS_SITE);
-    mdi.SetHelpfile("MINRL.html");
+    mdi.SetHelpfile("NUTR_TF.html");
 
     mdi.AddParameter(Tag_CellWidth, UNIT_LEN_M, DESC_CellWidth, Source_ParameterDB, DT_Single);
     mdi.AddParameter(VAR_CMN, UNIT_NON_DIM, DESC_CMN, Source_ParameterDB, DT_Single);

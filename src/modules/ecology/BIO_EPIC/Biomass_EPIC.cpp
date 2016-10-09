@@ -262,7 +262,7 @@ bool Biomass_EPIC::CheckInputData(void)
     if (m_soilESDay == NULL)
         throw ModelException(MID_BIO_EPIC, "CheckInputData", "The actual soil et can not be NULL.");
 	if (this->m_sol_rsdin == NULL)
-		throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_rsdin can not be NULL.");
+		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_rsdin can not be NULL.");
     if (m_igro == NULL)
         throw ModelException(MID_BIO_EPIC, "CheckInputData", "The land cover status code can not be NULL.");
     if (m_landCoverCls == NULL)
