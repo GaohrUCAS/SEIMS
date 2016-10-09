@@ -36,7 +36,7 @@ MGTOpt_SWAT::MGTOpt_SWAT(void) : m_nCells(-1), m_nSub(-1), m_soilLayers(-1),
 								 m_soilManureC(NULL), m_soilManureN(NULL), m_soilManureP(NULL),
         /// Irrigation
                                  m_irrFlag(NULL), m_appliedWater(NULL), m_irrSurfQWater(NULL), m_deepWaterDepth(NULL),
-                                 m_shallowWaterDepth(NULL), m_impoundVolume(NODATA_VALUE),
+                                 m_shallowWaterDepth(NULL),
                                  m_impoundArea(NODATA_VALUE), m_deepIrrWater(NULL), m_shallowIrrWater(NULL),
         /// auto irrigation operation
                                  m_wtrStrsID(NULL), m_autoWtrStres(NULL), m_autoIrrSource(NULL), m_autoIrrNo(NULL),
@@ -58,6 +58,7 @@ MGTOpt_SWAT::MGTOpt_SWAT(void) : m_nCells(-1), m_nSub(-1), m_soilLayers(-1),
         /// Release or impound operation
                                  m_impoundTriger(NULL), m_potVol(NULL), m_potVolMax(NULL),m_potVolLow(NULL),
 								 m_sol_sat(NULL), m_soilStorage(NULL), m_soilStorageProfile(NULL),
+								 m_potNo3(NULL), m_potNH4(NULL), m_potSolP(NULL),
 		/// CENTURY C/N cycling related variables
 								m_sol_HSN(NULL), m_sol_LM(NULL), m_sol_LMC(NULL), m_sol_LMN(NULL), m_sol_LSC(NULL), 
 								m_sol_LSN(NULL), m_sol_LS(NULL), m_sol_LSL(NULL), m_sol_LSLC(NULL), m_sol_LSLNC(NULL),
@@ -247,6 +248,9 @@ void MGTOpt_SWAT::Set1DData(const char *key, int n, float *data)
         //else if (StringMatch(sk, VAR_SHALLST)) m_shallowWaterDepth = data;
 	/// impound/release
 	else if (StringMatch(sk, VAR_POT_VOL)) m_potVol = data;
+	else if (StringMatch(sk, VAR_POT_NO3)) m_potNo3 = data;
+	else if (StringMatch(sk, VAR_POT_NH4)) m_potNH4 = data;
+	else if (StringMatch(sk, VAR_POT_SOLP)) m_potSolP = data;
 	else if (StringMatch(sk, VAR_SOL_SW)) m_soilStorageProfile = data;
     else
         throw ModelException(MID_PLTMGT_SWAT, "Set1DData", "Parameter " + sk + " does not exist.");
@@ -799,10 +803,10 @@ void MGTOpt_SWAT::ExecuteIrrigationOperation(int i, int &factoryID, int nOp)
             /// m_impoundArea should be input from pothole.f
             /// currently, set a default value as half of cell's area. TODO
             m_impoundArea = m_cellArea / 10000.f * 0.5f;
-            m_impoundVolume = 0.f;  /// TODO, should be DT_Raster1D
+
             if (pot_fr > UTIL_ZERO)
             {
-                m_impoundVolume += vol / (10.f * m_impoundArea);
+                m_potVol[i] += vol / (10.f * m_impoundArea);
                 m_appliedWater[i] = vmm;  ///added rice irrigation 11/10/11
             } else
             {
@@ -850,21 +854,27 @@ void MGTOpt_SWAT::ExecuteIrrigationOperation(int i, int &factoryID, int nOp)
 
 void MGTOpt_SWAT::ExecuteFertilizerOperation(int i, int &factoryID, int nOp)
 {
-    /// translate from fert.f, remains CSWAT = 1 and 2 to be done!!! by LJ
-	/// CSWAT = 1 and 2, were implemented on 2016-9-29, by LJ.
-
+    /* Briefly change log
+	 * 1. Translate from fert.f, remains CSWAT = 1 and 2 to be done!!! by LJ
+	 * 2. CSWAT = 1 and 2, were implemented on 2016-9-29, by LJ.
+	 * 3. Consider paddy rice field according to Chowdary et al., 2004, 2016-10-9, by LJ.
+	 */
     //initializeFertilizerLookup();
     FertilizerOperation *curOperation = (FertilizerOperation *) m_mgtFactory[factoryID]->GetOperations()[nOp];
     /// fertilizer type, ifrt
     int fertilizerID = curOperation->FertilizerID();
     /// kg/ha         |amount of fertilizer applied to HRU
-    float fertilizerKg = curOperation->FertilizerKg();
-    /// fraction of fertilizer which is applied to the top 10 mm of soil (the remaining
-    /// fraction is applied to first soil layer)
+    float fertilizerKgHa = curOperation->FertilizerKg_per_ha();
+    /* fraction of fertilizer which is applied to the top 10 mm of soil 
+	 * the remaining fraction: 
+     *  - is dissolved in the impounded water, if current landcover is paddy rice
+	 *  - is applied to first soil layer defined by user, otherwise
+	 */
     float fertilizerSurfFrac = curOperation->FertilizerSurfaceFrac();
-    /// if the fertilizerID is not existed in lookup table, then return without doing anything.
+    /// if the fertilizerID is not existed in lookup table, then throw an exception
     if (m_fertilizerLookupMap.find(fertilizerID) == m_fertilizerLookupMap.end())
-        return;
+        throw ModelException(MID_PLTMGT_SWAT, "ExecuteFertilizerOperation", "Fertilizer ID " + 
+								ValueToString(fertilizerID) + " is not existed in Fertilizer Database!");
     /**fertilizer paramters derived from lookup table**/
     //!!    fminn(:)      |kg minN/kg frt|fraction of fertilizer that is mineral N (NO3 + NH4)
     float fertMinN = m_fertilizerLookupMap[fertilizerID][FERTILIZER_PARAM_FMINN_IDX];
@@ -882,7 +892,8 @@ void MGTOpt_SWAT::ExecuteFertilizerOperation(int i, int &factoryID, int nOp)
     float bactLPDB = m_fertilizerLookupMap[fertilizerID][FERTILIZER_PARAM_BATTLPDB_IDX];
     //!!    bactkddb(:)   |none          |fraction of bacteria in solution (the remaining fraction is sorbed to soil particles)
     float bactKDDB = m_fertilizerLookupMap[fertilizerID][FERTILIZER_PARAM_BACKTKDDB_IDX];
-
+	// commercial fertilizer (0) or manure (1)
+	int fertype = (int)m_fertilizerLookupMap[fertilizerID][FERTILIZER_PARAM_MANURE_IDX];
     /**summary output**/
     //!!    fertn         |kg N/ha       |total amount of nitrogen applied to soil in cell on day
     float fertN = 0.f;
@@ -895,41 +906,48 @@ void MGTOpt_SWAT::ExecuteFertilizerOperation(int i, int &factoryID, int nOp)
     float cFertN = 0.f;
     /// cfertp       |kg P/ha       |total amount of phosphorus applied to soil during continuous fertilizer operation in cell on day
     float cFertP = 0.f;
-    /// weighting factor used to partition the  organic N & P content of the fertilizer
+    /// weighting factor used to partition the organic N & P content of the fertilizer
     /// between the fresh organic and the active organic pools
     float rtof = 0.5f;
     float xx; /// fraction of fertilizer applied to layer
     float gc = 0.f, gc1 = 0.f, swf = 0.f, frt_t = 0.f;
-
-    for (int l = 0; l < 2; l++) /// top surface and first layer
+	/// if current landcover is paddy rice, only apply the commercial fertilizer to the top surface.
+	int lyrs = 2;
+	if (FloatEqual(m_landCover[i], CROP_PADDYRICE) && fertype == 0 && m_potVol[i] > 0.f){
+		lyrs = 1;
+		m_potNo3 [i] += xx * fertilizerKgHa * (1.f - fertNH4N) * fertMinN;
+		m_potNH4[i] += xx * fertilizerKgHa * fertNH4N * fertMinN;
+		m_potSolP[i] += xx * fertilizerKgHa * fertMinP;
+	}
+    for (int l = 0; l < lyrs; l++) /// top surface and first layer
     {
         if (l == 0) xx = fertilizerSurfFrac;
         if (l == 1) xx = 1.f - fertilizerSurfFrac;
-        m_soilNO3[i][l] += xx * fertilizerKg * (1.f - fertNH4N) * fertMinN;
-        if (m_CbnModel == 0)
+        m_soilNO3[i][l] += xx * fertilizerKgHa * (1.f - fertNH4N) * fertMinN;
+        if (m_CbnModel == 0) /// Static model
         {
-            m_soilFreshOrgN[i][l] += rtof * xx * fertilizerKg * fertOrgN;
-            m_soilActiveOrgN[i][l] += (1.f - rtof) * xx * fertilizerKg * fertOrgN;
-            m_soilFreshOrgP[i][l] += rtof * xx * fertilizerKg * fertOrgP;
-            m_soilActiveOrgN[i][l] += (1.f - rtof) * xx * fertilizerKg * fertOrgP;
+            m_soilFreshOrgN[i][l] += rtof * xx * fertilizerKgHa * fertOrgN;
+            m_soilActiveOrgN[i][l] += (1.f - rtof) * xx * fertilizerKgHa * fertOrgN;
+            m_soilFreshOrgP[i][l] += rtof * xx * fertilizerKgHa * fertOrgP;
+            m_soilOrgP[i][l] += (1.f - rtof) * xx * fertilizerKgHa * fertOrgP;
         } else if (m_CbnModel == 1) /// C-FARM one carbon pool model
         {
-			m_soilManureC[i][l] += xx * fertilizerKg * fertOrgN * 10.f;
-			m_soilManureN[i][l] += xx * fertilizerKg * fertOrgN;
-			m_soilManureP[i][l] += xx * fertilizerKg * fertOrgP;
+			m_soilManureC[i][l] += xx * fertilizerKgHa * fertOrgN * 10.f; /// assume C:N = 10:1
+			m_soilManureN[i][l] += xx * fertilizerKgHa * fertOrgN;
+			m_soilManureP[i][l] += xx * fertilizerKgHa * fertOrgP;
         } else if (m_CbnModel == 2) /// CENTURY model for C/N cycling
         {
             float X1 = 0.f, X8 = 0.f, X10 = 0.f, XXX = 0.f, YY = 0.f;
             float ZZ = 0.f, XZ = 0.f, YZ = 0.f, RLN = 0.f;
 			/// the fraction of organic carbon in fertilizer, for most fertilizers orgc_f is set to 0.
 			float orgc_f = 0.f;
-			m_soilFreshOrgP[i][l] += rtof * xx * fertilizerKg * fertOrgP;
-			m_soilOrgP[i][l] += (1.f - rtof) * xx * fertilizerKg * fertOrgP;
-			/// allocate organic fertilizer to slow (SWAT active) N pool
-			m_sol_HSN[i][l] += (1.f - rtof) * xx * fertilizerKg * fertOrgN;
+			m_soilFreshOrgP[i][l] += rtof * xx * fertilizerKgHa * fertOrgP;
+			m_soilOrgP[i][l] += (1.f - rtof) * xx * fertilizerKgHa * fertOrgP;
+			/// allocate organic fertilizer to slow (SWAT active) N pool, i.e., m_soilActiveOrgN
+			m_sol_HSN[i][l] += (1.f - rtof) * xx * fertilizerKgHa * fertOrgN;
 			m_soilActiveOrgN[i][l] = m_sol_HSN[i][l];
 			/// X1 is fertilizer applied to layer (kg/ha)
-			X1 = xx * fertilizerKg;
+			X1 = xx * fertilizerKgHa;
 			// X8 is organic carbon applied (kg C/ha)
 			X8 - X1 * orgc_f;
 			/// RLN is calculated as a function of C:N ration in fertilizer
@@ -969,8 +987,8 @@ void MGTOpt_SWAT::ExecuteFertilizerOperation(int i, int &factoryID, int nOp)
 			m_sol_LSL[i][l] += YZ * lingnin_SOM_frac;
 			m_soilFreshOrgN[i][l] = m_sol_LMN[i][l] + m_sol_LSN[i][l];
         }
-        m_soilNH4[i][l] += xx * fertilizerKg * fertNH4N * fertMinN;
-        m_soilSolP[i][l] += xx * fertilizerKg * fertMinP;
+        m_soilNH4[i][l] += xx * fertilizerKgHa * fertNH4N * fertMinN;
+        m_soilSolP[i][l] += xx * fertilizerKgHa * fertMinP;
     }
     /// add bacteria - #cfu/g * t(manure)/ha * 1.e6g/t * ha/10,000m^2 = 100.
     /// calculate ground cover
@@ -995,13 +1013,13 @@ void MGTOpt_SWAT::ExecuteFertilizerOperation(int i, int &factoryID, int nOp)
     //m_bactLessPersistParticle[i] *= (1. - bactKDDB);
 
     /// summary calculations, currently not used for output. TODO in the future.
-    fertNO3 = fertilizerKg * fertMinN * (1.f - fertNH4N);
-    fertNH4 = fertilizerKg * (fertMinN * fertNH4N);
-    fertOrgN = fertilizerKg * fertOrgN;
-    fertOrgP = fertilizerKg * fertOrgP;
-    fertSolP = fertilizerKg * fertSolP;
-    fertN += (fertilizerKg + cFertN) * (fertMinN + fertOrgN);
-    fertP += (fertilizerKg + cFertP) * (fertMinP + fertOrgP);
+    fertNO3 = fertilizerKgHa * fertMinN * (1.f - fertNH4N);
+    fertNH4 = fertilizerKgHa * (fertMinN * fertNH4N);
+    fertOrgN = fertilizerKgHa * fertOrgN;
+    fertOrgP = fertilizerKgHa * fertOrgP;
+    fertSolP = fertilizerKgHa * fertSolP;
+    fertN += (fertilizerKgHa + cFertN) * (fertMinN + fertOrgN); /// should be array, but cureently not useful
+    fertP += (fertilizerKgHa + cFertP) * (fertMinP + fertOrgP);
 }
 
 void MGTOpt_SWAT::ExecutePesticideOperation(int i, int &factoryID, int nOp)
@@ -1952,7 +1970,7 @@ void MGTOpt_SWAT::Get2DData(const char *key, int *nRows, int *nCols, float ***da
 
 void MGTOpt_SWAT::initialOutputs()
 {
-    m_cellArea = m_cellWidth * m_cellWidth / 10000.f; // unit: ha
+	if (m_cellArea < 0.f) m_cellArea = m_cellWidth * m_cellWidth / 10000.f; // unit: ha
 	/// figure out all the management codes, and initialize the corresponding variables, aimed to save memory. By LJ
 	if (m_initialized) return;
 	vector<int> definedMgtCodes;
