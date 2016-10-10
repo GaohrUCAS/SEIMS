@@ -23,7 +23,7 @@ NutrCH_QUAL2E::NutrCH_QUAL2E(void) :
 		m_chWTdepth(NULL), m_preChWTDepth(NULL), m_chTemp(NULL),
         m_latNO3ToCh(NULL), m_surNO3ToCh(NULL), m_surNH4ToCh(NULL), m_surSolPToCh(NULL), m_gwNO3ToCh(NULL),
         m_gwSolPToCh(NULL), m_sedOrgNToCh(NULL), m_sedOrgPToCh(NULL), m_sedMinPAToCh(NULL),
-        m_sedMinPSToCh(NULL), m_nh4ToCh(NULL), m_no2ToCh(NULL), m_codToCh(NULL),
+        m_sedMinPSToCh(NULL), m_no2ToCh(NULL), m_surCodToCh(NULL),
 		m_chSr(NULL), m_chDaylen(NULL), m_chCellCount(NULL), m_soilTemp(NULL),
 		// reaches related
 		m_reachDownStream(NULL), m_chOrgNCo(NODATA_VALUE), m_chOrgPCo(NODATA_VALUE),
@@ -224,7 +224,7 @@ bool NutrCH_QUAL2E::CheckInputData()
     CHECK_POINTER(MID_NUTRCH_QUAL2E, m_latNO3ToCh, "m_latNO3ToCh")
     CHECK_POINTER(MID_NUTRCH_QUAL2E, m_surNO3ToCh, "m_surNO3ToCh")
 	CHECK_POINTER(MID_NUTRCH_QUAL2E, m_surSolPToCh, "m_surSolPToCh")
-	CHECK_POINTER(MID_NUTRCH_QUAL2E, m_codToCh, "m_codToCh")
+	CHECK_POINTER(MID_NUTRCH_QUAL2E, m_surCodToCh, "m_codToCh")
     CHECK_POINTER(MID_NUTRCH_QUAL2E, m_gwNO3ToCh, "m_gwNO3ToCh")
 	CHECK_POINTER(MID_NUTRCH_QUAL2E, m_gwSolPToCh, "m_gwSolPToCh")
 	CHECK_POINTER(MID_NUTRCH_QUAL2E, m_sedOrgNToCh, "m_sedOrgNToCh")
@@ -339,14 +339,13 @@ void NutrCH_QUAL2E::Set1DData(const char *key, int n, float *data)
 	else if (StringMatch(sk, VAR_SUR_NO3_TOCH))  { m_surNO3ToCh = data; }
 	else if (StringMatch(sk, VAR_SUR_NH4_TOCH))  { m_surNH4ToCh = data; }
 	else if (StringMatch(sk, VAR_SUR_SOLP_TOCH)) { m_surSolPToCh = data; }
-	else if (StringMatch(sk, VAR_SUR_COD_TOCH))  { m_codToCh = data; }
+	else if (StringMatch(sk, VAR_SUR_COD_TOCH))  { m_surCodToCh = data; }
     else if (StringMatch(sk, VAR_NO3GW_TOCH))    { m_gwNO3ToCh = data; }
     else if (StringMatch(sk, VAR_MINPGW_TOCH))   { m_gwSolPToCh = data; }
     else if (StringMatch(sk, VAR_SEDORGN_TOCH))  { m_sedOrgNToCh = data; }
     else if (StringMatch(sk, VAR_SEDORGP_TOCH))  { m_sedOrgPToCh = data; }
     else if (StringMatch(sk, VAR_SEDMINPA_TOCH)) { m_sedMinPAToCh = data; }
     else if (StringMatch(sk, VAR_SEDMINPS_TOCH)) { m_sedMinPSToCh = data; }
-    else if (StringMatch(sk, VAR_SUR_NH4_TOCH))  { m_nh4ToCh = data; }
     else if (StringMatch(sk, VAR_NO2_TOCH))      { m_no2ToCh = data; }
 	else if (StringMatch(sk, VAR_RCH_DEG)) m_chDeg = data;
     else
@@ -654,14 +653,13 @@ void NutrCH_QUAL2E::AddInputNutrient(int i)
 	}
 	/// dissolved N, P from overland surface flow routing and groundwater
 	m_chNO3[i]  += m_surNO3ToCh[i] + m_latNO3ToCh[i] + m_gwNO3ToCh[i];
-	if (m_surNH4ToCh != NULL && m_surNH4ToCh[i] > 0.f)
-		m_chNH4[i] += m_surNH4ToCh[i];
+	if (m_surNH4ToCh != NULL && m_surNH4ToCh[i] > 0.f) m_chNH4[i] += m_surNH4ToCh[i];
 	m_chSolP[i] += m_surSolPToCh[i] + m_gwSolPToCh[i];
 
-	if(m_nh4ToCh != NULL && m_nh4ToCh[i] > 0.f) m_chNH4[i] += m_nh4ToCh[i];
+	// if(m_nh4ToCh != NULL && m_nh4ToCh[i] > 0.f) m_chNH4[i] += m_nh4ToCh[i];
 	if(m_no2ToCh != NULL && m_no2ToCh[i] > 0.f) m_chNO2[i] += m_no2ToCh[i];
-	if(m_codToCh != NULL && m_codToCh[i] > 0.f){
-		m_chCOD[i] += m_codToCh[i];
+	if(m_surCodToCh != NULL && m_surCodToCh[i] > 0.f){
+		m_chCOD[i] += m_surCodToCh[i];
 		//cout<<", added surface, cod: "<<m_chCOD[i]<<", ";
 	}
 	/// add point source loadings to channel

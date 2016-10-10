@@ -12,14 +12,14 @@
 #include "ModelException.h"
 
 using namespace std;
-/** \defgroup NutGW
+/** \defgroup NutrGW
  * \ingroup Nutrient
  * \brief Calculates the nitrate and soluble phosphorus loading contributed by groundwater flow.
  */
 
 /*!
  * \class NutrientinGroundwater
- * \ingroup NutGW
+ * \ingroup NutrGW
  *
  * \brief Calculates the nitrate and soluble phosphorus loading contributed by groundwater flow.
  *
@@ -120,5 +120,4 @@ private:
     bool CheckInputSize(const char *, int);
 	/// initial outputs
     void initialOutputs();
-
 };

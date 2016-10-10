@@ -600,8 +600,7 @@
 #define VAR_CN2 "CN2"
 #define VAR_CO2 "Co2"                                 /// CO2 Concentration
 #define VAR_CO2HI "CO2HI"
-#define VAR_COD_CH "codToCh"
-#define VAR_COD "cod"
+#define VAR_SUR_COD "sur_cod"
 #define VAR_COD_N "cod_n"
 #define VAR_COD_K "cod_k"
 #define VAR_COND_MAX "Cond_max"                       /// "Maximum automata's conductance"
@@ -1226,7 +1225,7 @@
 #define DESC_CN2 "CN under moisture condition II"
 #define DESC_CO2 "CO2 Concentration"
 #define DESC_CO2HI "elevated CO2 atmospheric concentration corresponding the 2nd point on the radiation use efficiency curve"
-#define DESC_COD "carbonaceous oxygen demand of surface runoff"
+#define DESC_SUR_COD "carbonaceous oxygen demand of surface runoff"
 #define DESC_COD_CH "carbonaceous oxygen demand loading to reach"
 #define DESC_COD_N "Conversion factor"
 #define DESC_COD_K "Reaction coefficient"

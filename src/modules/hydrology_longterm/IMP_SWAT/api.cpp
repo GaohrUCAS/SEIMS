@@ -70,11 +70,25 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddInput(VAR_SUR_NO3, UNIT_CONT_KGHA, DESC_SUR_NO3, Source_Module, DT_Raster1D);
 	mdi.AddInput(VAR_SUR_NH4, UNIT_CONT_KGHA, DESC_SUR_NH4, Source_Module, DT_Raster1D);
 	mdi.AddInput(VAR_SUR_SOLP, UNIT_CONT_KGHA, DESC_SUR_SOLP, Source_Module, DT_Raster1D);
+	mdi.AddInput(VAR_SUR_COD, UNIT_CONT_KGHA, DESC_SUR_COD, Source_Module, DT_Raster1D);
 	mdi.AddInput(VAR_SEDORGN, UNIT_CONT_KGHA, DESC_SEDORGN, Source_Module, DT_Raster1D);
 	mdi.AddInput(VAR_SEDORGP, UNIT_CONT_KGHA, DESC_SEDORGP, Source_Module, DT_Raster1D);
 	mdi.AddInput(VAR_SEDMINPA, UNIT_CONT_KGHA, DESC_SEDMINPA, Source_Module, DT_Raster1D);
 	mdi.AddInput(VAR_SEDMINPS, UNIT_CONT_KGHA, DESC_SEDMINPS, Source_Module, DT_Raster1D);
-    /// set the output variables
+    
+
+	mdi.AddInput(VAR_SBOF, UNIT_FLOW_CMS, DESC_SBOF, Source_Module, DT_Array1D);
+	mdi.AddInput(VAR_SED_TO_CH, UNIT_KG, DESC_SED_TO_CH, Source_Module, DT_Array1D);
+	mdi.AddInput(VAR_SUR_NO3_TOCH, UNIT_KG, DESC_SUR_NO3_ToCH, Source_Module, DT_Array1D);
+	mdi.AddInput(VAR_SUR_NH4_TOCH, UNIT_KG, DESC_SUR_NH4_ToCH, Source_Module, DT_Array1D);
+	mdi.AddInput(VAR_SUR_SOLP_TOCH, UNIT_KG, DESC_SUR_SOLP_ToCH, Source_Module, DT_Array1D);
+	mdi.AddInput(VAR_SUR_COD_TOCH, UNIT_KG, DESC_SUR_COD_ToCH, Source_Module, DT_Array1D);
+	mdi.AddInput(VAR_SEDORGN_TOCH, UNIT_KG, DESC_SEDORGN_CH, Source_Module, DT_Array1D);
+	mdi.AddInput(VAR_SEDORGP_TOCH, UNIT_KG, DESC_SEDORGP_CH, Source_Module, DT_Array1D);
+	mdi.AddInput(VAR_SEDMINPA_TOCH, UNIT_KG, DESC_SEDMINPA_CH, Source_Module, DT_Array1D);
+	mdi.AddInput(VAR_SEDMINPS_TOCH, UNIT_KG, DESC_SEDMINPS_CH, Source_Module, DT_Array1D);
+	
+	/// set the output variables
 	mdi.AddOutput(VAR_POT_NO3, UNIT_KG, DESC_POT_NO3, DT_Raster1D);
 	mdi.AddOutput(VAR_POT_NH4, UNIT_KG, DESC_POT_NH4, DT_Raster1D);
 	mdi.AddOutput(VAR_POT_ORGN, UNIT_KG, DESC_POT_ORGN, DT_Raster1D);

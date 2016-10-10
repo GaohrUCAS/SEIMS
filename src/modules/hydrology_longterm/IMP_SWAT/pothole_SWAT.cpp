@@ -11,13 +11,16 @@ IMP_SWAT::IMP_SWAT(void) : m_cnv(NODATA_VALUE), m_nCells(-1), m_cellWidth(NODATA
 	m_slope(NULL), m_ks(NULL), m_sol_sat(NULL), m_sol_sumfc(NULL), m_soilThick(NULL), m_sol_por(NULL), 
 	m_evLAI(NODATA_VALUE), m_potTilemm(NODATA_VALUE), m_potNo3Decay(NODATA_VALUE), m_potSolPDecay(NODATA_VALUE),
 	m_impoundTrig(NULL), 
-	m_sedYield(NULL), m_sedToCh(NULL), m_sandYield(NULL), m_siltYield(NULL), m_clayYield(NULL), m_smaggreYield(NULL), m_lgaggreYield(NULL),
+	m_sedYield(NULL), m_sandYield(NULL), m_siltYield(NULL), m_clayYield(NULL), m_smaggreYield(NULL), m_lgaggreYield(NULL),
 	m_depEvapor(NULL), m_depStorage(NULL), m_LAIDay(NULL), m_pet(NULL), m_soilStorage(NULL), m_soilStorageProfile(NULL), 
-	m_surfaceRunoff(NULL), m_surqNo3(NULL), m_surqNH4(NULL), m_surqSolP(NULL), m_sedOrgN(NULL), m_sedOrgP(NULL), m_sedActiveMinP(NULL), m_sedStableMinP(NULL),
+	m_surfaceRunoff(NULL), m_surqNo3(NULL), m_surqNH4(NULL), m_surqSolP(NULL), m_surqCOD(NULL), m_sedOrgN(NULL), m_sedOrgP(NULL), m_sedActiveMinP(NULL), m_sedStableMinP(NULL),
 	m_potNo3(NULL), m_potNH4(NULL), m_potOrgN(NULL), m_potSolP(NULL), m_potOrgP(NULL), m_potActMinP(NULL),
 	m_potStaMinP(NULL), m_potSed(NULL), m_potSand(NULL), m_potSilt(NULL), m_potClay(NULL), m_potSag(NULL), m_potLag(NULL), 
 	m_potVol(NULL), m_potVolMax(NULL), m_potVolLow(NULL), m_potSeep(NULL), m_potEvap(NULL), m_potSurfaceArea(NULL),
-	m_kVolat(NODATA_VALUE), m_kNitri(NODATA_VALUE)
+	m_kVolat(NODATA_VALUE), m_kNitri(NODATA_VALUE),
+	/// overland to channel
+	m_surfqToCh(NULL), m_sedToCh(NULL), m_surNO3ToCh(NULL), m_surNH4ToCh(NULL), m_surSolPToCh(NULL), m_surCodToCh(NULL), 
+	m_sedOrgNToCh(NULL), m_sedOrgPToCh(NULL), m_sedMinPAToCh(NULL), m_sedMinPSToCh(NULL)
 {
 	//m_potSedIn(NULL), m_potSandIn(NULL), m_potSiltIn(NULL), m_potClayIn(NULL), m_potSagIn(NULL), m_potLagIn(NULL),
 }
@@ -107,7 +110,7 @@ void IMP_SWAT::SetValue(const char *key, float value)
 	string sk(key);
 	if(StringMatch(sk, Tag_CellWidth)){
 		m_cellWidth = value;
-		m_cellArea = m_cellWidth * m_cellWidth * 1.e-6f; // m2 ==> ha
+		m_cellArea = m_cellWidth * m_cellWidth * 1.e-4f; // m2 ==> ha
 		m_cnv = 10.f * m_cellArea; // mm/ha => m^3
 	}
 	else if (StringMatch(sk, Tag_TimeStep)) m_timestep = value;
@@ -125,8 +128,53 @@ void IMP_SWAT::Set1DData(const char *key, int n, float *data)
 {
 	string sk(key);
 
-	if (StringMatch(sk, VAR_SED_TO_CH)){
+	if (StringMatch(sk, VAR_SBOF)){
+		m_surfqToCh = data;
+		m_subbasinNum = n - 1; /// TODO, add a checkInputSize2 function
+		return;
+	}
+	else if (StringMatch(sk, VAR_SED_TO_CH)){
 		m_sedToCh = data;
+		m_subbasinNum = n - 1;
+		return;
+	}
+	else if (StringMatch(sk, VAR_SUR_NO3_TOCH)){
+		m_surNO3ToCh = data;
+		m_subbasinNum = n - 1;
+		return;
+	}
+	else if (StringMatch(sk, VAR_SUR_NH4_TOCH)){
+		m_surNH4ToCh = data;
+		m_subbasinNum = n - 1;
+		return;
+	}
+	else if (StringMatch(sk, VAR_SUR_SOLP_TOCH)){
+		m_surSolPToCh = data;
+		m_subbasinNum = n - 1;
+		return;
+	}
+	else if (StringMatch(sk, VAR_SUR_COD_TOCH)){
+		m_surCodToCh = data;
+		m_subbasinNum = n - 1;
+		return;
+	}
+	else if (StringMatch(sk, VAR_SEDORGN_TOCH)){
+		m_sedOrgNToCh = data;
+		m_subbasinNum = n - 1;
+		return;
+	}
+	else if (StringMatch(sk, VAR_SEDORGP_TOCH)){
+		m_sedOrgPToCh = data;
+		m_subbasinNum = n - 1;
+		return;
+	}
+	else if (StringMatch(sk, VAR_SEDMINPA_TOCH)){
+		m_sedMinPAToCh = data;
+		m_subbasinNum = n - 1;
+		return;
+	}
+	else if (StringMatch(sk, VAR_SEDMINPS_TOCH)){
+		m_sedMinPSToCh = data;
 		m_subbasinNum = n - 1;
 		return;
 	}
@@ -153,6 +201,7 @@ void IMP_SWAT::Set1DData(const char *key, int n, float *data)
 	else if (StringMatch(sk, VAR_SUR_NO3)) m_surqNo3 = data;
 	else if (StringMatch(sk, VAR_SUR_NH4)) m_surqNH4 = data;
 	else if (StringMatch(sk, VAR_SUR_SOLP)) m_surqSolP = data;
+	else if (StringMatch(sk, VAR_SUR_COD)) m_surqCOD = data;
 	else if (StringMatch(sk, VAR_SEDORGN)) m_sedOrgN = data;
 	else if (StringMatch(sk, VAR_SEDORGP)) m_sedOrgP = data;
 	else if (StringMatch(sk, VAR_SEDMINPA)) m_sedActiveMinP = data;
@@ -222,6 +271,36 @@ int IMP_SWAT::Execute()
 				releaseWater(id);
 			}
 		}
+	}
+	/// reCalculate the surface runoff, sediment, nutrient etc. that into the channel
+#pragma omp parallel for
+	for (int i = 0; i < m_subbasinNum + 1; i++)
+	{
+		m_surfqToCh[i] = 0.f;
+		m_sedToCh[i] = 0.f;
+		m_surNO3ToCh[i] = 0.f;
+		m_surNH4ToCh[i] = 0.f;
+		m_surSolPToCh[i] = 0.f;
+		m_surCodToCh[i] = 0.f;
+		m_sedOrgNToCh[i] = 0.f;
+		m_sedOrgPToCh[i] = 0.f;
+		m_sedMinPAToCh[i] = 0.f;
+		m_sedMinPSToCh[i] = 0.f;
+	}
+#pragma omp parallel for
+	for (int i = 0; i < m_nCells; i++)
+	{
+		int subi = (int) m_subbasin[i]; 
+		m_surfqToCh[subi] += m_surfaceRunoff[i] * m_cellArea * 10.f / m_timestep; /// mm -> m3/s
+		m_sedToCh[subi] += m_sedYield[i];
+		m_surNO3ToCh[subi] += m_surqNo3[i];
+		m_surNH4ToCh[subi] += m_surqNH4[i];
+		m_surSolPToCh[subi] += m_surqSolP[i];
+		m_surCodToCh[subi] += m_surqCOD[i];
+		m_sedOrgNToCh[subi] += m_sedOrgN[i];
+		m_sedOrgPToCh[subi] += m_sedOrgP[i];
+		m_sedMinPAToCh[subi] += m_sedActiveMinP[i];
+		m_sedMinPSToCh[subi] += m_sedStableMinP[i];
 	}
     return true;
 }

@@ -23,6 +23,8 @@ NutrientTransportSediment::NutrientTransportSediment(void) :
 		m_sol_HPC(NULL), m_sol_HSC(NULL), m_sol_LMC(NULL), m_sol_LSC(NULL), m_sol_LS(NULL), 
 		m_sol_LM(NULL), m_sol_LSL(NULL), m_sol_LSLC(NULL), m_sol_LSLNC(NULL), m_sol_BMC(NULL), 
 		m_sol_WOC(NULL), m_sol_perco(NULL), m_sol_laterq(NULL),
+		/// for C-FARM one carbon model input
+		m_sol_mp(NULL),
 		/// for CENTURY C/N cycling model outputs
 		m_sol_latC(NULL), m_sol_percoC(NULL), m_laterC(NULL), m_percoC(NULL), m_sedCLoss(NULL),
         //outputs
@@ -162,6 +164,11 @@ bool NutrientTransportSediment::CheckInputData_CENTURY()
 	if (this->m_sol_laterq == NULL) throw ModelException(MID_NUTRSED, "CheckInputData", "The m_sol_laterq can not be NULL.");
 }
 
+bool NutrientTransportSediment::CheckInputData_CFARM()
+{
+	if (this->m_sol_mp == NULL) throw ModelException(MID_NUTRSED, "CheckInputData", "The m_sol_mp can not be NULL.");
+}
+
 void NutrientTransportSediment::SetValue(const char *key, float value)
 {
     string sk(key);
@@ -223,6 +230,8 @@ void NutrientTransportSediment::Set2DData(const char *key, int nRows, int nCols,
 	else if (StringMatch(sk, VAR_SOL_WOC)) m_sol_WOC = data;
 	else if (StringMatch(sk, VAR_PERCO)) m_sol_perco = data;
 	else if (StringMatch(sk, VAR_SSRU)) m_sol_laterq = data;
+	/// for C-FARM one carbon model
+	else if (StringMatch(sk, VAR_SOL_MP)) m_sol_mp = data;
     else
         throw ModelException(MID_NUTRSED, "Set2DData", "Parameter " + sk + " does not exist.");
 }
@@ -276,9 +285,14 @@ void NutrientTransportSediment::SetSubbasins(clsSubbasins *subbasins)
 int NutrientTransportSediment::Execute()
 {
     if (!CheckInputData())return false;
-	if (m_CbnModel == 2)
+	if (m_CbnModel == 1){
+		if (!CheckInputData_CFARM())
+			return false;
+	}
+	if (m_CbnModel == 2){
 		if (!CheckInputData_CENTURY())
 			return false;
+	}
     this->initialOutputs();
 	// initial nutrient to channel for each day
 #pragma omp parallel for
@@ -301,6 +315,8 @@ int NutrientTransportSediment::Execute()
 		//Calculates the amount of organic nitrogen removed in surface runoff
 		if (m_CbnModel == 0)
 			OrgNRemovedInRunoff_StaticMethod(i);
+		else if (m_CbnModel == 1)
+			OrgNRemovedInRunoff_CFARMOneCarbonModel(i);
 		else if (m_CbnModel == 2)
 			OrgNRemovedInRunoff_CENTURY(i);
         //Calculates the amount of organic and mineral phosphorus attached to sediment in surface runoff. psed.f of SWAT
@@ -375,9 +391,14 @@ void NutrientTransportSediment::OrgNRemovedInRunoff_StaticMethod(int i)
 	}
 }
 
+void NutrientTransportSediment::OrgNRemovedInRunoff_CFARMOneCarbonModel(int i)
+{
+	/// TODO
+}
+
 void NutrientTransportSediment::OrgNRemovedInRunoff_CENTURY(int i)
 {
-	float totOrgN_lyr0 = 0.f; /// kg N/ha, amount of organic N in first soil layer
+	float totOrgN_lyr0 = 0.f; /// kg N/ha, amount of organic N in first soil layer, i.e., xx in SWAT src.
 	float wt1 = 0.f; /// conversion factor, mg/kg => kg/ha
 	float er = 0.f; /// enrichment ratio
 	float conc = 0.f; /// concentration of organic N in soil
@@ -386,7 +407,7 @@ void NutrientTransportSediment::OrgNRemovedInRunoff_CENTURY(int i)
 	float VBC = 0.f; /// C loss with vertical flow
 	float YBC = 0.f; /// BMC loss with sediment
 	float YOC = 0.f; /// Organic C loss with sediment
-	float YW = 0.f; /// Wind erosion, kg/ha
+	float YW = 0.f; /// Wind erosion, kg
 	float TOT = 0.f; /// total organic carbon in layer 1
 	float YEW = 0.f; /// fraction of soil erosion of total soil mass
 	float X1 = 0.f, PRMT_21 = 0.f;
@@ -411,10 +432,13 @@ void NutrientTransportSediment::OrgNRemovedInRunoff_CENTURY(int i)
 		m_sol_HSN[i][0] *= xx1;
 	}
 	/// Calculate runoff and leached C&N from micro-biomass
-	sol_mass = m_soilThick[i][0] / 1000.f * 10000.f * m_sol_bd[i][0] * 1000.f *
-		(1.f - m_sol_rock[i][0] / 100.f);
+	sol_mass = m_soilThick[i][0]/1000.f * 10000.f * m_sol_bd[i][0] * 1000.f *
+		(1.f - m_sol_rock[i][0]/100.f); /// kg/ha
+	/// total organic carbon in layer 1
 	TOT = m_sol_HPC[i][0] + m_sol_HSC[i][0] + m_sol_LMC[i][0] + m_sol_LSC[i][0];
-	YEW = min((m_sedEroded[i] / m_cellArea+YW / m_cellArea) / (sol_mass / 1000.f), 0.9f);
+	/// fraction of soil erosion of total soil mass
+	YEW = min((m_sedEroded[i]/m_cellArea+YW/m_cellArea)/sol_mass, 0.9f);
+
 	X1 = 1.f - YEW;
 	YOC = YEW * TOT;
 	m_sol_HSC[i][0] *= X1;
