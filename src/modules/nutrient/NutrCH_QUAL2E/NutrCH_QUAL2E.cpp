@@ -858,11 +858,18 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	// O2 impact calculations
 	// calculate nitrification rate correction factor for low oxygen QUAL2E equation III-21(cordo)
 	float cordo = 0.f;
-	if (o2con <= 0.001f || o2con != o2con)
+	float o2con2 = o2con;
+	if (o2con2 <= 0.1f)
+		o2con2 = 0.1f;
+	if (o2con2 > 30.f)
+		o2con2 = 30.f;
+	cordo = 1.f - exp(-0.6f * o2con2);
+	if(o2con <= 0.001f) 
 		o2con = 0.001f;
-	else if (o2con > 30.f)
+	if(o2con > 30.f)
 		o2con = 30.f;
 	cordo = 1.f - exp(-0.6f * o2con);
+
 	
 	// modify ammonia and nitrite oxidation rates to account for low oxygen
 	// rate constant for biological oxidation of NH3 to NO2 modified to reflect impact of low oxygen concentration (bc1mod)
@@ -937,9 +944,9 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	dalgae = algcon +
 		(corTempc(gra, thgra, wtmp) * algcon - corTempc(m_rhoq, thrho, wtmp) * algcon - setl * algcon) * tday;
 	if (dalgae < 1.e-6f)
-		dalgae = 0.f;
+		dalgae = 1.e-6f;
 	float dcoef = 3.f;
-	/// set algae limit
+	/// set algae limit (watqual.f)
 	if (dalgae > 5000.f) dalgae = 5000.f;
 	if (dalgae > dcoef * algcon) dalgae = dcoef * algcon;
 	// calculate chlorophyll-a concentration at end of day, QUAL2E equation III-1
@@ -958,8 +965,8 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	zzz = corTempc(m_rk3[i], thm_rk3, wtmp) * cbodcon;
 	dbod = 0.f;
 	dbod = cbodcon - (yyy + zzz) * tday;
-	float coef = 0.f;
 	/********* watqual.f code ***********/
+	//float coef = 0.f;
 	///// deoxygenation rate
 	//coef = exp(-1.f * corTempc(m_rk1[i], thm_rk1, wtmp)*tday);
 	//float tmp = coef * cbodcon;
@@ -989,42 +996,48 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 
 	//float hh = corTempc(m_rk2[i], thm_rk2, wtmp);
 	uu = corTempc(m_rk2[i], thm_rk2, wtmp) * (m_chSatDOx - o2con);
-	vv = (m_ai3 * corTempc(gra, thgra, wtmp) - m_ai4 * corTempc(m_rhoq, thrho, wtmp)) * algcon;
-	//if (algcon > 0.001f)
-	//	vv = (m_ai3 * corTempc(gra, thgra, wtmp) - m_ai4 * corTempc(m_rhoq, thrho, wtmp)) * algcon;
-	//else
-	//	algcon = 0.001f;
+	//vv = (m_ai3 * corTempc(gra, thgra, wtmp) - m_ai4 * corTempc(m_rhoq, thrho, wtmp)) * algcon;
+	if (algcon > 0.001f)
+		vv = (m_ai3 * corTempc(gra, thgra, wtmp) - m_ai4 * corTempc(m_rhoq, thrho, wtmp)) * algcon;
+	else
+		algcon = 0.001f;
 	
 	ww = corTempc(m_rk1[i], thm_rk1, wtmp) * cbodcon;
-	xx = corTempc(m_rk4[i], thm_rk4, wtmp) / (tmpChWtDepth * 1000.f);
-	yy = m_ai5 * corTempc(bc1mod, thbc1, wtmp) * nh4con;
-	zz = m_ai6 * corTempc(bc2mod, thbc2, wtmp) * no2con;
-
+	if(tmpChWtDepth > 0.001f)
+		xx = corTempc(m_rk4[i], thm_rk4, wtmp) / (tmpChWtDepth * 1000.f);
+	if (nh4con > 0.001f)
+		yy = m_ai5 * corTempc(bc1mod, thbc1, wtmp) * nh4con;
+	else
+		nh4con = 0.001f;
+	if (no2con > 0.001f)
+		zz = m_ai6 * corTempc(bc2mod, thbc2, wtmp) * no2con;
+	else
+		no2con = 0.001f;
 	ddisox = 0.f;
 	ddisox = o2con + (uu + vv - ww - xx - yy - zz) * tday;
 	//o2proc = o2con - ddisox;   // not found variable "o2proc"
 	if (ddisox < 0.1f || ddisox != ddisox)
 		ddisox = 0.1f;
 	// algea O2 production minus respiration
-	float doxrch = m_chSatDOx;
+	//float doxrch = m_chSatDOx;
 	// cbod deoxygenation
-	coef = exp(-0.1f * ww);
-	doxrch *= coef;
+	//coef = exp(-0.1f * ww);
+	//doxrch *= coef;
 	// benthic sediment oxidation
-	coef = 1.f - corTempc(m_rk4[i], thm_rk4, wtmp) / 100.f;
-	doxrch *= coef;
+	//coef = 1.f - corTempc(m_rk4[i], thm_rk4, wtmp) / 100.f;
+	//doxrch *= coef;
 	// ammonia oxydation
-	coef = exp(-0.05f * yy);
-	doxrch *= coef;
+	//coef = exp(-0.05f * yy);
+	//doxrch *= coef;
 	// nitrite oxydation
-	coef = exp(-0.05f * zz);
-	doxrch *= coef;
+	//coef = exp(-0.05f * zz);
+	//doxrch *= coef;
 	// reaeration
-	uu = corTempc(m_rk2[i], thm_rk2, wtmp) / 100.f * (m_chSatDOx - doxrch);
-	ddisox = doxrch + uu;
-	if (ddisox < 1.e-6f) ddisox = 0.f;
-	if (ddisox > m_chSatDOx) ddisox = m_chSatDOx;
-	if (ddisox > dcoef * o2con) ddisox = dcoef * o2con;
+	//uu = corTempc(m_rk2[i], thm_rk2, wtmp) / 100.f * (m_chSatDOx - doxrch);
+	//ddisox = doxrch + uu;
+	//if (ddisox < 1.e-6f) ddisox = 0.f;
+	//if (ddisox > m_chSatDOx) ddisox = m_chSatDOx;
+	//if (ddisox > dcoef * o2con) ddisox = dcoef * o2con;
 	//////end oxygen calculations//////
 	// nitrogen calculations
 	// calculate organic N concentration at end of day (dorgn)

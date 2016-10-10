@@ -414,7 +414,7 @@ void NutrientTransportSediment::OrgNRemovedInRunoff_CENTURY(int i)
 	sol_mass = m_soilThick[i][0] / 1000.f * 10000.f * m_sol_bd[i][0] * 1000.f *
 		(1.f - m_sol_rock[i][0] / 100.f);
 	TOT = m_sol_HPC[i][0] + m_sol_HSC[i][0] + m_sol_LMC[i][0] + m_sol_LSC[i][0];
-	YEW = min((m_sedEroded[i] / m_cellArea+YW/m_cellArea) / (sol_mass / 1000.f), 0.9f);
+	YEW = min((m_sedEroded[i] / m_cellArea+YW / m_cellArea) / (sol_mass / 1000.f), 0.9f);
 	X1 = 1.f - YEW;
 	YOC = YEW * TOT;
 	m_sol_HSC[i][0] *= X1;
