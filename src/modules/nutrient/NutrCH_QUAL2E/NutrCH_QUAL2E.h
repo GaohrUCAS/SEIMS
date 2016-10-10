@@ -1,6 +1,6 @@
 /*!
  * \brief Calculates in-stream nutrient transformations with QUAL2E method.
- *        watqual.f of SWAT
+ *        watqual2.f of SWAT
  * \author Huiran Gao; Junzhi Liu
  * \date Jun 2016
  *
@@ -169,6 +169,8 @@ private:
 	float *m_surNH4ToCh;
     /// amount of soluble phosphorus in surface runoff
     float *m_surSolPToCh;
+    /// cod to reach in surface runoff (kg)
+    float *m_surCodToCh;
     /// nitrate loading to reach in groundwater
     float *m_gwNO3ToCh;
     /// soluble P loading to reach in groundwater
@@ -182,11 +184,9 @@ private:
     // amount of stable mineral phosphorus absorbed to sediment in surface runoff
     float *m_sedMinPSToCh;
     /// amount of ammonium transported with lateral flow
-    float *m_nh4ToCh;
+    //float *m_nh4ToCh;
     /// amount of nitrite transported with lateral flow
     float *m_no2ToCh;
-    /// cod to reach in surface runoff (kg)
-    float *m_codToCh;
 
 	/// point source loadings (kg) to channel of each timestep
 	/// nitrate
