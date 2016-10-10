@@ -162,11 +162,13 @@ bool NutrientTransportSediment::CheckInputData_CENTURY()
 	if (this->m_sol_WOC == NULL) throw ModelException(MID_NUTRSED, "CheckInputData", "The m_sol_WOC can not be NULL.");
 	if (this->m_sol_perco == NULL) throw ModelException(MID_NUTRSED, "CheckInputData", "The m_sol_perco can not be NULL.");
 	if (this->m_sol_laterq == NULL) throw ModelException(MID_NUTRSED, "CheckInputData", "The m_sol_laterq can not be NULL.");
+	return true;
 }
 
 bool NutrientTransportSediment::CheckInputData_CFARM()
 {
 	if (this->m_sol_mp == NULL) throw ModelException(MID_NUTRSED, "CheckInputData", "The m_sol_mp can not be NULL.");
+	return true;
 }
 
 void NutrientTransportSediment::SetValue(const char *key, float value)
@@ -174,7 +176,7 @@ void NutrientTransportSediment::SetValue(const char *key, float value)
     string sk(key);
     if (StringMatch(sk, VAR_OMP_THREADNUM)) omp_set_num_threads((int) value);
     else if (StringMatch(sk, Tag_CellWidth))m_cellWidth = value;
-	else if (StringMatch(sk, VAR_CSWAT)) m_CbnModel = value;
+	else if (StringMatch(sk, VAR_CSWAT)) m_CbnModel = (int)value;
     else
         throw ModelException(MID_NUTRSED, "SetValue", "Parameter " + sk +" does not exist.");
 }
