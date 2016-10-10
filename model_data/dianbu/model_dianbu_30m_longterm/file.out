@@ -95,7 +95,7 @@ NutrientTransport	SEDORGNTOCH	organic nitrogen in surface runoff moved to channe
 NutrientTransport	SEDORGPTOCH	organic phosphorus in surface runoff moved to channel	kg/ha	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	SEDORGPTOCH.txt	1
 NutrientTransport	SEDMINPATOCH	active mineral phosphorus sorbed to sediment in surface runoff moved to channel	kg/ha	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	SEDMINPATOCH.txt	1
 NutrientTransport	SEDMINPSTOCH	stable mineral phosphorus sorbed to sediment in surface runoff moved to channel	kg/ha	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	SEDMINPSTOCH.txt	1
-NutrientTransport	COD	carbonaceous oxygen demand of surface runoff	kg/ha	SUM,AVE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	ALL	COD.tif	1
+NutrientTransport	SUR_COD	carbonaceous oxygen demand of surface runoff	kg/ha	SUM,AVE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	ALL	SUR_COD.tif	1
 NutrientTransport	SUR_NO3	nitrate transported with surface runoff	kg/ha	SUM,AVE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	ALL	SUR_NO3.tif	1
 NutrientTransport	SUR_SOLP	phosphorus stored in solution with surface runoff	kg/ha	SUM,AVE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	ALL	SUR_SOLP.tif	1
 NutrientTransport	LATNO3	nitrate transported with lateral flow	kg/ha	SUM,AVE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	ALL	LATNO3.tif	1
