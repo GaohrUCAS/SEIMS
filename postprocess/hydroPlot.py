@@ -155,7 +155,7 @@ def CreatPlot(sim_date, flow, preci, simList, vari_Sim, ClimateDB):
         if vari_Sim[i] == "Q":
             obs_flow = SearchObs(timeStart, timeEnd, 'Q', ClimateDB)
             # print obs_flow
-            plt.bar(sim_date, obs_flow[0], label = "Observation", color = "green", linewidth = 0)
+            plt.bar(sim_date, obs_flow[0], label = "Observation", color = "green", linewidth = 0, align="center")
             plt.plot(sim_date, simList[i], label = "Simulation", color = "orange",
                     marker = "o", markersize = 1, linewidth = 1)
             plt.xlabel('Date')
@@ -164,7 +164,7 @@ def CreatPlot(sim_date, flow, preci, simList, vari_Sim, ClimateDB):
             ax.set_ylim(0, float(max(simList[i])) * 1.5)
             ax2 = ax.twinx()
             ax2.set_ylabel(r"Precipitation (mm)")
-            ax2.bar(sim_date, preci, color = "blue", linewidth = 0)
+            ax2.bar(sim_date, preci, color = "blue", linewidth = 0, align="center")
             ax2.set_ylim(float(max(preci)) * 1.5, 0)
             plt.title("Simulation of %s\n" % vari_Sim[i], color = "#aa0903")
             plt.title("\nNash: %.3f, R2: %s" % \
@@ -174,7 +174,7 @@ def CreatPlot(sim_date, flow, preci, simList, vari_Sim, ClimateDB):
         else:
             obs = SearchObs(timeStart, timeEnd, vari_Sim[i], ClimateDB)
             if obs[0][0] != -1:
-                plt.bar(sim_date, obs[0], label = "Observation", color = "green", linewidth = 0)
+                plt.bar(sim_date, obs[0], label = "Observation", color = "green", linewidth = 0, align="center")
                 plt.plot(sim_date, simList[i], label = "Simulation", color = "black",
                          marker = "o", markersize = 1, linewidth = 1)
                 plt.xlabel('Date')
