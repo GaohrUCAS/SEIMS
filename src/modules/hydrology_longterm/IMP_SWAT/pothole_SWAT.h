@@ -5,6 +5,7 @@
  *           1. Source code of SWAT include: pothole.f
  *           2. Add the simulation of Ammonia n transported with surface runoff, 2016-9-27
  *           3. Add m_depEvapor and m_depStorage from DEP_LENSLEY module
+ *           4. Using a simple model (first-order kinetics equation) to simulate N transformation in impounded area.
  */
 #pragma once
 
@@ -26,6 +27,8 @@ private:
 	float m_cellWidth;
 	/// cell area, ha
 	float m_cellArea;
+	/// timestep, sec
+	float m_timestep;
 	/// soil layers
 	float *m_soilLayers;
 	/// max soil layers
@@ -63,6 +66,12 @@ private:
 	float m_potNo3Decay;
 	/// Soluble phosphorus decay rate in impounded water body
 	float m_potSolPDecay;
+
+	/// volatilization rate constant in impounded water body, /day
+	float m_kVolat;
+	/// nitrification rate constant in impounded water body, /day
+	float m_kNitri;
+
 	/// impounding trigger
 	float *m_impoundTrig;
 	/// surface area of impounded area, ha
@@ -118,7 +127,7 @@ private:
 	float *m_potNH4;
 	/// orgN amount kg
 	float *m_potOrgN;
-	/// soluble phosphorus loss rate    1/day
+	/// soluble phosphorus amount, kg
 	float *m_potSolP;
 	/// orgP amount kg
 	float *m_potOrgP;

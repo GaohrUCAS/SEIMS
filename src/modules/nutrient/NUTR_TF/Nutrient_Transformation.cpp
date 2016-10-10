@@ -1,11 +1,5 @@
-/*!
- * \ingroup minRL
- * \author Huiran Gao
- * \date April 2016
- */
-
 #include <iostream>
-#include "NandPmi.h"
+#include "Nutrient_Transformation.h"
 #include "MetadataInfo.h"
 #include <cmath>
 #include <iostream>
@@ -16,7 +10,7 @@
 
 using namespace std;
 
-NandPim::NandPim(void) :
+Nutrient_Transformation::Nutrient_Transformation(void) :
 		//input
         m_nCells(-1), m_cellWidth(-1.f), m_soilLayers(-1), m_cmn(-1.f), m_cdn(-1.f), m_sdnco(-1.f),m_nactfr(-1.f), m_psp(-1.f), m_ssp(-1.f),
         m_nSoilLayers(NULL), m_sol_z(NULL), m_sol_thick(NULL), m_sol_clay(NULL), m_sol_bd(NULL),
@@ -45,7 +39,7 @@ NandPim::NandPim(void) :
 {
 }
 
-NandPim::~NandPim(void)
+Nutrient_Transformation::~Nutrient_Transformation(void)
 {
 	if(m_hmntl != NULL) Release1DArray(m_hmntl);
 	if(m_hmptl != NULL) Release1DArray(m_hmptl);
@@ -80,14 +74,12 @@ NandPim::~NandPim(void)
 	if (m_sol_LSLNC != NULL) Release2DArray(m_nCells, m_sol_LSLNC);
 	if (m_sol_RNMN != NULL) Release2DArray(m_nCells, m_sol_RNMN);
 	if (m_sol_RSPC != NULL) Release2DArray(m_nCells, m_sol_RSPC);
-
-
 }
 
-bool NandPim::CheckInputSize(const char *key, int n)
+bool Nutrient_Transformation::CheckInputSize(const char *key, int n)
 {
     if (n <= 0)
-        throw ModelException(MID_MINRL, "CheckInputSize",
+        throw ModelException(MID_NUTR_TF, "CheckInputSize",
                              "Input data for " + string(key) + " is invalid. The size could not be less than zero.");
     if (m_nCells != n)
     {
@@ -95,83 +87,83 @@ bool NandPim::CheckInputSize(const char *key, int n)
             m_nCells = n;
         else
         {
-			throw ModelException(MID_MINRL, "CheckInputSize", "Input data for " + string(key) + " is invalid with size: "+ ValueToString(n) +
+			throw ModelException(MID_NUTR_TF, "CheckInputSize", "Input data for " + string(key) + " is invalid with size: "+ ValueToString(n) +
 				". The origin size is " + ValueToString(m_nCells) + ".\n");
         }
     }
     return true;
 }
 
-bool NandPim::CheckInputData()
+bool Nutrient_Transformation::CheckInputData()
 {
     if (this->m_nCells <= 0)
-        throw ModelException(MID_MINRL, "CheckInputData", "The input data can not be less than zero.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The input data can not be less than zero.");
     if (this->m_soilLayers < 0)
-        throw ModelException(MID_MINRL, "CheckInputData", "The maximum soil layers number can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The maximum soil layers number can not be NULL.");
     if (this->m_cellWidth < 0)
-        throw ModelException(MID_MINRL, "CheckInputData", "The cell width can not be less than 0.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The cell width can not be less than 0.");
     if (this->m_nSoilLayers == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The soil layers can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The soil layers can not be NULL.");
     if (this->m_cmn <0)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_cmn can not be less than 0.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_cmn can not be less than 0.");
     if (this->m_cdn <0)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_cdn can not be less than 0.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_cdn can not be less than 0.");
     if (this->m_landcover == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_landcover can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_landcover can not be NULL.");
     if (this->m_nactfr <0)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_nactfr can not be less than 0.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_nactfr can not be less than 0.");
 	if (this->m_sdnco <0)
-		throw ModelException(MID_MINRL, "CheckInputData", "The m_sdnco can not be less than 0.");
+		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sdnco can not be less than 0.");
     if (this->m_psp <0)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_psp can not be less than 0.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_psp can not be less than 0.");
 	if (this->m_ssp <0)
-		throw ModelException(MID_MINRL, "CheckInputData", "The m_ssp can not be less than 0.");
+		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_ssp can not be less than 0.");
 	if (this->m_sol_clay == NULL)
-		throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_clay can not be NULL.");
+		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_clay can not be NULL.");
     if (this->m_sol_z == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_z can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_z can not be NULL.");
 	if (this->m_sol_rsdin == NULL)
-		throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_rsdin can not be NULL.");
+		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_rsdin can not be NULL.");
 	//if (m_sol_cov == NULL)
-	//	throw ModelException(MID_MINRL, "CheckInputData", "The residue on soil surface can not be NULL.");
+	//	throw ModelException(MID_NUTR_TF, "CheckInputData", "The residue on soil surface can not be NULL.");
 	//if (m_sol_rsd == NULL)
-	//	throw ModelException(MID_MINRL, "CheckInputData", "The organic matter in soil classified as residue can not be NULL.");
+	//	throw ModelException(MID_NUTR_TF, "CheckInputData", "The organic matter in soil classified as residue can not be NULL.");
 	if (this->m_a_days == NULL)
-		throw ModelException(MID_MINRL, "CheckInputData", "The m_a_days can not be NULL.");
+		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_a_days can not be NULL.");
 	if (this->m_b_days == NULL)
-		throw ModelException(MID_MINRL, "CheckInputData", "The m_b_days can not be NULL.");
+		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_b_days can not be NULL.");
 	if (this->m_sol_thick == NULL)
-		throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_thick can not be NULL.");
+		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_thick can not be NULL.");
 	if (this->m_sol_bd == NULL)
-		throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_bd can not be NULL.");
+		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_bd can not be NULL.");
     if (this->m_rsdco_pl == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_rsdco_pl can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_rsdco_pl can not be NULL.");
     if (this->m_sol_cbn == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_cbn can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_cbn can not be NULL.");
     if (this->m_sol_awc == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_awc can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_awc can not be NULL.");
     if (this->m_sol_wpmm == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_wpmm can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_wpmm can not be NULL.");
     if (this->m_sol_no3 == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_no3 can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_no3 can not be NULL.");
     if (this->m_sol_nh4 == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_nh4 can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_nh4 can not be NULL.");
     if (this->m_sol_orgn == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_orgn can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_orgn can not be NULL.");
     if (this->m_sol_orgp == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_orgp can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_orgp can not be NULL.");
     if (this->m_sol_solp == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_solp can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_solp can not be NULL.");
     if (this->m_soilStorage == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_soilStorage can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_soilStorage can not be NULL.");
     if (this->m_sote == NULL)
-        throw ModelException(MID_MINRL, "CheckInputData", "The m_sote can not be NULL.");
+        throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sote can not be NULL.");
 	if (this->m_sol_wsatur == NULL)
-		throw ModelException(MID_NUTRMV, "CheckInputData", "The amount of water held in the soil layer at saturation data can not be NULL.");
+		throw ModelException(MID_NUTR_TF, "CheckInputData", "The amount of water held in the soil layer at saturation data can not be NULL.");
     return true;
 }
 
-void NandPim::SetValue(const char *key, float value)
+void Nutrient_Transformation::SetValue(const char *key, float value)
 {
     string sk(key);
     if (StringMatch(sk, VAR_OMP_THREADNUM)) omp_set_num_threads((int) value); 
@@ -184,10 +176,10 @@ void NandPim::SetValue(const char *key, float value)
 	else if (StringMatch(sk, VAR_SSP)) { this->m_ssp = value; }
 	else if (StringMatch(sk, VAR_CSWAT)) { this->m_CbnModel = value; }
     else
-        throw ModelException(MID_MINRL, "SetValue", "Parameter " + sk + " does not exist.");
+        throw ModelException(MID_NUTR_TF, "SetValue", "Parameter " + sk + " does not exist.");
 }
 
-void NandPim::Set1DData(const char *key, int n, float *data)
+void Nutrient_Transformation::Set1DData(const char *key, int n, float *data)
 {
     if (!this->CheckInputSize(key, n)) return;
     string sk(key);
@@ -199,12 +191,16 @@ void NandPim::Set1DData(const char *key, int n, float *data)
 	else if (StringMatch(sk, VAR_SOTE)) { this->m_sote = data; }
 	else if (StringMatch(sk, VAR_A_DAYS)) { this->m_a_days = data; }
 	else if (StringMatch(sk, VAR_B_DAYS)) { this->m_b_days = data; }
+	/// tillage related variables of CENTURY model
+	else if (StringMatch(sk, VAR_TILLAGE_DAYS)) m_tillage_days = data;
+	else if (StringMatch(sk, VAR_TILLAGE_DEPTH)) m_tillage_depth = data;
+	else if (StringMatch(sk, VAR_TILLAGE_FACTOR)) m_tillage_factor = data;
+	else if (StringMatch(sk, VAR_TILLAGE_SWITCH)) m_tillage_switch = data;
     else
-        throw ModelException(MID_MINRL, "Set1DData", "Parameter " + sk +
-                                                    " does not exist. Please contact the module developer.");
+        throw ModelException(MID_NUTR_TF, "Set1DData", "Parameter " + sk + " does not exist.");
 }
 
-void NandPim::Set2DData(const char *key, int nRows, int nCols, float **data)
+void Nutrient_Transformation::Set2DData(const char *key, int nRows, int nCols, float **data)
 {
     if (!this->CheckInputSize(key, nRows)) return;
     string sk(key);
@@ -224,14 +220,14 @@ void NandPim::Set2DData(const char *key, int nRows, int nCols, float **data)
 	else if (StringMatch(sk, VAR_SOILDEPTH)) { this->m_sol_z = data; }
 	else if (StringMatch(sk, VAR_SOILTHICK)) { this->m_sol_thick = data; }
 	else if (StringMatch(sk, VAR_SOL_RSD)) this->m_sol_rsd = data;
-	else if (StringMatch(sk, VAR_SOL_UL)) { m_sol_wsatur = data; }
+	else if (StringMatch(sk, VAR_SOL_UL)) m_sol_wsatur = data;
 	else if (StringMatch(sk, VAR_POROST)) m_sol_por = data;
 	else if (StringMatch(sk, VAR_SAND)) m_sand = data;
     else
-        throw ModelException(MID_MINRL, "Set2DData", "Parameter " + sk + " does not exist.");
+        throw ModelException(MID_NUTR_TF, "Set2DData", "Parameter " + sk + " does not exist.");
 }
 
-void NandPim::initialOutputs()
+void Nutrient_Transformation::initialOutputs()
 {
 	if(m_hmntl == NULL) Initialize1DArray(m_nCells, m_hmntl, 0.f);
 	if(m_hmptl == NULL) Initialize1DArray(m_nCells, m_hmptl, 0.f);
@@ -250,15 +246,6 @@ void NandPim::initialOutputs()
 #pragma omp parallel for
 		for (int i = 0; i < m_nCells; i++)
 			m_sol_rsd[i][0] = m_sol_cov[i];
-	}
-	/// tillage
-	if (m_tillage_days == NULL) Initialize1DArray(m_nCells, m_tillage_days, 0);
-	if (m_tillage_switch == NULL) Initialize1DArray(m_nCells, m_tillage_switch, 1);
-	if (m_CbnModel == 2){
-		if (m_tillage_days == NULL) Initialize1DArray(m_nCells, m_tillage_days, 0);
-		if (m_tillage_switch == NULL) Initialize1DArray(m_nCells, m_tillage_switch, 0);
-		if (m_tillage_depth == NULL) Initialize1DArray(m_nCells, m_tillage_depth, 0.f);
-		if (m_tillage_factor == NULL) Initialize1DArray(m_nCells, m_tillage_factor, 0.f);
 	}
 	// initial input soil chemical in first run
 	if(m_sol_no3 == NULL) Initialize2DArray(m_nCells, m_soilLayers, m_sol_no3, 0.f);
@@ -332,7 +319,7 @@ void NandPim::initialOutputs()
 					// Allow Dynamic PSP Ratio
 					if (conv_wt != 0) solp = (m_sol_solp[i][k] / conv_wt) * 1000000.f;
 					}else{
-						throw ModelException(MID_MINRL, "initialOutputs", "Please check the bulk density and soil thickness data.");
+						throw ModelException(MID_NUTR_TF, "initialOutputs", "Please check the bulk density and soil thickness data.");
 					if (m_sol_clay[i][k] > 0.f)
 					{
 						psp = -0.045f * log(m_sol_clay[i][k]) + (0.001f * solp);
@@ -469,27 +456,32 @@ void NandPim::initialOutputs()
     }
 }
 
-int NandPim::Execute()
+int Nutrient_Transformation::Execute()
 {
     CheckInputData();
     initialOutputs();
 #pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
     {
-        //Calculate daily nitrogen and phosphorus mineralization and immobilization
-        CalculateMinerandImmobi(i);
+        // compute nitrogen and phosphorus mineralization
+		if (m_CbnModel == 0)
+			Mineralization_StaticCarbonMethod(i);
+		else if (m_CbnModel == 1)
+			Mineralization_CFARMOneCarbonModel(i);
+		else if (m_CbnModel == 2)
+			Mineralization_CENTURYModel(i);
+		else /// throw exception if Carbon method invalid
+			throw ModelException(MID_NUTR_TF, "ComputeCNPCycling", "Carbon modeling method must be 0, 1, or 2.");
         //Calculate daily mineralization (NH3 to NO3) and volatilization of NH3
-        CalculateMinerandVolati(i);
+        Volatilization(i);
         //Calculate P flux between the labile, active mineral and stable mineral P pools
         CalculatePflux(i);
-		//Calculate C flux
-		CalculateCflux(i);
     }
 	//cout<<"minRL, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
     return 0;
 }
 
-void NandPim::CalculateMinerandImmobi(int i)
+void Nutrient_Transformation::Mineralization_StaticCarbonMethod(int i)
 {
     //soil layer (k)
     for (int k = 0; k < (int)m_nSoilLayers[i]; k++)
@@ -691,7 +683,12 @@ void NandPim::CalculateMinerandImmobi(int i)
     }
 }
 
-void NandPim::CalculateMinerandVolati(int i)
+void Nutrient_Transformation::Mineralization_CFARMOneCarbonModel(int i)
+{
+	/// TODO
+}
+
+void Nutrient_Transformation::Volatilization(int i)
 {
     //soil layer (k)
     float kk = 0.f;
@@ -785,7 +782,7 @@ void NandPim::CalculateMinerandVolati(int i)
     }
 }
 
-void NandPim::CalculatePflux(int i)
+void Nutrient_Transformation::CalculatePflux(int i)
 {
 	float wt1 = 0.f;
 	float conv_wt = 0.f;
@@ -954,8 +951,23 @@ void NandPim::CalculatePflux(int i)
     }
 }
 
-void NandPim::CalculateCflux(int i)
+void Nutrient_Transformation::Mineralization_CENTURYModel(int i)
 {
+	/// update tillage related variables if stated. Code from subbasin.f of SWAT, line 153-164
+	/// if CENTURY model, and tillage operation has been operated
+	if (m_tillage_days != NULL && m_tillage_days[i] > 0.f)
+	{
+		if (m_tillage_days[i] >= 30.f)
+		{
+			m_tillage_switch[i] = 0.f;
+			m_tillage_days[i] = 0.f;
+		} 
+		else
+		{
+			m_tillage_days[i] += 1.f;
+		}
+	}
+	
 	// ABCO2   : allocation from biomass to CO2; 0.6 (surface litter), 0.85?.68*(CLAF + SILF) (all other layers) (Parton et al., 1993, 1994)
 	// ABL     : carbon allocation from biomass to leaching; ABL = (1-exp(-f/(0.01* SW+ 0.1*(KdBM)*DB)) (Williams, 1995)
 	// ABP     : allocation from biomass to passive humus; 0 (surface litter), 0.003 + 0.032*CLAF (all other layers) (Parton et al., 1993, 1994)
@@ -995,7 +1007,7 @@ void NandPim::CalculateCflux(int i)
 	// SUT     : soil water control on biological processes 
 	// X1      : tillage control on residue decomposition (Not used)
 	// XBMT    : control on transformation of microbial biomass by soil texture and structure.
-	// Its values: surface litter layer = 1; all other layers = 1-0.75*(SILF + CLAF) (Parton et al., 1993, 1994)
+	//           Its values: surface litter layer = 1; all other layers = 1-0.75*(SILF + CLAF) (Parton et al., 1993, 1994)
 	// XLSLF   : control on potential transformation of structural litter by lignin fraction of structural litter [XLSLF = exp(-3* LSLF) (Parton et al., 1993, 1994)]
 	float x1 = 0.f, x3 = 0.f, xx = 0.f;
 	float LMF = 0.f, LSF = 0.f, LSLF = 0.f, XLSLF = 0.f, LSR = 0.f, BMR = 0.f, XBMT = 0.f, HSR = 0.f, HPR = 0.f, RLR = 0.f;
@@ -1011,46 +1023,50 @@ void NandPim::CalculateCflux(int i)
 	float TOT = 0.f, PN1 = 0.f, PN2 = 0.f, PN3 = 0.f, PN4 = 0.f, PN5 = 0.f, PN6 = 0.f, PN7 = 0.f, PN8 = 0.f, PN9 = 0.f;
 	float SUM = 0.f, CPN1 = 0.f, CPN2 = 0.f, CPN3 = 0.f, CPN4 = 0.f, CPN5 = 0.f, RTO = 0.f;
 	float WMIN = 0.f, DMDN = 0.f, wdn = 0.f, Delta_BMC = 0.f, DeltaWN = 0.f;
+	/// calculate tillage factor using DSSAT
+	if (m_tillage_switch[i] == 1 && m_tillage_days[i] <= 30.f) 
+			m_tillage_factor[i] = 1.6f;
+		else
+			m_tillage_factor[i] = 1.f;
 
+	/// calculate C/N dynamics for each soil layer
 	for (int k = 0; k < (int)m_nSoilLayers[i]; k++)
 	{
 		float sol_mass = 0.f;
-		if (k == 1)
-		{
-			//10 cm / 1000 = 0.01m; 1 ha = 10000 m2; ton/m3; * 1000 --> final unit is kg/ha; rock fraction is considered
-			sol_mass = 10.f / 1000.f * 10000.f * m_sol_bd[i][k]* 1000. *(1- m_sol_rock[i][k] / 100.f);
-		} else
-			sol_mass = (m_sol_z[i][k] - m_sol_z[i][k - 1]) / 1000.f * 10000.f * m_sol_bd[i][k]* 1000.f *(1- m_sol_rock[i][k] / 100.f);
-		//If k = 1, { using temperature, soil moisture in layer 2 to calculate decomposition factor
-		//Not 
+		sol_mass = m_sol_thick[i][k]/1000.f * 10000.f * m_sol_bd[i][k]* 1000. *(1- m_sol_rock[i][k] / 100.f);
+		//if (k == 0)
+		//{
+		//	//10 cm / 1000 = 0.01m; 1 ha = 10000 m2; ton/m3; * 1000 --> final unit is kg/ha; rock fraction is considered
+		//	sol_mass = 10.f / 1000.f * 10000.f * m_sol_bd[i][k]* 1000. *(1- m_sol_rock[i][k] / 100.f);
+		//} else
+		//	sol_mass = (m_sol_z[i][k] - m_sol_z[i][k - 1]) / 1000.f * 10000.f * m_sol_bd[i][k]* 1000.f *(1- m_sol_rock[i][k] / 100.f);
+
+		//If k = 1, using temperature, soil moisture in layer 2 to calculate decomposition factor
 		int kk = 0;
-		if (k == 1) kk = 2;
+		if (k == 0) kk = 1;
 		else kk = k;
 		// mineralization can occur only if temp above 0 deg
 		//check sol_st soil water content in each soil ayer mm H2O
-		if (m_sote[i] > 0. && m_sol_stap[i][k] > 0.) 
+		if (m_sote[i] > 0.f && m_soilStorage[i][k] > 0.f) 
 		{
 			//from Armen
 			//compute soil water factor - sut
-			float fc = m_sol_awc[i][k] + m_sol_wpmm[i][k];          // units mm
-			float wc = m_sol_stap[i][k] + m_sol_wpmm[i][k];        // units mm
+			float fc = m_sol_awc[i][k] + m_sol_wpmm[i][k];            // units mm
+			float wc = m_soilStorage[i][k] + m_sol_wpmm[i][k];        // units mm
 			float sat = m_sol_wsatur[i][k] + m_sol_wpmm[i][k];        // units mm
 			float voidfr = m_sol_por[i][k] * (1.f - wc / sat);        // fraction
+			
 			float sut = 0.f;
-			// sut = .1 + .9 * Sqrt(sol_st[i][kk] / m_sol_awc[i][kk])
-			//sut = .1 + .9 * Sqrt(wc / fc)
 			x1=wc - m_sol_wpmm[i][k];
-			if(x1 < 0.f) sut=.1f * (m_sote[i] / pow(m_sol_wpmm[i][k], 2.f));
-			else sut = .1f + .9f * sqrt(m_sote[i] / m_sol_awc[i][k]);
+			if(x1 < 0.f) sut=.1f * pow(m_soilStorage[i][kk] / m_sol_wpmm[i][k], 2.f);
+			else sut = .1f + .9f * sqrt(m_soilStorage[i][kk] / m_sol_awc[i][k]);
 			sut = min(1.f, sut);
 			sut = max(.05f, sut);
 
 			//compute tillage factor (x1)
-			// use the tillfactor module from Armen
-			// x1 = ftilf(tillagef[i][kk], wc, sat) 
 			x1 = 1.f;
 			// calculate tillage factor using DSSAT
-			if (m_tillage_switch[i] == 1 && m_tillage_days[i] >= 30.f) 
+			if (m_tillage_switch[i] == 1 && m_tillage_days[i] <= 30.f) 
 			{
 				if (k == 1) x1 = 1.6f;
 				else {
@@ -1059,19 +1075,18 @@ void NandPim::CalculateCflux(int i)
 						x1 = 1.6f;
 					} else if (m_sol_z[i][k - 1] > m_tillage_depth[i])
 					{
-						x1 = 1.f + 0.6f * (m_tillage_depth[i] - m_sol_z[i][k - 1]) / (m_sol_z[i][k] - m_sol_z[i][k - 1]);
+						x1 = 1.f + 0.6f * (m_tillage_depth[i] - m_sol_z[i][k - 1]) / m_sol_thick[i][k];
 					}         
 				}
 			} else {
 				x1 = 1.f;
 			}	
 			//compute soil temperature factor
-			//When sol_tep is larger than 35, cdg is negative?
 			float cdg = 0.f;
-			// if (m_sote[i] <= 35.0) {
-			// cdg = sol_tmp[i][kk] / (sol_tmp[i][kk] + exp(5.058 - 0.2504 * sol_tmp[i][kk]))
-			cdg = m_sote[i] / (m_sote[i] + exp(5.058459f - 0.2503591f * m_sote[i]));
-			//}
+			/// cdg = m_sote[i] / (m_sote[i] + exp(5.058459f - 0.2503591f * m_sote[i]));
+			/* cdg is calculated by function fcgd in carbon_new.f of SWAT, by Armen
+			 * i.e., Function fcgd(xx)
+			 */
 			cdg = pow((m_sote[i]) + 5.f, 8.f / 3.f) * (50.f - m_sote[i]) / (pow(40.f, 8.f / 3.f) * 15.f);
 			if(cdg < 0.f) cdg = 0.f;
 
@@ -1079,20 +1094,23 @@ void NandPim::CalculateCflux(int i)
 			float ox = 0.f;
 			// ox = 1 - (0.9* sol_z[i][k]/1000.) / (sol_z[i][k]/1000.+ exp(1.50-3.99*sol_z[i][k]/1000.))
 			// ox = 1 - (0.8* sol_z[i][k]) / (sol_z[i][k]+ exp(1.50-3.99*sol_z[i][k]))  
-			ox = 1.f - 0.8f * ((m_sol_z[i][kk] + m_sol_z[i][kk - 1]) / 2.f) / (((m_sol_z[i][kk] + m_sol_z[i][kk - 1]) / 2.f) + exp(18.40961f - 0.023683632f * ((m_sol_z[i][kk] + m_sol_z[i][kk - 1]) / 2.f)))  ;			
+			ox = 1.f - 0.8f * ((m_sol_z[i][kk] + m_sol_z[i][kk - 1]) / 2.f) / (((m_sol_z[i][kk] + m_sol_z[i][kk - 1]) / 2.f) + 
+				exp(18.40961f - 0.023683632f * ((m_sol_z[i][kk] + m_sol_z[i][kk - 1]) / 2.f)));
 			// compute combined factor
 			float cs = 0.f;
 			cs = min(10.f, sqrt(cdg * sut) * 0.9 * ox * x1);           
 			// call denitrification (to use void fraction and cdg factor)
-			cdg = pow((m_sote[i]) + 5.f, 8.f / 3.f) * (50.f - m_sote[i]) / (pow(40.f, 8.f / 3.f) * 15.f);
+			// repetitive computation, commented by LJ
+			//cdg = pow((m_sote[i]) + 5.f, 8.f / 3.f) * (50.f - m_sote[i]) / (pow(40.f, 8.f / 3.f) * 15.f);
 			if (cdg > 0.f && voidfr <= 0.1f) {
 				// call ndenit(k,j,cdg,wdn,void);
+				// rewrite from ndenit.f of SWAT
 				float vof = 1.f / (1.f + pow(voidfr / 0.04f, 5.f));
 				wdn = m_sol_no3[i][k] * (1.f - exp(- m_cdn * cdg * vof * m_sol_cbn[i][k]));
-				m_sol_no3[i][k] = m_sol_no3[i][k] - wdn;
+				m_sol_no3[i][k] -= wdn;
 			}
-			m_wshd_dnit = m_wshd_dnit + wdn * (1 / m_nCells);
-			m_wdntl[i] = m_wdntl[i] + wdn;
+			m_wshd_dnit += wdn * (1.f / m_nCells);
+			m_wdntl[i] += wdn;
 
 			float sol_min_n = m_sol_no3[i][k] + m_sol_nh4[i][k];
 			//if(i == 100 && k == 0) cout << m_sol_LSL[i][k] << m_sol_LS[i][k] << endl;
@@ -1101,15 +1119,15 @@ void NandPim::CalculateCflux(int i)
 			// HSR=PRMT(47) !CENTURY SLOW HUMUS TRANSFORMATION RATE D^-1(0.00041_0.00068) ORIGINAL VALUE = 0.000548,
 			HSR = 5.4799998e-4f;
 			// HPR=PRMT(48) !CENTURY PASSIVE HUMUS TRANSFORMATION RATE D^-1(0.0000082_0.000015) ORIGINAL VALUE = 0.000012 
-			HPR = 1.2000000e-5f;
+			HPR = 1.2e-5f;
 			APCO2=.55f;
 			ASCO2=.60f;
-			PRMT_51 =0.f;   // COEF ADJUSTS MICROBIAL ACTIVITY FUNCTION IN TOP SOIL LAYER (0.1_1.),
+			PRMT_51 = 0.f;   // COEF ADJUSTS MICROBIAL ACTIVITY FUNCTION IN TOP SOIL LAYER (0.1_1.),
 			PRMT_51 = 1.f;
-			//The following codes are clculating of the N:C ration in the newly formed SOM for each pool
+			//The following codes are calculating of the N:C ration in the newly formed SOM for each pool
 			//please note that in the surface layer, no new materials enter Passive pool, therefore, no NCHP is 
 			//calculated for the first layer.
-			if(k == 1)
+			if(k == 0)
 			{
 				cs = cs * PRMT_51;
 				ABCO2=.55f;
@@ -1120,28 +1138,24 @@ void NandPim::CalculateCflux(int i)
 				NCHP=.1f;
 				XBM=1.f;
 				// COMPUTE N/C RATIOS
-				// x1=.1*(WLMN(LD1)+WLSN(LD1))/(RSD(LD1)+1.e-5)
-				x1 = 0.1f * (m_sol_LSN[i][k] + m_sol_LMN[i][k]) / (m_sol_rsd[i][k] / 1000.f +1.e-5f); // relative notrogen content in residue (%)
+				// relative nitrogen content in residue (%)
+				x1 = 0.1f * (m_sol_LSN[i][k] + m_sol_LMN[i][k]) / (m_sol_rsd[i][k] / 1000.f +1.e-5f);
 				if(x1 > 2.f)
-				{
 					NCBM = .1f;
-					NCHS = NCBM / (5.f * NCBM + 1.f);
-				}
-				else if(x1 > .01f && x1 <= 2.f) NCBM = 1.f / (20.05f - 5.0251f * x1);
-				else NCBM = .05f;
-					//GO TO 2
+				else if(x1 > .01f) 
+					NCBM = 1.f / (20.05f - 5.0251f * x1);
+				else 
+					NCBM = .05f;
+				NCHS = NCBM / (5.f * NCBM + 1.f);
 			}
-			if(k != 1)
-			{
-				// ABCO2=.17+.0068*SAN(ISL)
+			else{
 				ABCO2 = 0.17f + 0.0068f * m_sand[i][k];
 				A1CO2 = .55f;
 				BMR = .02f;
 				LMR = .0507f;
 				LSR = .0132f;
 				XBM = .25f + .0075f * m_sand[i][k];
-				// x1=1000.*(WNH3(ISL)+WNO3(ISL))/WT(ISL)
-				// WT is soil mass in tons
+
 				x1 = 1000.f * sol_min_n / (sol_mass / 1000.f);
 				if (x1 > 7.15f)
 				{
@@ -1155,12 +1169,11 @@ void NandPim::CalculateCflux(int i)
 					NCHP=1.f / (10.f-.42f * x1);
 				}
 			}
-			
 			ABP= .003f + .00032f * m_sol_clay[i][k];
-			// SMS(3,ISL)=SMS(3,ISL)+cs
+
 			PRMT_45 = 0.f;  // COEF IN CENTURY EQ ALLOCATING SLOW TO PASSIVE HUMUS(0.001_0.05) ORIGINAL VALUE = 0.003,
 			PRMT_45 = 5.0000001e-2f;
-			ASP = max(.001,PRMT_45 - .00009f * m_sol_clay[i][k]);
+			ASP = max(.001f,PRMT_45 - .00009f * m_sol_clay[i][k]);
 			// POTENTIAL TRANSFORMATIONS STRUCTURAL LITTER
 			x1=LSR * cs * exp(-3.f * RLR);
 			LSCTP = x1 * m_sol_LSC[i][k];
@@ -1199,6 +1212,7 @@ void NandPim::CalculateCflux(int i)
 			PN9 = HPCTP * APX * NCBM;                // Passive to Biomass
 
 			// COMPARE SUPPLY AND DEMAND FOR N
+			SUM = 0.f;
 			x1=PN1 + PN2;
 			if(LSNTP < x1) CPN1 = x1 - LSNTP;
 			else SUM = SUM + LSNTP - x1;
@@ -1212,16 +1226,15 @@ void NandPim::CalculateCflux(int i)
 			else SUM = SUM + HSNTP - x1;
 			if(HPNTP < PN9) CPN5 = PN9 - HPNTP;
 			else SUM = SUM + HPNTP - PN9;
-			// WNH3(ISL)=WNH3(ISL)+SUM
+
 			// total available N
 			float Wmin = max(1.e-5f, m_sol_no3[i][k] + m_sol_nh4[i][k] + SUM);
-			// Wmin=max(1.e-5,m_sol_no3[i][k] +SUM)
 			// total demand for potential tranformaiton of SOM;
 			float DMDN = CPN1 + CPN2 + CPN3 + CPN4 + CPN5;
 			float x3 = 1.f;
 			// REDUCE DEMAND if SUPPLY LIMITS
 			if(Wmin < DMDN) x3 = Wmin / DMDN;
-			// SMS(5,ISL)=SMS(5,ISL)+x3
+
 			// ACTUAL TRANSFORMATIONS
 
 			if(CPN1 > 0.f)
@@ -1274,7 +1287,7 @@ void NandPim::CalculateCflux(int i)
 				HPNTA = HPNTP;
 			}
 
-			// Recalculate demand using actural transformations revised from EPIC code by Zhang
+			// Recalculate demand using actual transformations revised from EPIC code by Zhang
 			PN1 = LSLNCTA * A1 * NCBM;               // Structural Litter to Biomass
 			PN2 = .7f * LSLCTA * NCHS;               // Structural Litter to Slow
 			PN3 = LMCTA * A1 * NCBM;                 // Metabolic Litter to Biomass
@@ -1304,19 +1317,16 @@ void NandPim::CalculateCflux(int i)
 			else SUM = SUM+HSNTA - x1;
 			if(HPNTA < PN9) CPN5 = PN9 - HPNTA;
 			else SUM = SUM + HPNTA - PN9;
-			// WNH3(ISL)=WNH3(ISL)+SUM total available N
+			// total available N
 			Wmin = max(1.e-5f, m_sol_no3[i][k] + m_sol_nh4[i][k] + SUM);
-			// Wmin=max(1.e-5,sol_NO3[i][k] +SUM)
-			// total demand for potential tranformaiton of SOM
+			// total demand for potential transformation of SOM
 			DMDN = CPN1 + CPN2 + CPN3 + CPN4 + CPN5;           
-			// DMDN=DMDN * x3;
-			// SGMN=SGMN+SUM
+
 			// supply - demand
 			m_sol_RNMN[i][k] = SUM - DMDN;
 			// UPDATE
 			if(m_sol_RNMN[i][k] > 0.f){
-				m_sol_nh4[i][k] = m_sol_nh4[i][k] + m_sol_RNMN[i][k];
-				// WNO3(ISL)=WNO3(ISL)+RNMN(ISL)
+				m_sol_nh4[i][k] += m_sol_RNMN[i][k];
 			} else
 			{
 				x1 = m_sol_no3[i][k] + m_sol_RNMN[i][k];
@@ -1344,10 +1354,10 @@ void NandPim::CalculateCflux(int i)
 			m_sol_orgp[i][k] = m_sol_orgp[i][k] - hmp;
 			m_sol_solp[i][k] = m_sol_solp[i][k] + hmp;   
 
-			// compute residue decomp and mineralization of 
+			// compute residue decomposition and mineralization of 
 			// fresh organic n and p (upper two layers only)  
 			float rmp = 0.f;          
-			float 	decr = 0.f;
+			float decr = 0.f;
 			decr = (LSCTA + LMCTA) / (m_sol_LSC[i][k] + m_sol_LMC[i][k] + 1.e-6f);
 			decr = min(1.f, decr);
 			rmp = decr * m_sol_fop[i][k];
@@ -1355,8 +1365,8 @@ void NandPim::CalculateCflux(int i)
 			m_sol_fop[i][k] = m_sol_fop[i][k] - rmp;
 			m_sol_solp[i][k] = m_sol_solp[i][k] + .8f * rmp;
 			m_sol_orgp[i][k] = m_sol_orgp[i][k] + .2f * rmp;        
-			// calculate P flows
-			// SMS(9,ISL)=SMS(9,ISL)+RNMN(ISL)
+			// end of calculate P flows
+
 			LSCTA = min(m_sol_LSC[i][k],LSCTA);
 			m_sol_LSC[i][k] = max(1.e-10f, m_sol_LSC[i][k] - LSCTA);
 			LSLCTA = min(m_sol_LSLC[i][k], LSLCTA);
@@ -1369,17 +1379,14 @@ void NandPim::CalculateCflux(int i)
 				m_sol_LM[i][k] = m_sol_LM[i][k] - LMCTA / RTO;
 				m_sol_LMC[i][k] = m_sol_LMC[i][k] - LMCTA;
 			}
-// 			!m_sol_LMC[i][k]=max(1.e-10,m_sol_LMC[i][k]-LMCTA);
-// 			!m_sol_LM[i][k]=max(1.e-10,m_sol_LM[i][k]-LMCTA/.42);
 			m_sol_LSL[i][k] = max(1.e-10f, m_sol_LSL[i][k] - LSLCTA / .42f);
 			m_sol_LS[i][k] = max(1.e-10f, m_sol_LS[i][k] - LSCTA / .42f);
 
 			x3 = APX * HPCTA + ASX * HSCTA + A1 * (LMCTA + LSLNCTA);
 			m_sol_BMC[i][k] = m_sol_BMC[i][k] - BMCTA + x3;
-			// DeltaBMC = DeltaBMC -BMCTA+x3;
 			DF3 = BMNTA - NCBM * x3;
 			// DF3 is the supply of BMNTA - demand of N to meet the Passive, Slow, Metabolic, and Non-lignin Structural 
-			// C pools transformaitons into microbiomass pool
+			// C pools transformations into microbiomass pool
 			x1=.7f * LSLCTA + BMCTA * (1.f - ABP - ABCO2);
 			m_sol_HSC[i][k] = m_sol_HSC[i][k] - HSCTA + x1;
 			DF4 = HSNTA - NCHS * x1;
@@ -1390,7 +1397,7 @@ void NandPim::CalculateCflux(int i)
 			// DF5 Passive pool demand of N - N demand for microbiomass C transformed into passive pool
 			DF6 = sol_min_n - m_sol_no3[i][k] - m_sol_nh4[i][k];
 			// DF6 Supply of mineral N - available mineral N = N demanded from mineral pool
-			// SMS(10,ISL)=SMS(10,ISL)-DF6;
+
 			ADD = DF1 + DF2 + DF3 + DF4 + DF5 + DF6;
 			ADF1 = abs(DF1);
 			ADF2 = abs(DF2);
@@ -1404,33 +1411,31 @@ void NandPim::CalculateCflux(int i)
 			m_sol_BMN[i][k] = m_sol_BMN[i][k] - DF3+xx * ADF3;
 			m_sol_HSN[i][k] = m_sol_HSN[i][k] - DF4+xx * ADF4;
 			m_sol_HPN[i][k] = m_sol_HPN[i][k] - DF5+xx * ADF5;
-			m_sol_RSPC[i][k] = .3f * LSLCTA + A1CO2 * (LSLNCTA + LMCTA) + ABCO2 * BMCTA + ASCO2 * HSCTA + APCO2 * HPCTA;
-			// rspc_d[i] = rspc_d[i] +  sol_RSPC[i][k];
-			// SMM(74,MO)=SMM(74,MO)+RSPC(ISL);
- 			// SMS(8,ISL)=SMS(8,ISL)+RSPC(ISL);
- 			// TRSP=TRSP+RSPC(ISL);
-			// VAR(74)=VAR(74)+RSPC(ISL);
- 			// RSD(ISL)=.001*(WLS(ISL)+WLM(ISL));
+			m_sol_RSPC[i][k] = .3f * LSLCTA + A1CO2 * (LSLNCTA + LMCTA) + 
+				ABCO2 * BMCTA + ASCO2 * HSCTA + APCO2 * HPCTA;
+
 			m_sol_rsd[i][k] = m_sol_LS[i][k] + m_sol_LM[i][k];        
 			m_sol_orgn[i][k] = m_sol_HPN[i][k];
 			m_sol_aorgn[i][k] = m_sol_HSN[i][k];
 			m_sol_fon[i][k] = m_sol_LMN[i][k] + m_sol_LSN[i][k];
-			m_sol_cbn[i][k] = 100.f * (m_sol_LSC[i][k] + m_sol_LMC[i][k] + m_sol_HSC[i][k] + m_sol_HPC[i][k] + m_sol_BMC[i][k]) / sol_mass;
+			m_sol_cbn[i][k] = 100.f * (m_sol_LSC[i][k] + m_sol_LMC[i][k] + m_sol_HSC[i][k] + 
+				m_sol_HPC[i][k] + m_sol_BMC[i][k]) / sol_mass;
 
 			// summary calculations
 			float hmn = 0.f;
+			float cell_dafr = 1.f / m_nCells;
 			hmn = m_sol_RNMN[i][k];
-			m_wshd_hmn = m_wshd_hmn + hmn * (1 / m_nCells);
+			m_wshd_hmn = m_wshd_hmn + hmn * cell_dafr;
 			float rwn = 0.f;
 			rwn = HSNTA;
-			m_wshd_rwn = m_wshd_rwn + rwn * (1 / m_nCells);
+			m_wshd_rwn = m_wshd_rwn + rwn * cell_dafr;
 
-			m_wshd_hmp = m_wshd_hmp + hmp * (1 / m_nCells);
+			m_wshd_hmp = m_wshd_hmp + hmp * cell_dafr;
 			float rmn1 = 0.f;
 			rmn1 = (LSNTA + LMNTA);
-			m_wshd_rmn = m_wshd_rmn + rmn1 * (1 / m_nCells);
-			m_wshd_rmp = m_wshd_rmp + rmp * (1 / m_nCells);
-			m_wshd_dnit = m_wshd_dnit + wdn * (1 / m_nCells);
+			m_wshd_rmn = m_wshd_rmn + rmn1 * cell_dafr;
+			m_wshd_rmp = m_wshd_rmp + rmp * cell_dafr;
+			m_wshd_dnit = m_wshd_dnit + wdn * cell_dafr;
 			m_hmntl[i]  = m_hmntl[i]  + hmn;
 			m_rwntl[i] = m_rwntl[i]  + rwn;
 			m_hmptl[i]  = m_hmptl[i]  + hmp;
@@ -1441,7 +1446,7 @@ void NandPim::CalculateCflux(int i)
 	}	
 }
 
-void NandPim::GetValue(const char *key, float *value)
+void Nutrient_Transformation::GetValue(const char *key, float *value)
 {
     string sk(key);
     if (StringMatch(sk, VAR_WSHD_DNIT)) { *value = this->m_wshd_dnit; }
@@ -1455,10 +1460,10 @@ void NandPim::GetValue(const char *key, float *value)
     else if (StringMatch(sk, VAR_WSHD_PAL)) { *value = this->m_wshd_pal; }
     else if (StringMatch(sk, VAR_WSHD_PAS)) { *value = this->m_wshd_pas; }
     else
-        throw ModelException(MID_MINRL, "GetValue", "Parameter " + sk + " does not exist.");
+        throw ModelException(MID_NUTR_TF, "GetValue", "Parameter " + sk + " does not exist.");
 }
 
-void NandPim::Get1DData(const char *key, int *n, float **data)
+void Nutrient_Transformation::Get1DData(const char *key, int *n, float **data)
 {
 	initialOutputs();
 	string sk(key);
@@ -1474,11 +1479,11 @@ void NandPim::Get1DData(const char *key, int *n, float **data)
 	else if (StringMatch(sk, VAR_A_DAYS)){*data = this->m_a_days;}
 	else if (StringMatch(sk, VAR_B_DAYS)){*data = this->m_b_days;}
 	else
-		throw ModelException(MID_MINRL, "Get1DData", "Parameter " + sk + " does not exist.");
+		throw ModelException(MID_NUTR_TF, "Get1DData", "Parameter " + sk + " does not exist.");
 	*n = this->m_nCells;
 }
 
-void NandPim::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
+void Nutrient_Transformation::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
 {
 	initialOutputs();
     string sk(key);
@@ -1520,5 +1525,5 @@ void NandPim::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
 	else if (StringMatch(sk, VAR_SOL_RNMN)) {*data = this->m_sol_RNMN;}
 	else if (StringMatch(sk, VAR_SOL_RSPC)) {*data = this->m_sol_RSPC;}
     else
-        throw ModelException(MID_MINRL, "Get2DData", "Parameter " + sk + " does not exist.");
+        throw ModelException(MID_NUTR_TF, "Get2DData", "Parameter " + sk + " does not exist.");
 }

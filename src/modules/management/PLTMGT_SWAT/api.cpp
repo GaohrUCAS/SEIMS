@@ -109,12 +109,15 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     //mdi.AddInput(VAR_DEEPST, UNIT_DEPTH_MM, DESC_DEEPST, Source_Module, DT_Raster1D);
     //mdi.AddInput(VAR_SHALLST, UNIT_DEPTH_MM, DESC_SHALLST, Source_Module, DT_Raster1D);
 	mdi.AddInput(VAR_SBGS, UNIT_DEPTH_MM, DESC_SBGS, Source_Module, DT_Array1D);
-    mdi.AddInput(VAR_POT_VOL, UNIT_DEPTH_MM, DESC_POT_VOL, Source_Module_Optional, DT_Raster1D);
+    mdi.AddInput(VAR_POT_VOL, UNIT_DEPTH_MM, DESC_POT_VOL, Source_Module_Optional, DT_Raster1D); /// IMP_SWAT
+	mdi.AddInput(VAR_POT_NO3, UNIT_KG, DESC_POT_NO3, Source_Module_Optional, DT_Raster1D);
+	mdi.AddInput(VAR_POT_NH4, UNIT_KG, DESC_POT_NH4, Source_Module_Optional, DT_Raster1D);
+	mdi.AddInput(VAR_POT_SOLP, UNIT_PER_DAY, DESC_POT_SOLP, Source_Module_Optional, DT_Raster1D);
 
 	mdi.AddInput(VAR_SOL_ST, UNIT_DEPTH_MM, DESC_SOL_ST, Source_Module, DT_Raster2D);
 	mdi.AddInput(VAR_SOL_SW, UNIT_DEPTH_MM, DESC_SOL_SW, Source_Module, DT_Raster1D); /// sol_sw in SWAT
 	
-	/**** set inputs for CENTURY C/N cycling model derived from NMINRL module, if CSWAT = 2. As optional inputs. ****/
+	/**** set inputs for CENTURY C/N cycling model derived from NUTR_TF module, if CSWAT = 2. As optional inputs. ****/
 	/// for fertilizer operation
 	mdi.AddInput(VAR_SOL_HSN, UNIT_CONT_KGHA, DESC_SOL_HSN, Source_Module_Optional, DT_Raster2D);
 	mdi.AddInput(VAR_SOL_LM, UNIT_CONT_KGHA, DESC_SOL_LM, Source_Module_Optional, DT_Raster2D);
@@ -178,6 +181,12 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.AddOutput(VAR_IMPOUND_TRIG, UNIT_NON_DIM, DESC_IMPOUND_TRIG, DT_Raster1D);
 	mdi.AddOutput(VAR_POT_VOLMAXMM, UNIT_DEPTH_MM, DESC_POT_VOLMAXMM, DT_Raster1D);
 	mdi.AddOutput(VAR_POT_VOLLOWMM, UNIT_DEPTH_MM, DESC_POT_VOLLOWMM, DT_Raster1D);
+	/// outputs of tillage operation during CENTURY model
+	mdi.AddOutput(VAR_TILLAGE_DAYS, UNIT_DAY, DESC_TILLAGE_DAYS, DT_Raster1D);
+	mdi.AddOutput(VAR_TILLAGE_DEPTH, UNIT_DAY, DESC_TILLAGE_DEPTH, DT_Raster1D);
+	mdi.AddOutput(VAR_TILLAGE_SWITCH, UNIT_DAY, DESC_TILLAGE_SWITCH, DT_Raster1D);
+	mdi.AddOutput(VAR_TILLAGE_FACTOR, UNIT_DAY, DESC_TILLAGE_FACTOR, DT_Raster1D);
+
     /// write out the XML file.
     res = mdi.GetXMLDocument();
 

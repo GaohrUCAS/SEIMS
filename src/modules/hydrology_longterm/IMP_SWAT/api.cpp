@@ -24,13 +24,14 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.SetDescription(MDESC_IMP_SWAT);
     mdi.SetID(MID_IMP_SWAT);
     mdi.SetName(MID_IMP_SWAT);
-    mdi.SetVersion("1.1");
+    mdi.SetVersion("1.2");
     mdi.SetEmail(SEIMS_EMAIL);
     mdi.SetWebsite(SEIMS_SITE);
     mdi.SetHelpfile("");
     /// set parameters from database
 	mdi.AddParameter(Tag_ROUTING_LAYERS, UNIT_NON_DIM, DESC_ROUTING_LAYERS, Source_ParameterDB, DT_Array2D);
 	mdi.AddParameter(Tag_CellWidth, UNIT_LEN_M, DESC_CellWidth, Source_ParameterDB, DT_Single);
+	mdi.AddParameter(Tag_TimeStep, UNIT_DAY, DESC_TIMESTEP, Source_ParameterDB, DT_Single);
 	mdi.AddParameter(VAR_SUBBSN, UNIT_NON_DIM, DESC_SUBBSN, Source_ParameterDB, DT_Raster1D);
     mdi.AddParameter(VAR_EVLAI, UNIT_AREA_RATIO, DESC_EVLAI, Source_ParameterDB, DT_Single);
 	mdi.AddParameter(VAR_POT_TILEMM, UNIT_DEPTH_MM, DESC_POT_TILEMM, Source_ParameterDB, DT_Single);
@@ -43,6 +44,9 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddParameter(VAR_SOL_UL, UNIT_DEPTH_MM, DESC_SOL_UL, Source_ParameterDB, DT_Raster2D);
 	mdi.AddParameter(VAR_SOILTHICK, UNIT_DEPTH_MM, DESC_SOILTHICK, Source_ParameterDB, DT_Raster2D);
 	mdi.AddParameter(VAR_POROST, UNIT_VOL_FRA_M3M3, DESC_POROST, Source_ParameterDB, DT_Raster2D);
+
+	mdi.AddParameter(VAR_KV_PADDY, UNIT_PER_DAY, DESC_KV_PADDY, Source_ParameterDB, DT_Single);
+	mdi.AddParameter(VAR_KN_PADDY, UNIT_PER_DAY, DESC_KN_PADDY, Source_ParameterDB, DT_Single);
     /// set input from other modules
 	mdi.AddInput(VAR_IMPOUND_TRIG, UNIT_NON_DIM, DESC_IMPOUND_TRIG, Source_Module, DT_Raster1D);
 	mdi.AddInput(VAR_POT_VOLMAXMM, UNIT_DEPTH_MM, DESC_POT_VOLMAXMM, Source_Module, DT_Raster1D);
@@ -74,7 +78,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddOutput(VAR_POT_NO3, UNIT_KG, DESC_POT_NO3, DT_Raster1D);
 	mdi.AddOutput(VAR_POT_NH4, UNIT_KG, DESC_POT_NH4, DT_Raster1D);
 	mdi.AddOutput(VAR_POT_ORGN, UNIT_KG, DESC_POT_ORGN, DT_Raster1D);
-	mdi.AddOutput(VAR_POT_SOLPLOSS, UNIT_PER_DAY, DESC_POT_SOLPLOSS, DT_Raster1D);
+	mdi.AddOutput(VAR_POT_SOLP, UNIT_PER_DAY, DESC_POT_SOLP, DT_Raster1D);
 	mdi.AddOutput(VAR_POT_ORGP, UNIT_KG, DESC_POT_ORGP, DT_Raster1D);
 	mdi.AddOutput(VAR_POT_AMINP, UNIT_KG, DESC_POT_AMINP, DT_Raster1D);
 	mdi.AddOutput(VAR_POT_SMINP, UNIT_KG, DESC_POT_SMINP, DT_Raster1D);

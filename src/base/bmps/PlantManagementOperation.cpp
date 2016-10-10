@@ -89,7 +89,7 @@ FertilizerOperation::FertilizerOperation(int mgtOp, bool usebaseHU, float husc, 
         PlantManagementOperation(mgtOp, usebaseHU, husc, year, month, day, parameters)
 {
     m_fertID = int(parameters[0]);
-    m_frtKg = parameters[3];
+    m_frtKgHa = parameters[3];
     m_frtSurface = (parameters[4] < UTIL_ZERO) ? 0.2f : parameters[4];
 }
 
@@ -103,7 +103,7 @@ void FertilizerOperation::dump(ostream *fs)
     *fs << "    Fertilizer Operation: " << endl <<
     "      HUSC: " << m_frHU << " rotationYear: " << m_year <<
     " Month: " << m_month << " Day: " << m_day <<
-    " Fertilizer ID: " << m_fertID << " Amount (kg): " << m_frtKg <<
+    " Fertilizer ID: " << m_fertID << " Amount (kg): " << m_frtKgHa <<
     " Fraction Applied in Surface: " << m_frtSurface << endl;
 }
 

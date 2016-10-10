@@ -464,11 +464,11 @@
 #define MDESC_SEDR_SBAGNOLD                        "Sediment channel routing using variable channel dimension method as used in SWAT."
 
 /// Nutrient
-/// nitrogen and phosphorus mineralization and immobilization
-#define MCLS_MINRL "Daily nitrogen and phosphorus mineralization and immobilization"
-#define MCLSDESC_MINRL "Daily nitrogen and phosphorus mineralization and immobilization considering fresh organic material (plant residue) and active and stable humus material."
-#define MID_MINRL "MINRL"
-#define MDESC_MINRL "Daily nitrogen and phosphorus mineralization and immobilization considering fresh organic material (plant residue) and active and stable humus material."
+/// carbon, nitrogen, and phosphorus mineralization and immobilization etc
+#define MCLS_NUTRCYC "nutrient cycling"
+#define MCLSDESC_NUTRCYC "Carbon, nitrogen, and phosphorus cycling"
+#define MID_NUTR_TF "NUTR_TF"
+#define MDESC_NUTR_TF "Daily nitrogen and phosphorus mineralization and immobilization considering fresh organic material (plant residue) and active and stable humus material."
 /// Nutrient removed and loss in surface runoff
 #define MCLS_NUTRSED "Nutrient removed and loss in surface runoff, lateral flow, tile flow, and percolation out of the profile."
 #define MCLSDESC_NUTRSED "Nutrient removed and loss in surface runoff, lateral flow, tile flow, and percolation out of the profile."
@@ -734,6 +734,8 @@
 #define VAR_LATNO3_TOCH "latno3ToCh"
 #define VAR_LCC "landcover"                             /// land cover code, idplt in SWAT
 #define VAR_LDRAIN "ldrain"
+#define VAR_KV_PADDY "kv_paddy"
+#define VAR_KN_PADDY "kn_paddy"
 #define VAR_MANNING "Manning"
 #define VAR_MAT_YRS "MAT_YRS"
 #define VAR_MGT_FIELD "mgt_fields"
@@ -803,7 +805,7 @@
 #define VAR_POT_NO3 "pot_no3"
 #define VAR_POT_NH4 "pot_nh4"
 #define VAR_POT_ORGN "pot_orgn"
-#define VAR_POT_SOLPLOSS "pot_solploss"
+#define VAR_POT_SOLP "pot_solp"
 #define VAR_POT_ORGP "pot_orgp"
 #define VAR_POT_AMINP "pot_aminp"
 #define VAR_POT_SMINP "pot_sminp"
@@ -918,6 +920,7 @@
 #define VAR_SOL_MN "sol_mn"
 #define VAR_SOL_MP "sol_mp"
 #define VAR_SOL_N "sol_N"
+
 /// CENTURY model for C/N cycling
 #define	VAR_SOL_BMC	"sol_BMC"
 #define	VAR_SOL_BMN	"sol_BMN"
@@ -941,6 +944,12 @@
 #define	VAR_SOL_HP	"sol_HP"
 #define	VAR_SOL_HS	"sol_HS"
 #define	VAR_SOL_BM	"sol_BM"
+
+#define VAR_SOL_LATERAL_C "sol_latc"
+#define VAR_SOL_PERCO_C "sol_percoc"
+#define VAR_LATERAL_C "latc"
+#define VAR_PERCO_C "percoc"
+#define VAR_SEDLOSS_C "sedc"
 
 #define VAR_SOL_NH4 "sol_nh4"                       /// amount of nitrogen stored in the ammonium pool in soil layer
 #define VAR_SOL_NO3 "sol_no3"                       /// amount of nitrogen stored in the nitrate pool in soil layer(kg N/ha)
@@ -1003,6 +1012,10 @@
 #define VAR_T0 "T0"
 #define VAR_TFACT "tfact"
 #define VAR_TILLAGE_LOOKUP "TillageLookup"
+#define VAR_TILLAGE_DAYS "tillage_days"
+#define VAR_TILLAGE_DEPTH "tillage_depth"
+#define VAR_TILLAGE_FACTOR "tillage_factor"
+#define VAR_TILLAGE_SWITCH "tillage_switch"
 #define VAR_TMAX "TMAX"
 #define VAR_TMEAN "TMEAN"
 #define VAR_TMEAN_ANN "TMEAN0"  /// annual mean temperature
@@ -1349,6 +1362,8 @@
 #define DESC_LATNO3_CH "amount of nitrate transported with lateral flow to channel"
 #define DESC_LCC "land cover code"
 #define DESC_LDRAIN "soil layer where drainage tile is located"
+#define DESC_KV_PADDY "volatilization rate constant in impounded water body"
+#define DESC_KN_PADDY "nitrification rate constant in impounded water body"
 #define DESC_MANNING "Manning's roughness"
 #define DESC_MASK "Array containing the row and column numbers for valid cells"
 #define DESC_MAT_YRS "the number of years for the tree species to reach full development"
@@ -1412,7 +1427,7 @@
 #define DESC_POT_NO3 "amount of nitrate in pothole water body"
 #define DESC_POT_NH4 "amount of ammonian in pothole water body"
 #define DESC_POT_ORGN "amount of organic N in pothole water body"
-#define DESC_POT_SOLPLOSS "soluble P loss rate in the pothole (.01 - 0.5)"
+#define DESC_POT_SOLP "soluble P amount in pothole water body"
 #define DESC_POT_ORGP "amount of organic P in pothole water body"
 #define DESC_POT_AMINP "amount of active mineral pool P in pothole water body"
 #define DESC_POT_SMINP "amount of stable mineral pool P in pothole water body"
@@ -1550,6 +1565,11 @@
 #define	DESC_SOL_WON	"NEED to figure out"
 #define	DESC_SOL_HP	"mass of OM in passive humus"
 #define	DESC_SOL_HS	"mass of OM in slow humus"
+#define DESC_SOL_LATERAL_C "lateral flow Carbon loss in each soil layer"
+#define DESC_SOL_PERCO_C "percolation Carbon loss in each soil layer"
+#define DESC_LATERAL_C "lateral flow Carbon loss in soil profile"
+#define DESC_PERCO_C "percolation Carbon loss in soil profile"
+#define DESC_SEDLOSS_C "amount of C lost with sediment"
 
 #define DESC_SOL_NH4 "amount of nitrogen stored in the ammonium pool in soil layer"
 #define DESC_SOL_NO3 "amount of nitrogen stored in the nitrate pool in soil layer"
@@ -1615,6 +1635,10 @@
 #define DESC_Tag_FLOWIN_PERCENTAGE_DINF "Percentage of flow in"
 #define DESC_TFACT "fraction of solar radiation computed in the temperature heat balance that is photo synthetically active"
 #define DESC_TILLAGE_LOOKUP "Tillage database"
+#define DESC_TILLAGE_DAYS "days from tillage"
+#define DESC_TILLAGE_DEPTH "tillage depth"
+#define DESC_TILLAGE_SWITCH "switch of whether to tillage"
+#define DESC_TILLAGE_FACTOR "influence factor of tillage operation"
 #define DESC_TIMESTEP "time step"
 #define DESC_TMAX "max temperature"
 #define DESC_TMEAN "mean temperature"

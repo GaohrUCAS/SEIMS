@@ -6,6 +6,7 @@
  *           2. Preliminary implemented version, not include grazing, auto fertilizer, etc. See detail please find the TODOs.
  * \date 2016-9-29
  * \description: 1. Add the CENTURY model related code, mainly include fert.f, newtillmix.f, and harvestop.f
+ *               2. Update fertilizer operation for paddy rice, i.e., ExecuteFertilizerOperation()
  */
 #pragma once
 
@@ -230,24 +231,12 @@ private:
 	float **m_sol_LSLNC; /// non-lignin part of the structural litter C
 
 	/// tillage factor on SOM decomposition, used by CENTURY model
-	int *m_tillage_switch;
+	float *m_tillage_switch;
 	float *m_tillage_depth;
-	int *m_tillage_days;
+	float *m_tillage_days;
 	float *m_tillage_factor;
-
-	//float **m_sol_WOC; ///
-	//float **m_sol_WON; ///
-	//float **m_sol_BM; ///
-	//float **m_sol_BMC; ///
 	float **m_sol_BMN; ///
-	//float **m_sol_HP; ///
-	//float **m_sol_HS; ///
-	//float **m_sol_HSC; ///
-	//float **m_sol_HPC; ///
 	float **m_sol_HPN; ///
-
-	//float **m_sol_RNMN; ///
-	//float **m_sol_RSPC; ///
 
     /** Irrigation operation related **/
 
@@ -263,8 +252,6 @@ private:
     float *m_deepWaterDepth;
     ///shallst | mm H2O        |depth of water in shallow aquifer
     float *m_shallowWaterDepth;
-    /// pot_vol(:)     |m**3 H2O      |current volume of water stored in the depression/impounded area
-    float m_impoundVolume;
     /// potsa(:)       |ha            |surface area of impounded water body
     float m_impoundArea;
     /// deepirr(:)  |mm H2O        |amount of water removed from deep aquifer for irrigation
@@ -308,6 +295,24 @@ private:
 
     /// stsol_rd(:) |mm            |storing last soil root depth for use in harvestkillop/killop /// defined in swu.f
     float *m_lastSoilRootDepth;
+	/**** Daily carbon change by different means (entire soil profile for each cell) ****/
+	/**** For 2-CENTURY C/N cycling model, these variables will be initialized as 0  ****/
+	/**** at the beginning of the current day ****/
+	/**** 1 harvest, 2 harvestkill, 3 harvgrain op ****/
+	float *m_grainc_d; /// 1,2,3
+	float *m_rsdc_d; /// 1, 2
+	float *m_stoverc_d; /// 2
+
+	float *m_sedc_d;
+	float *m_surfqc_d;
+	float *m_latc_d;
+	float *m_percc_d;
+	float *m_foc_d;
+	float *m_NPPC_d;
+	float *m_soc_d;
+	float *m_rspc_d;
+	float *m_emitc_d; // include biomass_c eaten by grazing, burnt
+
 
     /** tillage operation related **/
 
@@ -356,14 +361,21 @@ private:
 
     /* |release/impound action code:
            |0 begin impounding water
-           |1 release impounded water*/
+           |1 release impounded water
+	 */
     float *m_impoundTriger;
-	/// volume   mm
+	/// volume of water stored in the depression/impounded area, mm
 	float *m_potVol;
 	/// maximum volume of water stored in the depression/impounded area, mm
 	float *m_potVolMax;
 	/// low depth ...., mm
 	float *m_potVolLow;
+	/// no3 amount kg
+	float *m_potNo3;
+	/// nh4 amount kg
+	float *m_potNH4;
+	/// soluble phosphorus amount, kg
+	float *m_potSolP;
 	/// amount of water held in the soil layer at saturation (sat - wp water), mm
 	float **m_sol_sat;
 	/// soil water storage (mm)

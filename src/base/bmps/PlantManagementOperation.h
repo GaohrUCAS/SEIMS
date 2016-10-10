@@ -162,7 +162,7 @@ namespace MainBMP
 
             int FertilizerID() { return m_fertID; }
 
-            float FertilizerKg() { return m_frtKg; }
+            float FertilizerKg_per_ha() { return m_frtKgHa; }
 
             float FertilizerSurfaceFrac() { return m_frtSurface; }
 
@@ -171,7 +171,9 @@ namespace MainBMP
 
         private:
             int m_fertID;
-            float m_frtKg;
+            float m_frtKgHa;
+			/// fraction of fertilizer which is applied to the top 10 mm of soil (the remaining
+			/// fraction is applied to first soil layer defined by user)
             float m_frtSurface;
         };
 
