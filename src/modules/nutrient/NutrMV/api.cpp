@@ -82,7 +82,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.AddOutput(VAR_SUR_NO3, UNIT_CONT_KGHA, DESC_SUR_NO3, DT_Raster1D);
 	mdi.AddOutput(VAR_SUR_NH4, UNIT_CONT_KGHA, DESC_SUR_NH4, DT_Raster1D);
     mdi.AddOutput(VAR_SUR_SOLP, UNIT_CONT_KGHA, DESC_SUR_SOLP, DT_Raster1D);
-	mdi.AddOutput(VAR_COD, UNIT_CONT_KGHA, DESC_COD, DT_Raster1D);
+	mdi.AddOutput(VAR_SUR_COD, UNIT_CONT_KGHA, DESC_SUR_COD, DT_Raster1D);
     mdi.AddOutput(VAR_CHL_A, UNIT_CONCENTRATION, DESC_CHL_A, DT_Raster1D);
 	mdi.AddOutput(VAR_LATNO3, UNIT_CONT_KGHA, DESC_LATNO3, DT_Raster1D);
 	//to groundwater

@@ -82,7 +82,7 @@ private:
     int m_nCells;
     /// cell width of the grid (m)
     float m_CellWidth;
-	/// cell area
+	/// cell area, BE CAUTION, the unit is m^2, NOT ha!!!
 	float m_cellArea;
     /// the total number of subbasins
 	int m_nSubbasins;

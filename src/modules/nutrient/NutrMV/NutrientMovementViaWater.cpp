@@ -644,7 +644,7 @@ void NutrientMovementViaWater::Get1DData(const char *key, int *n, float **data)
 		*data = this->m_surqsolp; 
 		*n = m_nCells;
 	}
-    else if (StringMatch(sk, VAR_COD)) 
+    else if (StringMatch(sk, VAR_SUR_COD)) 
 	{
 		*data = this->m_surcod; 
 		*n = m_nCells;
