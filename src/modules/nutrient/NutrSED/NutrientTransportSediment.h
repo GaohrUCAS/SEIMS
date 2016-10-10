@@ -1,6 +1,8 @@
 /*!
- * \file NutrientTransportSediment.h
  * \brief Nutrient removed and lost in surface runoff.
+ *        Support three carbon model, static method (orgn.f), C-FARM one carbon model (orgncswat.f),
+ *                                    and CENTURY C/N cycling model (NCsed_leach.f90) from SWAT
+ *        As for phosphorus, psed.f of SWAT calculates the attached to sediment in surface runoff.
  * \author Huiran Gao
  * \date April 2016
  * 
@@ -20,14 +22,14 @@
 using namespace std;
 /** \defgroup NUTRSED
  * \ingroup Nutrient
- * \brief Nutrient removed and lost with the eroded and transported sediment.
+ * \brief Nutrient removed and lost with the eroded sediment in surface runoff
  */
 
 /*!
  * \class NutrientTransportSediment
  * \ingroup NUTRSED
  *
- * \brief Nutrient removed and lost with the eroded and transported sediment.
+ * \brief Nutrient removed and lost with the eroded sediment in surface runoff
  *
  */
 
@@ -130,7 +132,8 @@ private:
     float **m_sol_stap;
     //amount of phosphorus stored in the active mineral phosphorus pool, kg P/ha
     float **m_sol_actp;
-
+	/// for C-FARM one carbon model
+	float **m_sol_mp;
 	/// for CENTURY C/Y cycling model
 	/// inputs from other modules
 	float **m_sol_LSN;
@@ -165,10 +168,15 @@ private:
      */
     bool CheckInputData(void);
 	/*!
-     * \brief check the input data for running CENTURY model. Make sure all the input data is available.
-     * \return bool The validity of the input data.
+     * \brief check the input data for running CENTURY model. Make sure all the inputs data is available.
+     * \return bool The validity of the inputs data.
      */
 	bool CheckInputData_CENTURY(void);
+	/*!
+     * \brief check the input data for running C-FARM one carbon model. Make sure all the inputs data is available.
+     * \return bool The validity of the inputs data.
+     */
+	bool CheckInputData_CFARM(void);
     /*!
      * \brief check the input size. Make sure all the input data have same dimension.
      *
@@ -180,14 +188,22 @@ private:
 
     /*!
      * \brief calculates the amount of organic nitrogen removed in surface runoff.
-     * orgn.f of SWAT
+     *        orgn.f of SWAT, when CSWAT = 0
      * \return void
      */
     void OrgNRemovedInRunoff_StaticMethod(int i);
 
 	/*!
      * \brief calculates the amount of organic nitrogen removed in surface runoff.
-     * NCsed_leach.f90 of SWAT
+     *        orgnswat.f of SWAT, when CSWAT = 1
+	 * \TODO THIS IS ON TODO LIST
+     * \return void
+     */
+    void OrgNRemovedInRunoff_CFARMOneCarbonModel(int i);
+
+	/*!
+     * \brief calculates the amount of organic nitrogen removed in surface runoff.
+     *        NCsed_leach.f90 of SWAT, when CSWAT = 2
      * \return void
      */
     void OrgNRemovedInRunoff_CENTURY(int i);
@@ -198,7 +214,6 @@ private:
      * \return void
      */
     void OrgPAttachedtoSed(int i);
-
+	/// initial outputs
     void initialOutputs();
-
 };
