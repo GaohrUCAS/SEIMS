@@ -1,11 +1,13 @@
 /*!
-* \brief Simulates depressional areas that do not drain to the stream network (pothole) and impounded areas such as rice paddies
+ * \brief Simulates depressional areas that do not drain to the stream network (pothole) and impounded areas such as rice paddies
  * \author Liang-Jun Zhu
  * \date Sep 2016
  *           1. Source code of SWAT include: pothole.f
  *           2. Add the simulation of Ammonia n transported with surface runoff, 2016-9-27
  *           3. Add m_depEvapor and m_depStorage from DEP_LENSLEY module
  *           4. Using a simple model (first-order kinetics equation) to simulate N transformation in impounded area.
+ * \data 2016-10-10
+ * \description: 1. Update all related variables after the simulation of pothole.
  */
 #pragma once
 
@@ -90,8 +92,6 @@ private:
 	float *m_surfaceRunoff;
 	/// sediment yield transported on each cell, kg
 	float *m_sedYield;
-	/// sediment yield transported to channel, kg
-	float *m_sedToCh;
 	//! sand yield
 	float *m_sandYield;
 	//! silt yield
@@ -112,6 +112,8 @@ private:
 	float *m_surqNH4;
 	/// amount of soluble phosphorus transported with surface runoff
 	float *m_surqSolP;
+	/// 
+	float *m_surqCOD;
 	/// 
 	float *m_sedOrgN;
 	///
@@ -173,6 +175,30 @@ private:
 	//float *m_potSagIn;
 	///// large aggregate
 	//float *m_potLagIn;
+
+	/* 
+	 * surface runoff, sediment, nutrient that into the channel
+	 */
+	/// surface runoff to channel, m^3/s
+	float *m_surfqToCh;
+	/// sediment transported to channel, kg
+	float *m_sedToCh;
+	/// amount of nitrate transported with surface runoff
+	float *m_surNO3ToCh;
+	/// amount of ammonian transported with surface runoff
+	float *m_surNH4ToCh;
+	/// amount of soluble phosphorus in surface runoff
+	float *m_surSolPToCh;
+	/// cod to reach in surface runoff (kg)
+	float *m_surCodToCh;
+	// amount of organic nitrogen in surface runoff
+	float *m_sedOrgNToCh;
+	// amount of organic phosphorus in surface runoff
+	float *m_sedOrgPToCh;
+	// amount of active mineral phosphorus absorbed to sediment in surface runoff
+	float *m_sedMinPAToCh;
+	// amount of stable mineral phosphorus absorbed to sediment in surface runoff
+	float *m_sedMinPSToCh;
 
 public:
     //! Constructor
