@@ -51,6 +51,8 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.AddInput(VAR_SOL_HORGP, UNIT_CONT_KGHA, DESC_SOL_HORGP, Source_Module, DT_Raster2D);
     mdi.AddInput(VAR_SOL_ACTP, UNIT_CONT_KGHA, DESC_SOL_ACTP, Source_Module, DT_Raster2D);
     mdi.AddInput(VAR_SOL_STAP, UNIT_CONT_KGHA, DESC_SOL_STAP, Source_Module, DT_Raster2D);
+	/// for C-FARM one carbon model
+	mdi.AddInput(VAR_SOL_MP, UNIT_CONT_KGHA, DESC_SOL_MP, Source_Module_Optional, DT_Raster2D);
 
 	/// for CENTURY C/N cycling model, set as optional inputs
 	mdi.AddInput(VAR_SOL_LSN, UNIT_CONT_KGHA, DESC_SOL_LSN, Source_Module_Optional, DT_Raster2D);
