@@ -809,6 +809,7 @@ void Nutrient_Transformation::CalculatePflux(int i)
 		// ***************Soluble - Active Transformations***************	
 		// Dynamic PSP Ratio
 		float psp = 0.f;
+		//cout << psp << endl;
 		//PSP = -0.045*log (% clay) + 0.001*(Solution P, mg kg-1) - 0.035*(% Organic C) + 0.43
 		if (m_sol_clay[i][k] > 0.f)
 		{
@@ -1112,8 +1113,8 @@ void Nutrient_Transformation::Mineralization_CENTURYModel(int i)
 			m_wdntl[i] += wdn;
 
 			float sol_min_n = m_sol_no3[i][k] + m_sol_nh4[i][k];
-
-			// lignin content in structural litter (fraction)          
+			//if(i == 100 && k == 0) cout << m_sol_LSL[i][k] << m_sol_LS[i][k] << endl;
+			// lignin content in structural litter (fraction)
 			RLR = min(0.8f, m_sol_LSL[i][k] / (m_sol_LS[i][k] + 1.e-5f));
 			// HSR=PRMT(47) !CENTURY SLOW HUMUS TRANSFORMATION RATE D^-1(0.00041_0.00068) ORIGINAL VALUE = 0.000548,
 			HSR = 5.4799998e-4f;
@@ -1378,8 +1379,8 @@ void Nutrient_Transformation::Mineralization_CENTURYModel(int i)
 				m_sol_LM[i][k] = m_sol_LM[i][k] - LMCTA / RTO;
 				m_sol_LMC[i][k] = m_sol_LMC[i][k] - LMCTA;
 			}
-			m_sol_LSL[i][k] = max(1.e-10, m_sol_LSL[i][k] - LSLCTA / .42f);
-			m_sol_LS[i][k] = max(1.e-10, m_sol_LS[i][k] - LSCTA / .42f);
+			m_sol_LSL[i][k] = max(1.e-10f, m_sol_LSL[i][k] - LSLCTA / .42f);
+			m_sol_LS[i][k] = max(1.e-10f, m_sol_LS[i][k] - LSCTA / .42f);
 
 			x3 = APX * HPCTA + ASX * HSCTA + A1 * (LMCTA + LSLNCTA);
 			m_sol_BMC[i][k] = m_sol_BMC[i][k] - BMCTA + x3;
