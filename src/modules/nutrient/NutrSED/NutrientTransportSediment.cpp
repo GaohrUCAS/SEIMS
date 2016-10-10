@@ -340,42 +340,39 @@ int NutrientTransportSediment::Execute()
 
 void NutrientTransportSediment::OrgNRemovedInRunoff_StaticMethod(int i)
 {
-    for (int k = 0; k < (int)m_nSoilLayers[i]; k++)
-    {
-        //amount of organic N in first soil layer (orgninfl)
-        float orgninfl = 0.f;
-        //conversion factor (wt)
-        float wt = 0.f;
-        orgninfl = m_sol_orgn[i][0] + m_sol_aorgn[i][0] + m_sol_fon[i][0];
-        wt = m_sol_bd[i][0] * m_soilThick[i][0] / 100.f;
-        //concentration of organic N in soil (concn)
-        float concn = 0.f;
-        concn = orgninfl * m_enratio[i] / wt;
-        //Calculate the amount of organic nitrogen transported with sediment to the stream, equation 4:2.2.1 in SWAT Theory 2009, p271
-        m_sedorgn[i] = 0.001f * concn * m_sedEroded[i] / 1000.f / m_cellArea;
-        //update soil nitrogen pools
-        if (orgninfl > 1.e-6f)
-        {
-            m_sol_aorgn[i][0] = m_sol_aorgn[i][0] - m_sedorgn[i] * (m_sol_aorgn[i][0] / orgninfl);
-            m_sol_orgn[i][0] = m_sol_orgn[i][0] - m_sedorgn[i] * (m_sol_orgn[i][0] / orgninfl);
-            m_sol_fon[i][0] = m_sol_fon[i][0] - m_sedorgn[i] * (m_sol_fon[i][0] / orgninfl);
-            if (m_sol_aorgn[i][0] < 0.f)
-            {
-                m_sedorgn[i] = m_sedorgn[i] + m_sol_aorgn[i][0];
-                m_sol_aorgn[i][0] = 0.f;
-            }
-            if (m_sol_orgn[i][0] < 0.f)
-            {
-                m_sedorgn[i] = m_sedorgn[i] + m_sol_orgn[i][0];
-                m_sol_orgn[i][0] = 0.f;
-            }
-            if (m_sol_fon[i][0] < 0.f)
-            {
-                m_sedorgn[i] = m_sedorgn[i] + m_sol_fon[i][0];
-                m_sol_fon[i][0] = 0.f;
-            }
-        }
-    }
+	//amount of organic N in first soil layer (orgninfl)
+	float orgninfl = 0.f;
+	//conversion factor (wt)
+	float wt = 0.f;
+	orgninfl = m_sol_orgn[i][0] + m_sol_aorgn[i][0] + m_sol_fon[i][0];
+	wt = m_sol_bd[i][0] * m_soilThick[i][0] / 100.f;
+	//concentration of organic N in soil (concn)
+	float concn = 0.f;
+	concn = orgninfl * m_enratio[i] / wt;
+	//Calculate the amount of organic nitrogen transported with sediment to the stream, equation 4:2.2.1 in SWAT Theory 2009, p271
+	m_sedorgn[i] = 0.001f * concn * m_sedEroded[i] / 1000.f / m_cellArea;
+	//update soil nitrogen pools
+	if (orgninfl > 1.e-6f)
+	{
+		m_sol_aorgn[i][0] = m_sol_aorgn[i][0] - m_sedorgn[i] * (m_sol_aorgn[i][0] / orgninfl);
+		m_sol_orgn[i][0] = m_sol_orgn[i][0] - m_sedorgn[i] * (m_sol_orgn[i][0] / orgninfl);
+		m_sol_fon[i][0] = m_sol_fon[i][0] - m_sedorgn[i] * (m_sol_fon[i][0] / orgninfl);
+		if (m_sol_aorgn[i][0] < 0.f)
+		{
+			m_sedorgn[i] = m_sedorgn[i] + m_sol_aorgn[i][0];
+			m_sol_aorgn[i][0] = 0.f;
+		}
+		if (m_sol_orgn[i][0] < 0.f)
+		{
+			m_sedorgn[i] = m_sedorgn[i] + m_sol_orgn[i][0];
+			m_sol_orgn[i][0] = 0.f;
+		}
+		if (m_sol_fon[i][0] < 0.f)
+		{
+			m_sedorgn[i] = m_sedorgn[i] + m_sol_fon[i][0];
+			m_sol_fon[i][0] = 0.f;
+		}
+	}
 }
 
 void NutrientTransportSediment::OrgNRemovedInRunoff_CENTURY(int i)
@@ -414,10 +411,10 @@ void NutrientTransportSediment::OrgNRemovedInRunoff_CENTURY(int i)
 		m_sol_HSN[i][0] *= xx1;
 	}
 	/// Calculate runoff and leached C&N from micro-biomass
-	sol_mass = m_soilThick[i][0]/1000.f * 10000.f * m_sol_bd[i][0] * 1000.f *
-		(1.f - m_sol_rock[i][0]/100.f);
+	sol_mass = m_soilThick[i][0] / 1000.f * 10000.f * m_sol_bd[i][0] * 1000.f *
+		(1.f - m_sol_rock[i][0] / 100.f);
 	TOT = m_sol_HPC[i][0] + m_sol_HSC[i][0] + m_sol_LMC[i][0] + m_sol_LSC[i][0];
-	YEW = min((m_sedEroded[i]/m_cellArea+YW/m_cellArea)/(sol_mass/1000.f), 0.9f);
+	YEW = min((m_sedEroded[i] / m_cellArea+YW / m_cellArea) / (sol_mass / 1000.f), 0.9f);
 	X1 = 1.f - YEW;
 	YOC = YEW * TOT;
 	m_sol_HSC[i][0] *= X1;
@@ -442,7 +439,7 @@ void NutrientTransportSediment::OrgNRemovedInRunoff_CENTURY(int i)
 		V = m_surfaceRunoff[i] +  m_sol_perco[i][0] + m_sol_laterq[i][0];
 		if (V > 1.e-10f)
 		{
-			X3 = m_sol_BMC[i][0] * (1.f - exp(-V/XX)); /// loss of biomass C
+			X3 = m_sol_BMC[i][0] * (1.f - exp(-V / XX)); /// loss of biomass C
 			PRMT_44 = 0.5;
 			CO = X3 / (m_sol_perco[i][0] + PRMT_44 * (m_surfaceRunoff[i] + m_sol_laterq[i][0]));
 			CS = PRMT_44 * CO;
@@ -491,70 +488,67 @@ void NutrientTransportSediment::OrgNRemovedInRunoff_CENTURY(int i)
 
 void NutrientTransportSediment::OrgPAttachedtoSed(int i)
 {
-    for (int k = 0; k < (int)m_nSoilLayers[i]; k++)
-    {
-        //amount of phosphorus attached to sediment in soil (sol_attp)
-        float sol_attp = 0.f;
-        //fraction of active mineral/organic/stable mineral phosphorus in soil (sol_attp_o, sol_attp_a, sol_attp_s)
-        float sol_attp_o = 0.f;
-        float sol_attp_a = 0.f;
-        float sol_attp_s = 0.f;
-        //Calculate sediment
-        sol_attp = m_sol_orgp[i][0] + m_sol_fop[i][0] + m_sol_actp[i][0] + m_sol_stap[i][0];
-        if (sol_attp > 1.e-3f)
-        {
-            sol_attp_o = (m_sol_orgp[i][0] + m_sol_fop[i][0]) / sol_attp;
-            sol_attp_a = m_sol_actp[i][0] / sol_attp;
-            sol_attp_s = m_sol_stap[i][0] / sol_attp;
-        }
-        //conversion factor (mg/kg => kg/ha) (wt)
-        float wt = m_sol_bd[i][0] * m_soilThick[i][0] / 100.f;
-        //concentration of organic P in soil (concp)
-        float concp = 0.f;
-        concp = sol_attp * m_enratio[i] / wt;
-        //total amount of P removed in sediment erosion (sedp)
-        float sedp = 0.001f * concp * m_sedEroded[i] / 1000.f / m_cellArea;
-        m_sedorgp[i] = sedp * sol_attp_o;
-        m_sedminpa[i] = sedp * sol_attp_a;
-		m_sedminps[i] = sedp * sol_attp_s;
-		//if(i==100)cout << "sedp: " << sedp<< ",sol_attp_o: "  << sol_attp_o << endl;
-        //modify phosphorus pools
+	//amount of phosphorus attached to sediment in soil (sol_attp)
+	float sol_attp = 0.f;
+	//fraction of active mineral/organic/stable mineral phosphorus in soil (sol_attp_o, sol_attp_a, sol_attp_s)
+	float sol_attp_o = 0.f;
+	float sol_attp_a = 0.f;
+	float sol_attp_s = 0.f;
+	//Calculate sediment
+	sol_attp = m_sol_orgp[i][0] + m_sol_fop[i][0] + m_sol_actp[i][0] + m_sol_stap[i][0];
+	if (sol_attp > 1.e-3f)
+	{
+		sol_attp_o = (m_sol_orgp[i][0] + m_sol_fop[i][0]) / sol_attp;
+		sol_attp_a = m_sol_actp[i][0] / sol_attp;
+		sol_attp_s = m_sol_stap[i][0] / sol_attp;
+	}
+	//conversion factor (mg/kg => kg/ha) (wt)
+	float wt = m_sol_bd[i][0] * m_soilThick[i][0] / 100.f;
+	//concentration of organic P in soil (concp)
+	float concp = 0.f;
+	concp = sol_attp * m_enratio[i] / wt;
+	//total amount of P removed in sediment erosion (sedp)
+	float sedp = 0.001f * concp * m_sedEroded[i] / 1000.f / m_cellArea;
+	m_sedorgp[i] = sedp * sol_attp_o;
+	m_sedminpa[i] = sedp * sol_attp_a;
+	m_sedminps[i] = sedp * sol_attp_s;
+	//if(i==100)cout << "sedp: " << sedp<< ",sol_attp_o: "  << sol_attp_o << endl;
+	//modify phosphorus pools
 
-        //total amount of P in mineral sediment pools prior to sediment removal (psedd)		// Not used
-        //float psedd = 0.f;
-        //psedd = m_sol_actp[i][0] + m_sol_stap[i][0];
+	//total amount of P in mineral sediment pools prior to sediment removal (psedd)		// Not used
+	//float psedd = 0.f;
+	//psedd = m_sol_actp[i][0] + m_sol_stap[i][0];
 
-        //total amount of P in organic pools prior to sediment removal (porgg)
-        float porgg = 0.f;
-        porgg = m_sol_orgp[i][0] + m_sol_fop[i][0];
-        if (porgg > 1.e-3f)
-        {
-            m_sol_orgp[i][0] = m_sol_orgp[i][0] - m_sedorgp[i] * (m_sol_orgp[i][0] / porgg);
-            m_sol_fop[i][0] = m_sol_fop[i][0] - m_sedorgp[i] * (m_sol_fop[i][0] / porgg);
-        }
-        m_sol_actp[i][0] = m_sol_actp[i][0] - m_sedminpa[i];
-        m_sol_stap[i][0] = m_sol_stap[i][0] - m_sedminps[i];
-        if (m_sol_orgp[i][0] < 0.f)
-        {
-            m_sedorgp[i] = m_sedorgp[i] + m_sol_orgp[i][0];
-            m_sol_orgp[i][0] = 0.f;
-        }
-        if (m_sol_fop[i][0] < 0.f)
-        {
-            m_sedorgp[i] = m_sedorgp[i] + m_sol_fop[i][0];
-            m_sol_fop[i][0] = 0.f;
-        }
-        if (m_sol_actp[i][0] < 0.f)
-        {
-            m_sedminpa[i] = m_sedminpa[i] + m_sol_actp[i][0];
-            m_sol_actp[i][0] = 0.f;
-        }
-        if (m_sol_stap[i][0] < 0.f)
-        {
-            m_sedminps[i] = m_sedminps[i] + m_sol_stap[i][0];
-            m_sol_stap[i][0] = 0.f;
-        }
-    }
+	//total amount of P in organic pools prior to sediment removal (porgg)
+	float porgg = 0.f;
+	porgg = m_sol_orgp[i][0] + m_sol_fop[i][0];
+	if (porgg > 1.e-3f)
+	{
+		m_sol_orgp[i][0] = m_sol_orgp[i][0] - m_sedorgp[i] * (m_sol_orgp[i][0] / porgg);
+		m_sol_fop[i][0] = m_sol_fop[i][0] - m_sedorgp[i] * (m_sol_fop[i][0] / porgg);
+	}
+	m_sol_actp[i][0] = m_sol_actp[i][0] - m_sedminpa[i];
+	m_sol_stap[i][0] = m_sol_stap[i][0] - m_sedminps[i];
+	if (m_sol_orgp[i][0] < 0.f)
+	{
+		m_sedorgp[i] = m_sedorgp[i] + m_sol_orgp[i][0];
+		m_sol_orgp[i][0] = 0.f;
+	}
+	if (m_sol_fop[i][0] < 0.f)
+	{
+		m_sedorgp[i] = m_sedorgp[i] + m_sol_fop[i][0];
+		m_sol_fop[i][0] = 0.f;
+	}
+	if (m_sol_actp[i][0] < 0.f)
+	{
+		m_sedminpa[i] = m_sedminpa[i] + m_sol_actp[i][0];
+		m_sol_actp[i][0] = 0.f;
+	}
+	if (m_sol_stap[i][0] < 0.f)
+	{
+		m_sedminps[i] = m_sedminps[i] + m_sol_stap[i][0];
+		m_sol_stap[i][0] = 0.f;
+	}
 }
 
 void NutrientTransportSediment::Get1DData(const char *key, int *n, float **data)
