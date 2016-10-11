@@ -365,7 +365,7 @@ void IMP_SWAT::potholeSimulate(int id)
 		m_depEvapor[id] = 0.f;
 	}
 	float no3in = m_surqNo3[id]; /// no3 amount in flow
-	float nh4in = 
+	float nh4in = m_surqNH4[id]; /// nh4 amount in flow
 	/// update volume of water in pothole
 	m_potVol[id] += qIn;
 	//m_potFlowIn[id] += qIn; // TODO, this should be routing cell by cell. by lj
@@ -571,7 +571,7 @@ void IMP_SWAT::potholeSimulate(int id)
 		}
 		if (m_potVol[id] < UTIL_ZERO)
 		{
-			m_potVol[id] = m_potVolLow[id]; // auto-irrigation
+			m_potVol[id] = m_potVolMax[id]; // auto-irrigation
 		}
 		if (potvol_tile > UTIL_ZERO)
 		{
@@ -693,8 +693,8 @@ void IMP_SWAT::potholeSimulate(int id)
 	}
 	//potholeSurfaceArea(id);
 	m_surfaceRunoff[id] = qdayTmp;
-	//if (id == 1085)  /// dianbu 8144, dianbu2 1085
-	//	cout<<"surfaceQ: "<<m_surfaceRunoff[id]<<", potVol: "<<m_potVol[id]<<endl;
+	//if (id == 8144)  /// dianbu 8144, dianbu2 1085
+	//	cout<<"surfaceQ: "<<m_surfaceRunoff[id]<<", potVol: "<<m_potVol[id]<<", surqNh4: "<<m_surqNH4[id]<<endl;
 }
 
 void IMP_SWAT::potholeSurfaceArea(int id)
@@ -711,8 +711,6 @@ void IMP_SWAT::potholeSurfaceArea(int id)
 
 void IMP_SWAT::releaseWater(int id)
 {
-	//if (id == 108 && m_potVol[id] > UTIL_ZERO)  /// dianbu 8144, dianbu2 1085
-	//	cout<<"releaseWater, "<<m_surfaceRunoff[id]<<", "<<m_potVol[id]<<endl;
 	if (m_potVol[id] < UTIL_ZERO)
 		return;
 	float xx = 1.f;
@@ -745,6 +743,9 @@ void IMP_SWAT::releaseWater(int id)
 	m_potOrgP[id] *= (1.f - xx);
 	m_potActMinP[id] *= (1.f - xx);
 	m_potStaMinP[id] *= (1.f - xx);
+
+	if (id == 8144)  /// dianbu 8144, dianbu2 1085
+		cout<<"releaseWater, "<<m_surfaceRunoff[id]<<", "<<m_potVol[id]<<", surqNh4: "<<m_surqNH4[id]<<endl;
 }
 
 void IMP_SWAT::Get1DData(const char *key, int *n, float **data)

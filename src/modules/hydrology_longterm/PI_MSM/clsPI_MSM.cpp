@@ -15,7 +15,7 @@
 #include <omp.h>
 
 clsPI_MSM::clsPI_MSM(void) : m_nCells(-1), m_Pi_b(-1.f), m_dateLastTimeStep(-1), m_Init_IS(0.f), 
-	m_netPrecipitation(NULL), m_evaporation(NULL), m_interceptionLoss(NULL), m_st(NULL)
+	m_netPrecipitation(NULL), m_evaporation(NULL),m_interceptionLoss(NULL), m_st(NULL)
 {
 }
 
@@ -62,6 +62,8 @@ void clsPI_MSM::Get1DData(const char *key, int *nRows, float **data)
         *data = m_interceptionLoss;
     else if (StringMatch(s, VAR_INET))
         *data = m_evaporation;
+	else if (StringMatch(s, VAR_CANSTOR))
+		*data = m_st;
     else if (StringMatch(s, VAR_NEPR))
         *data = m_netPrecipitation;
     else
@@ -92,15 +94,16 @@ int clsPI_MSM::Execute()
 #pragma omp parallel for
     for (int i = 0; i < this->m_nCells; i++)
     {
-        if (m_P[i] > 0)
+        if (m_P[i] > 0.f)
         {
             //interception storage capacity
             float degree = 2.f * PI * (julian - 87.f) / 365.f;
+			/// For water, min and max are both 0, then no need for specific handling.
             float min = m_minSt[i];
             float max = m_maxSt[i];
             float capacity = min + (max - min) * pow(0.5f + 0.5f * sin(degree), m_Pi_b);
 
-            //interception
+            //interception, currently, m_st[i] is storage of (t-1) time step 
             float availableSpace = capacity - m_st[i];
             if (availableSpace < 0)
                 availableSpace = 0.f;
@@ -119,7 +122,10 @@ int clsPI_MSM::Execute()
             m_interceptionLoss[i] = 0.f;
             m_netPrecipitation[i] = 0.f;
         }
-
+		/* Evaporation from canopy storage should be considered in the actual ET module, such as AET_PTH
+		 * If stated here, the m_PET could be the (t-1) which depends on the executing order.
+		 * Comment and update by LJ.
+		 */
         //evaporation
         if (m_st[i] > m_PET[i])
             m_evaporation[i] = m_PET[i];

@@ -694,6 +694,7 @@
 #define VAR_INFILCAPSURPLUS "INFILCAPSURPLUS"
 #define VAR_INIT_IS "Init_IS"
 #define VAR_INLO "INLO"
+#define VAR_CANSTOR "canstor"
 #define VAR_INTERC_MAX "Interc_max"                 /// Maximum Interception Storage Capacity
 #define VAR_INTERC_MIN "Interc_min"                 /// Minimum Interception Storage Capacity
 #define VAR_IRR_FLAG "irr_flag"
@@ -1323,6 +1324,7 @@
 #define DESC_INFILCAPSURPLUS "surplus of infiltration capacity"
 #define DESC_INIT_IS "Initial interception storage"
 #define DESC_INLO "Interception loss"
+#define DESC_CANSTOR "amount of water held in canopy storage"
 #define DESC_INTERC_MAX "Maximum Interception Storage Capacity"
 #define DESC_INTERC_MIN "Minimum Interception Storage Capacity"
 #define DESC_IRR_FLAG "irrigation flag, 1 or 0"

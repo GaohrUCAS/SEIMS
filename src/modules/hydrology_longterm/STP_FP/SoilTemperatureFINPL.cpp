@@ -11,7 +11,7 @@ using namespace std;
 
 SoilTemperatureFINPL::SoilTemperatureFINPL(void) : m_a0(NODATA_VALUE), m_a1(NODATA_VALUE), m_a2(NODATA_VALUE), m_a3(NODATA_VALUE),
                                                    m_b1(NODATA_VALUE), m_b2(NODATA_VALUE), m_d1(NODATA_VALUE), m_d2(NODATA_VALUE),
-                                                   m_kSoil10(NODATA_VALUE), m_julianDay(-1), m_nCells(-1),
+                                                   m_kSoil10(NODATA_VALUE), m_julianDay(-1), m_nCells(-1),m_landuse(NULL),
                                                    m_relativeFactor(NULL), m_soilTemp(NULL), m_tMean(NULL), m_t1(NULL),
                                                    m_t2(NULL)
 {
@@ -35,25 +35,33 @@ int SoilTemperatureFINPL::Execute()
 
 #pragma omp parallel for
     for (int i = 0; i < m_nCells; ++i)
-    {
-        float t = m_tMean[i];
-        float t1 = m_t1[i];
-        float t2 = m_t2[i];
-        float t10 = m_a0 + m_a1 * t2 + m_a2 * t1 + m_a3 * t
-                    + m_b1 * sin(w * m_julianDay) + m_d1 * cos(w * m_julianDay)
-                    + m_b2 * sin(2.f * w * m_julianDay) + m_d2 * cos(2.f * w * m_julianDay);
-        m_soilTemp[i] = t10 * m_kSoil10 + m_relativeFactor[i];
-        if (m_soilTemp[i] > 60.f || m_soilTemp[i] < -90.f)
-        {
-            ostringstream oss;
-            oss << "The calculated soil temperature at cell (" << i
-            << ") is out of reasonable range, whose value is " << m_soilTemp[i] << ".\nJulianDay: "
-            << m_julianDay << endl;
-            throw ModelException(MID_STP_FP, "Execute", oss.str());
-        }
-        //save the temperature
-        m_t2[i] = m_t1[i];
-        m_t1[i] = t;
+	{
+		float t = m_tMean[i];
+		float t1 = m_t1[i];
+		float t2 = m_t2[i];
+		if (FloatEqual(m_landuse[i], LANDUSE_ID_WATR))
+		{
+			/// if current landuse is water
+			m_soilTemp[i] = t;
+		} 
+		else
+		{
+			float t10 = m_a0 + m_a1 * t2 + m_a2 * t1 + m_a3 * t
+						+ m_b1 * sin(w * m_julianDay) + m_d1 * cos(w * m_julianDay)
+						+ m_b2 * sin(2.f * w * m_julianDay) + m_d2 * cos(2.f * w * m_julianDay);
+			m_soilTemp[i] = t10 * m_kSoil10 + m_relativeFactor[i];
+			if (m_soilTemp[i] > 60.f || m_soilTemp[i] < -90.f)
+			{
+				ostringstream oss;
+				oss << "The calculated soil temperature at cell (" << i
+				<< ") is out of reasonable range, whose value is " << m_soilTemp[i] << ".\nJulianDay: "
+				<< m_julianDay << endl;
+				throw ModelException(MID_STP_FP, "Execute", oss.str());
+			}
+		}
+		//save the temperature
+		m_t2[i] = m_t1[i];
+		m_t1[i] = t;
     }
     return 0;
 }
@@ -90,6 +98,9 @@ bool SoilTemperatureFINPL::CheckInputData(void)
     if (m_t2 == NULL)
         throw ModelException(MID_STP_FP, "CheckInputData",
                              "The parameter: mean air temperature of (d-2) day has not been set.");
+	if (m_landuse == NULL)
+		throw ModelException(MID_STP_FP, "CheckInputData",
+		"The parameter: landuse type has not been set.");
     return true;
 }
 
@@ -136,6 +147,8 @@ void SoilTemperatureFINPL::Set1DData(const char *key, int n, float *data)
         this->m_t1 = data;
     else if (StringMatch(sk, VAR_TMEAN2))
         this->m_t2 = data;
+	else if (StringMatch(sk, VAR_LANDUSE))
+		this->m_landuse = data;
     else
         throw ModelException(MID_STP_FP, "Set1DData", "Parameter " + sk + " does not exist.");
 }
@@ -149,9 +162,7 @@ void SoilTemperatureFINPL::Get1DData(const char *key, int *n, float **data)
     else if (StringMatch(sk, VAR_TMEAN1))*data = m_t1;
     else if (StringMatch(sk, VAR_TMEAN2))*data = m_t2;
     else
-        throw ModelException(MID_STP_FP, "Get1DData", "Parameter " + sk
-                                                      +
-                                                      " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_STP_FP, "Get1DData", "Parameter " + sk+" does not exist in current module.");
 }
 
 
