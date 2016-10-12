@@ -111,7 +111,7 @@ Snow	k_slope	Slope coefficient in wind direction	none	SRD_MB	60	0	AC	100	0	Y
 Snow	K_snow	Degree day coefficient	mm/deg C/day	SNO_DD	2	0	AC	5	0.5	Y
 WaterBalance	k_soil10	ratio between soil temperature at 10 cm and the mean	none	STP_FP	1	0	AC	3	0	Y
 Snow	k_subli	Praction of PET for sublimation	none	SSM_PE	1	0	AC	5	0	Y
-Discharge	Kg	Baseflow recession coefficient	none	GW_RSVR	0.005	0.005	AC	0.1	0.001	Y
+Discharge	Kg	Baseflow recession coefficient	none	GW_RSVR	0.005	0	AC	0.1	0.001	Y
 Discharge	Ki	Interflow scaling factor	none	SSR_DA	3	0	AC	10	0	Y
 Snow	lag_snow	Snow temperature lag factor	none	SNO_SP	0.8	0	AC	1	0	Y
 InstreamWQ	lambda0	Non-algal portion of hte light extinction coefficient	1/m	NutCHRout	1	0	AC	10	0	Y
@@ -152,7 +152,7 @@ WaterBalance	Porosity	Soil porosity	m3/m3	ALL	-9999	1	RC	1.2	0.8	Y
 Pothole	pot_no3l	Nitrate decay rate in impounded water body	1/day	IMP_SWAT	0	0	AC	1	0	Y
 Pothole	pot_solpl	Soluble phosphorus decay rate in impounded water body	1/day	IMP_SWAT	0	0	AC	1	0	Y
 Pothole	pot_tile	Average daily outflow to main channel from tile flow if drainage tiles are installed in the pothole.	mm	IMP_SWAT	0	0	AC	100	0	Y
-Nutrient	pperco	Phosphorus percolation coefficient	none	NutRemv	10	0	AC	17.5	10	Y
+Nutrient	pperco	Phosphorus percolation coefficient	none	NutRemv	10	7.5	AC	17.5	10	Y
 Nutrient	psp	nitrogen active pool fraction	none	NMINRL	0.02	1	RC	1	0	Y
 Discharge	q_iter	Thrashold of storage change rate	m3/s	ChannelRouting	0.01	0	AC	0.1	0.001	Y
 Sediment	rain_yrs	number of yeares of data used to obtain values for RAINHHMX	none	MUSLE_I30	10	0	AC	10	5	Y
@@ -230,3 +230,5 @@ Climate	Weight_T	Weight Coefficient of Temperature	none	ALL	-9999		NC	-9999	-999
 WaterBalance	Wiltingpoint	Plant wilting point moisture	m3/m3	ALL	-9999	1	RC	1.2	0.8	Y
 Nutrient	kv_paddy	volatilization rate constant in impounded water body	/day	IMP_SWAT	0.4	0	AC	0.8	0.043	Y
 Nutrient	kn_paddy	nitrification rate constant in impounded water body	/day	IMP_SWAT	0.5	0	AC	2	0.02	Y
+WaterBalance	pot_k	hydraulic conductivity of soil surface of pothole	mm/hr	IMP_SWAT	0.1	0	AC	10	0.01	Y
+

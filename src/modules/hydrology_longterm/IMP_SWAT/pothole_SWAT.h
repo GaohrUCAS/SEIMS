@@ -73,7 +73,8 @@ private:
 	float m_kVolat;
 	/// nitrification rate constant in impounded water body, /day
 	float m_kNitri;
-
+	/// hydraulic conductivity of soil surface of pothole, mm/hr
+	float m_pot_k;
 	/// impounding trigger
 	float *m_impoundTrig;
 	/// surface area of impounded area, ha
@@ -106,21 +107,21 @@ private:
 	float **m_soilStorage;
 	/// amount of water stored in soil profile on current day, sol_sw in SWAT
 	float *m_soilStorageProfile;
-	/// amount of nitrate transported with surface runoff
+	/// amount of nitrate transported with surface runoff, kg/ha
 	float *m_surqNo3;
-	/// amount of ammonian transported with surface runoff
+	/// amount of ammonian transported with surface runoff, kg/ha
 	float *m_surqNH4;
-	/// amount of soluble phosphorus transported with surface runoff
+	/// amount of soluble phosphorus transported with surface runoff, kg/ha
 	float *m_surqSolP;
-	/// 
+	/// , kg/ha
 	float *m_surqCOD;
-	/// 
+	/// , kg/ha
 	float *m_sedOrgN;
-	///
+	///, kg/ha
 	float *m_sedOrgP;
-	/// 
+	/// , kg/ha
 	float *m_sedActiveMinP;
-	/// 
+	/// , kg/ha
 	float *m_sedStableMinP;
 
 	/// no3 amount kg
@@ -154,7 +155,7 @@ private:
 	/// maximum volume mm
 	float *m_potVolMax;
 	/// lowest volume mm
-	float *m_potVolLow;
+	float *m_potVolMin;
 	/// seepage water of pothole, mm
 	float *m_potSeep;
 	/// evaporation, mm

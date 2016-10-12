@@ -16,8 +16,8 @@ IMP_SWAT::IMP_SWAT(void) : m_cnv(NODATA_VALUE), m_nCells(-1), m_cellWidth(NODATA
 	m_surfaceRunoff(NULL), m_surqNo3(NULL), m_surqNH4(NULL), m_surqSolP(NULL), m_surqCOD(NULL), m_sedOrgN(NULL), m_sedOrgP(NULL), m_sedActiveMinP(NULL), m_sedStableMinP(NULL),
 	m_potNo3(NULL), m_potNH4(NULL), m_potOrgN(NULL), m_potSolP(NULL), m_potOrgP(NULL), m_potActMinP(NULL),
 	m_potStaMinP(NULL), m_potSed(NULL), m_potSand(NULL), m_potSilt(NULL), m_potClay(NULL), m_potSag(NULL), m_potLag(NULL), 
-	m_potVol(NULL), m_potVolMax(NULL), m_potVolLow(NULL), m_potSeep(NULL), m_potEvap(NULL), m_potSurfaceArea(NULL),
-	m_kVolat(NODATA_VALUE), m_kNitri(NODATA_VALUE),
+	m_potVol(NULL), m_potVolMax(NULL), m_potVolMin(NULL), m_potSeep(NULL), m_potEvap(NULL), m_potSurfaceArea(NULL),
+	m_kVolat(NODATA_VALUE), m_kNitri(NODATA_VALUE), m_pot_k(NODATA_VALUE),
 	/// overland to channel
 	m_surfqToCh(NULL), m_sedToCh(NULL), m_surNO3ToCh(NULL), m_surNH4ToCh(NULL), m_surSolPToCh(NULL), m_surCodToCh(NULL), 
 	m_sedOrgNToCh(NULL), m_sedOrgPToCh(NULL), m_sedMinPAToCh(NULL), m_sedMinPSToCh(NULL)
@@ -120,6 +120,7 @@ void IMP_SWAT::SetValue(const char *key, float value)
 	else if (StringMatch(sk, VAR_POT_SOLPDECAY)) m_potSolPDecay = value;
 	else if (StringMatch(sk, VAR_KV_PADDY)) m_kVolat = value;
 	else if (StringMatch(sk, VAR_KN_PADDY)) m_kNitri = value;
+	else if (StringMatch(sk, VAR_POT_K)) m_pot_k = value;
 	else
 		throw ModelException(MID_IMP_SWAT, "SetValue", "Parameter " + sk + " does not exist.");
 }
@@ -185,7 +186,7 @@ void IMP_SWAT::Set1DData(const char *key, int n, float *data)
 	else if (StringMatch(sk, VAR_SOL_SUMAWC)) m_sol_sumfc = data;
 	else if (StringMatch(sk, VAR_IMPOUND_TRIG)) m_impoundTrig = data;
 	else if (StringMatch(sk, VAR_POT_VOLMAXMM)) m_potVolMax = data;
-	else if (StringMatch(sk, VAR_POT_VOLLOWMM)) m_potVolLow = data;
+	else if (StringMatch(sk, VAR_POT_VOLLOWMM)) m_potVolMin = data;
 	else if (StringMatch(sk, VAR_SEDYLD)) m_sedYield = data;
 	else if (StringMatch(sk, VAR_SANDYLD)) m_sandYield = data;
 	else if (StringMatch(sk, VAR_SILTYLD)) m_siltYield = data;
@@ -273,6 +274,7 @@ int IMP_SWAT::Execute()
 		}
 	}
 	/// reCalculate the surface runoff, sediment, nutrient etc. that into the channel
+	// cout<<"pre surq no3 to ch: "<<m_surNO3ToCh[12]<<endl;
 #pragma omp parallel for
 	for (int i = 0; i < m_subbasinNum + 1; i++)
 	{
@@ -287,21 +289,34 @@ int IMP_SWAT::Execute()
 		m_sedMinPAToCh[i] = 0.f;
 		m_sedMinPSToCh[i] = 0.f;
 	}
+	// cout<<"final surq no3: "<<m_surqNo3[46364]<<endl;
+	//float maxno3 = -1.f;
+	//int idx = -1;
+	//for (int i = 0; i < m_nCells; i++)
+	//{
+	//	if (m_surqNo3[i] > maxno3)
+	//	{
+	//		maxno3 = m_surqNo3[i];
+	//		idx = i;
+	//	}
+	//}
+	//cout<<"maximum no3 id: "<<idx<<endl;
 #pragma omp parallel for
 	for (int i = 0; i < m_nCells; i++)
 	{
 		int subi = (int) m_subbasin[i]; 
 		m_surfqToCh[subi] += m_surfaceRunoff[i] * m_cellArea * 10.f / m_timestep; /// mm -> m3/s
 		m_sedToCh[subi] += m_sedYield[i];
-		m_surNO3ToCh[subi] += m_surqNo3[i];
-		m_surNH4ToCh[subi] += m_surqNH4[i];
-		m_surSolPToCh[subi] += m_surqSolP[i];
-		m_surCodToCh[subi] += m_surqCOD[i];
-		m_sedOrgNToCh[subi] += m_sedOrgN[i];
-		m_sedOrgPToCh[subi] += m_sedOrgP[i];
-		m_sedMinPAToCh[subi] += m_sedActiveMinP[i];
-		m_sedMinPSToCh[subi] += m_sedStableMinP[i];
+		m_surNO3ToCh[subi] += m_surqNo3[i] * m_cellArea;
+		m_surNH4ToCh[subi] += m_surqNH4[i] * m_cellArea;
+		m_surSolPToCh[subi] += m_surqSolP[i] * m_cellArea;
+		m_surCodToCh[subi] += m_surqCOD[i] * m_cellArea;
+		m_sedOrgNToCh[subi] += m_sedOrgN[i] * m_cellArea;
+		m_sedOrgPToCh[subi] += m_sedOrgP[i] * m_cellArea;
+		m_sedMinPAToCh[subi] += m_sedActiveMinP[i] * m_cellArea;
+		m_sedMinPSToCh[subi] += m_sedStableMinP[i] * m_cellArea;
 	}
+	// cout<<", new: "<<m_surNO3ToCh[12]<<endl;
     return true;
 }
 
@@ -364,8 +379,6 @@ void IMP_SWAT::potholeSimulate(int id)
 		qIn += m_depEvapor[id]; /// since the evaporation will be calculated below, the m_depEvapor should be added
 		m_depEvapor[id] = 0.f;
 	}
-	float no3in = m_surqNo3[id]; /// no3 amount in flow
-	float nh4in = 
 	/// update volume of water in pothole
 	m_potVol[id] += qIn;
 	//m_potFlowIn[id] += qIn; // TODO, this should be routing cell by cell. by lj
@@ -401,10 +414,10 @@ void IMP_SWAT::potholeSimulate(int id)
 	m_clayYield[id] *= yy;
 	m_smaggreYield[id] *= yy;
 	m_lgaggreYield[id] *= yy;
-
+	// if(id == 46364) cout<<"pre surq no3: "<<m_surqNo3[id];
 	/// update forms of N and P in pothole
 	float xx = pot_fr * m_cellArea;
-	m_potNo3[id] += m_surqNo3[id] * xx;
+	m_potNo3[id] += m_surqNo3[id] * xx; // kg/ha * ha ==> kg
 	m_potNH4[id] += m_surqNH4[id] * xx;
 	m_potOrgN[id] += m_sedOrgN[id] * xx;
 	m_potSolP[id] += m_surqSolP[id] * xx;
@@ -413,6 +426,7 @@ void IMP_SWAT::potholeSimulate(int id)
 	m_potStaMinP[id] += m_sedStableMinP[id] * xx;
 	/// update forms of N and P in surface runoff
 	m_surqNo3[id] *= yy;
+	// if (id == 46364) cout<<", *=yy: "<<m_surqNo3[id];
 	m_surqNH4[id] *= yy;
 	m_sedOrgN[id] *= yy;
 	m_surqSolP[id] *= yy;
@@ -426,7 +440,7 @@ void IMP_SWAT::potholeSimulate(int id)
 		qdayTmp += (m_potVol[id] - m_potVolMax[id]);
 		spillo = m_potVol[id] - m_potVolMax[id];
 		m_potVol[id] = m_potVolMax[id];
-		if (FloatEqual(spillo + m_potVolMax[id], 0.f)) // this should not happen
+		if (spillo + m_potVolMax[id] < UTIL_ZERO) // this should not happen
 			xx = 0.f;
 		else
 			xx = spillo / (spillo + m_potVolMax[id]);
@@ -437,6 +451,7 @@ void IMP_SWAT::potholeSimulate(int id)
 		potsago += m_potSag[id] * xx;
 		potlago += m_potLag[id] * xx;
 		potno3o += m_potNo3[id] * xx;
+		// if (id == 46364) cout<<"xx: "<<xx<<", potno3o: "<<potno3o<<endl;
 		potnh4o += m_potNH4[id] * xx;
 		potorgno += m_potOrgN[id] * xx;
 		potsolpo += m_potSolP[id] * xx;
@@ -458,19 +473,20 @@ void IMP_SWAT::potholeSimulate(int id)
 		m_potStaMinP[id] -= potmpso;
 		m_potActMinP[id] -= potmpao;
 
-		m_sedYield[id] += potsedo;
-		m_sandYield[id] += potsano;
-		m_siltYield[id] += potsilo;
-		m_clayYield[id] += potclao;
-		m_smaggreYield[id] += potsago;
-		m_lgaggreYield[id] += potlago;
-		m_surqNo3[id] += potno3o;
-		m_surqNH4[id] += potnh4o;
-		m_sedOrgN[id] += potorgno;
-		m_surqSolP[id] += potsolpo;
-		m_sedOrgP[id] += potorgpo;
-		m_sedStableMinP[id] += potmpso;
-		m_sedActiveMinP[id] += potmpao;
+		m_sedYield[id] += potsedo / m_cellArea;
+		m_sandYield[id] += potsano / m_cellArea;
+		m_siltYield[id] += potsilo / m_cellArea;
+		m_clayYield[id] += potclao / m_cellArea;
+		m_smaggreYield[id] += potsago / m_cellArea;
+		m_lgaggreYield[id] += potlago / m_cellArea;
+		m_surqNo3[id] += potno3o / m_cellArea;
+		// if (id == 46364) cout<<", +=potno3o: "<<m_surqNo3[id];
+		m_surqNH4[id] += potnh4o / m_cellArea;
+		m_sedOrgN[id] += potorgno / m_cellArea;
+		m_surqSolP[id] += potsolpo / m_cellArea;
+		m_sedOrgP[id] += potorgpo / m_cellArea;
+		m_sedStableMinP[id] += potmpso / m_cellArea;
+		m_sedActiveMinP[id] += potmpao / m_cellArea;
 	} /// end if overflow
 
 	/// if no overflow, compute settling and losses, surface inlet tile
@@ -500,7 +516,7 @@ void IMP_SWAT::potholeSimulate(int id)
 		/// compute total delivery ratio for pot_sed
 		float allSedPart = m_potClayIn + m_potSiltIn + m_potSandIn + m_potSagIn + m_potLagIn;
 
-		if (FloatEqual(allSedPart, 0.f))
+		if (allSedPart < UTIL_ZERO)
 			drtot = 0.f;
 		else
 			drtot = (m_potClay[id] + m_potSilt[id] + m_potSand[id] + m_potSag[id] + m_potLag[id]) / allSedPart;
@@ -518,11 +534,14 @@ void IMP_SWAT::potholeSimulate(int id)
 		 * first-order kinetics is adopted from Chowdary et al., 2004
 		 * to account for volatilization, nitrification, and denitrification in impounded water
 		 */
-		float nh3V = m_potNH4[id] * (1.f - exp(m_kVolat * m_timestep / 86400.f));
-		float no3N = m_potNH4[id] * (1.f - exp(m_kNitri * m_timestep / 86400.f));
+		float nh3V = m_potNH4[id] * (1.f - exp(-m_kVolat * m_timestep / 86400.f));
+		float no3N = m_potNH4[id] * (1.f - exp(-m_kNitri * m_timestep / 86400.f));
 		/// update
 		m_potNH4[id] -= (nh3V + no3N);
 		m_potNo3[id] += no3N;
+
+		m_potNH4[id] = max(m_potNH4[id], UTIL_ZERO);
+		m_potNo3[id] = max(m_potNo3[id], UTIL_ZERO);
 
 		/// compute flow from surface inlet tile
 		tileo = min(m_potTilemm, m_potVol[id]);
@@ -531,15 +550,21 @@ void IMP_SWAT::potholeSimulate(int id)
 		qdayTmp += tileo;
 
 		/// limit seepage into soil if profile is near field capacity
-		/// hydraulic conductivity of soil surface of pothole
-		/// [defaults to conductivity of upper soil (0.01--10.) layer]
-		//yy = m_ks[id][0];
-		/// calculate seepage into soil // these code from SWAT seems problematic. By LJ
-		//potsep = yy * m_potSurfaceArea[id] * 240.f / m_cnv; /// mm/hr*ha/240=m3/cnv=mm
-		//potsep = min(potsep, m_potVol[id]);
+		/* m_pot_k: hydraulic conductivity of soil surface of pothole
+		 * [defaults to conductivity of upper soil (0.01--10.) layer]
+		 * set as input parameters from database
+		 */
+		if (m_pot_k > 0.f)
+			yy = m_pot_k;
+		else
+			yy = m_ks[id][0];
+		/// calculate seepage into soil
+		potsep = yy * m_potSurfaceArea[id] * 240.f / m_cnv; /// mm/hr*ha/240=m3/cnv=mm
+		potsep = min(potsep, m_potVol[id]);
 		float potvol_sep = m_potVol[id];
-		//m_potVol[id] -= potsep;
-		//m_potSeep[id] += potsep;
+		m_potVol[id] -= potsep;
+		m_potSeep[id] += potsep;
+		m_soilStorage[id][0] += potsep; /// this will be handled in the next time step, added by LJ
 
 		///// force the soil water storage to field capacity
 		//for (int ly = 0; ly < (int)m_soilLayers[id]; ly++)
@@ -552,8 +577,8 @@ void IMP_SWAT::potholeSimulate(int id)
 		//		m_potVol[id] -= dep2cap;
 		//	}
 		//}
-		//if (m_potVol[id] < m_potVolLow[id])
-		//	m_potVol[id] = m_potVolLow[id]; /// force to reach the lowest depth. 
+		//if (m_potVol[id] < m_potVolMin[id])
+		//	m_potVol[id] = m_potVolMin[id]; /// force to reach the lowest depth. 
 		///// recompute total soil water storage 
 		//m_soilStorageProfile[id] = 0.f;
 		//for (int ly = 0; ly < (int)m_soilLayers[id]; ly++)
@@ -563,15 +588,10 @@ void IMP_SWAT::potholeSimulate(int id)
 		if (m_LAIDay[id] < m_evLAI)
 		{
 			potev = (1.f - m_LAIDay[id] / m_evLAI) * m_pet[id];
-			//if (id == 1085)
-			//	cout<<"pet: "<<m_pet[id]<<", laiday: "<<m_LAIDay[id]<<", potEvap: "<<potev<<", ";
+			// if (id == 46364) cout<<"pet: "<<m_pet[id]<<", laiday: "<<m_LAIDay[id]<<", potEvap: "<<potev<<", ";
 			potev = min(potev, m_potVol[id]);
 			m_potVol[id] -= potev;
 			m_potEvap[id] += potev;
-		}
-		if (m_potVol[id] < UTIL_ZERO)
-		{
-			m_potVol[id] = m_potVolLow[id]; // auto-irrigation
 		}
 		if (potvol_tile > UTIL_ZERO)
 		{
@@ -585,7 +605,7 @@ void IMP_SWAT::potholeSimulate(int id)
 			no3loss = min(no3loss, m_potNo3[id]);
 			m_potNo3[id] -= no3loss;
 			m_surqNo3[id] += no3loss / m_cellArea;
-
+			// if (id == 46364) cout<<", += tile loss: "<<m_surqNo3[id];
 			nh4loss = m_potNH4[id] * tileo / potvol_tile;
 			nh4loss = min(nh4loss, m_potNH4[id]);
 			m_potNH4[id] -= nh4loss;
@@ -643,58 +663,65 @@ void IMP_SWAT::potholeSimulate(int id)
 		}
 		if (potvol_sep > UTIL_ZERO)
 		{
-			sedloss = m_potSed[id] * potsep / potvol_sep;
+			float lossRatio = potsep / potvol_sep;
+			sedloss = m_potSed[id] * lossRatio;
 			sedloss = min(sedloss, m_potSed[id]);
 			m_potSed[id] -= sedloss;
 
-			no3loss = m_potNo3[id] * potsep / potvol_sep;
+			no3loss = m_potNo3[id] * lossRatio;
 			no3loss = min(no3loss, m_potNo3[id]);
 			m_potNo3[id] -= no3loss;
-
-			nh4loss = m_potNH4[id] * potsep / potvol_sep;
+			// if (id == 46364) cout<<", loss ratio: "<<lossRatio<<", no3 loss from seepage: "<<no3loss<<endl;
+			nh4loss = m_potNH4[id] * lossRatio;
 			nh4loss = min(nh4loss, m_potNH4[id]);
 			m_potNH4[id] -= nh4loss;
 
-			solploss = m_potSolP[id] * potsep / potvol_sep;
+			solploss = m_potSolP[id] * lossRatio;
 			solploss = min(solploss, m_potSolP[id]);
 			m_potSolP[id] -= solploss;
 
-			orgnloss = m_potOrgN[id] * potsep / potvol_sep;
+			orgnloss = m_potOrgN[id] * lossRatio;
 			orgnloss = min(orgnloss, m_potOrgN[id]);
 			m_potOrgN[id] -= orgnloss;
 
-			orgploss = m_potOrgP[id] * potsep / potvol_sep;
+			orgploss = m_potOrgP[id] * lossRatio;
 			orgploss = min(orgploss, m_potOrgP[id]);
 			m_potOrgP[id] -= orgploss;
 
-			minpsloss = m_potStaMinP[id] * potsep / potvol_sep;
+			minpsloss = m_potStaMinP[id] * lossRatio;
 			minpsloss = min(minpsloss, m_potStaMinP[id]);
 			m_potStaMinP[id] -= minpsloss;
 
-			minpaloss = m_potActMinP[id] * potsep / potvol_sep;
+			minpaloss = m_potActMinP[id] * lossRatio;
 			minpaloss = min(minpaloss, m_potActMinP[id]);
 			m_potActMinP[id] -= minpaloss;
 
-			sanloss = m_potSand[id] * potsep / potvol_sep;
+			sanloss = m_potSand[id] * lossRatio;
 			m_potSand[id] -= sanloss;
 
-			silloss = m_potSilt[id] * potsep / potvol_sep;
+			silloss = m_potSilt[id] * lossRatio;
 			m_potSilt[id] -= silloss;
 
-			claloss = m_potClay[id] * potsep / potvol_sep;
+			claloss = m_potClay[id] * lossRatio;
 			m_potClay[id] -= claloss;
 
-			sagloss = m_potSag[id] * potsep / potvol_sep;
+			sagloss = m_potSag[id] * lossRatio;
 			m_potSag[id] -= sagloss;
 
-			lagloss = m_potLag[id] * potsep / potvol_sep;
+			lagloss = m_potLag[id] * lossRatio;
 			m_potLag[id] -= lagloss;
 		}
 	}
+	// force to auto-irrigation at the end of the day, added by LJ.
+	if (m_potVol[id] < UTIL_ZERO)
+	{
+		m_potVol[id] = m_potVolMin[id]; 
+	}
 	//potholeSurfaceArea(id);
 	m_surfaceRunoff[id] = qdayTmp;
-	//if (id == 1085)  /// dianbu 8144, dianbu2 1085
-	//	cout<<"surfaceQ: "<<m_surfaceRunoff[id]<<", potVol: "<<m_potVol[id]<<endl;
+	//if (id == 46364)  /// dianbu 46364, dianbu2 1085
+	//	cout<<"surfaceQ: "<<m_surfaceRunoff[id]<<", potVol: "<<m_potVol[id]<<
+	//	", potNh4: "<<m_potNH4[id]<<", surqNh4: "<<m_surqNH4[id]<<endl;
 }
 
 void IMP_SWAT::potholeSurfaceArea(int id)
@@ -711,40 +738,88 @@ void IMP_SWAT::potholeSurfaceArea(int id)
 
 void IMP_SWAT::releaseWater(int id)
 {
-	//if (id == 108 && m_potVol[id] > UTIL_ZERO)  /// dianbu 8144, dianbu2 1085
-	//	cout<<"releaseWater, "<<m_surfaceRunoff[id]<<", "<<m_potVol[id]<<endl;
+	float proption = 1.f;
+	float xx = proption * m_cellArea;
 	if (m_potVol[id] < UTIL_ZERO)
 		return;
-	float xx = 1.f;
-	m_surfaceRunoff[id] += m_potVol[id] * xx;
-	m_sedYield[id] += m_potSed[id] * xx;
-	m_sandYield[id] += m_potSand[id] * xx;
-	m_siltYield[id] += m_potSilt[id] * xx;
-	m_clayYield[id] += m_potClay[id] * xx;
-	m_smaggreYield[id] += m_potSag[id] * xx;
-	m_lgaggreYield[id] += m_potLag[id] * xx;
-	m_surqNo3[id] += m_potNo3[id] * xx;
-	m_surqNH4[id] += m_potNH4[id] *xx;
-	m_surqSolP[id] += m_potSolP[id] * xx;
-	m_sedOrgN[id] += m_potOrgN[id] * xx;
-	m_sedOrgP[id] += m_potOrgP[id] * xx;
-	m_sedStableMinP[id] += m_potActMinP[id] * xx;
-	m_sedActiveMinP[id] += m_potStaMinP[id] * xx;
-
-	m_potVol[id] *= (1.f - xx);
-	m_potSed[id] *= (1.f - xx);
-	m_potSand[id] *= (1.f - xx);
-	m_potSilt[id] *= (1.f - xx);
-	m_potClay[id] *= (1.f - xx);
-	m_potSag[id] *= (1.f - xx);
-	m_potLag[id] *= (1.f - xx);
-	m_potNo3[id] *= (1.f - xx);
-	m_potNH4[id] *= (1.f - xx);
-	m_potSolP[id] *= (1.f - xx);
-	m_potOrgN[id] *= (1.f - xx);
-	m_potOrgP[id] *= (1.f - xx);
-	m_potActMinP[id] *= (1.f - xx);
-	m_potStaMinP[id] *= (1.f - xx);
+	m_surfaceRunoff[id] += m_potVol[id] * proption;
+	m_potVol[id] *= (1.f - proption);
+	if (m_potSed[id] < UTIL_ZERO)
+	{
+		m_potSed[id] = 0.f;
+		m_sandYield[id] = 0.f;
+		m_siltYield[id] = 0.f;
+		m_clayYield[id] = 0.f;
+		m_smaggreYield[id] = 0.f;
+		m_lgaggreYield[id] = 0.f;
+	}
+	else
+	{
+		m_sedYield[id] += m_potSed[id] * proption;
+		m_sandYield[id] += m_potSand[id] * proption;
+		m_siltYield[id] += m_potSilt[id] * proption;
+		m_clayYield[id] += m_potClay[id] * proption;
+		m_smaggreYield[id] += m_potSag[id] * proption;
+		m_lgaggreYield[id] += m_potLag[id] * proption;
+		m_potSed[id] *= (1.f - proption);
+		m_potSand[id] *= (1.f - proption);
+		m_potSilt[id] *= (1.f - proption);
+		m_potClay[id] *= (1.f - proption);
+		m_potSag[id] *= (1.f - proption);
+		m_potLag[id] *= (1.f - proption);
+	}
+	if (m_potNo3[id] < UTIL_ZERO)
+		m_potNo3[id] = 0.f;
+	else
+	{
+		m_surqNo3[id] += m_potNo3[id] * xx;
+		// if (id == 46364) cout<<", release: "<<m_surqNo3[id]<<endl;
+		m_potNo3[id] *= (1.f - proption);
+	}
+	if (m_potNH4[id] < UTIL_ZERO)
+		m_potNH4[id] = 0.f;
+	else
+	{
+		m_surqNH4[id] += m_potNH4[id] * xx;
+		m_potNH4[id] *= (1.f - proption);
+	}
+	if (m_potSolP[id] < UTIL_ZERO)
+		m_potSolP[id] = 0.f;
+	else
+	{
+		m_surqSolP[id] += m_potSolP[id] * xx;
+		m_potSolP[id] *= (1.f - proption);
+	}
+	if (m_potOrgN[id] < UTIL_ZERO)
+		m_potOrgN[id] = 0.f;
+	else
+	{
+		m_sedOrgN[id] += m_potOrgN[id] * xx;
+		m_potOrgN[id] *= (1.f - proption);
+	}
+	if (m_potOrgP[id] < UTIL_ZERO)
+		m_potOrgP[id] = 0.f;
+	else
+	{
+		m_sedOrgP[id] += m_potOrgP[id] * xx;
+		m_potOrgP[id] *= (1.f - proption);
+	}
+	if (m_potActMinP[id] < UTIL_ZERO)
+		m_potActMinP[id] = 0.f;
+	else
+	{
+		m_sedActiveMinP[id] += m_potActMinP[id] * xx;
+		m_potActMinP[id] *= (1.f - proption);
+	}
+	if (m_potStaMinP[id] < UTIL_ZERO)
+		m_potStaMinP[id] = 0.f;
+	else
+	{
+		m_sedStableMinP[id] += m_potStaMinP[id] * xx;
+		m_potStaMinP[id] *= (1.f - proption);
+	}  
+	/// Debugging: dianbu 46364, dianbu2 1085
+	// if (id == 46364) cout<<"releaseWater, "<<m_surfaceRunoff[id]<<", "<<m_potVol[id]<<", surqNh4: "<<m_surqNH4[id]<<endl;
 }
 
 void IMP_SWAT::Get1DData(const char *key, int *n, float **data)
@@ -752,10 +827,10 @@ void IMP_SWAT::Get1DData(const char *key, int *n, float **data)
 	initialOutputs();
 	string sk(key);
 	if (StringMatch(sk, VAR_POT_VOL))*data = m_potVol;
+	else if (StringMatch(sk, VAR_POT_SA)) *data = m_potSurfaceArea;
 	else if (StringMatch(sk, VAR_POT_NO3)) *data = m_potNo3;
 	else if (StringMatch(sk, VAR_POT_NH4)) *data = m_potNH4;
 	else if (StringMatch(sk, VAR_POT_SOLP)) *data = m_potSolP;
-	else if (StringMatch(sk, VAR_SUR_NH4_TOCH)) *data = m_surqNH4;
 	else
 		throw ModelException(MID_IMP_SWAT, "Get1DData","Parameter" + sk + "does not exist.");
 	*n = m_nCells;

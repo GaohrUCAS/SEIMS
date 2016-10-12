@@ -142,7 +142,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	//mdi.AddInput(VAR_SOL_RNMN, UNIT_CONT_KGHA, DESC_SOL_RNMN, Source_Module_Optional, DT_Raster2D);
 	//mdi.AddInput(VAR_SOL_RSPC, UNIT_CONT_KGHA, DESC_SOL_RSPC, Source_Module_Optional, DT_Raster2D);
 
-
+	mdi.AddInput(VAR_POT_SA, UNIT_AREA_HA, DESC_POT_SA, Source_Module_Optional, DT_Raster1D);
 	
 	/// set the output variables
 

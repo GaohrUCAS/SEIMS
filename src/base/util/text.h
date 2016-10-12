@@ -694,6 +694,7 @@
 #define VAR_INFILCAPSURPLUS "INFILCAPSURPLUS"
 #define VAR_INIT_IS "Init_IS"
 #define VAR_INLO "INLO"
+#define VAR_CANSTOR "canstor"
 #define VAR_INTERC_MAX "Interc_max"                 /// Maximum Interception Storage Capacity
 #define VAR_INTERC_MIN "Interc_min"                 /// Minimum Interception Storage Capacity
 #define VAR_IRR_FLAG "irr_flag"
@@ -735,6 +736,7 @@
 #define VAR_LDRAIN "ldrain"
 #define VAR_KV_PADDY "kv_paddy"
 #define VAR_KN_PADDY "kn_paddy"
+#define VAR_POT_K "pot_k"
 #define VAR_MANNING "Manning"
 #define VAR_MAT_YRS "MAT_YRS"
 #define VAR_MGT_FIELD "mgt_fields"
@@ -810,6 +812,7 @@
 #define VAR_POT_SMINP "pot_sminp"
 #define VAR_POT_SED "pot_sed"
 #define VAR_POT_VOL "pot_vol"
+#define VAR_POT_SA "pot_sa"
 #define VAR_POT_FLOWIN "pot_flowin"
 #define VAR_POT_FLOWOUT "pot_flowout"
 #define VAR_POT_SEDIN "pot_sedin"
@@ -1072,7 +1075,7 @@
 /// By LiangJun Zhu, HuiRan Gao ///
 /// Apr. , 2016  //////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-
+#define UNIT_AREA_HA "ha"
 #define UNIT_AREA_KM2 "km2"                         /// Square kilometer of area
 #define UNIT_AREA_RATIO "m2/m2"
 #define UNIT_CONDRATE_MSPA "m/s/kPa"                /// Rate of decline in stomatal conductance per unit increase in vapor pressure deficit
@@ -1323,6 +1326,7 @@
 #define DESC_INFILCAPSURPLUS "surplus of infiltration capacity"
 #define DESC_INIT_IS "Initial interception storage"
 #define DESC_INLO "Interception loss"
+#define DESC_CANSTOR "amount of water held in canopy storage"
 #define DESC_INTERC_MAX "Maximum Interception Storage Capacity"
 #define DESC_INTERC_MIN "Minimum Interception Storage Capacity"
 #define DESC_IRR_FLAG "irrigation flag, 1 or 0"
@@ -1362,6 +1366,7 @@
 #define DESC_LCC "land cover code"
 #define DESC_LDRAIN "soil layer where drainage tile is located"
 #define DESC_KV_PADDY "volatilization rate constant in impounded water body"
+#define DESC_POT_K "hydraulic conductivity of soil surface of pothole"
 #define DESC_KN_PADDY "nitrification rate constant in impounded water body"
 #define DESC_MANNING "Manning's roughness"
 #define DESC_MASK "Array containing the row and column numbers for valid cells"
@@ -1432,6 +1437,7 @@
 #define DESC_POT_SMINP "amount of stable mineral pool P in pothole water body"
 #define DESC_POT_SED "amount of sediment in pothole water body"
 #define DESC_POT_VOL "current volume of water stored in the depression/impounded area"
+#define DESC_POT_SA "surface area of impounded area"
 #define DESC_POT_FLOWIN "water entering pothole on day"
 #define DESC_POT_FLOWOUT "discharge from pothole expressed as depth"
 #define DESC_POT_SEDIN "sediment entering pothole on day"

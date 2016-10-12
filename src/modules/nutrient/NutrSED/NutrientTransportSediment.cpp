@@ -162,11 +162,13 @@ bool NutrientTransportSediment::CheckInputData_CENTURY()
 	if (this->m_sol_WOC == NULL) throw ModelException(MID_NUTRSED, "CheckInputData", "The m_sol_WOC can not be NULL.");
 	if (this->m_sol_perco == NULL) throw ModelException(MID_NUTRSED, "CheckInputData", "The m_sol_perco can not be NULL.");
 	if (this->m_sol_laterq == NULL) throw ModelException(MID_NUTRSED, "CheckInputData", "The m_sol_laterq can not be NULL.");
+	return true;
 }
 
 bool NutrientTransportSediment::CheckInputData_CFARM()
 {
 	if (this->m_sol_mp == NULL) throw ModelException(MID_NUTRSED, "CheckInputData", "The m_sol_mp can not be NULL.");
+	return true;
 }
 
 void NutrientTransportSediment::SetValue(const char *key, float value)
@@ -174,7 +176,7 @@ void NutrientTransportSediment::SetValue(const char *key, float value)
     string sk(key);
     if (StringMatch(sk, VAR_OMP_THREADNUM)) omp_set_num_threads((int) value);
     else if (StringMatch(sk, Tag_CellWidth))m_cellWidth = value;
-	else if (StringMatch(sk, VAR_CSWAT)) m_CbnModel = value;
+	else if (StringMatch(sk, VAR_CSWAT)) m_CbnModel = (int)value;
     else
         throw ModelException(MID_NUTRSED, "SetValue", "Parameter " + sk +" does not exist.");
 }
@@ -346,10 +348,10 @@ int NutrientTransportSediment::Execute()
 	//for (int i = 1; i < m_nSubbasins + 1; i++)
 	for (vector<int>::iterator it = m_subbasinIDs.begin(); it != m_subbasinIDs.end(); it++)
 	{
-		m_sedorgnToCh[0] += m_sedorgnToCh[*it] * m_cellArea;
-		m_sedorgpToCh[0] += m_sedorgpToCh[*it] * m_cellArea;
-		m_sedminpaToCh[0] += m_sedminpaToCh[*it] * m_cellArea;
-		m_sedminpsToCh[0] += m_sedminpsToCh[*it] * m_cellArea;
+		m_sedorgnToCh[0] += m_sedorgnToCh[*it];
+		m_sedorgpToCh[0] += m_sedorgpToCh[*it];
+		m_sedminpaToCh[0] += m_sedminpaToCh[*it];
+		m_sedminpsToCh[0] += m_sedminpsToCh[*it];
 	}
     return 0;
 }
@@ -366,7 +368,7 @@ void NutrientTransportSediment::OrgNRemovedInRunoff_StaticMethod(int i)
 	float concn = 0.f;
 	concn = orgninfl * m_enratio[i] / wt;
 	//Calculate the amount of organic nitrogen transported with sediment to the stream, equation 4:2.2.1 in SWAT Theory 2009, p271
-	m_sedorgn[i] = 0.001f * concn * m_sedEroded[i] / 1000.f / m_cellArea;
+	m_sedorgn[i] = 0.001f * concn * m_sedEroded[i] / 1000.f / m_cellArea;  /// kg/ha
 	//update soil nitrogen pools
 	if (orgninfl > 1.e-6f)
 	{

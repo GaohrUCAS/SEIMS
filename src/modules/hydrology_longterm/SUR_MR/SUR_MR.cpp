@@ -216,11 +216,15 @@ int SUR_MR::Execute()
 				if (m_impoundTrig != NULL && FloatEqual(m_impoundTrig[i], 0.f))
 				{
 					m_potVol[i] += m_infil[i];
-					m_infil[i] = min(2.f, m_potVol[i]);
+					/// when impounded, set the maximum infiltration to 2 mm
+					if (m_potVol[i] > 2.f)
+						m_infil[i] = 2.f;
+					else
+						m_infil[i] = 0.f;
 					m_potVol[i] -= m_infil[i];
 				}
-				else
-					m_infil[i] += m_potVol[i];
+				//else /// release operation should be considered in IMP_SWAT module
+				//	m_infil[i] += m_potVol[i];
 			}
 			m_soilStorage[i][0] += m_infil[i];
 		}
