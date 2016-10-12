@@ -64,7 +64,8 @@ private:
     int m_nCells;
     /// factor of soil temperature relative to short grass (degree)
     float *m_relativeFactor;
-
+	/// landuse type, for distinguish calculation, such as water body.
+	float *m_landuse;
     /// from interpolation module
     /// mean air temperature of the current day
     float *m_tMean;

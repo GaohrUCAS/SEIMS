@@ -18,8 +18,9 @@
 DepressionFSDaily::DepressionFSDaily(void) : m_nCells(-1),m_depCo(NODATA_VALUE),
                                              m_depCap(NULL), 
 											 m_pet(NULL), m_ei(NULL), m_pe(NULL),
-                                             m_sd(NULL), m_ed(NULL), m_sr(NULL)
-{//m_impoundTriger(NULL),m_potVol(NULL),
+                                             m_sd(NULL), m_ed(NULL), m_sr(NULL),
+											 m_impoundTriger(NULL),m_potVol(NULL)
+{
 }
 
 DepressionFSDaily::~DepressionFSDaily(void)
@@ -128,10 +129,15 @@ int DepressionFSDaily::Execute()
             m_ed[i] = 0.f;
             m_sd[i] = 0.f;
         }
-		//if (m_impoundTriger != NULL && FloatEqual(m_impoundTriger[i], 0.f)){
-		//	m_potVol[i] += m_sr[i];
-		//	m_potVol[i] += m_sd[i];
-		//}
+		if (m_impoundTriger != NULL && FloatEqual(m_impoundTriger[i], 0.f)){
+			if (m_potVol != NULL)
+			{
+				m_potVol[i] += m_sr[i];
+				m_potVol[i] += m_sd[i];
+				m_sr[i] = 0.f;
+				m_sd[i] = 0.f;
+			}
+		}
     }
     return true;
 }
@@ -174,8 +180,8 @@ void DepressionFSDaily::Set1DData(const char *key, int n, float *data)
         m_pet = data;
     else if (StringMatch(sk, VAR_EXCP))
         m_pe = data;
-	//else if (StringMatch(sk, VAR_IMPOUND_TRIG)) m_impoundTriger = data;
-	//else if (StringMatch(sk, VAR_POT_VOL)) m_potVol = data;
+	else if (StringMatch(sk, VAR_IMPOUND_TRIG)) m_impoundTriger = data;
+	else if (StringMatch(sk, VAR_POT_VOL)) m_potVol = data;
     else
         throw ModelException(MID_DEP_LINSLEY, "Set1DData", "Parameter " + sk+" does not exist.");
 }

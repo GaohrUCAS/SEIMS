@@ -1,7 +1,3 @@
-/*!
- * \author Huiran Gao
- * \date April 2016
- */
 #include "AtmosphericDeposition.h"
 #include "MetadataInfo.h"
 #include "ModelException.h"
@@ -76,8 +72,7 @@ void AtmosphericDeposition::Set1DData(const char *key, int n, float *data)
 	CheckInputSize(key, n);
     if (StringMatch(sk, VAR_PCP))m_preci = data;
     else
-        throw ModelException(MID_ATMDEP, "Set1DData",
-                             "Parameter " + sk + " does not exist. Please contact the module developer.");
+        throw ModelException(MID_ATMDEP, "Set1DData", "Parameter " + sk + " does not exist.");
 }
 
 void AtmosphericDeposition::SetValue(const char *key, float value)

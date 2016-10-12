@@ -97,12 +97,14 @@ NutrientTransport	SEDMINPATOCH	active mineral phosphorus sorbed to sediment in s
 NutrientTransport	SEDMINPSTOCH	stable mineral phosphorus sorbed to sediment in surface runoff moved to channel	kg/ha	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	SEDMINPSTOCH.txt	1
 NutrientTransport	SUR_COD	carbonaceous oxygen demand of surface runoff	kg/ha	SUM,AVE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	ALL	SUR_COD.tif	1
 NutrientTransport	SUR_NO3	nitrate transported with surface runoff	kg/ha	SUM,AVE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	ALL	SUR_NO3.tif	1
+NutrientTransport	SUR_NH4	nitrate transported with surface runoff	kg/ha	SUM	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	ALL	SUR_NH4.tif	1
 NutrientTransport	SUR_SOLP	phosphorus stored in solution with surface runoff	kg/ha	SUM,AVE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	ALL	SUR_SOLP.tif	1
 NutrientTransport	LATNO3	nitrate transported with lateral flow	kg/ha	SUM,AVE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	ALL	LATNO3.tif	1
 NutrientTransport	PERCO_N_GW	nitrate percolating past bottom of soil profile	kg/ha	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	PERCO_N_GW.txt	1
 NutrientTransport	PERCO_P_GW	soluble P percolating past bottom of soil profile	kg/ha	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	PERCO_P_GW.txt	1
 NutrientTransport	LATNO3TOCH	nitrate transported with lateral flow to channel	kg/ha	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	LATNO3TOCH.txt	1
 NutrientTransport	SUR_NO3_TOCH	nitrate transported with surface runoff to channel	kg/ha	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	SUR_NO3_TOCH.txt	1
+NutrientTransport	SUR_NH4_TOCH	nitrate transported with surface runoff to channel	kg/ha	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	SUR_NH4_TOCH.txt	1
 NutrientTransport	SUR_SOLP_TOCH	soluble phosphorus from surface runoff to channel	kg/ha	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	SUR_SOLP_TOCH.txt	1
 NutrientTransport	GWNO3_CONC	nitrate N concentration in groundwater	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	GWNO3_CONC.txt	1
 NutrientTransport	GWSOLP_CONC	soluble P concentration in groundwater	mg/L	NONE	2013-01-01 00:00	2014-12-31 23:59	-9999	-9999	OUTLET	GWSOLP_CONC.txt	1

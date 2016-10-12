@@ -174,7 +174,7 @@ void Nutrient_Transformation::SetValue(const char *key, float value)
     else if (StringMatch(sk, VAR_CDN)) { this->m_cdn = value; }
 	else if (StringMatch(sk, VAR_PSP)) { this->m_psp = value; }
 	else if (StringMatch(sk, VAR_SSP)) { this->m_ssp = value; }
-	else if (StringMatch(sk, VAR_CSWAT)) { this->m_CbnModel = value; }
+	else if (StringMatch(sk, VAR_CSWAT)) { this->m_CbnModel = (int)value; }
     else
         throw ModelException(MID_NUTR_TF, "SetValue", "Parameter " + sk + " does not exist.");
 }
@@ -1015,7 +1015,7 @@ void Nutrient_Transformation::Mineralization_CENTURYModel(int i)
 	float LMCTA = 0.f, LMNTA = 0.f, BMCTA = 0.f, BMNTA = 0.f, HSCTA = 0.f, HSNTA = 0.f, HPCTA = 0.f, HPNTA = 0.f;
 	float LSCTP = 0.f, LSLCTP = 0.f, LSLNCTP, LSNTP = 0.f, LMR = 0.f, LMCTP = 0.f;
 	float LMNTP = 0.f, BMCTP = 0.f, BMNTP = 0.f, HSCTP = 0.f, HSNTP = 0.f, HPCTP = 0.f, HPNTP = 0.f;
-	float NCHP = 0.f, Nf, NCBM = 0.f, NCHS = 0.f, ALSLCO2 = 0.f, ALSLNCO2 = 0.f, ALMCO2 = 0.f;
+	float NCHP = 0.f, NCBM = 0.f, NCHS = 0.f, ALSLCO2 = 0.f, ALSLNCO2 = 0.f, ALMCO2 = 0.f;
 	float ABCO2 = 0.f, A1CO2 = 0.f, APCO2 = 0.f, ASCO2 = 0.f, ABP = 0.f, ASP = 0.f, A1 = 0.f, ASX = 0.f, APX = 0.f;
 	float PRMT_51 = 0.f, PRMT_45 = 0.f;
 	float DF1 = 0.f, DF2 = 0.f, SNMN = 0.f,  DF3 = 0.f, DF4 = 0.f, DF5 = 0.f, DF6 = 0.f;
@@ -1033,7 +1033,7 @@ void Nutrient_Transformation::Mineralization_CENTURYModel(int i)
 	for (int k = 0; k < (int)m_nSoilLayers[i]; k++)
 	{
 		float sol_mass = 0.f;
-		sol_mass = m_sol_thick[i][k]/1000.f * 10000.f * m_sol_bd[i][k]* 1000. *(1- m_sol_rock[i][k] / 100.f);
+		sol_mass = m_sol_thick[i][k]/1000.f * 10000.f * m_sol_bd[i][k]* 1000.f *(1- m_sol_rock[i][k] / 100.f);
 		//if (k == 0)
 		//{
 		//	//10 cm / 1000 = 0.01m; 1 ha = 10000 m2; ton/m3; * 1000 --> final unit is kg/ha; rock fraction is considered
@@ -1098,7 +1098,7 @@ void Nutrient_Transformation::Mineralization_CENTURYModel(int i)
 				exp(18.40961f - 0.023683632f * ((m_sol_z[i][kk] + m_sol_z[i][kk - 1]) / 2.f)));
 			// compute combined factor
 			float cs = 0.f;
-			cs = min(10.f, sqrt(cdg * sut) * 0.9 * ox * x1);           
+			cs = min(10.f, sqrt(cdg * sut) * 0.9f * ox * x1);           
 			// call denitrification (to use void fraction and cdg factor)
 			// repetitive computation, commented by LJ
 			//cdg = pow((m_sote[i]) + 5.f, 8.f / 3.f) * (50.f - m_sote[i]) / (pow(40.f, 8.f / 3.f) * 15.f);

@@ -42,6 +42,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     // set the output variables
     mdi.AddOutput(VAR_INLO, UNIT_DEPTH_MM, DESC_INLO, DT_Raster1D);
     mdi.AddOutput(VAR_INET, UNIT_DEPTH_MM, DESC_INET, DT_Raster1D);
+	mdi.AddOutput(VAR_CANSTOR, UNIT_DEPTH_MM, DESC_CANSTOR, DT_Raster1D);
     mdi.AddOutput(VAR_NEPR, UNIT_DEPTH_MM, DESC_NEPR, DT_Raster1D);
 
     // set the dependencies

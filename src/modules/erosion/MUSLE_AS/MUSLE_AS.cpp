@@ -171,9 +171,7 @@ void MUSLE_AS::SetValue(const char *key, float data)
         omp_set_num_threads((int) data);
     }
     else
-        throw ModelException(MID_MUSLE_AS, "SetValue", "Parameter " + sk
-                                                       +
-                                                       " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_MUSLE_AS, "SetValue", "Parameter " + sk+" does not exist in current module.");
 }
 
 void MUSLE_AS::Set1DData(const char *key, int n, float *data)

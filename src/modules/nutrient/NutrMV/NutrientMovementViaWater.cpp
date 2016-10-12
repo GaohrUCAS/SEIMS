@@ -540,7 +540,7 @@ void NutrientMovementViaWater::PhosphorusLoss()
             vap = 0.f;
             //if (k != m_i_sep[i]) {  // soil layer where biozone exists (m_i_sep)
             vap = m_sol_solp[i][k] * m_sol_perco[i][k] / ((conv_wt / 1000.f) * m_pperco);
-            vap = min(vap, 0.2f * m_sol_solp[i][k]);
+            vap = min(vap, 0.01f * m_sol_solp[i][k]);
             m_sol_solp[i][k] = m_sol_solp[i][k] - vap;
 
 			if(k < m_nSoilLayers[i] - 1)

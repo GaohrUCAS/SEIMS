@@ -51,13 +51,13 @@ int PER_PI::Execute()
 			maxSoilWater = m_sat[i][j];
 			fcSoilWater = m_fc[i][j];
 			
-			bool percAllowed = true;
-			if (j < (int)m_nSoilLayers[i] -1 ){
-				float nextSoilWater = 0.f;
-				nextSoilWater = m_soilStorage[i][j+1];
-				if (nextSoilWater >= m_fc[i][j+1])
-					percAllowed = false;
-			}
+			//bool percAllowed = true;
+			//if (j < (int)m_nSoilLayers[i] -1 ){
+			//	float nextSoilWater = 0.f;
+			//	nextSoilWater = m_soilStorage[i][j+1];
+			//	if (nextSoilWater >= m_fc[i][j+1])
+			//		percAllowed = false;
+			//}
 
             if (swater > fcSoilWater)
             {

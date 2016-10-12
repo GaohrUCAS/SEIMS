@@ -5,17 +5,17 @@
 0 | Interpolation | Thiessen_0 | ITP
 ### Surface processes
 0 | Soil temperature | Finn Plauborg | STP_FP
+0 | PET | PriestleyTaylor | PET_PT
 0 | Interception | Maximum Storage | PI_MSM
 0 | Snow melt | Snowpeak Daily | SNO_SP
 0 | Infiltration | Modified rational | SUR_MR
-0 | Depression | Linsley | DEP_LINSLEY
+0 | Depression and Surface Runoff | Linsley | DEP_LINSLEY
 0 | Hillslope erosion | MUSLE | MUSLE_AS
 0 | Plant Management Operation | SWAT | PLTMGT_SWAT
 0 | Non-point source Management | | NPSMGT
 #0 | Percolation | Darcy and Brooks-Corey | PER_PI
 0 | Percolation | Storage routing | PER_STR
 0 | Subsurface | Darcy and Kinematic | SSR_DA
-0 | PET | PriestleyTaylor | PET_PT
 0 | AET | Hargreaves and PriestleyTaylor | AET_PTH
 0 | PG | Simplified EPIC | BIO_EPIC
 0 | ATMDEP | Atomosphere deposition | ATMDEP
