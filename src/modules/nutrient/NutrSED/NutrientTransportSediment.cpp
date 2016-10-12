@@ -336,10 +336,10 @@ int NutrientTransportSediment::Execute()
 		{
 			throw ModelException(MID_NUTRSED, "Execute", "The subbasin " + ValueToString(subi) + " is invalid.");
 		}
-		m_sedorgnToCh[subi] += m_sedorgn[i];
-		m_sedorgpToCh[subi] += m_sedorgp[i];
-		m_sedminpaToCh[subi] += m_sedminpa[i];
-		m_sedminpsToCh[subi] += m_sedminps[i];
+		m_sedorgnToCh[subi] += m_sedorgn[i] * m_cellArea;
+		m_sedorgpToCh[subi] += m_sedorgp[i] * m_cellArea;
+		m_sedminpaToCh[subi] += m_sedminpa[i] * m_cellArea;
+		m_sedminpsToCh[subi] += m_sedminps[i] * m_cellArea;
 	}
 	//cout << m_sedorgpToCh[12] << endl;
 	// sum all the subbasins and put the sum value in the zero-index of the array

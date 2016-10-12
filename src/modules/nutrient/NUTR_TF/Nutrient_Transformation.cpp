@@ -1332,7 +1332,7 @@ void Nutrient_Transformation::Mineralization_CENTURYModel(int i)
 				x1 = m_sol_no3[i][k] + m_sol_RNMN[i][k];
 				if(x1 < 0.f){
 					m_sol_RNMN[i][k] = -m_sol_no3[i][k];
-					m_sol_no3[i][k] = 1.e-10f;
+					m_sol_no3[i][k] = 1.e-6f;
 				}else{
 					m_sol_no3[i][k] = x1;
 				}   
