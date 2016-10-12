@@ -253,7 +253,7 @@ private:
     ///shallst | mm H2O        |depth of water in shallow aquifer
     float *m_shallowWaterDepth;
     /// potsa(:)       |ha            |surface area of impounded water body
-    float m_impoundArea;
+    float *m_impoundArea;
     /// deepirr(:)  |mm H2O        |amount of water removed from deep aquifer for irrigation
     float *m_deepIrrWater;
     /// shallirr(:) |mm H2O        |amount of water removed from shallow aquifer for irrigation

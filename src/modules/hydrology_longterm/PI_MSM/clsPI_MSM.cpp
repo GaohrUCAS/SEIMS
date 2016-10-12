@@ -122,10 +122,6 @@ int clsPI_MSM::Execute()
             m_interceptionLoss[i] = 0.f;
             m_netPrecipitation[i] = 0.f;
         }
-		/* Evaporation from canopy storage should be considered in the actual ET module, such as AET_PTH
-		 * If stated here, the m_PET could be the (t-1) which depends on the executing order.
-		 * Comment and update by LJ.
-		 */
         //evaporation
         if (m_st[i] > m_PET[i])
             m_evaporation[i] = m_PET[i];

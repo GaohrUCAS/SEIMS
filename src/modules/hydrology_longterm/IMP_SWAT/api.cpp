@@ -47,6 +47,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 
 	mdi.AddParameter(VAR_KV_PADDY, UNIT_PER_DAY, DESC_KV_PADDY, Source_ParameterDB, DT_Single);
 	mdi.AddParameter(VAR_KN_PADDY, UNIT_PER_DAY, DESC_KN_PADDY, Source_ParameterDB, DT_Single);
+	mdi.AddParameter(VAR_POT_K, UNIT_WTRDLT_MMH, DESC_POT_K, Source_ParameterDB, DT_Single);
     /// set input from other modules
 	mdi.AddInput(VAR_IMPOUND_TRIG, UNIT_NON_DIM, DESC_IMPOUND_TRIG, Source_Module, DT_Raster1D);
 	mdi.AddInput(VAR_POT_VOLMAXMM, UNIT_DEPTH_MM, DESC_POT_VOLMAXMM, Source_Module, DT_Raster1D);
@@ -102,7 +103,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	//mdi.AddOutput(VAR_POT_FLOWOUT, UNIT_VOL_M3, DESC_POT_FLOWOUT, DT_Raster1D);
 	//mdi.AddOutput(VAR_POT_SEDIN, UNIT_KG, DESC_POT_SEDIN, DT_Raster1D);
 	//mdi.AddOutput(VAR_POT_SEDOUT, UNIT_KG, DESC_POT_SEDOUT, DT_Raster1D);
-	
+	mdi.AddOutput(VAR_POT_SA, UNIT_AREA_HA, DESC_POT_SA, DT_Raster1D);
 
     /// write out the XML file.
     res = mdi.GetXMLDocument();

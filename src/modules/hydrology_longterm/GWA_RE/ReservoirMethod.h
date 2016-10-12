@@ -111,7 +111,7 @@ private:
 private:
     //inputs
     
-    //! time step (hr)  sec?
+    //! time step, second
     int m_TimeStep;
     //! Valid cells number
     int m_nCells;

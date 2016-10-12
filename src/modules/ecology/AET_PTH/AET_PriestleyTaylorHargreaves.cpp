@@ -7,9 +7,9 @@
 using namespace std;
 
 AET_PT_H::AET_PT_H(void) : m_nCells(-1), m_soilLayers(-1), m_esco(NULL), m_nSoilLayers(NULL), m_soilDepth(NULL), 
-	                       m_soilThick(NULL), m_solAWC(NULL),
+	                       m_soilThick(NULL), m_solFC(NULL),
 						   /// input from other modules
-                           m_tMean(NULL), m_lai(NULL), m_pet(NULL), m_snowAcc(NULL), m_snowSB(NULL),
+                           m_tMean(NULL), m_lai(NULL), m_pet(NULL), m_canEvp(NULL), m_snowAcc(NULL), m_snowSB(NULL),
                            m_solCov(NULL), m_solNo3(NULL), m_soilStorage(NULL),m_soilStorageProfile(NULL),
 						   /// output
                            m_ppt(NULL), m_soilESDay(NULL), m_no3Up(0.f)
@@ -32,6 +32,7 @@ void AET_PT_H::Set1DData(const char *key, int n, float *data)
     else if (StringMatch(sk, DataType_MeanTemperature)) m_tMean = data;
     else if (StringMatch(sk, VAR_LAIDAY)) m_lai = data;
     else if (StringMatch(sk, VAR_PET)) m_pet = data;
+	else if (StringMatch(sk, VAR_INET)) m_canEvp = data;
     else if (StringMatch(sk, VAR_SNAC)) m_snowAcc = data;
     else if (StringMatch(sk, VAR_SNSB)) m_snowSB = data;
     else if (StringMatch(sk, VAR_SOL_COV)) m_solCov = data;
@@ -47,7 +48,7 @@ void AET_PT_H::Set2DData(const char *key, int n, int col, float **data)
     m_soilLayers = col;
     if (StringMatch(sk, VAR_SOILDEPTH)) m_soilDepth = data;
 	else if(StringMatch(sk, VAR_SOILTHICK)) m_soilThick = data;
-    else if (StringMatch(sk, VAR_SOL_AWC)) m_solAWC = data;
+    else if (StringMatch(sk, VAR_SOL_AWC)) m_solFC = data;
     else if (StringMatch(sk, VAR_SOL_NO3)) m_solNo3 = data;
     else if (StringMatch(sk, VAR_SOL_ST)) m_soilStorage = data;
     else
@@ -95,7 +96,7 @@ bool AET_PT_H::CheckInputData(void)
         throw ModelException(MID_AET_PTH, "CheckInputData", "The soil depth can not be NULL.");
 	if (this->m_soilThick == NULL)
 		throw ModelException(MID_AET_PTH, "CheckInputData", "The soil thickness can not be NULL.");
-    if (this->m_solAWC == NULL)
+    if (this->m_solFC == NULL)
         throw ModelException(MID_AET_PTH, "CheckInputData", "The available water capacity at field capacity can not be NULL.");
     if (this->m_solNo3 == NULL)
         throw ModelException(MID_AET_PTH, "CheckInputData", "Nitrogen stored in the nitrate pool can not be NULL.");
@@ -124,10 +125,11 @@ int AET_PT_H::Execute()
 		float no3up = 0.f, es_max = 0.f, eos1 = 0.f, xx = 0.f;
 		float cej = 0.f, eaj = 0.f, pet = 0.f, esleft = 0.f;
 		float evzp = 0.f, eosl = 0.f, dep = 0.f, evz = 0.f, sev = 0.f;
-        pet = m_pet[i];
+        pet = m_pet[i] - m_canEvp[i];
         esd = 500.f;
         etco = 0.8f;
         effnup = 0.1f;
+
 		if (pet < UTIL_ZERO)
 		{
 			pet = 0.f;
@@ -138,7 +140,7 @@ int AET_PT_H::Execute()
         {
             /// compute potential plant evapotranspiration (PPT) other than Penman-Monteith method
             if (m_lai[i] <= 3.f)
-                m_ppt[i] = m_lai[i] * m_pet[i] / 3.f;
+                m_ppt[i] = m_lai[i] * pet / 3.f;
             else
                 m_ppt[i] = pet;
             if (m_ppt[i] < 0.f) m_ppt[i] = 0.f;
@@ -205,9 +207,9 @@ int AET_PT_H::Execute()
                     evz = eosl * m_soilDepth[i][ly] / (m_soilDepth[i][ly] + exp(2.374f - 0.00713f * m_soilDepth[i][ly]));
                     sev = evz - evzp * m_esco[i];
                     evzp = evz;
-                    if (m_soilStorage[i][ly] < m_solAWC[i][ly])
+                    if (m_soilStorage[i][ly] < m_solFC[i][ly])
                     {
-                        xx = 2.5f * (m_soilStorage[i][ly] - m_solAWC[i][ly]) / m_solAWC[i][ly]; /// non dimension
+                        xx = 2.5f * (m_soilStorage[i][ly] - m_solFC[i][ly]) / m_solFC[i][ly]; /// non dimension
                         sev *= Expo(xx);
                     }
                     sev = min(sev, m_soilStorage[i][ly] * etco);
@@ -233,7 +235,7 @@ int AET_PT_H::Execute()
                     no3up = min(no3up, m_solNo3[i][ly]);
                     m_no3Up += no3up / m_nCells;
                     m_solNo3[i][ly] -= no3up;
-                    m_solNo3[i][0] += no3up;
+                    m_solNo3[i][ly-1] += no3up;
                 }
             }
             /// update total soil water content
