@@ -793,7 +793,7 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	// assume the water volume used to contain nutrients at current time step equals to :
 	//     flowout plus the storage at the end of day (did not consider the nutrients 
 	//     from stream to groundwater through seepage and bank storage)
-	float wtrOut = m_qOutCh[i] * m_dt; 
+	// float wtrOut = m_qOutCh[i] * m_dt; 
 	// float wtrTotal = wtrOut + m_chStorage[i]; /// m3
 	float wtrTotal = m_preChStorage[i]; // by LJ
 	float tmpChWtDepth = m_preChWTDepth[i]; /// m
@@ -911,7 +911,7 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	
 	// temporary variables
 	float gra = 0.f;
-	float dchla = 0.f;
+	//float dchla = 0.f;
 	float dbod = 0.f;
 	float ddisox = 0.f;
 	float dorgn = 0.f;
@@ -948,8 +948,7 @@ void NutrCH_QUAL2E::NutrientTransform(int i)
 	if (dalgae > 5000.f) dalgae = 5000.f;
 	if (dalgae > dcoef * algcon) dalgae = dcoef * algcon;
 	// calculate chlorophyll-a concentration at end of day, QUAL2E equation III-1
-	dchla = 0.f;
-	dchla = dalgae * m_ai0 / 1000.f;
+	//dchla = dalgae * m_ai0 / 1000.f;
 	
 	// oxygen calculations
 	// calculate carbonaceous biological oxygen demand at end of day (dbod)

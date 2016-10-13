@@ -485,14 +485,14 @@ void NutrientMovementViaWater::NitrateLoss()
 			m_perco_n[i] = 0;
 			m_perco_n[i] = percnlyr; // percolation of the last soil layer, kg/ha
 			/// debugging code
-			if (i == 46364){
-				float percomm = m_sol_perco[i][(int)m_nSoilLayers[i]-1];
-				float perco_n_conc = 0.f;
-				if (percomm > 0.f){
-					perco_n_conc = 100.f * m_perco_n[i] / percomm; /// mg/L
-					cout<<"perco_n: "<<m_perco_n[i]<<", percomm: "<<percomm<<", perco_n_conc: "<<perco_n_conc<<endl;
-				}
-			}
+			//if (i == 46364){
+			//	float percomm = m_sol_perco[i][(int)m_nSoilLayers[i]-1];
+			//	float perco_n_conc = 0.f;
+			//	if (percomm > 0.f){
+			//		perco_n_conc = 100.f * m_perco_n[i] / percomm; /// mg/L
+			//		cout<<"perco_n: "<<m_perco_n[i]<<", percomm: "<<percomm<<", perco_n_conc: "<<perco_n_conc<<endl;
+			//	}
+			//}
 // 			if (tmpPercN < percnlyr){
 // 				tmpIdx = i;
 // 				tmpPercN = percnlyr;
@@ -563,14 +563,14 @@ void NutrientMovementViaWater::PhosphorusLoss()
             //}
         }
 		/// debugging code
-		if (i == 46364){
-			float percomm = m_sol_perco[i][(int)m_nSoilLayers[i]-1];
-			float perco_p_conc = 0.f;
-			if (percomm > 0.f){
-				perco_p_conc = 100.f * m_perco_p[i] / percomm; /// mg/L
-				cout<<"perco_p: "<<m_perco_p[i]<<", percomm: "<<percomm<<", perco_p_conc: "<<perco_p_conc<<endl;
-			}
-		}
+		//if (i == 46364){
+		//	float percomm = m_sol_perco[i][(int)m_nSoilLayers[i]-1];
+		//	float perco_p_conc = 0.f;
+		//	if (percomm > 0.f){
+		//		perco_p_conc = 100.f * m_perco_p[i] / percomm; /// mg/L
+		//		cout<<"perco_p: "<<m_perco_p[i]<<", percomm: "<<percomm<<", perco_p_conc: "<<perco_p_conc<<endl;
+		//	}
+		//}
         // summary calculation
         m_wshd_plch = m_wshd_plch + vap * (1.f / m_nCells);
     }

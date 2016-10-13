@@ -386,8 +386,8 @@ void Nutrient_Transformation::initialOutputs()
 	if (m_CbnModel == 2)
 	{
 		/// definition of temporary parameters
-		float sol_mass = 0.f, FBM = 0.f, FHP = 0.f, FHS = 0.f;
-		float x1 = 0.f, RTO = 0.f, sol_min_n = 0.f;
+		float sol_mass = 0.f, FBM = 0.f, FHP = 0.f;
+		float x1 = 0.f, RTO = 0.f; //, FHS = 0.f, sol_min_n = 0.f;
 		if(m_sol_WOC == NULL) 
 		{
 			Initialize2DArray(m_nCells, m_soilLayers, m_sol_WOC, 0.f);
@@ -423,13 +423,13 @@ void Nutrient_Transformation::initialOutputs()
 					/// soil mass in each layer, kg/ha
 					sol_mass = 10000.f * m_sol_thick[i][k] * m_sol_bd[i][k] * (1.f - m_sol_rock[i][k] / 100.f);
 					/// mineral nitrogen, kg/ha
-					sol_min_n = m_sol_no3[i][k] + m_sol_nh4[i][k];
+					//sol_min_n = m_sol_no3[i][k] + m_sol_nh4[i][k];
 					m_sol_WOC[i][k] = sol_mass * m_sol_cbn[i][k] / 100.f;
 					m_sol_WON[i][k] = m_sol_aorgn[i][k] + m_sol_orgn[i][k];
 					/// fraction of Mirobial biomass, humus passive C pools
 					if (FBM < 1.e-10f) FBM = 0.04f;
 					if (FHP < 1.e-10f) FHP = 0.7f - 0.4f * exp(-0.277f * 100.f);
-					FHS = 1.f - FBM - FHP;
+					//FHS = 1.f - FBM - FHP;
 					m_sol_BM[i][k] = FBM * m_sol_WOC[i][k];
 					m_sol_BMC[i][k] = m_sol_BM[i][k];
 					RTO = m_sol_WON[i][k] / m_sol_WOC[i][k];
@@ -806,12 +806,12 @@ void Nutrient_Transformation::Volatilization(int i)
 
 void Nutrient_Transformation::CalculatePflux(int i)
 {
-	float wt1 = 0.f;
+	// float wt1 = 0.f;
 	// float conv_wt = 0.f;
     for (int k = 0; k < (int)m_nSoilLayers[i]; k++)
     {
 		// mg/kg => kg/ha
-		wt1 = m_conv_wt[i][k] * 1.e-6f;
+		// wt1 = m_conv_wt[i][k] * 1.e-6f;
 		// wt1 = m_sol_bd[i][k] * m_sol_thick[i][k] / 100.f;
 		// kg/kg => kg/ha
 		// conv_wt = 1.e6f * wt1;
@@ -1032,20 +1032,22 @@ void Nutrient_Transformation::Mineralization_CENTURYModel(int i)
 	// XBMT    : control on transformation of microbial biomass by soil texture and structure.
 	//           Its values: surface litter layer = 1; all other layers = 1-0.75*(SILF + CLAF) (Parton et al., 1993, 1994)
 	// XLSLF   : control on potential transformation of structural litter by lignin fraction of structural litter [XLSLF = exp(-3* LSLF) (Parton et al., 1993, 1994)]
-	float x1 = 0.f, x3 = 0.f, xx = 0.f;
-	float LMF = 0.f, LSF = 0.f, LSLF = 0.f, XLSLF = 0.f, LSR = 0.f, BMR = 0.f, XBMT = 0.f, HSR = 0.f, HPR = 0.f, RLR = 0.f;
-	float LSCTA = 0.f, LSLCTA = 0.f, LSLNCTA = 0.f, LSNTA = 0.f, LSLNCAT = 0.f, XBM = .0f;
+	float x1 = 0.f, xx = 0.f;
+	float LSR = 0.f, BMR = 0.f, HSR = 0.f, HPR = 0.f, RLR = 0.f;
+	float LSCTA = 0.f, LSLCTA = 0.f, LSLNCTA = 0.f, LSNTA = 0.f, XBM = .0f;
 	float LMCTA = 0.f, LMNTA = 0.f, BMCTA = 0.f, BMNTA = 0.f, HSCTA = 0.f, HSNTA = 0.f, HPCTA = 0.f, HPNTA = 0.f;
 	float LSCTP = 0.f, LSLCTP = 0.f, LSLNCTP, LSNTP = 0.f, LMR = 0.f, LMCTP = 0.f;
 	float LMNTP = 0.f, BMCTP = 0.f, BMNTP = 0.f, HSCTP = 0.f, HSNTP = 0.f, HPCTP = 0.f, HPNTP = 0.f;
-	float NCHP = 0.f, NCBM = 0.f, NCHS = 0.f, ALSLCO2 = 0.f, ALSLNCO2 = 0.f, ALMCO2 = 0.f;
+	float NCHP = 0.f, NCBM = 0.f, NCHS = 0.f;
 	float ABCO2 = 0.f, A1CO2 = 0.f, APCO2 = 0.f, ASCO2 = 0.f, ABP = 0.f, ASP = 0.f, A1 = 0.f, ASX = 0.f, APX = 0.f;
 	float PRMT_51 = 0.f, PRMT_45 = 0.f;
-	float DF1 = 0.f, DF2 = 0.f, SNMN = 0.f,  DF3 = 0.f, DF4 = 0.f, DF5 = 0.f, DF6 = 0.f;
+	float DF1 = 0.f, DF2 = 0.f,  DF3 = 0.f, DF4 = 0.f, DF5 = 0.f, DF6 = 0.f;
 	float ADD = 0.f, ADF1 = 0.f, ADF2 = 0.f, ADF3 = 0.f, ADF4 = 0.f, ADF5 = 0.f;
-	float TOT = 0.f, PN1 = 0.f, PN2 = 0.f, PN3 = 0.f, PN4 = 0.f, PN5 = 0.f, PN6 = 0.f, PN7 = 0.f, PN8 = 0.f, PN9 = 0.f;
+	float TOT = 0.f, PN1 = 0.f, PN2 = 0.f, PN3 = 0.f, PN5 = 0.f, PN6 = 0.f, PN7 = 0.f, PN8 = 0.f, PN9 = 0.f;
 	float SUM = 0.f, CPN1 = 0.f, CPN2 = 0.f, CPN3 = 0.f, CPN4 = 0.f, CPN5 = 0.f, RTO = 0.f;
-	float WMIN = 0.f, DMDN = 0.f, wdn = 0.f, Delta_BMC = 0.f, DeltaWN = 0.f;
+	float wdn = 0.f;
+	// SNMN = 0.f, PN4 = 0.f, ALMCO2 = 0.f, ALSLCO2 = 0.f, ALSLNCO2 = 0.f, LSLNCAT = 0.f . NOT used in this module
+	// XBMT = 0.f, XLSLF = 0.f, LSLF = 0.f, LSF = 0.f, LMF = 0.f, x3 = 0.f
 	/// calculate tillage factor using DSSAT
 	if (m_tillage_switch[i] == 1 && m_tillage_days[i] <= 30.f) 
 			m_tillage_factor[i] = 1.6f;
@@ -1074,7 +1076,7 @@ void Nutrient_Transformation::Mineralization_CENTURYModel(int i)
 		{
 			//from Armen
 			//compute soil water factor - sut
-			float fc = m_sol_awc[i][k] + m_sol_wpmm[i][k];            // units mm
+			// float fc = m_sol_awc[i][k] + m_sol_wpmm[i][k];            // units mm
 			float wc = m_soilStorage[i][k] + m_sol_wpmm[i][k];        // units mm
 			float sat = m_sol_wsatur[i][k] + m_sol_wpmm[i][k];        // units mm
 			float voidfr = m_sol_por[i][k] * (1.f - wc / sat);        // fraction
@@ -1271,7 +1273,7 @@ void Nutrient_Transformation::Mineralization_CENTURYModel(int i)
 				LSCTA = LSCTP;
 				LSNTA = LSNTP;
 				LSLCTA = LSLCTP;
-				LSLNCAT = LSLNCTP;
+				//LSLNCAT = LSLNCTP;
 			}
 			if(CPN2 > 0.f)
 			{

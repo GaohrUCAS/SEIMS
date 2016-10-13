@@ -324,7 +324,7 @@ void IMP_SWAT::potholeSimulate(int id)
 {
 /// initialize temporary variables
 	float tileo = 0.f; /// m^3, amount of water released to the main channel from the water body by drainage tiles
-	float potevmm = 0.f; /// mm, volume of water evaporated from pothole expressed as depth
+	//float potevmm = 0.f; /// mm, volume of water evaporated from pothole expressed as depth
 	float potev = 0.f; /// m^3, evaporation from impounded water body
 	float spillo = 0.f; /// m^3, amount of water released to the main channel from impounded water body due to spill-over
 	
@@ -332,10 +332,10 @@ void IMP_SWAT::potholeSimulate(int id)
 	//float potpcpmm = 0.f; /// mm, precipitation falling on pothole water body expressed as depth
 	//float potpcp = 0.f; /// m^3, precipitation falling on water body
 	
-	float potsepmm = 0.f; // mm, seepage from impounded water body expressed as depth
+	//float potsepmm = 0.f; // mm, seepage from impounded water body expressed as depth
 	float potsep = 0.f; /// m^3, seepage from impounded water body
-	float sumo = 0.f; /// m^3, sum of all releases from water body on current day
-	float potflwo = 0.f; /// mm, discharge from pothole expressed as depth
+	//float sumo = 0.f; /// m^3, sum of all releases from water body on current day
+	//float potflwo = 0.f; /// mm, discharge from pothole expressed as depth
 	float potsedo = 0.f; /// kg, sediment leaving pothole on day
 	float potsano = 0.f; /// kg, sand content in sediment leaving pothole on day
 	float potsilo = 0.f; /// kg, silt content
@@ -349,8 +349,8 @@ void IMP_SWAT::potholeSimulate(int id)
 	float potorgpo = 0.f; /// kg, orgP out
 	float potmpso = 0.f; /// kg, stable mineral phosphorus out
 	float potmpao = 0.f; /// kg, active mineral phosphorus out
-	float potvol_ini = 0.f; /// m^3, pothole volume at the begin of the day
-	float potsa_ini = 0.f; /// ha, surface area of impounded water body at the begin of the day
+	//float potvol_ini = 0.f; /// m^3, pothole volume at the begin of the day
+	//float potsa_ini = 0.f; /// ha, surface area of impounded water body at the begin of the day
 	float sedloss = 0.f; /// kg, amount of sediment settling out of water during day
 	float sanloss = 0.f;
 	float silloss = 0.f;
@@ -389,12 +389,12 @@ void IMP_SWAT::potholeSimulate(int id)
 	 * However, currently, we assume it is cell area
 	 */
 	m_potSurfaceArea[id] = m_cellArea;
-	potvol_ini = m_potVol[id];
-	potsa_ini = m_potSurfaceArea[id];
+	//potvol_ini = m_potVol[id];
+	//potsa_ini = m_potSurfaceArea[id];
 
 	/// update sediment in pothole
 	m_potSed[id] += m_sedYield[id] * pot_fr;
-	float m_potSedIn = m_potSed[id];
+	// float m_potSedIn = m_potSed[id];
 	m_potSand[id] += m_sandYield[id] * pot_fr;
 	float m_potSandIn = m_potSand[id];
 	m_potSilt[id] += m_siltYield[id] * pot_fr;
