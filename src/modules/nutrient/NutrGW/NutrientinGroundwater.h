@@ -69,9 +69,9 @@ private:
     float *m_gw_q; 
 	/// groundwater storage
 	float *m_gwStor;
-	/// amount of nitrate percolating past bottom of soil profile
+	/// amount of nitrate percolating past bottom of soil profile, kg
 	float *m_perco_no3_gw;
-	/// amount of solute P percolating past bottom of soil profile
+	/// amount of solute P percolating past bottom of soil profile, kg
 	float *m_perco_solp_gw;
 
 	// soil related

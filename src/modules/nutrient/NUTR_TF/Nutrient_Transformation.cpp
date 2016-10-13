@@ -35,7 +35,8 @@ Nutrient_Transformation::Nutrient_Transformation(void) :
 		m_sol_HP(NULL), m_sol_HS(NULL), m_sol_HSC(NULL), m_sol_HSN(NULL), m_sol_HPC(NULL), 
 		m_sol_HPN(NULL), m_sol_LM(NULL), m_sol_LMC(NULL), m_sol_LMN(NULL), m_sol_LSC(NULL), 
 		m_sol_LSN(NULL), m_sol_LS(NULL), m_sol_LSL(NULL), m_sol_LSLC(NULL), m_sol_LSLNC(NULL),
-		m_sol_RNMN(NULL), m_sol_RSPC(NULL)
+		m_sol_RNMN(NULL), m_sol_RSPC(NULL),
+		m_conv_wt(NULL)
 {
 }
 
@@ -74,6 +75,8 @@ Nutrient_Transformation::~Nutrient_Transformation(void)
 	if (m_sol_LSLNC != NULL) Release2DArray(m_nCells, m_sol_LSLNC);
 	if (m_sol_RNMN != NULL) Release2DArray(m_nCells, m_sol_RNMN);
 	if (m_sol_RSPC != NULL) Release2DArray(m_nCells, m_sol_RSPC);
+
+	if (m_conv_wt != NULL) Release2DArray(m_nCells, m_conv_wt);
 }
 
 bool Nutrient_Transformation::CheckInputSize(const char *key, int n)
@@ -247,6 +250,25 @@ void Nutrient_Transformation::initialOutputs()
 		for (int i = 0; i < m_nCells; i++)
 			m_sol_rsd[i][0] = m_sol_cov[i];
 	}
+	/// initialize m_conv_wt
+	if (m_conv_wt == NULL)
+	{
+		Initialize2DArray(m_nCells, m_soilLayers, m_conv_wt, 0.f);
+#pragma omp parallel for
+		for (int i = 0; i < m_nCells; i++)
+		{
+			for (int k = 0; k < (int)m_nSoilLayers[i]; k++)
+			{
+				float wt1 = 0.f;
+				float conv_wt = 0.f;
+				// mg/kg => kg/ha
+				wt1 = m_sol_bd[i][k] * m_sol_thick[i][k] / 100.f;
+				// kg/kg => kg/ha
+				conv_wt = 1.e6f * wt1;
+				m_conv_wt[i][k] = conv_wt;
+			}
+		}
+	}
 	// initial input soil chemical in first run
 	if(m_sol_no3 == NULL) Initialize2DArray(m_nCells, m_soilLayers, m_sol_no3, 0.f);
 	if(m_sol_fon == NULL || m_sol_fop == NULL || m_sol_aorgn == NULL || 
@@ -267,13 +289,13 @@ void Nutrient_Transformation::initialOutputs()
 
 			 for (int k = 0; k < (int)m_nSoilLayers[i]; k++)
 			 {
-				float wt1 = 0.f;
-				float conv_wt = 0.f;
-				// mg/kg => kg/ha
-				wt1 = m_sol_bd[i][k] * m_sol_thick[i][k] / 100.f;
-				// kg/kg => kg/ha
-				conv_wt = 1.e6f * wt1;
-			
+				//float wt1 = 0.f;
+				//float conv_wt = 0.f;
+				//// mg/kg => kg/ha
+				//wt1 = m_sol_bd[i][k] * m_sol_thick[i][k] / 100.f;
+				//// kg/kg => kg/ha
+				//conv_wt = 1.e6f * wt1;
+				float wt1 = m_conv_wt[i][k] * 1.e-6f;
 				/// if m_sol_no3 is not provided, { initialize it.
 				if (m_sol_no3[i][k] <= 0.f) 
 				{
@@ -317,7 +339,7 @@ void Nutrient_Transformation::initialOutputs()
 				if (m_solP_model == 0)// Set active pool based on dynamic PSP MJW
 				{
 					// Allow Dynamic PSP Ratio
-					if (conv_wt != 0) solp = (m_sol_solp[i][k] / conv_wt) * 1000000.f;
+					if (m_conv_wt[i][k] != 0) solp = (m_sol_solp[i][k] / m_conv_wt[i][k]) * 1000000.f;
 					}else{
 						throw ModelException(MID_NUTR_TF, "initialOutputs", "Please check the bulk density and soil thickness data.");
 					if (m_sol_clay[i][k] > 0.f)
@@ -338,8 +360,8 @@ void Nutrient_Transformation::initialOutputs()
 				if (m_solP_model == 0) // Set Stable pool based on dynamic coefficient
 				{                      // From White et al 2009 
 					// convert to concentration for ssp calculation
-					actp = m_sol_actp[i][k] / conv_wt * 1000000.f;
-					solp = m_sol_solp[i][k] / conv_wt * 1000000.f;
+					actp = m_sol_actp[i][k] / m_conv_wt[i][k] * 1000000.f;
+					solp = m_sol_solp[i][k] / m_conv_wt[i][k] * 1000000.f;
 					// estimate Total Mineral P in this soil based on data from sharpley 2004
 					float ssp = 0.;
 					ssp = 25.044f * pow((actp + solp), -0.3833f);
@@ -785,13 +807,14 @@ void Nutrient_Transformation::Volatilization(int i)
 void Nutrient_Transformation::CalculatePflux(int i)
 {
 	float wt1 = 0.f;
-	float conv_wt = 0.f;
+	// float conv_wt = 0.f;
     for (int k = 0; k < (int)m_nSoilLayers[i]; k++)
     {
 		// mg/kg => kg/ha
-		wt1 = m_sol_bd[i][k] * m_sol_thick[i][k] / 100.f;
+		wt1 = m_conv_wt[i][k] * 1.e-6f;
+		// wt1 = m_sol_bd[i][k] * m_sol_thick[i][k] / 100.f;
 		// kg/kg => kg/ha
-		conv_wt = 1.e6f * wt1;
+		// conv_wt = 1.e6f * wt1;
 
 		// make sure that no zero or negative pool values come in
 		if (m_sol_solp[i][k] <= 1.e-6) m_sol_solp[i][k] = 1.e-6f;
@@ -802,9 +825,9 @@ void Nutrient_Transformation::CalculatePflux(int i)
 		float solp = 0.f;
 		float actp = 0.f;
 		float stap = 0.f;
-		solp = m_sol_solp[i][k] / conv_wt * 1000000.f;
-		actp = m_sol_actp[i][k] / conv_wt * 1000000.f;
-		stap = m_sol_stap[i][k]/ conv_wt * 1000000.f;
+		solp = m_sol_solp[i][k] / m_conv_wt[i][k] * 1000000.f;
+		actp = m_sol_actp[i][k] / m_conv_wt[i][k] * 1000000.f;
+		stap = m_sol_stap[i][k]/ m_conv_wt[i][k] * 1000000.f;
 
 		// ***************Soluble - Active Transformations***************	
 		// Dynamic PSP Ratio
@@ -1521,9 +1544,9 @@ void Nutrient_Transformation::Get2DData(const char *key, int *nRows, int *nCols,
 	else if (StringMatch(sk, VAR_SOL_LSL)) {*data = this->m_sol_LSL;}
 	else if (StringMatch(sk, VAR_SOL_LSLC)) {*data = this->m_sol_LSLC;}
 	else if (StringMatch(sk, VAR_SOL_LSLNC)) {*data = this->m_sol_LSLNC;}
-	// need to be confirmed by huiran.
 	else if (StringMatch(sk, VAR_SOL_RNMN)) {*data = this->m_sol_RNMN;}
 	else if (StringMatch(sk, VAR_SOL_RSPC)) {*data = this->m_sol_RSPC;}
+	else if (StringMatch(sk, VAR_CONV_WT)) *data = this->m_conv_wt;
     else
         throw ModelException(MID_NUTR_TF, "Get2DData", "Parameter " + sk + " does not exist.");
 }
