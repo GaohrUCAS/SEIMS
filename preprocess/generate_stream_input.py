@@ -301,8 +301,8 @@ def GenerateReachTable(folder, db, forCluster):
             dic[REACH_NO3.upper()] = 0 # 1 # 8.
             dic[REACH_ORGP.upper()] = 0 # 10.
             dic[REACH_SOLP.upper()] = 0 # 0.1 # 0.5
-            dic[REACH_GWNO3.upper()] = 0 # 0.5 # 10.
-            dic[REACH_GWSOLP.upper()] = 0 # 0.1 # 10.
+            dic[REACH_GWNO3.upper()] = 0 # 10.
+            dic[REACH_GWSOLP.upper()] = 0 # 10.
 
             curFilter = {REACH_SUBBASIN.upper(): id}
             db[DB_TAB_REACH.upper()].find_one_and_replace(curFilter, dic, upsert = True)

@@ -82,4 +82,3 @@ private:
     //! Parse output settings for given subBasinID
     bool ParseOutputSettings(int);
 };
-

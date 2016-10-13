@@ -726,7 +726,7 @@ void Biomass_EPIC::PlantNitrogenUptake(int i)
     for (int l = 0; l < m_nSoilLayers[i]; l++)
         tno3 += m_soilNO3[i][l];
     tno3 /= n_reduc;
-    float up_reduc = tno3 / (tno3 + exp(1.56f - 4.5f * tno3)); /// However, up_reduc is not used hereafter.
+    // float up_reduc = tno3 / (tno3 + exp(1.56f - 4.5f * tno3)); /// However, up_reduc is not used hereafter.
     /// icrop is land cover code in SWAT.
     /// in SEIMS, it is no need to use it.
     //// determine shape parameters for plant nitrogen uptake equation, from readplant.f

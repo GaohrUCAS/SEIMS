@@ -18,7 +18,7 @@ NutrientMovementViaWater::NutrientMovementViaWater(void) :
         m_sol_cbn(NULL),m_sol_no3(NULL), m_sol_solp(NULL), 
 		m_nSubbasins(-1), m_subbasin(NULL), m_subbasinsInfo(NULL), m_streamLink(NULL),
 		m_routingLayers(NULL), m_nRoutingLayers(-1), m_flowOutIndex(NULL),
-		m_sedc_d(NULL),
+		m_sedc_d(NULL),m_conv_wt(NULL),
         //output
         m_latno3(NULL), m_latno3ToCh(NULL), m_wshd_plch(-1.f),
 		m_surqno3(NULL), m_surqnh4(NULL), m_surqsolp(NULL), m_surcod(NULL), m_surchl_a(NULL),
@@ -319,6 +319,7 @@ void NutrientMovementViaWater::Set2DData(const char *key, int nRows, int nCols, 
 	else if (StringMatch(sk, VAR_SOL_CBN)) { m_sol_cbn = data; }
 	else if (StringMatch(sk, VAR_SOILTHICK)) { m_sol_thick = data; }
 	else if (StringMatch(sk, VAR_SOL_UL)) { m_sol_wsatur = data; }
+	else if (StringMatch(sk, VAR_CONV_WT)) m_conv_wt = data;
     else
         throw ModelException(MID_NUTRMV, "Set2DData", "Parameter " + sk + " does not exist.");
 }
@@ -387,6 +388,7 @@ int NutrientMovementViaWater::Execute()
 
 void NutrientMovementViaWater::NitrateLoss()
 {
+/// debugging code to find the cell id with the maximum nutrient loss 
 // 	float tmpPercN = NODATA_VALUE;
 // 	int tmpIdx = -1;
 	for (int iLayer = 0; iLayer < m_nRoutingLayers; iLayer++)
@@ -431,9 +433,9 @@ void NutrientMovementViaWater::NitrateLoss()
 				if (mw > 1.e-10f)
 					con = max(vno3 / mw, 0.f); // kg/ha/mm = 100 mg/L
 				//if (con > 0.1) con = 0.1;
-				//if (i == 5570)
+				//if (i == 46364)
 				//{
-				//	cout<<"perco water: "<<m_sol_perco[i][k]<<", satportion: "<<satportion<<", mv: "<<mw<<", ww: "<<ww<<", vno3: "<<vno3<<",con: "<<con<<endl;
+				//	cout<<"perco water: "<<m_sol_perco[i][k]<<", satportion: "<<satportion<<", mv: "<<mw<<", ww: "<<ww<<", vno3: "<<vno3<<",con(100 mg/L): "<<con<<endl;
 				//}
 
 				// calculate nitrate in surface runoff
@@ -467,7 +469,8 @@ void NutrientMovementViaWater::NitrateLoss()
 				m_sol_no3[i][k] -= ssfnlyr;
 				int idDownSlope = (int)m_flowOutIndex[i];
 				if (idDownSlope >= 0)
-					m_sol_no3[idDownSlope][k] += ssfnlyr;
+					m_sol_no3[idDownSlope][k] += m_latno3[i]; 
+				/// old code: m_sol_no3[idDownSlope][k] += ssfnlyr; /// changed by LJ, 16-10-13
 				
 				// calculate nitrate in percolate
 				percnlyr = con * m_sol_perco[i][k];
@@ -480,7 +483,16 @@ void NutrientMovementViaWater::NitrateLoss()
 			}
 			// calculate nitrate leaching from soil profile
 			m_perco_n[i] = 0;
-			m_perco_n[i] = percnlyr; // kg/ha
+			m_perco_n[i] = percnlyr; // percolation of the last soil layer, kg/ha
+			/// debugging code
+			//if (i == 46364){
+			//	float percomm = m_sol_perco[i][(int)m_nSoilLayers[i]-1];
+			//	float perco_n_conc = 0.f;
+			//	if (percomm > 0.f){
+			//		perco_n_conc = 100.f * m_perco_n[i] / percomm; /// mg/L
+			//		cout<<"perco_n: "<<m_perco_n[i]<<", percomm: "<<percomm<<", perco_n_conc: "<<perco_n_conc<<endl;
+			//	}
+			//}
 // 			if (tmpPercN < percnlyr){
 // 				tmpIdx = i;
 // 				tmpPercN = percnlyr;
@@ -505,8 +517,8 @@ void NutrientMovementViaWater::PhosphorusLoss()
 #pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
     {
-        float wt1 = m_sol_bd[i][0] * m_sol_thick[i][0] / 100.f; // mg/kg => kg/ha
-        float conv_wt = 1.e6f * wt1; // kg/kg => kg/ha
+        //float wt1 = m_sol_bd[i][0] * m_sol_thick[i][0] / 100.f; // mg/kg => kg/ha
+        //float conv_wt = 1.e6f * wt1; // kg/kg => kg/ha
 
         // amount of P leached from soil layer (vap)
         float vap = 0.f;
@@ -520,7 +532,7 @@ void NutrientMovementViaWater::PhosphorusLoss()
         m_sol_solp[i][0] = m_sol_solp[i][0] - m_surqsolp[i];
 
         // compute soluble P leaching
-        vap = m_sol_solp[i][0] * m_sol_perco[i][0] / ((conv_wt / 1000.f) * m_pperco);
+        vap = m_sol_solp[i][0] * m_sol_perco[i][0] / ((m_conv_wt[i][0] / 1000.f) * m_pperco);
         vap = min(vap, 0.5f * m_sol_solp[i][0]);
         m_sol_solp[i][0] = m_sol_solp[i][0] - vap;
 
@@ -539,8 +551,9 @@ void NutrientMovementViaWater::PhosphorusLoss()
         {
             vap = 0.f;
             //if (k != m_i_sep[i]) {  // soil layer where biozone exists (m_i_sep)
-            vap = m_sol_solp[i][k] * m_sol_perco[i][k] / ((conv_wt / 1000.f) * m_pperco);
-            vap = min(vap, 0.01f * m_sol_solp[i][k]);
+            vap = m_sol_solp[i][k] * m_sol_perco[i][k] / ((m_conv_wt[i][k] / 1000.f) * m_pperco);
+            
+			vap = min(vap, 0.2f * m_sol_solp[i][k]);
             m_sol_solp[i][k] = m_sol_solp[i][k] - vap;
 
 			if(k < m_nSoilLayers[i] - 1)
@@ -549,6 +562,15 @@ void NutrientMovementViaWater::PhosphorusLoss()
 				m_perco_p[i] = vap;//leach to groundwater
             //}
         }
+		/// debugging code
+		//if (i == 46364){
+		//	float percomm = m_sol_perco[i][(int)m_nSoilLayers[i]-1];
+		//	float perco_p_conc = 0.f;
+		//	if (percomm > 0.f){
+		//		perco_p_conc = 100.f * m_perco_p[i] / percomm; /// mg/L
+		//		cout<<"perco_p: "<<m_perco_p[i]<<", percomm: "<<percomm<<", perco_p_conc: "<<perco_p_conc<<endl;
+		//	}
+		//}
         // summary calculation
         m_wshd_plch = m_wshd_plch + vap * (1.f / m_nCells);
     }

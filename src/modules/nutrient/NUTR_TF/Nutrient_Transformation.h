@@ -228,6 +228,8 @@ private:
     ///phosphorus moving from active mineral to stable mineral pool in watershed
     float m_wshd_pas;
 
+	/// factor which converts kg/kg soil to kg/ha, could be used in other nutrient modules
+	float **m_conv_wt;
 private:
 
     /*!

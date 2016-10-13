@@ -75,6 +75,8 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.AddInput(VAR_TMEAN, UNIT_TEMP_DEG, DESC_TMEAN, Source_Module, DT_Raster1D);
 
 	mdi.AddInput(VAR_SEDLOSS_C, UNIT_CONT_KGHA, DESC_SEDLOSS_C, Source_Module_Optional, DT_Raster1D);
+
+	mdi.AddInput(VAR_CONV_WT, UNIT_NON_DIM, DESC_CONV_WT, Source_Module, DT_Raster2D);
 	///////////////////////////////////////////////////////////////
     // set the output variables
     mdi.AddOutput(VAR_WSHD_PLCH, UNIT_CONT_KGHA, DESC_WSHD_PLCH, DT_Single);

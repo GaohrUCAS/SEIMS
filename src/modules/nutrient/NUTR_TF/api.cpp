@@ -135,6 +135,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
 	mdi.AddOutput(VAR_SOL_RNMN, UNIT_CONT_KGHA, DESC_SOL_RNMN, DT_Raster2D);
 	mdi.AddOutput(VAR_SOL_RSPC, UNIT_CONT_KGHA, DESC_SOL_RSPC, DT_Raster2D);
 
+	mdi.AddOutput(VAR_CONV_WT, UNIT_NON_DIM, DESC_CONV_WT, DT_Raster2D);
     string res = mdi.GetXMLDocument();
     char *tmp = new char[res.size() + 1];
     strprintf(tmp, res.size() + 1, "%s", res.c_str());

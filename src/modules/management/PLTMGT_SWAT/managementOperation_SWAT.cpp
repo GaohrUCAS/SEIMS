@@ -561,7 +561,7 @@ bool MGTOpt_SWAT::GetOperationCode(int i, int &factoryID, vector<int> &nOps)
 	// get the next should be done sequence number
 	int curSeq = m_doneOpSequence[i];
 	int nextSeq = -1;
-	if (curSeq == -1 || curSeq == tmpOpSeqences.size()-1)
+	if (curSeq == -1 || (unsigned)curSeq == tmpOpSeqences.size()-1)
 		nextSeq = 0;
 	else
 		nextSeq = curSeq + 1;
@@ -884,39 +884,39 @@ void MGTOpt_SWAT::ExecuteFertilizerOperation(int i, int &factoryID, int nOp)
     //!!    fnh4n(:)      |kg NH4-N/kgminN|fraction of mineral N in fertilizer that is NH4-N
     float fertNH4N = m_fertilizerLookupMap[fertilizerID][FERTILIZER_PARAM_FNH4N_IDX];
     //!!    bactpdb(:)    |# cfu/g   frt |concentration of persistent bacteria in fertilizer
-    float bactPDB = m_fertilizerLookupMap[fertilizerID][FERTILIZER_PARAM_BACTPDB_IDX];
+    //float bactPDB = m_fertilizerLookupMap[fertilizerID][FERTILIZER_PARAM_BACTPDB_IDX];
     //!!    bactlpdb(:)   |# cfu/g   frt |concentration of less persistent bacteria in fertilizer
-    float bactLPDB = m_fertilizerLookupMap[fertilizerID][FERTILIZER_PARAM_BATTLPDB_IDX];
+    //float bactLPDB = m_fertilizerLookupMap[fertilizerID][FERTILIZER_PARAM_BATTLPDB_IDX];
     //!!    bactkddb(:)   |none          |fraction of bacteria in solution (the remaining fraction is sorbed to soil particles)
-    float bactKDDB = m_fertilizerLookupMap[fertilizerID][FERTILIZER_PARAM_BACKTKDDB_IDX];
+    //float bactKDDB = m_fertilizerLookupMap[fertilizerID][FERTILIZER_PARAM_BACKTKDDB_IDX];
 	// commercial fertilizer (0) or manure (1)
 	int fertype = (int)m_fertilizerLookupMap[fertilizerID][FERTILIZER_PARAM_MANURE_IDX];
     /**summary output**/
     //!!    fertn         |kg N/ha       |total amount of nitrogen applied to soil in cell on day
-    float fertN = 0.f;
+    //float fertN = 0.f;
     //!!    fertp         |kg P/ha       |total amount of phosphorus applied to soil in cell on day
-    float fertP = 0.f;
-    float fertNO3 = 0.f;
-    float fertNH4 = 0.f;
-    float fertSolP = 0.f;
+    //float fertP = 0.f;
+    //float fertSolP = 0.f;
     /// cfertn       |kg N/ha       |total amount of nitrogen applied to soil during continuous fertilizer operation in cell on day
-    float cFertN = 0.f;
+    //float cFertN = 0.f;
     /// cfertp       |kg P/ha       |total amount of phosphorus applied to soil during continuous fertilizer operation in cell on day
-    float cFertP = 0.f;
+    //float cFertP = 0.f;
     /// weighting factor used to partition the organic N & P content of the fertilizer
     /// between the fresh organic and the active organic pools
     float rtof = 0.5f;
     float xx; /// fraction of fertilizer applied to layer
-    float gc = 0.f, gc1 = 0.f, swf = 0.f, frt_t = 0.f;
+    float gc = 0.f; //, gc1 = 0.f;
 	/// if current landcover is paddy rice, only apply the commercial fertilizer to the top surface.
 	int lyrs = 2;
+	if (m_potVol != NULL){
 	if (FloatEqual(m_landCover[i], CROP_PADDYRICE) && fertype == 0 && m_potVol[i] > 0.f){
-		lyrs = 1;
-		xx = 1.f - fertilizerSurfFrac;
-		m_potNo3[i] += xx * fertilizerKgHa * (1.f - fertNH4N) * fertMinN * m_cellArea; /// kg/ha * ha ==> kg
-		m_potNH4[i] += xx * fertilizerKgHa * fertNH4N * fertMinN * m_cellArea;
-		m_potSolP[i] += xx * fertilizerKgHa * fertMinP * m_cellArea;
-		// if (i == 46364) cout<<"fert pot no3: "<<m_potNo3[46364]<<", nh4: "<<m_potNH4[46364]<<endl;
+			lyrs = 1;
+			xx = 1.f - fertilizerSurfFrac;
+			m_potNo3[i] += xx * fertilizerKgHa * (1.f - fertNH4N) * fertMinN * m_cellArea; /// kg/ha * ha ==> kg
+			m_potNH4[i] += xx * fertilizerKgHa * fertNH4N * fertMinN * m_cellArea;
+			m_potSolP[i] += xx * fertilizerKgHa * fertMinP * m_cellArea;
+			// if (i == 46364) cout<<"fert pot no3: "<<m_potNo3[46364]<<", nh4: "<<m_potNH4[46364]<<endl;
+		}
 	}
     for (int l = 0; l < lyrs; l++) /// top surface and first layer
     {
@@ -993,7 +993,7 @@ void MGTOpt_SWAT::ExecuteFertilizerOperation(int i, int &factoryID, int nOp)
     /// calculate ground cover
     gc = (1.99532f - Erfc(1.333f * m_LAIDay[i] - 2.f)) / 2.1f;
     if (gc < 0.f) gc = 0.f;
-    gc1 = 1.f - gc;
+    //gc1 = 1.f - gc;
     /// bact_swf    |none          |fraction of manure containing active colony forming units (cfu)
     //frt_t = m_bactSwf * fertilizerKg / 1000.;
     //m_bactPersistPlt[i] += gc * bactPDB * frt_t * 100.;
@@ -1012,13 +1012,13 @@ void MGTOpt_SWAT::ExecuteFertilizerOperation(int i, int &factoryID, int nOp)
     //m_bactLessPersistParticle[i] *= (1. - bactKDDB);
 
     /// summary calculations, currently not used for output. TODO in the future.
-    fertNO3 = fertilizerKgHa * fertMinN * (1.f - fertNH4N);
-    fertNH4 = fertilizerKgHa * (fertMinN * fertNH4N);
-    fertOrgN = fertilizerKgHa * fertOrgN;
-    fertOrgP = fertilizerKgHa * fertOrgP;
-    fertSolP = fertilizerKgHa * fertSolP;
-    fertN += (fertilizerKgHa + cFertN) * (fertMinN + fertOrgN); /// should be array, but cureently not useful
-    fertP += (fertilizerKgHa + cFertP) * (fertMinP + fertOrgP);
+    //float fertNO3 = fertilizerKgHa * fertMinN * (1.f - fertNH4N);
+    //float fertNH4 = fertilizerKgHa * (fertMinN * fertNH4N);
+    //fertOrgN = fertilizerKgHa * fertOrgN;
+    //fertOrgP = fertilizerKgHa * fertOrgP;
+    //fertSolP = fertilizerKgHa * fertSolP;
+    //fertN += (fertilizerKgHa + cFertN) * (fertMinN + fertOrgN); /// should be array, but cureently not useful
+    //fertP += (fertilizerKgHa + cFertP) * (fertMinP + fertOrgP);
 }
 
 void MGTOpt_SWAT::ExecutePesticideOperation(int i, int &factoryID, int nOp)
@@ -1108,7 +1108,7 @@ void MGTOpt_SWAT::ExecuteHarvestKillOperation(int i, int &factoryID, int nOp)
 		m_rsdc_d[i] += rtresnew * 0.42f;
     }
     /// calculate nutrient removed with yield
-    float yldpst = 0.f, yieldn = 0.f, yieldp = 0.f;
+    float yieldn = 0.f, yieldp = 0.f;
     yieldn = yield * cnyld;
     yieldp = yield * cpyld;
     yieldn = min(yieldn, 0.80f * m_plantN[i]);
@@ -1133,7 +1133,7 @@ void MGTOpt_SWAT::ExecuteHarvestKillOperation(int i, int &factoryID, int nOp)
 	/// define variables of CENTURY model
 	float BLG1 = 0.f, BLG2 = 0.f, BLG3 = 0.f, CLG = 0.f;
 	float sf = 0.f, sol_min_n = 0.f, resnew_n = 0.f, resnew_ne = 0.f;
-	float LMF = 0.f, LSF = 0.f, LSLF = 0.f, LSNF = 0.f, LMNF = 0.f;
+	float LMF = 0.f, LSF = 0.f;
 	float RLN = 0.f, RLR = 0.f;
 	/// insert new biomass of CENTURY model
 	if (m_CbnModel == 2)
@@ -1212,8 +1212,8 @@ void MGTOpt_SWAT::ExecuteHarvestKillOperation(int i, int &factoryID, int nOp)
 			m_sol_LS[i][l] += LSF * resnew;
 
 			/// here a simplified assumption of 0.5 LSL
-			LSLF = 0.f;
-			LSLF = CLG;
+			//LSLF = 0.f;
+			//LSLF = CLG;
 
 			m_sol_LSL[i][l] += RLR * LSF * resnew;
 			m_sol_LSC[i][l] += 0.42f * LSF * resnew;
@@ -1294,7 +1294,7 @@ void MGTOpt_SWAT::rootFraction(int i, float *&root_fr)
     for (int l = 0; l < (int) m_nSoilLayers[i]; l++)
     {
         root_fr[l] /= cum_rf;
-        if (l = k) /// exits loop on the same layer as the previous loop
+        if (l == k) /// exits loop on the same layer as the previous loop
             break;
     }
 }
@@ -1513,149 +1513,150 @@ void MGTOpt_SWAT::ExecuteTillageOperation(int i, int &factoryID, int nOp)
 
 void MGTOpt_SWAT::ExecuteHarvestOnlyOperation(int i, int &factoryID, int nOp)
 {
+	/// TODO to be implemented!
     /// harvestop.f
-    HarvestOnlyOperation *curOperation = (HarvestOnlyOperation *) m_mgtFactory[factoryID]->GetOperations()[nOp];
-    /// initialize parameters
-    float hi_bms = curOperation->HarvestIndexBiomass();
-    float hi_rsd = curOperation->HarvestIndexResidue();
-    float harveff = curOperation->HarvestEfficiency();
-    if (m_cropLookupMap.find(int(m_landCover[i])) == m_cropLookupMap.end())
-		throw ModelException(MID_PLTMGT_SWAT, "ExecuteHarvestOnlyOperation", "The landcover ID " + ValueToString(m_landCover[i])
-		+ " is not existed in crop lookup table!");
-    /// Get some parameters of current crop / landcover
-    float hvsti = m_cropLookupMap[(int) m_landCover[i]][CROP_PARAM_IDX_HVSTI];
-    float wsyf = m_cropLookupMap[(int) m_landCover[i]][CROP_PARAM_IDX_WSYF];
-    int idc = (int) m_cropLookupMap[(int) m_landCover[i]][CROP_PARAM_IDX_IDC];
-    float bio_leaf = m_cropLookupMap[(int) m_landCover[i]][CROP_PARAM_IDX_BIO_LEAF];
-    float cnyld = m_cropLookupMap[(int) m_landCover[i]][CROP_PARAM_IDX_CNYLD];
-    float cpyld = m_cropLookupMap[(int) m_landCover[i]][CROP_PARAM_IDX_CPYLD];
-    float alai_min = m_cropLookupMap[(int) m_landCover[i]][CROP_PARAM_IDX_ALAI_MIN];
+  //  HarvestOnlyOperation *curOperation = (HarvestOnlyOperation *) m_mgtFactory[factoryID]->GetOperations()[nOp];
+  //  /// initialize parameters
+  //  float hi_bms = curOperation->HarvestIndexBiomass();
+  //  float hi_rsd = curOperation->HarvestIndexResidue();
+  //  float harveff = curOperation->HarvestEfficiency();
+  //  if (m_cropLookupMap.find(int(m_landCover[i])) == m_cropLookupMap.end())
+		//throw ModelException(MID_PLTMGT_SWAT, "ExecuteHarvestOnlyOperation", "The landcover ID " + ValueToString(m_landCover[i])
+		//+ " is not existed in crop lookup table!");
+  //  /// Get some parameters of current crop / landcover
+  //  float hvsti = m_cropLookupMap[(int) m_landCover[i]][CROP_PARAM_IDX_HVSTI];
+  //  float wsyf = m_cropLookupMap[(int) m_landCover[i]][CROP_PARAM_IDX_WSYF];
+  //  int idc = (int) m_cropLookupMap[(int) m_landCover[i]][CROP_PARAM_IDX_IDC];
+  //  float bio_leaf = m_cropLookupMap[(int) m_landCover[i]][CROP_PARAM_IDX_BIO_LEAF];
+  //  float cnyld = m_cropLookupMap[(int) m_landCover[i]][CROP_PARAM_IDX_CNYLD];
+  //  float cpyld = m_cropLookupMap[(int) m_landCover[i]][CROP_PARAM_IDX_CPYLD];
+  //  float alai_min = m_cropLookupMap[(int) m_landCover[i]][CROP_PARAM_IDX_ALAI_MIN];
 
-    float yieldTbr = 0.f, yieldNtbr = 0.f, yieldPtbr = 0.f;
-    float clipTbr = 0.f, clipNtbr = 0.f, clipPtbr = 0.f;
-    float ssb = m_biomass[i];
-    float ssabg = m_biomass[i] * (1.f - m_frRoot[i]);
-    float ssr = ssb * m_frRoot[i];
-    float ssn = m_plantN[i];
-    float ssp = m_plantP[i];
-    /// calculate modifier for auto fertilization target nitrogen content
-    m_targNYld[i] = (1.f - m_frRoot[i] * m_biomass[i] * m_frPlantN[i] * m_autoFertEfficiency[i]);
-    /// compute grain yield
-    float hiad1 = 0.f; /// hiad1       |none           |actual harvest index (adj for water/growth)
-    float wur = 0.f; /// wur         |none           |water deficiency factor
-    if (m_pltPET[i] < 10.f)
-        wur = 100.f;
-    else
-        wur = 100.f * m_pltET[i] / m_pltPET[i];
-    hiad1 = (m_havstIdxAdj[i] - wsyf) * (wur / (wur + exp(6.13f - 0.0883f * wur))) + wsyf;
-    if (hiad1 > hvsti) hiad1 = hvsti;
-    /// check if yield is from above or below ground
-    if (hvsti > 1.001f)
-    {
-        /// determine clippings (biomass left behind) and update yield
-        yieldTbr = m_biomass[i] * (1.f - 1.f / (1.f + hiad1)) * harveff;
-        clipTbr = m_biomass[i] * (1.f - 1.f / (1.f + hiad1)) * (1.f - harveff);
-        m_biomass[i] -= (yieldTbr + clipTbr);
-        /// calculate nutrients removed with yield
-        yieldNtbr = min(yieldTbr * cnyld, 0.80f * m_plantN[i]);
-        yieldPtbr = min(yieldTbr * cpyld, 0.80f * m_plantP[i]);
-        /// calculate nutrients removed with clippings
-        clipNtbr = min(clipTbr * m_frPlantN[i], m_plantN[i] - yieldNtbr);
-        clipPtbr = min(clipTbr * m_frPlantP[i], m_plantP[i] - yieldPtbr);
-        m_plantN[i] -= (yieldNtbr + clipNtbr);
-        m_plantP[i] -= (yieldPtbr + clipPtbr);
-    }
-    float yieldBms = 0.f, yieldNbms = 0.f, yieldPbms = 0.f;
-    float clipBms = 0.f, clipNbms = 0.f, clipPbms = 0.f;
-    float yieldGrn = 0.f, yieldNgrn = 0.f, yieldPgrn = 0.f;
-    float clipGrn = 0.f, clipNgrn = 0.f, clipPgrn = 0.f;
+  //  float yieldTbr = 0.f, yieldNtbr = 0.f, yieldPtbr = 0.f;
+  //  float clipTbr = 0.f, clipNtbr = 0.f, clipPtbr = 0.f;
+  //  float ssb = m_biomass[i];
+  //  float ssabg = m_biomass[i] * (1.f - m_frRoot[i]);
+  //  float ssr = ssb * m_frRoot[i];
+  //  float ssn = m_plantN[i];
+  //  float ssp = m_plantP[i];
+  //  /// calculate modifier for auto fertilization target nitrogen content
+  //  m_targNYld[i] = (1.f - m_frRoot[i] * m_biomass[i] * m_frPlantN[i] * m_autoFertEfficiency[i]);
+  //  /// compute grain yield
+  //  float hiad1 = 0.f; /// hiad1       |none           |actual harvest index (adj for water/growth)
+  //  float wur = 0.f; /// wur         |none           |water deficiency factor
+  //  if (m_pltPET[i] < 10.f)
+  //      wur = 100.f;
+  //  else
+  //      wur = 100.f * m_pltET[i] / m_pltPET[i];
+  //  hiad1 = (m_havstIdxAdj[i] - wsyf) * (wur / (wur + exp(6.13f - 0.0883f * wur))) + wsyf;
+  //  if (hiad1 > hvsti) hiad1 = hvsti;
+  //  /// check if yield is from above or below ground
+  //  if (hvsti > 1.001f)
+  //  {
+  //      /// determine clippings (biomass left behind) and update yield
+  //      yieldTbr = m_biomass[i] * (1.f - 1.f / (1.f + hiad1)) * harveff;
+  //      clipTbr = m_biomass[i] * (1.f - 1.f / (1.f + hiad1)) * (1.f - harveff);
+  //      m_biomass[i] -= (yieldTbr + clipTbr);
+  //      /// calculate nutrients removed with yield
+  //      yieldNtbr = min(yieldTbr * cnyld, 0.80f * m_plantN[i]);
+  //      yieldPtbr = min(yieldTbr * cpyld, 0.80f * m_plantP[i]);
+  //      /// calculate nutrients removed with clippings
+  //      clipNtbr = min(clipTbr * m_frPlantN[i], m_plantN[i] - yieldNtbr);
+  //      clipPtbr = min(clipTbr * m_frPlantP[i], m_plantP[i] - yieldPtbr);
+  //      m_plantN[i] -= (yieldNtbr + clipNtbr);
+  //      m_plantP[i] -= (yieldPtbr + clipPtbr);
+  //  }
+  //  float yieldBms = 0.f, yieldNbms = 0.f, yieldPbms = 0.f;
+  //  float clipBms = 0.f, clipNbms = 0.f, clipPbms = 0.f;
+  //  float yieldGrn = 0.f, yieldNgrn = 0.f, yieldPgrn = 0.f;
+  //  float clipGrn = 0.f, clipNgrn = 0.f, clipPgrn = 0.f;
 
-    if (hi_bms > 0.f)
-    {
-        /// compute biomass yield
-        yieldBms = hi_bms * (1.f - m_frRoot[i]) * m_biomass[i] * harveff;
-        clipBms = hi_bms * (1.f - m_frRoot[i]) * m_biomass[i] * (1.f - harveff);
-        m_biomass[i] -= (yieldBms + clipBms);
-        /// compute nutrients removed with yield
-        yieldNbms = min(yieldBms * cnyld, 0.80f * m_plantN[i]);
-        yieldPbms = min(yieldBms * cpyld, 0.80f * m_plantP[i]);
-        /// calculate nutrients removed with clippings
-        clipNbms = min(clipBms * m_frPlantN[i], m_plantN[i] - yieldNbms);
-        clipPbms = min(clipBms * m_frPlantP[i], m_plantP[i] - yieldPbms);
-        m_plantN[i] -= (yieldNbms + clipNbms);
-        m_plantP[i] -= (yieldPbms + clipPbms);
-    } else
-    {
-        /// compute grain yields
-        yieldGrn = (1.f - m_frRoot[i]) * m_biomass[i] * hiad1 * harveff;
-        /// determine clippings (biomass left behind) and update yield
-        clipGrn = (1.f - m_frRoot[i]) * m_biomass[i] * hiad1 * (1.f - harveff);
-        m_biomass[i] -= (yieldGrn + clipGrn);
-        /// calculate nutrients removed with yield
-        yieldNgrn = min(yieldGrn * cnyld, 0.80f * m_plantN[i]);
-        yieldPgrn = min(yieldGrn * cpyld, 0.80f * m_plantP[i]);
-        /// calculate nutrients removed with clippings
-        clipNgrn = min(clipGrn * m_frPlantN[i], m_plantN[i] - yieldNgrn);
-        clipPgrn = min(clipGrn * m_frPlantP[i], m_plantP[i] - yieldPgrn);
-        m_plantN[i] -= (yieldNgrn + clipNgrn);
-        m_plantP[i] -= (yieldPgrn + clipPgrn);
-    }
-    /// add clippings to residue and organic N and P
-    m_soilRsd[i][0] += (clipGrn + clipBms + clipTbr);
-    m_soilFreshOrgN[i][0] += (clipNgrn + clipNbms + clipNtbr);
-    m_soilFreshOrgP[i][0] += (clipPgrn + clipPbms + clipPtbr);
-    /// compute residue yield
-    float yieldRsd = 0.f, yieldNrsd = 0.f, yieldPrsd = 0.f;
-    if (hi_rsd > 0.)
-    {
-        yieldRsd = hi_rsd * m_soilRsd[i][0];
-        yieldNrsd = hi_rsd * m_soilFreshOrgN[i][0];
-        yieldPrsd = hi_rsd * m_soilFreshOrgP[i][0];
-        m_soilRsd[i][0] -= yieldRsd;
-        m_soilFreshOrgN[i][0] -= yieldNrsd;
-        m_soilFreshOrgP[i][0] -= yieldPrsd;
-    }
-    float yield = 0.f, yieldN = 0.f, yieldP = 0.f;
-    yield = yieldGrn + yieldBms + yieldTbr + yieldRsd;
-    yieldN = yieldNgrn + yieldNbms + yieldNtbr + yieldNrsd;
-    yieldP = yieldPgrn + yieldPbms + yieldPtbr + yieldPrsd;
-    float clip = 0.f, clipN = 0.f, clipP = 0.f;
-    clip = clipGrn + clipBms + clipTbr;
-    clipN = clipNgrn + clipNbms + clipNtbr;
-    clipP = clipPgrn + clipPbms + clipNtbr;
+  //  if (hi_bms > 0.f)
+  //  {
+  //      /// compute biomass yield
+  //      yieldBms = hi_bms * (1.f - m_frRoot[i]) * m_biomass[i] * harveff;
+  //      clipBms = hi_bms * (1.f - m_frRoot[i]) * m_biomass[i] * (1.f - harveff);
+  //      m_biomass[i] -= (yieldBms + clipBms);
+  //      /// compute nutrients removed with yield
+  //      yieldNbms = min(yieldBms * cnyld, 0.80f * m_plantN[i]);
+  //      yieldPbms = min(yieldBms * cpyld, 0.80f * m_plantP[i]);
+  //      /// calculate nutrients removed with clippings
+  //      clipNbms = min(clipBms * m_frPlantN[i], m_plantN[i] - yieldNbms);
+  //      clipPbms = min(clipBms * m_frPlantP[i], m_plantP[i] - yieldPbms);
+  //      m_plantN[i] -= (yieldNbms + clipNbms);
+  //      m_plantP[i] -= (yieldPbms + clipPbms);
+  //  } else
+  //  {
+  //      /// compute grain yields
+  //      yieldGrn = (1.f - m_frRoot[i]) * m_biomass[i] * hiad1 * harveff;
+  //      /// determine clippings (biomass left behind) and update yield
+  //      clipGrn = (1.f - m_frRoot[i]) * m_biomass[i] * hiad1 * (1.f - harveff);
+  //      m_biomass[i] -= (yieldGrn + clipGrn);
+  //      /// calculate nutrients removed with yield
+  //      yieldNgrn = min(yieldGrn * cnyld, 0.80f * m_plantN[i]);
+  //      yieldPgrn = min(yieldGrn * cpyld, 0.80f * m_plantP[i]);
+  //      /// calculate nutrients removed with clippings
+  //      clipNgrn = min(clipGrn * m_frPlantN[i], m_plantN[i] - yieldNgrn);
+  //      clipPgrn = min(clipGrn * m_frPlantP[i], m_plantP[i] - yieldPgrn);
+  //      m_plantN[i] -= (yieldNgrn + clipNgrn);
+  //      m_plantP[i] -= (yieldPgrn + clipPgrn);
+  //  }
+  //  /// add clippings to residue and organic N and P
+  //  m_soilRsd[i][0] += (clipGrn + clipBms + clipTbr);
+  //  m_soilFreshOrgN[i][0] += (clipNgrn + clipNbms + clipNtbr);
+  //  m_soilFreshOrgP[i][0] += (clipPgrn + clipPbms + clipPtbr);
+  //  /// compute residue yield
+  //  float yieldRsd = 0.f, yieldNrsd = 0.f, yieldPrsd = 0.f;
+  //  if (hi_rsd > 0.)
+  //  {
+  //      yieldRsd = hi_rsd * m_soilRsd[i][0];
+  //      yieldNrsd = hi_rsd * m_soilFreshOrgN[i][0];
+  //      yieldPrsd = hi_rsd * m_soilFreshOrgP[i][0];
+  //      m_soilRsd[i][0] -= yieldRsd;
+  //      m_soilFreshOrgN[i][0] -= yieldNrsd;
+  //      m_soilFreshOrgP[i][0] -= yieldPrsd;
+  //  }
+  //  float yield = 0.f, yieldN = 0.f, yieldP = 0.f;
+  //  yield = yieldGrn + yieldBms + yieldTbr + yieldRsd;
+  //  yieldN = yieldNgrn + yieldNbms + yieldNtbr + yieldNrsd;
+  //  yieldP = yieldPgrn + yieldPbms + yieldPtbr + yieldPrsd;
+  //  float clip = 0.f, clipN = 0.f, clipP = 0.f;
+  //  clip = clipGrn + clipBms + clipTbr;
+  //  clipN = clipNgrn + clipNbms + clipNtbr;
+  //  clipP = clipPgrn + clipPbms + clipNtbr;
 
-    /// Calculation for dead roots allocations, resetting phenology, updating other pools
-    float ff3 = 0.f;
-    if (ssabg > UTIL_ZERO)
-        ff3 = (yield + clip) / ssabg;
-    else
-        ff3 = 1.f;
-    if (ff3 > 1.f) ff3 = 1.f;
-    /// reset leaf area index and fraction of growing season
-    if (ssb > 0.001f)
-    {
-        m_LAIDay[i] *= (1.f - ff3);
-        if (m_LAIDay[i] < alai_min)
-            m_LAIDay[i] = alai_min;
-        m_phuAcc[i] *= (1.f - ff3);
-        m_frRoot[i] = 0.4f - 0.2f * m_phuAcc[i];
-    } else
-    {
-        m_biomass[i] = 0.f;
-        m_LAIDay[i] = 0.f;
-        m_phuAcc[i] = 0.f;
-    }
-    /// allocate roots, N, and P to soil pools
-    for (int l = 0; l < (int) m_nSoilLayers[i]; l++)
-    {
-        /// TODO, check it out in the near future.
-    }
+  //  /// Calculation for dead roots allocations, resetting phenology, updating other pools
+  //  float ff3 = 0.f;
+  //  if (ssabg > UTIL_ZERO)
+  //      ff3 = (yield + clip) / ssabg;
+  //  else
+  //      ff3 = 1.f;
+  //  if (ff3 > 1.f) ff3 = 1.f;
+  //  /// reset leaf area index and fraction of growing season
+  //  if (ssb > 0.001f)
+  //  {
+  //      m_LAIDay[i] *= (1.f - ff3);
+  //      if (m_LAIDay[i] < alai_min)
+  //          m_LAIDay[i] = alai_min;
+  //      m_phuAcc[i] *= (1.f - ff3);
+  //      m_frRoot[i] = 0.4f - 0.2f * m_phuAcc[i];
+  //  } else
+  //  {
+  //      m_biomass[i] = 0.f;
+  //      m_LAIDay[i] = 0.f;
+  //      m_phuAcc[i] = 0.f;
+  //  }
+  //  /// allocate roots, N, and P to soil pools
+  //  for (int l = 0; l < (int) m_nSoilLayers[i]; l++)
+  //  {
+  //      /// TODO, check it out in the near future.
+  //  }
 }
 
 void MGTOpt_SWAT::ExecuteKillOperation(int i, int &factoryID, int nOp)
 {
     /// killop.f
-    KillOperation *curOperation = (KillOperation *) m_mgtFactory[factoryID]->GetOperations()[nOp];
+    // KillOperation *curOperation = (KillOperation *) m_mgtFactory[factoryID]->GetOperations()[nOp];
     float resnew = 0.f, rtresnew = 0.f;
     resnew = m_biomass[i] * (1.f - m_frRoot[i]);
     rtresnew = m_biomass[i] * m_frRoot[i];
@@ -1696,12 +1697,12 @@ void MGTOpt_SWAT::ExecuteGrazingOperation(int i, int &factoryID, int nOp)
 {
     /// TODO
     /// graze.f, simulate biomass lost to grazing
-    GrazingOperation *curOperation = (GrazingOperation *) m_mgtFactory[factoryID]->GetOperations()[nOp];
-    int manureID = curOperation->ManureID();
-    int grzDays = curOperation->GrazingDays();
-    float bioEat = curOperation->BiomassConsumed();
-    float bioTrmp = curOperation->BiomassTrampled();
-    float manueKg = curOperation->ManureDeposited();
+    //GrazingOperation *curOperation = (GrazingOperation *) m_mgtFactory[factoryID]->GetOperations()[nOp];
+    //int manureID = curOperation->ManureID();
+    //int grzDays = curOperation->GrazingDays();
+    //float bioEat = curOperation->BiomassConsumed();
+    //float bioTrmp = curOperation->BiomassTrampled();
+    //float manueKg = curOperation->ManureDeposited();
 }
 
 void MGTOpt_SWAT::ExecuteAutoIrrigationOperation(int i, int &factoryID, int nOp)
@@ -1746,6 +1747,9 @@ void MGTOpt_SWAT::ExecuteReleaseImpoundOperation(int i, int &factoryID, int nOp)
     ReleaseImpoundOperation *curOperation = (ReleaseImpoundOperation *) m_mgtFactory[factoryID]->GetOperations()[nOp];
     m_impoundTriger[i] = curOperation->ImpoundTriger();
     /// pothole.f and potholehr.f for sub-daily timestep simulation, TODO
+	/// IF IMP_SWAT module is not configured, then this operation will be ignored. By LJ
+	if (m_potVol == NULL)
+		return;
 	/// 1. pothole module has been added by LJ, 2016-9-6, IMP_SWAT
 	/// paddy rice module should be added!
 	m_potVolMax[i] = curOperation->MaxDepth();
@@ -1754,8 +1758,7 @@ void MGTOpt_SWAT::ExecuteReleaseImpoundOperation(int i, int &factoryID, int nOp)
 	{
 		/// Currently, add pothole volume (mm) to the max depth directly (in case of infiltration).
 		/// TODO, autoirrigation operations should be triggered. BY lj
-		if (m_potVol != NULL)
-			m_potVol[i] = curOperation->MaxDepth();
+		m_potVol[i] = curOperation->MaxDepth();
 		/// force the soil water storage to field capacity
 		for (int ly = 0; ly < (int)m_nSoilLayers[i]; ly++)
 		{
@@ -1784,18 +1787,18 @@ void MGTOpt_SWAT::ExecuteReleaseImpoundOperation(int i, int &factoryID, int nOp)
 void MGTOpt_SWAT::ExecuteContinuousFertilizerOperation(int i, int &factoryID, int nOp)
 {
     // TODO
-    ContinuousFertilizerOperation *curOperation = (ContinuousFertilizerOperation *) m_mgtFactory[factoryID]->GetOperations()[nOp];
+    // ContinuousFertilizerOperation *curOperation = (ContinuousFertilizerOperation *) m_mgtFactory[factoryID]->GetOperations()[nOp];
 }
 
 void MGTOpt_SWAT::ExecuteContinuousPesticideOperation(int i, int &factoryID, int nOp)
 {
     /// TODO
-    ContinuousPesticideOperation *curOperation = (ContinuousPesticideOperation *) m_mgtFactory[factoryID]->GetOperations()[nOp];
+    // ContinuousPesticideOperation *curOperation = (ContinuousPesticideOperation *) m_mgtFactory[factoryID]->GetOperations()[nOp];
 }
 
 void MGTOpt_SWAT::ExecuteBurningOperation(int i, int &factoryID, int nOp)
 {
-    BurningOperation *curOperation = (BurningOperation *) m_mgtFactory[factoryID]->GetOperations()[nOp];
+    // BurningOperation *curOperation = (BurningOperation *) m_mgtFactory[factoryID]->GetOperations()[nOp];
     /// TODO
 }
 

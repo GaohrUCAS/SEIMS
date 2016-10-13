@@ -275,6 +275,7 @@ int IMP_SWAT::Execute()
 	}
 	/// reCalculate the surface runoff, sediment, nutrient etc. that into the channel
 	// cout<<"pre surq no3 to ch: "<<m_surNO3ToCh[12]<<endl;
+	// cout<<"pre surfq to ch: "<<m_surfqToCh[12]<<", orgp to ch: "<<m_sedOrgPToCh[12]<<endl;
 #pragma omp parallel for
 	for (int i = 0; i < m_subbasinNum + 1; i++)
 	{
@@ -289,6 +290,7 @@ int IMP_SWAT::Execute()
 		m_sedMinPAToCh[i] = 0.f;
 		m_sedMinPSToCh[i] = 0.f;
 	}
+	// cout<<"final orgp: "<<m_sedOrgP[46364]<<endl;
 	// cout<<"final surq no3: "<<m_surqNo3[46364]<<endl;
 	//float maxno3 = -1.f;
 	//int idx = -1;
@@ -316,7 +318,21 @@ int IMP_SWAT::Execute()
 		m_sedMinPAToCh[subi] += m_sedActiveMinP[i] * m_cellArea;
 		m_sedMinPSToCh[subi] += m_sedStableMinP[i] * m_cellArea;
 	}
-	// cout<<", new: "<<m_surNO3ToCh[12]<<endl;
+#pragma omp parallel for
+	for (int i = 1; i < m_subbasinNum + 1; i++)
+	{
+		m_surfqToCh[0] += m_surfqToCh[i];
+		m_sedToCh[0] += m_sedToCh[i];
+		m_surNO3ToCh[0] += m_surNO3ToCh[i];
+		m_surNH4ToCh[0] += m_surNH4ToCh[i];
+		m_surSolPToCh[0] += m_surSolPToCh[i];
+		m_surCodToCh[0] += m_surCodToCh[i];
+		m_sedOrgNToCh[0] += m_sedOrgNToCh[i];
+		m_sedOrgPToCh[0] += m_sedOrgPToCh[i];
+		m_sedMinPAToCh[0] += m_sedMinPAToCh[i];
+		m_sedMinPSToCh[0] += m_sedMinPSToCh[i];
+	}
+	// cout<<", new: "<<m_sedOrgPToCh[12]<<endl;
     return true;
 }
 
@@ -324,7 +340,7 @@ void IMP_SWAT::potholeSimulate(int id)
 {
 /// initialize temporary variables
 	float tileo = 0.f; /// m^3, amount of water released to the main channel from the water body by drainage tiles
-	float potevmm = 0.f; /// mm, volume of water evaporated from pothole expressed as depth
+	//float potevmm = 0.f; /// mm, volume of water evaporated from pothole expressed as depth
 	float potev = 0.f; /// m^3, evaporation from impounded water body
 	float spillo = 0.f; /// m^3, amount of water released to the main channel from impounded water body due to spill-over
 	
@@ -332,10 +348,10 @@ void IMP_SWAT::potholeSimulate(int id)
 	//float potpcpmm = 0.f; /// mm, precipitation falling on pothole water body expressed as depth
 	//float potpcp = 0.f; /// m^3, precipitation falling on water body
 	
-	float potsepmm = 0.f; // mm, seepage from impounded water body expressed as depth
+	//float potsepmm = 0.f; // mm, seepage from impounded water body expressed as depth
 	float potsep = 0.f; /// m^3, seepage from impounded water body
-	float sumo = 0.f; /// m^3, sum of all releases from water body on current day
-	float potflwo = 0.f; /// mm, discharge from pothole expressed as depth
+	//float sumo = 0.f; /// m^3, sum of all releases from water body on current day
+	//float potflwo = 0.f; /// mm, discharge from pothole expressed as depth
 	float potsedo = 0.f; /// kg, sediment leaving pothole on day
 	float potsano = 0.f; /// kg, sand content in sediment leaving pothole on day
 	float potsilo = 0.f; /// kg, silt content
@@ -349,8 +365,8 @@ void IMP_SWAT::potholeSimulate(int id)
 	float potorgpo = 0.f; /// kg, orgP out
 	float potmpso = 0.f; /// kg, stable mineral phosphorus out
 	float potmpao = 0.f; /// kg, active mineral phosphorus out
-	float potvol_ini = 0.f; /// m^3, pothole volume at the begin of the day
-	float potsa_ini = 0.f; /// ha, surface area of impounded water body at the begin of the day
+	//float potvol_ini = 0.f; /// m^3, pothole volume at the begin of the day
+	//float potsa_ini = 0.f; /// ha, surface area of impounded water body at the begin of the day
 	float sedloss = 0.f; /// kg, amount of sediment settling out of water during day
 	float sanloss = 0.f;
 	float silloss = 0.f;
@@ -389,12 +405,12 @@ void IMP_SWAT::potholeSimulate(int id)
 	 * However, currently, we assume it is cell area
 	 */
 	m_potSurfaceArea[id] = m_cellArea;
-	potvol_ini = m_potVol[id];
-	potsa_ini = m_potSurfaceArea[id];
+	//potvol_ini = m_potVol[id];
+	//potsa_ini = m_potSurfaceArea[id];
 
 	/// update sediment in pothole
 	m_potSed[id] += m_sedYield[id] * pot_fr;
-	float m_potSedIn = m_potSed[id];
+	// float m_potSedIn = m_potSed[id];
 	m_potSand[id] += m_sandYield[id] * pot_fr;
 	float m_potSandIn = m_potSand[id];
 	m_potSilt[id] += m_siltYield[id] * pot_fr;
@@ -415,6 +431,7 @@ void IMP_SWAT::potholeSimulate(int id)
 	m_smaggreYield[id] *= yy;
 	m_lgaggreYield[id] *= yy;
 	// if(id == 46364) cout<<"pre surq no3: "<<m_surqNo3[id];
+	// if(id == 46364) cout<<"pre orgp: "<<m_sedOrgP[id];
 	/// update forms of N and P in pothole
 	float xx = pot_fr * m_cellArea;
 	m_potNo3[id] += m_surqNo3[id] * xx; // kg/ha * ha ==> kg

@@ -63,7 +63,11 @@ private:
      *   = 2 Century model
 	 */
     int m_CbnModel;
+
     /// input data
+
+	/// factor which converts kg/kg soil to kg/ha
+	float **m_conv_wt;
     /// drainage tile flow in soil profile
     float m_qtile;
     /// Phosphorus soil partitioning coefficient
@@ -124,7 +128,7 @@ private:
 	float **m_sol_thick;
 
     /// output data
-    /// amount of nitrate transported with lateral flow
+    /// amount of nitrate transported with lateral flow, kg/ha
     float *m_latno3;
     /// amount of nitrate percolating past bottom of soil profile
     float *m_perco_n;

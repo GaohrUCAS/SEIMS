@@ -42,7 +42,7 @@ public:
     Settings(void);
 
     //! Destructor
-    ~Settings(void);
+    virtual ~Settings(void);
 
     //! Load the settings value from the given file
     virtual bool LoadSettingsFromFile(string filename);
