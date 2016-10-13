@@ -275,6 +275,7 @@ int IMP_SWAT::Execute()
 	}
 	/// reCalculate the surface runoff, sediment, nutrient etc. that into the channel
 	// cout<<"pre surq no3 to ch: "<<m_surNO3ToCh[12]<<endl;
+	// cout<<"pre surfq to ch: "<<m_surfqToCh[12]<<", orgp to ch: "<<m_sedOrgPToCh[12]<<endl;
 #pragma omp parallel for
 	for (int i = 0; i < m_subbasinNum + 1; i++)
 	{
@@ -289,6 +290,7 @@ int IMP_SWAT::Execute()
 		m_sedMinPAToCh[i] = 0.f;
 		m_sedMinPSToCh[i] = 0.f;
 	}
+	// cout<<"final orgp: "<<m_sedOrgP[46364]<<endl;
 	// cout<<"final surq no3: "<<m_surqNo3[46364]<<endl;
 	//float maxno3 = -1.f;
 	//int idx = -1;
@@ -316,7 +318,21 @@ int IMP_SWAT::Execute()
 		m_sedMinPAToCh[subi] += m_sedActiveMinP[i] * m_cellArea;
 		m_sedMinPSToCh[subi] += m_sedStableMinP[i] * m_cellArea;
 	}
-	// cout<<", new: "<<m_surNO3ToCh[12]<<endl;
+#pragma omp parallel for
+	for (int i = 1; i < m_subbasinNum + 1; i++)
+	{
+		m_surfqToCh[0] += m_surfqToCh[i];
+		m_sedToCh[0] += m_sedToCh[i];
+		m_surNO3ToCh[0] += m_surNO3ToCh[i];
+		m_surNH4ToCh[0] += m_surNH4ToCh[i];
+		m_surSolPToCh[0] += m_surSolPToCh[i];
+		m_surCodToCh[0] += m_surCodToCh[i];
+		m_sedOrgNToCh[0] += m_sedOrgNToCh[i];
+		m_sedOrgPToCh[0] += m_sedOrgPToCh[i];
+		m_sedMinPAToCh[0] += m_sedMinPAToCh[i];
+		m_sedMinPSToCh[0] += m_sedMinPSToCh[i];
+	}
+	// cout<<", new: "<<m_sedOrgPToCh[12]<<endl;
     return true;
 }
 
@@ -415,6 +431,7 @@ void IMP_SWAT::potholeSimulate(int id)
 	m_smaggreYield[id] *= yy;
 	m_lgaggreYield[id] *= yy;
 	// if(id == 46364) cout<<"pre surq no3: "<<m_surqNo3[id];
+	// if(id == 46364) cout<<"pre orgp: "<<m_sedOrgP[id];
 	/// update forms of N and P in pothole
 	float xx = pot_fr * m_cellArea;
 	m_potNo3[id] += m_surqNo3[id] * xx; // kg/ha * ha ==> kg

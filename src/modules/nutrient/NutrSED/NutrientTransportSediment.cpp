@@ -522,9 +522,13 @@ void NutrientTransportSediment::OrgPAttachedtoSed(int i)
 	float sol_attp_s = 0.f;
 	//Calculate sediment
 	sol_attp = m_sol_orgp[i][0] + m_sol_fop[i][0] + m_sol_actp[i][0] + m_sol_stap[i][0];
+	if (m_sol_mp != NULL)
+		sol_attp += m_sol_mp[i][0];
 	if (sol_attp > 1.e-3f)
 	{
 		sol_attp_o = (m_sol_orgp[i][0] + m_sol_fop[i][0]) / sol_attp;
+		if (m_sol_mp != NULL)
+			sol_attp_o += m_sol_mp[i][0] / sol_attp;
 		sol_attp_a = m_sol_actp[i][0] / sol_attp;
 		sol_attp_s = m_sol_stap[i][0] / sol_attp;
 	}
@@ -575,6 +579,7 @@ void NutrientTransportSediment::OrgPAttachedtoSed(int i)
 		m_sedminps[i] = m_sedminps[i] + m_sol_stap[i][0];
 		m_sol_stap[i][0] = 0.f;
 	}
+	// if (i == 46364) cout << "surfq: " <<m_surfaceRunoff[i]<< ", sedYld: "<<m_sedEroded[i]<<", sedorgp: "<<m_sedorgp[i]<< endl;
 }
 
 void NutrientTransportSediment::Get1DData(const char *key, int *n, float **data)

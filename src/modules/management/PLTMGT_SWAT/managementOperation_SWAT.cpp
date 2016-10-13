@@ -908,13 +908,15 @@ void MGTOpt_SWAT::ExecuteFertilizerOperation(int i, int &factoryID, int nOp)
     float gc = 0.f; //, gc1 = 0.f;
 	/// if current landcover is paddy rice, only apply the commercial fertilizer to the top surface.
 	int lyrs = 2;
+	if (m_potVol != NULL){
 	if (FloatEqual(m_landCover[i], CROP_PADDYRICE) && fertype == 0 && m_potVol[i] > 0.f){
-		lyrs = 1;
-		xx = 1.f - fertilizerSurfFrac;
-		m_potNo3[i] += xx * fertilizerKgHa * (1.f - fertNH4N) * fertMinN * m_cellArea; /// kg/ha * ha ==> kg
-		m_potNH4[i] += xx * fertilizerKgHa * fertNH4N * fertMinN * m_cellArea;
-		m_potSolP[i] += xx * fertilizerKgHa * fertMinP * m_cellArea;
-		// if (i == 46364) cout<<"fert pot no3: "<<m_potNo3[46364]<<", nh4: "<<m_potNH4[46364]<<endl;
+			lyrs = 1;
+			xx = 1.f - fertilizerSurfFrac;
+			m_potNo3[i] += xx * fertilizerKgHa * (1.f - fertNH4N) * fertMinN * m_cellArea; /// kg/ha * ha ==> kg
+			m_potNH4[i] += xx * fertilizerKgHa * fertNH4N * fertMinN * m_cellArea;
+			m_potSolP[i] += xx * fertilizerKgHa * fertMinP * m_cellArea;
+			// if (i == 46364) cout<<"fert pot no3: "<<m_potNo3[46364]<<", nh4: "<<m_potNH4[46364]<<endl;
+		}
 	}
     for (int l = 0; l < lyrs; l++) /// top surface and first layer
     {
@@ -1745,6 +1747,9 @@ void MGTOpt_SWAT::ExecuteReleaseImpoundOperation(int i, int &factoryID, int nOp)
     ReleaseImpoundOperation *curOperation = (ReleaseImpoundOperation *) m_mgtFactory[factoryID]->GetOperations()[nOp];
     m_impoundTriger[i] = curOperation->ImpoundTriger();
     /// pothole.f and potholehr.f for sub-daily timestep simulation, TODO
+	/// IF IMP_SWAT module is not configured, then this operation will be ignored. By LJ
+	if (m_potVol == NULL)
+		return;
 	/// 1. pothole module has been added by LJ, 2016-9-6, IMP_SWAT
 	/// paddy rice module should be added!
 	m_potVolMax[i] = curOperation->MaxDepth();
@@ -1753,8 +1758,7 @@ void MGTOpt_SWAT::ExecuteReleaseImpoundOperation(int i, int &factoryID, int nOp)
 	{
 		/// Currently, add pothole volume (mm) to the max depth directly (in case of infiltration).
 		/// TODO, autoirrigation operations should be triggered. BY lj
-		if (m_potVol != NULL)
-			m_potVol[i] = curOperation->MaxDepth();
+		m_potVol[i] = curOperation->MaxDepth();
 		/// force the soil water storage to field capacity
 		for (int ly = 0; ly < (int)m_nSoilLayers[i]; ly++)
 		{
