@@ -24,7 +24,7 @@ Snow	c_rain	Rainfall impact factor	mm/mm/deg C/delta_t	SNO_DD	0.04	0	AC	1	0	Y
 Snow	c_snow	temperature impact factor	mm/deg C/delta_t	SNO_DD	3	0	AC	6	0	Y
 Snow	c_snow12	Melt factor on December 21	mm/deg C/day	SNO_SP	6.5	0	AC	9	6	Y
 Snow	c_snow6	Melt factor on June 21	mm/deg C/day	SNO_SP	2.5	0	AC	4	1	Y
-InstreamWQ	cbod	Carbonaceous bideg Chemical oxygen demand in reach on the frist day	mg O2/L	ChannelRouting	0	1	RC	1	0	Y
+InstreamWQ	cbod	Carbonaceous bideg Chemical oxygen demand in reach on the first day	mg O2/L	ChannelRouting	0	1	AC	1	0	Y
 Sediment	ccoe	calibration coefficient of overland flow detachment erosion	none	KinWavSed_OL	0.05	1	RC	100	0.001	Y
 Nutrient	cdn	rate coefficient for denitrification	none	NMINRL	1	1	RC	3	0	Y
 Discharge	Ch_iuh	Channel flow IUH	none	ChannelRouting	-9999		NC	-9999	-9999	Y
@@ -133,7 +133,7 @@ WaterBalance	P_max	Maximum rainfall intensity when k_run = 1.0	mm	SUR_MR	30	0	AC
 Nutrient	p_n	Algal preference factor for ammonia	mg/L	NutCHRout	0.5	1	RC	1	0	Y
 Sediment	p_rf	 Peak rate adjustment factor 	none	ChannelRouting	1	0	AC	3	1	Y
 PlantGrowth	p_updis	phosphorus uptake distribution parameter	None	BIO_EPIC	20	1	RC	100	0	Y
-Nutrient	phoskd	Phosphorus soil partitioning coefficient	m^3/Mg	NutRemv	175	1025	AC	2000	100	Y
+Nutrient	phoskd	Phosphorus soil partitioning coefficient	m^3/Mg	NutRemv	175	25	AC	200	100	Y
 Interception	Pi_b	Interception Storage Capacity Exponent	none	ALL	1.35	0	AC	1.5	0.5	Y
 WaterBalance	Poreindex	Pore size distribution index	none	ALL	-9999	1	RC	1.2	0.8	Y
 WaterBalance	Porosity	Soil porosity	m3/m3	ALL	-9999	1	RC	1.2	0.8	Y

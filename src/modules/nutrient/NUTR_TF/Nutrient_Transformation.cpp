@@ -482,6 +482,7 @@ int Nutrient_Transformation::Execute()
 {
     CheckInputData();
     initialOutputs();
+	//cout<<"Nutr_TF, pre: "<<m_sol_solp[46364][0];
 #pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
     {
@@ -500,6 +501,7 @@ int Nutrient_Transformation::Execute()
         CalculatePflux(i);
     }
 	//cout<<"minRL, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
+	//cout<<", new: "<<m_sol_solp[46364][0]<<endl;
     return 0;
 }
 

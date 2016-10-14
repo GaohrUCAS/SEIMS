@@ -25,6 +25,7 @@ mpiexec -n 4 E:\github-zlj\SEIMS_VS\Debug\seims ..\model_data\cluster_model_fenk
 + python E:\code\hydro\SEIMS\preprocess\build_db.py -ini E:\code\hydro\SEIMS\preprocess\dianbu2_30m_longterm_omp_zhulj_win.ini
 + python E:\code\hydro\SEIMS\preprocess\import_bmp_scenario.py -ini E:\code\hydro\SEIMS\preprocess\dianbu_30m_longterm_omp_zhulj_win.ini
 + python E:\code\hydro\SEIMS\preprocess\generate_stream_input.py -ini E:\code\hydro\SEIMS\preprocess\dianbu_30m_longterm_omp_zhulj_win.ini
++ python E:\code\hydro\SEIMS\preprocess\import_measurement.py -ini E:\code\hydro\SEIMS\preprocess\dianbu_30m_longterm_omp_zhulj_win.ini
 
 ### dingguang, step by step to build Model database
 + python E:\code\hydro\SEIMS\preprocess\main.py -ini E:\code\hydro\SEIMS\preprocess\dingguang_30m_longterm_omp_zhulj_win.ini

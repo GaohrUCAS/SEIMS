@@ -258,7 +258,7 @@ void NutrientMovementViaWater::SetValue(const char *key, float value)
 	else if (StringMatch(sk, VAR_ISEP_OPT)) { this->m_isep_opt = value; }
 	else if (StringMatch(sk, VAR_COD_N)) { this->m_cod_n = value; }
 	else if (StringMatch(sk, VAR_COD_K)) { this->m_cod_k = value; }
-	else if (StringMatch(sk, VAR_CSWAT)) { this->m_CbnModel = value; }
+	else if (StringMatch(sk, VAR_CSWAT)) { this->m_CbnModel = (int)value; }
     else
     {
         throw ModelException(MID_NUTRMV, "SetValue", "Parameter " + sk + " does not exist.");
@@ -360,6 +360,7 @@ void NutrientMovementViaWater::initialOutputs()
 int NutrientMovementViaWater::Execute()
 {
     CheckInputData();
+	//cout<<"NutrMV, pre: "<<m_sol_solp[46364][0];
 	if (m_CbnModel == 2) /// check input data
 	{
 		if (m_sedc_d == NULL) throw ModelException(MID_NUTRMV, "CheckInputData", "The amount of C lost with sediment must not be NULL.");
@@ -383,6 +384,7 @@ int NutrientMovementViaWater::Execute()
 	//	cout<<"percoNToCh: "<<m_perco_n_gw[i]<<", ";
 	//}
 	//cout<<endl;
+	//cout<<", new: "<<m_sol_solp[46364][0]<<endl;
     return 0;
 }
 
