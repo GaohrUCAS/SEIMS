@@ -526,6 +526,7 @@ void NutrientMovementViaWater::PhosphorusLoss()
         // compute soluble P lost in surface runoff
         float xx = 0.f;  // variable to hold intermediate calculation result
         xx = m_sol_bd[i][0] * m_sol_z[i][0] * m_phoskd;
+		// units ==> surqsolp = [kg/ha * mm] / [t/m^3 * mm * m^3/t] = kg/ha
         m_surqsolp[i] = m_sol_solp[i][0] * m_surfr[i] / xx;
         m_surqsolp[i] = min(m_surqsolp[i], m_sol_solp[i][0]);
         m_surqsolp[i] = max(m_surqsolp[i], 0.f);
