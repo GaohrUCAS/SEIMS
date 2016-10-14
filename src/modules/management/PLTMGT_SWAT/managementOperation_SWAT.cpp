@@ -1861,6 +1861,7 @@ int MGTOpt_SWAT::Execute()
     CheckInputData();  /// essential input data, other inputs for specific management operation will be check separately.
     initialOutputs(); /// all possible outputs will be initialized to avoid NULL pointer problems.
 	/// initialize arrays at the beginning of the current day, derived from sim_initday.f of SWAT
+	//cout<<"PLTMGT_SWAT, pre: "<<m_soilSolP[46364][0];
 #pragma omp parallel for
 	for (int i = 0; i < m_nCells; i++)
 	{
@@ -1907,6 +1908,7 @@ int MGTOpt_SWAT::Execute()
         }
     }
 	//cout<<"PLTMGT_SWAT, cell id 5878, sol_no3[0]: "<<m_soilNO3[5878][0]<<endl;
+	//cout<<", new: "<<m_soilSolP[46364][0]<<endl;
     return 0;
 }
 

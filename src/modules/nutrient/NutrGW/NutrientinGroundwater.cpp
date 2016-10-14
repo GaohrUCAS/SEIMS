@@ -200,7 +200,7 @@ int NutrientinGroundwater::Execute()
 {
     CheckInputData();
 	initialOutputs();
-
+	//cout<<"NutrGW, pre: "<<m_sol_solp[46364][0];
 	for(vector<int>::iterator iter=m_subbasinIDs.begin(); iter != m_subbasinIDs.end(); iter++)
     {
 		int id = *iter;
@@ -247,6 +247,7 @@ int NutrientinGroundwater::Execute()
     }
 	//cout<<endl;
 	//cout<<"NUTRGW, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
+	//cout<<", new: "<<m_sol_solp[46364][0]<<endl;
     return 0;
 }
 

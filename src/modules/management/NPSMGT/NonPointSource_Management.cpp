@@ -91,9 +91,15 @@ void NPS_Management::SetScenario(Scenario *sce)
 		throw ModelException(MID_MUSK_CH, "SetScenario", "The scenario can not to be NULL.");
 }
 
-
+bool NPS_Management::CheckInputData()
+{
+	/// TOTO to be implemented.
+	return true;
+}
 int NPS_Management::Execute()
 {
+	CheckInputData();
+	//cout<<"NPSMGT, pre: "<<m_sol_solp[46364][0];
 	if (m_cellArea < 0.f) m_cellArea = m_cellWidth * m_cellWidth;
 	for (map<int, BMPArealSrcFactory*>::iterator it = m_arealSrcFactory.begin(); it != m_arealSrcFactory.end(); it++)
 	{
@@ -155,6 +161,7 @@ int NPS_Management::Execute()
 		}
 	}
 	//cout<<"NPSMGT, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
+	//cout<<", new: "<<m_sol_solp[46364][0]<<endl;
     return true;
 }
 

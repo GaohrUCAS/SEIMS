@@ -117,3 +117,4 @@ def BuildMongoDB():
 if __name__ == "__main__":
     LoadConfiguration(GetINIfile())
     BuildMongoDB()
+
