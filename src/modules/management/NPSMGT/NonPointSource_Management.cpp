@@ -8,7 +8,7 @@ using namespace std;
 
 NPS_Management::NPS_Management(void) : m_nCells(-1), m_cellWidth(-1.f), m_timestep(-1.f), m_cellArea(-1.f),
 	m_mgtFields(NULL),
-	m_soilStorage(NULL), m_sol_no3(NULL), m_sol_nh4(NULL), m_sol_solp(NULL)
+	m_soilStorage(NULL), m_sol_no3(NULL), m_sol_nh4(NULL), m_sol_solp(NULL),m_sol_orgn(NULL),m_sol_orgp(NULL)
 {
 	m_arealSrcFactory.clear();
 }
@@ -68,6 +68,8 @@ void NPS_Management::Set2DData(const char *key, int n, int col, float **data)
 	else if (StringMatch(sk, VAR_SOL_NO3)) m_sol_no3 = data;
 	else if (StringMatch(sk, VAR_SOL_NH4)) m_sol_nh4 = data;
 	else if (StringMatch(sk, VAR_SOL_SOLP)) m_sol_solp = data;
+	else if (StringMatch(sk, VAR_SOL_SORGN)) m_sol_orgn = data;
+	else if (StringMatch(sk, VAR_SOL_HORGP)) m_sol_orgp = data;
 	else
 		throw ModelException(MID_NPSMGT, "Set2DData", "Parameter " + sk + " does not exist.");
 }
@@ -144,6 +146,10 @@ int NPS_Management::Execute()
 						m_sol_nh4[*idxIter][0] += deltaNH4;
 					if (deltaMinP > 0.f && m_sol_solp != NULL)
 						m_sol_solp[*idxIter][0] += deltaMinP;
+					if (deltaOrgN > 0.f && m_sol_orgn != NULL)
+						m_sol_orgn[*idxIter][0] += deltaOrgN;
+					if (deltaOrgP > 0.f && m_sol_orgp != NULL)
+						m_sol_orgp[*idxIter][0] += deltaOrgP;
 				}
 			}
 		}

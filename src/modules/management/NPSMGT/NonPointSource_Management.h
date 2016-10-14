@@ -36,7 +36,8 @@ private:
 	float **m_sol_nh4;
 	/// soluble phosphorus kg/ha
 	float **m_sol_solp;
-
+	float **m_sol_orgn;
+	float **m_sol_orgp;
 public:
     //! Constructor
     NPS_Management(void);

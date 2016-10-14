@@ -46,7 +46,7 @@ extern "C" SEIMS_MODULE_API const char *MetadataInformation()
     mdi.AddParameter(VAR_K_P, UNIT_CONCENTRATION, DESC_K_P, Source_ParameterDB, DT_Single);
     mdi.AddParameter(VAR_P_N, UNIT_CONCENTRATION, DESC_P_N, Source_ParameterDB, DT_Single);
     mdi.AddParameter(VAR_TFACT, UNIT_NON_DIM, DESC_TFACT, Source_ParameterDB, DT_Single);
-    mdi.AddParameter(VAR_MUMAX, UNIT_TEMP_DEG, DESC_MUMAX, Source_ParameterDB, DT_Single);
+    mdi.AddParameter(VAR_MUMAX, UNIT_PER_DAY, DESC_MUMAX, Source_ParameterDB, DT_Single);
     mdi.AddParameter(VAR_RHOQ, UNIT_PER_DAY, DESC_RHOQ, Source_ParameterDB, DT_Single);
 	mdi.AddParameter(VAR_COD_N, UNIT_NON_DIM, DESC_COD_N, Source_ParameterDB, DT_Single);
 	mdi.AddParameter(VAR_COD_K, UNIT_NON_DIM, DESC_COD_K, Source_ParameterDB, DT_Single);

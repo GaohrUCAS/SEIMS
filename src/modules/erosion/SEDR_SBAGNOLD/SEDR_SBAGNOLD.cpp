@@ -554,8 +554,8 @@ void SEDR_SBAGNOLD::doChannelDowncuttingAndWidening(int id)
     float depdeg = m_preChWTDepth[id] - m_chWTdepth[id]; // depth of degradation/deposition from original
     if (depdeg < m_chSlope[id] * m_chLen[id])
     {
-        float storage = m_chStorage[id];
-        float vout = m_qchOut[id] * m_dt;
+        //float storage = m_chStorage[id];
+        //float vout = m_qchOut[id] * m_dt;
         if (m_preChStorage[id] > 1.4e6f)
         {
 			/// downcutting depth, m
