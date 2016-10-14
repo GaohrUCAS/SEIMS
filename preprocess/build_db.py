@@ -14,6 +14,7 @@ from import_parameters import ImportLookupTables, ImportModelConfiguration
 from generate_stream_input import GenerateReachTable
 from find_sites import FindSites
 from weights_mongo import GenerateWeightInfo, GenerateWeightDependentParameters
+from gen_subbasins import ImportSubbasinStatistics
 
 
 def BuildMongoDB():
@@ -107,7 +108,9 @@ def BuildMongoDB():
 
     ## Import BMP scenario database to MongoDB
     ImportBMPTables()
-
+    ImportLookupTables(TXT_DB_DIR + os.sep + sqliteFile, db)
+    ImportModelConfiguration(db)
+    ImportSubbasinStatistics()
     f.write("100,Finished!")
     f.close()
     print 'Build DB: %s finished!' % (SpatialDBName)

@@ -24,7 +24,7 @@ Snow	c_rain	Rainfall impact factor	mm/mm/deg C/delta_t	SNO_DD	0.04	0	AC	1	0	Y
 Snow	c_snow	temperature impact factor	mm/deg C/delta_t	SNO_DD	3	0	AC	6	0	Y
 Snow	c_snow12	Melt factor on December 21	mm/deg C/day	SNO_SP	6.5	0	AC	9	6	Y
 Snow	c_snow6	Melt factor on June 21	mm/deg C/day	SNO_SP	2.5	0	AC	4	1	Y
-InstreamWQ	cbod	Carbonaceous bideg Chemical oxygen demand in reach on the frist day	mg O2/L	ChannelRouting	0	1	RC	1	0	Y
+InstreamWQ	cbod	Carbonaceous bideg Chemical oxygen demand in reach on the first day	mg O2/L	ChannelRouting	0	1	AC	1	0	Y
 Sediment	ccoe	calibration coefficient of overland flow detachment erosion	none	KinWavSed_OL	0.05	1	RC	100	0.001	Y
 Nutrient	cdn	rate coefficient for denitrification	none	NMINRL	1	1	RC	3	0	Y
 Discharge	Ch_iuh	Channel flow IUH	none	ChannelRouting	-9999		NC	-9999	-9999	Y
