@@ -562,7 +562,8 @@ void NutrientMovementViaWater::PhosphorusLoss()
 			else
 				m_perco_p[i] = vap;//leach to groundwater
             //}
-        }
+		}
+		//if(i == 100 ) cout << "m_sol_solp: " << m_sol_solp[i][0] << endl;
 		/// debugging code
 		//if (i == 46364){
 		//	float percomm = m_sol_perco[i][(int)m_nSoilLayers[i]-1];
