@@ -726,6 +726,7 @@ void NutrCH_QUAL2E::RouteOut(int i)
 	m_chOutChlora[i] = m_chChlora[i] * outFraction;
 	m_chOutTN[i] = m_chOutOrgN[i] + m_chOutNH4[i] + m_chOutNO2[i] + m_chOutNO3[i];
 	m_chOutTP[i] = m_chOutOrgP[i] + m_chOutSolP[i];
+	//if(i == 12) cout << "m_chOutOrgP: " << m_chOutOrgP[i] << ", m_chOrgP: " << m_chOrgP[i] << ", outFrac: "<<outFraction<<endl;
 	// kg ==> mg/L
 	float cvt = 1000.f / wtrOut;
 	m_chOutOrgNConc[i] = m_chOutOrgN[i] * cvt;
