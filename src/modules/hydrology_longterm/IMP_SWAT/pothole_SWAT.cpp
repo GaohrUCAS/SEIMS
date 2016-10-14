@@ -303,6 +303,17 @@ int IMP_SWAT::Execute()
 	//	}
 	//}
 	//cout<<"maximum no3 id: "<<idx<<endl;
+	float maxsedorgp = -1.f;
+	int idx = -1;
+	for (int i = 0; i < m_nCells; i++)
+	{
+		if (m_sedOrgP[i] > maxsedorgp)
+		{
+			maxsedorgp = m_sedOrgP[i];
+			idx = i;
+		}
+	}
+	// cout<<"maximum sedorgp id: "<<idx<< ", surfq: " <<m_surfaceRunoff[idx]<<", sedorgp: "<<m_sedOrgP[idx]<<endl;
 #pragma omp parallel for
 	for (int i = 0; i < m_nCells; i++)
 	{

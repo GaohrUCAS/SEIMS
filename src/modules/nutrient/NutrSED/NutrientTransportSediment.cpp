@@ -324,7 +324,20 @@ int NutrientTransportSediment::Execute()
         //Calculates the amount of organic and mineral phosphorus attached to sediment in surface runoff. psed.f of SWAT
         OrgPAttachedtoSed(i);
     }
-    
+
+	//float maxsedorgp = -1.f;
+	//int idx = -1;
+	//for (int i = 0; i < m_nCells; i++)
+	//{
+	//	if (m_sedorgp[i] > maxsedorgp)
+	//	{
+	//		maxsedorgp = m_sedorgp[i];
+	//		idx = i;
+	//	}
+	//}
+	//cout<<"maximum sedorgp id: "<<idx<< ", surfq: " <<m_surfaceRunoff[idx]<< ", sedYld: "<<m_sedEroded[idx]<<
+	//	", eratio: "<<m_enratio[idx]<<", sedorgp: "<<m_sedorgp[idx]<<endl;
+
 	// sum by subbasin
 	for (int i = 0; i < m_nCells; i++)
 	{
@@ -536,12 +549,13 @@ void NutrientTransportSediment::OrgPAttachedtoSed(int i)
 	float wt = m_sol_bd[i][0] * m_soilThick[i][0] / 100.f;
 	//concentration of organic P in soil (concp)
 	float concp = 0.f;
-	concp = sol_attp * m_enratio[i] / wt;
+	concp = sol_attp * m_enratio[i] / wt;  /// mg/kg
 	//total amount of P removed in sediment erosion (sedp)
-	float sedp = 0.001f * concp * m_sedEroded[i] / 1000.f / m_cellArea;
+	float sedp = 1.e-6f * concp * m_sedEroded[i] / m_cellArea; /// kg/ha
 	m_sedorgp[i] = sedp * sol_attp_o;
 	m_sedminpa[i] = sedp * sol_attp_a;
 	m_sedminps[i] = sedp * sol_attp_s;
+
 	//if(i==100)cout << "sedp: " << sedp<< ",sol_attp_o: "  << sol_attp_o << endl;
 	//modify phosphorus pools
 
