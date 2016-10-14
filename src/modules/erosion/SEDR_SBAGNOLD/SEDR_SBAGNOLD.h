@@ -132,7 +132,7 @@ private:
 	float *m_ptSub;
     /// reach storage (m^3) at time t
     float *m_chStorage;
-	/// reach storage of previous timestep
+	/// reach storage of previous timestep, m^3
 	float *m_preChStorage;
     /// channel water depth, m
     float *m_chWTdepth;

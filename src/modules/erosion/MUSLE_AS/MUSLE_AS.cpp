@@ -107,7 +107,10 @@ void MUSLE_AS::initialOutputs()
 
 float MUSLE_AS::getPeakRunoffRate(int cell)
 {
-    return m_cellAreaKM1 * m_slopeForPq[cell] *
+	if (m_surfaceRunoff[cell] < 0.01f)
+		return 0.f;
+	else
+		return m_cellAreaKM1 * m_slopeForPq[cell] *
            pow(m_surfaceRunoff[cell] / 25.4f, m_cellAreaKM2); //equation 2 in memo, peak flow
 }
 
