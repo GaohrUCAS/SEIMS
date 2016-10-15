@@ -106,7 +106,8 @@ void PrintInfoItem::Flush(string projectPath, clsRasterData *templateRaster, str
 //    }
 //#endif
 	bool outToMongoDB = false; /// added by LJ. 
-	projectPath = projectPath + DB_TAB_OUT_SPATIAL + SEP;
+	// projectPath = projectPath + DB_TAB_OUT_SPATIAL + SEP;
+	projectPath = projectPath;
     /// Get filenames existed in GridFS, i.e., "OUTPUT.files"
     vector<string> outputExisted = GetGridFsFileNames(gfs);
 	/// Filename should appended by AggregateType to avoiding the same names. By LJ, 2016-7-12
