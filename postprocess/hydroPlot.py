@@ -52,7 +52,7 @@ def SearchObs(timeStart, timeEnd, sim, ClimateDB):
     # print simNameArr
     obsValue = []
     obsDate = []
-    for obs in ClimateDB.MEASUREMENT.find({ \
+    for obs in ClimateDB.MEASUREMENT.find({
             'LOCALDATETIME':{"$gte":TIME_Start, '$lte':TIME_End}, 'TYPE':simNameArr[len(simNameArr) - 1]}):
         # print obs['TYPE']
         obsValue.append(obs['VALUE'])
@@ -75,7 +75,7 @@ def ReadSimfromTxt(timeStart, timeEnd, dataDir, sim):
     TIME_Start = datetime.datetime.strptime(timeStart, "%Y-%m-%d")
     TIME_End = datetime.datetime.strptime(timeEnd, "%Y-%m-%d")
     ## Read simulation txt
-    simData = "%s/OUTPUT/1_%s.txt" % (dataDir, sim)
+    simData = "%s/1_%s.txt" % (dataDir, sim)
     if os.path.exists(simData):
         simfile = open(simData, "r")
         simulate = []
