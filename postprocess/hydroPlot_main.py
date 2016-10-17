@@ -28,10 +28,10 @@ if __name__ == "__main__":
     for i in range(len(PLOT_VARS)):
         txtData = ReadSimfromTxt(TIME_Start, TIME_End, MODEL_DIR, PLOT_VARS[i])
         dataSimList.append(txtData)
-    sim_flow = ReadSimfromTxt(TIME_Start, TIME_End, MODEL_DIR, "Q")
+    # sim_flow = ReadSimfromTxt(TIME_Start, TIME_End, MODEL_DIR, "Q")
     # SearchObs(TIME_Start, TIME_End, 'Q', ClimateDB)
 
 
     ## Creat multiple plot
-    CreatPlot(dateArr, sim_flow, preci, dataSimList, PLOT_VARS, ClimateDB)
+    CreatPlot(dateArr, preci, dataSimList, PLOT_VARS, MODEL_DIR, ClimateDB)
     print "Success!"
