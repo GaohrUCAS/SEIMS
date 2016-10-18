@@ -22,11 +22,15 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
-import random, math
-from solution import Solution
-from nsga2 import NSGAII
-from matplotlib import pyplot as plt
+import math
+import random
 import time
+
+from matplotlib import pyplot as plt
+
+from nsga2 import NSGAII
+from solution import Solution
+
 
 class T1Solution(Solution):
     # Solution for the T1 function.
@@ -90,9 +94,3 @@ if __name__ == '__main__':
 
     plt.scatter(obj1, obj2, c="b")
     plt.show()
-
-
-
-
-
-    

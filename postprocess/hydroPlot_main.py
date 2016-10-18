@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from hydroPlot import *
-from config import *
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 
+from config import *
+from hydroPlot import *
+
 if __name__ == "__main__":
     LoadConfiguration(GetINIfile())
-
     ## @dataDir, data folder, superior directory of "OUTPUT"
     ## @PLOT_VARS, Variables list
 
@@ -28,10 +28,10 @@ if __name__ == "__main__":
     for i in range(len(PLOT_VARS)):
         txtData = ReadSimfromTxt(TIME_Start, TIME_End, MODEL_DIR, PLOT_VARS[i])
         dataSimList.append(txtData)
-    sim_flow = ReadSimfromTxt(TIME_Start, TIME_End, MODEL_DIR, "Q")
+    # sim_flow = ReadSimfromTxt(TIME_Start, TIME_End, MODEL_DIR, "Q")
     # SearchObs(TIME_Start, TIME_End, 'Q', ClimateDB)
 
 
     ## Creat multiple plot
-    CreatPlot(dateArr, sim_flow, preci, dataSimList, PLOT_VARS, ClimateDB)
+    CreatPlot(dateArr, preci, dataSimList, PLOT_VARS, MODEL_DIR, ClimateDB)
     print "Success!"

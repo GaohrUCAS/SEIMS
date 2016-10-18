@@ -25,6 +25,7 @@
 
 import sys
 
+
 class Solution:
     # Abstract solution. To be implemented.
 
@@ -83,4 +84,3 @@ def crowded_comparison(s1, s2):
 
     else:
         return 0
-

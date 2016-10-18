@@ -5,16 +5,17 @@
 # Revised: Liang-Jun Zhu
 #
 
-from config import *
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
-from import_bmp_scenario import ImportBMPTables
-from import_parameters import ImportParameters
-from import_parameters import ImportLookupTables, ImportModelConfiguration
-from generate_stream_input import GenerateReachTable
+
+from config import *
 from find_sites import FindSites
-from weights_mongo import GenerateWeightInfo, GenerateWeightDependentParameters
 from gen_subbasins import ImportSubbasinStatistics
+from generate_stream_input import GenerateReachTable
+from import_bmp_scenario import ImportBMPTables
+from import_parameters import (ImportLookupTables, ImportModelConfiguration,
+                               ImportParameters)
+from weights_mongo import GenerateWeightDependentParameters, GenerateWeightInfo
 
 
 def BuildMongoDB():
@@ -38,12 +39,13 @@ def BuildMongoDB():
     f.flush()
     GenerateReachTable(WORKING_DIR, db, forCluster)
 
-    ## prepare meteorology data
+    # prepare meteorology data
     subbasinFile = WORKING_DIR + os.sep + basinVec  # basin.shp
     fldID = FLD_BASINID
     subbasinRaster = WORKING_DIR + os.sep + mask_to_ext  # mask.tif
     if forCluster:
-        subbasinFile = WORKING_DIR + os.sep + DIR_NAME_SUBBSN + os.sep + subbasinVec  # subbasin.shp
+        subbasinFile = WORKING_DIR + os.sep + DIR_NAME_SUBBSN + \
+            os.sep + subbasinVec  # subbasin.shp
         fldID = FLD_SUBBASINID
         subbasinRaster = WORKING_DIR + os.sep + subbasinOut  # subbasin.tif
 
@@ -56,7 +58,8 @@ def BuildMongoDB():
 
     f.write("20, Finding nearby stations for each sub-basin...\n")
     f.flush()
-    nSubbasins = FindSites(db, ClimateDBName, subbasinFile, fldID, meteoThiessenList, meteoTypeList, simuMode)
+    nSubbasins = FindSites(db, ClimateDBName, subbasinFile,
+                           fldID, meteoThiessenList, meteoTypeList, simuMode)
     print "Number of sub-basins:%d" % nSubbasins
 
     if not forCluster:
@@ -73,9 +76,9 @@ def BuildMongoDB():
         subdir = tifFolder + os.sep + str(i)
         if not os.path.exists(subdir):
             os.mkdir(subdir)
-    strCmd = "%s/import_raster %s %s %s %s %s %d %s" % (CPP_PROGRAM_DIR, subbasinRaster,
-                                                        WORKING_DIR, SpatialDBName, DB_TAB_SPATIAL.upper(), HOSTNAME,
-                                                        PORT, tifFolder)
+    strCmd = "%s/import_raster %s %s %s %s %s %d %s" % (
+        CPP_PROGRAM_DIR, subbasinRaster, WORKING_DIR, SpatialDBName,
+        DB_TAB_SPATIAL.upper(), HOSTNAME, PORT, tifFolder)
     print strCmd
     os.system(strCmd)
 
@@ -84,7 +87,8 @@ def BuildMongoDB():
     f.flush()
     for i in range(nSubbasins):
         GenerateWeightInfo(conn, SpatialDBName, i + 1, stormMode)
-        GenerateWeightDependentParameters(conn, i + 1)  ##　added by Liangjun, 2016-6-17
+        # 　added by Liangjun, 2016-6-17
+        GenerateWeightDependentParameters(conn, i + 1)
     if genIUH:
         f.write("80, Generating IUH (Instantaneous Unit Hydrograph)...\n")
         f.flush()
@@ -106,7 +110,7 @@ def BuildMongoDB():
     print strCmd
     os.system(strCmd)
 
-    ## Import BMP scenario database to MongoDB
+    # Import BMP scenario database to MongoDB
     ImportBMPTables()
     ImportLookupTables(TXT_DB_DIR + os.sep + sqliteFile, db)
     ImportModelConfiguration(db)
@@ -116,8 +120,7 @@ def BuildMongoDB():
     print 'Build DB: %s finished!' % (SpatialDBName)
 
 
-## test code
+# test code
 if __name__ == "__main__":
     LoadConfiguration(GetINIfile())
     BuildMongoDB()
-
