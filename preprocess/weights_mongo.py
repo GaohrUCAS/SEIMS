@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 # coding=utf-8
 # @Generate weight data for interpolate of hydroclimate data
-# Author: Junzhi Liu
-# Revised: Liang-Jun Zhu
+# @Author: Junzhi Liu
+# @Revised: Liang-Jun Zhu
 #
 
 from struct import *
@@ -80,12 +80,15 @@ def GenerateWeightDependentParameters(conn, subbasinID):
     maskName = str(subbasinID) + '_MASK'
     # read WEIGHT_M file from mongodb
     weightMName = str(subbasinID) + '_WEIGHT_M'
-    mask = dbModel[DB_TAB_SPATIAL.upper()].files.find({"filename": maskName})[0]
-    weightM = dbModel[DB_TAB_SPATIAL.upper()].files.find({"filename": weightMName})[0]
+    mask = dbModel[DB_TAB_SPATIAL.upper()].files.find(
+        {"filename": maskName})[0]
+    weightM = dbModel[DB_TAB_SPATIAL.upper()].files.find(
+        {"filename": weightMName})[0]
     numCells = int(weightM["metadata"]["NUM_CELLS"])
     numSites = int(weightM["metadata"]["NUM_SITES"])
     # read meteorlogy sites
-    siteLists = dbModel[DB_TAB_SITELIST.upper()].find({FLD_SUBBASINID.upper(): subbasinID})
+    siteLists = dbModel[DB_TAB_SITELIST.upper()].find(
+        {FLD_SUBBASINID.upper(): subbasinID})
     siteList = siteLists.next()
     dbName = siteList[FLD_DB.upper()]
     mList = siteList.get('SITELISTM')
@@ -94,11 +97,14 @@ def GenerateWeightDependentParameters(conn, subbasinID):
     siteList = mList.split(',')
     siteList = [int(item) for item in siteList]
 
-    qDic = {Tag_ST_StationID.upper(): {'$in': siteList}, Tag_DT_Type.upper(): Datatype_PHU0}
-    cursor = dbHydro[Tag_ClimateDB_ANNUAL_STATS.upper()].find(qDic).sort(Tag_ST_StationID.upper(), 1)
+    qDic = {Tag_ST_StationID.upper(): {'$in': siteList},
+            Tag_DT_Type.upper(): Datatype_PHU0}
+    cursor = dbHydro[Tag_ClimateDB_ANNUAL_STATS.upper()].find(
+        qDic).sort(Tag_ST_StationID.upper(), 1)
 
-    qDic2 = {Tag_ST_StationID.upper(): {'$in': siteList}, Tag_DT_Type.upper(): DataType_MeanTemperature0.upper()}
-    cursor2 = dbHydro[Tag_ClimateDB_ANNUAL_STATS.upper()].find(qDic2).sort(Tag_ST_StationID.upper(), 1)
+    qDic2 = {Tag_ST_StationID.upper(): {'$in': siteList}, Tag_DT_Type.upper()             : DataType_MeanTemperature0.upper()}
+    cursor2 = dbHydro[Tag_ClimateDB_ANNUAL_STATS.upper()].find(
+        qDic2).sort(Tag_ST_StationID.upper(), 1)
 
     idList = []
     phuList = []
@@ -190,7 +196,8 @@ def GenerateWeightInfo(conn, modelName, subbasinID, stormMode=False, useRsData=F
 
     # read mask file from mongodb
     maskName = str(subbasinID) + '_MASK'
-    mask = dbModel[DB_TAB_SPATIAL.upper()].files.find({"filename": maskName})[0]
+    mask = dbModel[DB_TAB_SPATIAL.upper()].files.find(
+        {"filename": maskName})[0]
 
     ysize = int(mask["metadata"]["NROWS"])
     xsize = int(mask["metadata"]["NCOLS"])
@@ -217,7 +224,8 @@ def GenerateWeightInfo(conn, modelName, subbasinID, stormMode=False, useRsData=F
         'SUBBASIN': subbasinID,
         'NUM_CELLS': num}
 
-    siteLists = dbModel[DB_TAB_SITELIST.upper()].find({FLD_SUBBASINID.upper(): subbasinID})
+    siteLists = dbModel[DB_TAB_SITELIST.upper()].find(
+        {FLD_SUBBASINID.upper(): subbasinID})
     siteList = siteLists.next()
     dbName = siteList[FLD_DB.upper()]
     pList = siteList.get('SITELISTP')
@@ -227,7 +235,8 @@ def GenerateWeightInfo(conn, modelName, subbasinID, stormMode=False, useRsData=F
     # print mList
     dbHydro = conn[dbName]
 
-    typeList = [DataType_Meteorology, DataType_Precipitation, DataType_PotentialEvapotranspiration]
+    typeList = [DataType_Meteorology, DataType_Precipitation,
+                DataType_PotentialEvapotranspiration]
     siteLists = [mList, pList, petList]
     if petList is None:
         del typeList[2]
@@ -252,13 +261,17 @@ def GenerateWeightInfo(conn, modelName, subbasinID, stormMode=False, useRsData=F
             siteList = [int(item) for item in siteList]
             metadic['NUM_SITES'] = len(siteList)
             # print siteList
-            qDic = {Tag_ST_StationID.upper(): {'$in': siteList}, Tag_ST_Type.upper(): typeList[i]}
-            cursor = dbHydro[Tag_ClimateDB_Sites.upper()].find(qDic).sort(Tag_ST_StationID.upper(), 1)
+            qDic = {Tag_ST_StationID.upper(): {'$in': siteList},
+                    Tag_ST_Type.upper(): typeList[i]}
+            cursor = dbHydro[Tag_ClimateDB_Sites.upper()].find(
+                qDic).sort(Tag_ST_StationID.upper(), 1)
 
             # meteorology station can also be used as precipitation station
             if cursor.count() == 0 and typeList[i] == DataType_Precipitation:
-                qDic = {Tag_ST_StationID.upper(): {'$in': siteList}, Tag_ST_Type.upper(): DataType_Meteorology}
-                cursor = dbHydro[Tag_ClimateDB_Sites.upper()].find(qDic).sort(Tag_ST_StationID.upper(), 1)
+                qDic = {Tag_ST_StationID.upper(): {'$in': siteList},
+                        Tag_ST_Type.upper(): DataType_Meteorology}
+                cursor = dbHydro[Tag_ClimateDB_Sites.upper()].find(
+                    qDic).sort(Tag_ST_StationID.upper(), 1)
 
             # get site locations
             idList = []
@@ -266,12 +279,14 @@ def GenerateWeightInfo(conn, modelName, subbasinID, stormMode=False, useRsData=F
             for site in cursor:
                 if site[Tag_ST_StationID.upper()] in siteList:
                     idList.append(site[Tag_ST_StationID.upper()])
-                    LocList.append([site[Tag_ST_LocalX.upper()], site[Tag_ST_LocalY.upper()]])
+                    LocList.append([site[Tag_ST_LocalX.upper()],
+                                    site[Tag_ST_LocalY.upper()]])
             # print 'loclist', locList
             # interpolate using the locations
             # weightList = []
             myfile = spatial.new_file(filename=fname, metadata=metadic)
-            fTest = open(r"%s/weight_%d_%s.txt" % (WORKING_DIR, subbasinID, typeList[i]), 'w')
+            fTest = open(r"%s/weight_%d_%s.txt" %
+                         (WORKING_DIR, subbasinID, typeList[i]), 'w')
             for i in range(0, ysize):
                 for j in range(0, xsize):
                     index = i * xsize + j
@@ -291,7 +306,8 @@ def GenerateWeightInfo(conn, modelName, subbasinID, stormMode=False, useRsData=F
                         # weightList.append(line)
                         myfile.write(line)
                         fmt = '%df' % (len(LocList))
-                        fTest.write("%f %f " % (x, y) + unpack(fmt, line).__str__() + "\n")
+                        fTest.write("%f %f " % (x, y) +
+                                    unpack(fmt, line).__str__() + "\n")
 
                         # print line
             # weightStr = '\n'.join(weightList)

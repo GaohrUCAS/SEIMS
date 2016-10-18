@@ -50,12 +50,16 @@ def downStream(reachFile):
     dsReach = ogr.Open(reachFile)
     layerReach = dsReach.GetLayer(0)
     layerDef = layerReach.GetLayerDefn()
-    iFrom = layerDef.GetFieldIndex(FLD_LINKNO)  # TauDEM: LINKNO; ArcSWAT: FROM_NODE
-    iTo = layerDef.GetFieldIndex(FLD_DSLINKNO)  # TauDEM: DSLINKNO; ArcSWAT: TO_NODE
+    # TauDEM: LINKNO; ArcSWAT: FROM_NODE
+    iFrom = layerDef.GetFieldIndex(FLD_LINKNO)
+    # TauDEM: DSLINKNO; ArcSWAT: TO_NODE
+    iTo = layerDef.GetFieldIndex(FLD_DSLINKNO)
     iDepth = layerDef.GetFieldIndex(REACH_DEPTH)
-    iSlope = layerDef.GetFieldIndex(REACH_SLOPE)  # TauDEM: Slope (tan); ArcSWAT: Slo2 (100*tan)
+    # TauDEM: Slope (tan); ArcSWAT: Slo2 (100*tan)
+    iSlope = layerDef.GetFieldIndex(REACH_SLOPE)
     iWidth = layerDef.GetFieldIndex(REACH_WIDTH)
-    iLen = layerDef.GetFieldIndex(REACH_LENGTH)  # TauDEM: Length; ArcSWAT: Len2
+    # TauDEM: Length; ArcSWAT: Len2
+    iLen = layerDef.GetFieldIndex(REACH_LENGTH)
 
     g = nx.DiGraph()
     ft = layerReach.GetNextFeature()
@@ -92,10 +96,10 @@ def downStream(reachFile):
         if g.out_degree(node) == 0:
             outlet = node
     if outlet < 0:
-        raise ValueError("Can't find outlet subbasin ID, please check!");
+        raise ValueError("Can't find outlet subbasin ID, please check!")
     print 'outlet subbasin:%d' % outlet
 
-    # assign order from outlet to upstream subbasins   
+    # assign order from outlet to upstream subbasins
     downstreamUpOrderDic = {}
     DownstreamUpOrder(downstreamUpOrderDic, g, outlet, 1)
     # find the maximum order nubmer
@@ -123,11 +127,11 @@ def downStream(reachFile):
         orderNum = orderNum + 1
 
     return downStreamDic, downstreamUpOrderDic, upstreamDownOrderDic, \
-           depthDic, slopeDic, widthDic, lenDic
+        depthDic, slopeDic, widthDic, lenDic
 
 
 def add_group_field(shpFile, subbasinFieldName, n, groupKmetis, groupPmetis, ns):
-    dsReach = ogr.Open(shpFile, update = True)
+    dsReach = ogr.Open(shpFile, update=True)
     layerReach = dsReach.GetLayer(0)
     layerDef = layerReach.GetLayerDefn()
     iCode = layerDef.GetFieldIndex(subbasinFieldName)
@@ -164,7 +168,6 @@ def add_group_field(shpFile, subbasinFieldName, n, groupKmetis, groupPmetis, ns)
     del dsReach
 
     # copy the reach file to new file
-    # shp_ext_list = ['.shp', '.dbf', '.shx']
     for ext in shp_ext_list:
         prefix = os.path.splitext(shpFile)[0]
         src = prefix + ext
@@ -184,7 +187,7 @@ def GenerateReachTable(folder, db, forCluster):
 
     areaDic, dx = gridNumber(watershedFile)
     downStreamDic, downstreamUpOrderDic, upstreamDownOrderDic, \
-    depthDic, slopeDic, widthDic, lenDic = downStream(reachFile)
+        depthDic, slopeDic, widthDic, lenDic = downStream(reachFile)
     # for k in downStreamDic:
     # print k, downStreamDic[k]
 
@@ -267,7 +270,7 @@ def GenerateReachTable(folder, db, forCluster):
             dic[REACH_MANNING.upper()] = dicManning[id]
             dic[REACH_SLOPE] = slopeDic[id]
             dic[REACH_V0.upper()] = math.sqrt(slopeDic[id]) * math.pow(depthDic[id], 2. / 3) \
-                                    / dic[REACH_MANNING.upper()]
+                / dic[REACH_MANNING.upper()]
             dic[REACH_NUMCELLS.upper()] = areaDic[id]
             if (n == 1):
                 dic[REACH_GROUP.upper()] = n
@@ -297,18 +300,19 @@ def GenerateReachTable(folder, db, forCluster):
             dic[REACH_EROD.upper()] = 0.1
             dic[REACH_DISOX.upper()] = 10
             dic[REACH_BOD.upper()] = 10
-            dic[REACH_ALGAE.upper()] = 0 # 10
-            dic[REACH_ORGN.upper()] = 0 # 10
-            dic[REACH_NH4.upper()] = 0 # 1 # 8.
-            dic[REACH_NO2.upper()] = 0 # 0.
-            dic[REACH_NO3.upper()] = 0 # 1 # 8.
-            dic[REACH_ORGP.upper()] = 0 # 10.
-            dic[REACH_SOLP.upper()] = 0 # 0.1 # 0.5
-            dic[REACH_GWNO3.upper()] = 0 # 10.
-            dic[REACH_GWSOLP.upper()] = 0 # 10.
+            dic[REACH_ALGAE.upper()] = 0  # 10
+            dic[REACH_ORGN.upper()] = 0  # 10
+            dic[REACH_NH4.upper()] = 0  # 1 # 8.
+            dic[REACH_NO2.upper()] = 0  # 0.
+            dic[REACH_NO3.upper()] = 0  # 1 # 8.
+            dic[REACH_ORGP.upper()] = 0  # 10.
+            dic[REACH_SOLP.upper()] = 0  # 0.1 # 0.5
+            dic[REACH_GWNO3.upper()] = 0  # 10.
+            dic[REACH_GWSOLP.upper()] = 0  # 10.
 
             curFilter = {REACH_SUBBASIN.upper(): id}
-            db[DB_TAB_REACH.upper()].find_one_and_replace(curFilter, dic, upsert = True)
+            db[DB_TAB_REACH.upper()].find_one_and_replace(
+                curFilter, dic, upsert=True)
 
     for n in nlist:
         print 'divide number: ', n
@@ -345,8 +349,10 @@ def GenerateReachTable(folder, db, forCluster):
         f.close()
         AdjustGroupResult(g, areaDic, groupPmetis, n)
 
-        groupDicK, groupDicP = add_group_field(reachFile, FLD_LINKNO.upper(), n, groupKmetis, groupPmetis, ns)
-        groupDicK, groupDicP = add_group_field(subbasinFile, REACH_SUBBASIN.upper(), n, groupKmetis, groupPmetis, ns)
+        groupDicK, groupDicP = add_group_field(
+            reachFile, FLD_LINKNO.upper(), n, groupKmetis, groupPmetis, ns)
+        groupDicK, groupDicP = add_group_field(
+            subbasinFile, REACH_SUBBASIN.upper(), n, groupKmetis, groupPmetis, ns)
 
         importReachInfo(n, downStreamDic, groupDicK, groupDicP)
     db[DB_TAB_REACH.upper()].create_index([(REACH_SUBBASIN.upper(), pymongo.ASCENDING),
@@ -358,7 +364,7 @@ def GenerateReachTable(folder, db, forCluster):
 # TEST CODE
 if __name__ == "__main__":
     try:
-        conn = MongoClient(host = HOSTNAME, port = PORT)
+        conn = MongoClient(host=HOSTNAME, port=PORT)
     except ConnectionFailure, e:
         sys.stderr.write("Could not connect to MongoDB: %s" % e)
         sys.exit(1)

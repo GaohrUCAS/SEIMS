@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 # coding=utf-8
 # @Calculate hydrological radius, efficiency improved by numpy
-# Author: Junzhi Liu
-# Revised: Liang-Jun Zhu
+# @Author: Junzhi Liu
+# @Revised: Liang-Jun Zhu
 #
 from config import *
 from util import *

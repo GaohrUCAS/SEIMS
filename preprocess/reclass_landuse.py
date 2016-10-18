@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 # coding=utf-8
 # @Redistribute landuse parameters
-# Author: Junzhi Liu
-# Revised: Liang-Jun Zhu
+# @Author: Junzhi Liu
+# @Revised: Liang-Jun Zhu
 #
 
 import sqlite3
@@ -16,7 +16,8 @@ def ReclassLanduse(landuseFile, dbname, dstdir):
     # for example:
     # 1:{"clay":0.12, "sand":0.1}
     property_map = {}
-    str_sql = 'select landuse_id, ' + ','.join(LANDUSE_ATTR_LIST) + ' from LanduseLookup'
+    str_sql = 'select landuse_id, ' + \
+        ','.join(LANDUSE_ATTR_LIST) + ' from LanduseLookup'
     property_namelist = LANDUSE_ATTR_LIST
     num_propeties = len(property_namelist)
 
@@ -64,11 +65,13 @@ def ReclassLanduse(landuseFile, dbname, dstdir):
             id = int(data[i])
             data_prop[i] = dic[id] if id > 0 else noDataValue
         data_prop.shape = (ysize, xsize)
-        WriteGTiffFile(filename, ysize, xsize, data_prop, geotransform, srs, noDataValue, gdal.GDT_Float32)
+        WriteGTiffFile(filename, ysize, xsize, data_prop,
+                       geotransform, srs, noDataValue, gdal.GDT_Float32)
     print 'The landuse parameters are generated!'
     return attrList
 
 
 if __name__ == '__main__':
     LoadConfiguration(GetINIfile())
-    ReclassLanduse(WORKING_DIR + os.sep + landuseMFile, TXT_DB_DIR + os.sep + sqliteFile, WORKING_DIR)
+    ReclassLanduse(WORKING_DIR + os.sep + landuseMFile,
+                   TXT_DB_DIR + os.sep + sqliteFile, WORKING_DIR)

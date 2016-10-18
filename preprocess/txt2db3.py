@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # coding=utf-8
-## @ Import parameters and lookup tables to SQLite database
-# Author: Liang-Jun Zhu, Fang Shen
+# @ Import parameters and lookup tables to SQLite database
+# @Author: Liang-Jun Zhu, Fang Shen
 #
 import sqlite3
 
@@ -10,7 +10,7 @@ from util import *
 
 
 def txt2Sqlite(dataFiles, dbFile):
-    dataImport = {}  ### format: {tabName:[fieldName, Units, dataRows]}
+    dataImport = {}  # format: {tabName:[fieldName, Units, dataRows]}
     for dataFileItem in dataFiles:
         # print dataFileItem
         dataPath = TXT_DB_DIR + os.sep + dataFileItem[1] + ".txt"
@@ -39,7 +39,8 @@ def txt2Sqlite(dataFiles, dbFile):
                 if curDataItem[0] in dataImport.keys():
                     dataImport[curDataItem[0]][2].append(curDataItem[1:])
                 else:
-                    dataImport[curDataItem[0]] = [fieldNames, units, [curDataItem[1:]]]
+                    dataImport[curDataItem[0]] = [
+                        fieldNames, units, [curDataItem[1:]]]
 
         else:
             fieldNames = dataItems[0]
@@ -62,11 +63,12 @@ def importData2Sqlite(dataImport, dbFile):
         fieldNameStr = ''
         for i in range(len(flds)):
             fieldNameStr += flds[i] + ' ' + unitTypes[i] + ' DEFAULT NULL,'
-        create_table_sql = '''CREATE TABLE IF NOT EXISTS %s (%s)''' % (tabName, fieldNameStr[:-1])
+        create_table_sql = '''CREATE TABLE IF NOT EXISTS %s (%s)''' % (
+            tabName, fieldNameStr[:-1])
         # print create_table_sql
         cur.execute(create_table_sql)
         load_sql = '''insert into %(table)s values (%(arg)s)''' % {'table': tabName, 'arg': ','.join(
-                ['?' for i in range(0, len(flds))]),}
+            ['?' for i in range(0, len(flds))]), }
         # print load_sql
         for singledatarow in dataRow:
             cur.execute(load_sql, singledatarow)

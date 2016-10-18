@@ -22,23 +22,7 @@ def InitMoisture(dstdir):
     srs = acc_R.srs
     geotrans = acc_R.geotrans
     dx = acc_R.dx
-    #
-    # ds = gdal.Open(acc_name)
-    # band = ds.GetRasterBand(1)
-    # dataAcc = band.ReadAsArray()
-    # xsize = band.XSize
-    # ysize = band.YSize
-    # noDataValue = band.GetNoDataValue()
-    # if noDataValue is None:
-    #     noDataValue = DEFAULT_NODATA
-    # srs = osr.SpatialReference()
-    # srs.ImportFromWkt(ds.GetProjection())
     dataSlope = ReadRaster(slope_name).data
-    #
-    # dsSlope = gdal.Open(slope_name)
-    # dataSlope = dsSlope.GetRasterBand(1).ReadAsArray()
-    # geotransform = ds.GetGeoTransform()
-    # dx = geotransform[1]
     cellArea = dx * dx
 
     # TWI, ln(a/tan(b))
@@ -57,7 +41,8 @@ def InitMoisture(dstdir):
     # wiGrid_valid = numpy.where(acc_R.validZone, wiGrid, numpy.nan)
     # wiMax = numpy.nanmax(wiGrid_valid)
     # wiMin = numpy.nanmin(wiGrid_valid)
-    # WARNING: numpy.nanmax and numpy.nanmin are un-stabilized in Linux, so replaced by the for loops. By LJ
+    # WARNING: numpy.nanmax and numpy.nanmin are un-stabilized in Linux, so
+    # replaced by the for loops. By LJ
     wiMax = -numpy.inf
     wiMin = numpy.inf
     for i in range(0, ysize):
@@ -114,7 +99,8 @@ def InitMoisture(dstdir):
     #             moisture[i][j] = a * wiGrid[i][j] + b
 
     filename = dstdir + os.sep + initSoilMoist
-    WriteGTiffFile(filename, ysize, xsize, moisture, geotrans, srs, DEFAULT_NODATA, gdal.GDT_Float32)
+    WriteGTiffFile(filename, ysize, xsize, moisture, geotrans,
+                   srs, DEFAULT_NODATA, gdal.GDT_Float32)
 
     print 'The initial moisture is generated!'
     return filename

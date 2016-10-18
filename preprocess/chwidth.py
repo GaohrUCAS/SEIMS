@@ -16,20 +16,6 @@ def chwidth(accFile, chwidthFile):
     ysize = accR.nRows
     noDataValue = accR.noDataValue
     dx = accR.dx
-    # ds = gdal.Open(accFile)
-    # band = ds.GetRasterBand(1)
-    # dataAcc = band.ReadAsArray()
-    # xsize = band.XSize
-    # ysize = band.YSize
-    # noDataValue = band.GetNoDataValue()
-    # if noDataValue is None:
-    #     noDataValue = DEFAULT_NODATA
-
-    # srs = osr.SpatialReference()
-    # srs.ImportFromWkt(ds.GetProjection())
-    #
-    # geotransform = ds.GetGeoTransform()
-    # dx = geotransform[1]
     cellArea = dx * dx
 
     # storm frequency   a      b
@@ -38,12 +24,13 @@ def chwidth(accFile, chwidthFile):
     # 100               1.4    0.56
     a = 1.2
     b = 0.56
-    ## TODO: Figure out what's means, and move it to text.py or config.py. LJ
+    # TODO: Figure out what's means, and move it to text.py or config.py. LJ
 
     tmpOnes = numpy.ones((ysize, xsize))
     width = tmpOnes * DEFAULT_NODATA
     validValues = numpy.where(accR.validZone, accR.data, tmpOnes)
-    width = numpy.where(accR.validZone, numpy.power((a * (validValues + 1) * cellArea / 1000000.), b), width)
+    width = numpy.where(accR.validZone, numpy.power(
+        (a * (validValues + 1) * cellArea / 1000000.), b), width)
     # for i in range(0, ysize):
     #     for j in range(0, xsize):
     #         if(abs(dataAcc[i][j] - noDataValue) < UTIL_ZERO):
@@ -51,7 +38,8 @@ def chwidth(accFile, chwidthFile):
     #         else:
     #             width[i][j] =  math.pow(a * (dataAcc[i][j] + 1) * cellArea / 1000000., b)
     #
-    WriteGTiffFile(chwidthFile, ysize, xsize, width, accR.geotrans, accR.srs, noDataValue, gdal.GDT_Float32)
+    WriteGTiffFile(chwidthFile, ysize, xsize, width, accR.geotrans,
+                   accR.srs, noDataValue, gdal.GDT_Float32)
     return width
 
 

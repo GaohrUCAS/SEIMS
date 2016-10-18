@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 # coding=utf-8
-## @Import BMP Scenario related parameters to MongoDB
-## @Author Liang-Jun Zhu
-## @Date   2016-6-16
+# @Import BMP Scenario related parameters to MongoDB
+# @Author Liang-Jun Zhu
+# @Date   2016-6-16
 #
 
 from pymongo import MongoClient
@@ -23,7 +23,7 @@ def ImportBMPTables():
     for f in BMPFiles:
         BMP_tabs.append(f.split('.')[0])
         BMP_tabs_path.append(BMP_DATA_DIR + os.sep + f)
-    ## connect to MongoDB
+    # connect to MongoDB
     try:
         conn = MongoClient(HOSTNAME, PORT)
         print "Import BMP Scenario Data... "
@@ -31,17 +31,17 @@ def ImportBMPTables():
         sys.stderr.write("Could not connect to MongoDB: %s" % e)
         sys.exit(1)
     db = conn[BMPScenarioDBName]
-    ## create if collection not existed
+    # create if collection not existed
     cList = db.collection_names()
     for item in BMP_tabs:
         if not StringInList(item.upper(), cList):
             db.create_collection(item.upper())
         else:
             db.drop_collection(item.upper())
-    ## Read subbasin.tif and dist2Stream.tif
+    # Read subbasin.tif and dist2Stream.tif
     subbasinR = ReadRaster(WORKING_DIR + os.sep + subbasinOut)
     dist2StreamR = ReadRaster(WORKING_DIR + os.sep + dist2StreamD8M)
-    ## End reading
+    # End reading
     for j in range(len(BMP_tabs_path)):
         bmpTxt = BMP_tabs_path[j]
         bmpTabName = BMP_tabs[j]
@@ -56,14 +56,18 @@ def ImportBMPTables():
                 else:
                     dic[fieldArray[i].upper()] = str(item[i]).upper()
             if StringInList(Tag_ST_LocalX, dic.keys()) and StringInList(Tag_ST_LocalY, dic.keys()):
-                subbsnID = subbasinR.GetValueByXY(dic[Tag_ST_LocalX.upper()], dic[Tag_ST_LocalY.upper()])
-                distance = dist2StreamR.GetValueByXY(dic[Tag_ST_LocalX.upper()], dic[Tag_ST_LocalY.upper()])
+                subbsnID = subbasinR.GetValueByXY(
+                    dic[Tag_ST_LocalX.upper()], dic[Tag_ST_LocalY.upper()])
+                distance = dist2StreamR.GetValueByXY(
+                    dic[Tag_ST_LocalX.upper()], dic[Tag_ST_LocalY.upper()])
                 if subbsnID is not None and distance is not None:
                     dic[REACH_SUBBASIN.upper()] = float(subbsnID)
                     dic[BMP_FLD_PT_DISTDOWN.upper()] = float(distance)
-                    db[bmpTabName.upper()].find_one_and_replace(dic, dic, upsert=True)
+                    db[bmpTabName.upper()].find_one_and_replace(
+                        dic, dic, upsert=True)
             else:
-                db[bmpTabName.upper()].find_one_and_replace(dic, dic, upsert=True)
+                db[bmpTabName.upper()].find_one_and_replace(
+                    dic, dic, upsert=True)
     # print 'BMP tables are imported.'
     # Write BMP database name into Model main database
     mainDB = conn[SpatialDBName]
@@ -73,9 +77,9 @@ def ImportBMPTables():
 
     bmpInfoDic = dict()
     bmpInfoDic[FLD_DB.upper()] = BMPScenarioDBName
-    mainDB[DB_TAB_BMP_DB.upper()].find_one_and_replace(bmpInfoDic, bmpInfoDic, upsert=True)
+    mainDB[DB_TAB_BMP_DB.upper()].find_one_and_replace(
+        bmpInfoDic, bmpInfoDic, upsert=True)
     conn.close()
-
 
 if __name__ == "__main__":
     LoadConfiguration(GetINIfile())

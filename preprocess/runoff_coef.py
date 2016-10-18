@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 # coding=utf-8
 # @Calculate runoff coefficient
-# Author: Junzhi Liu
-# Revised: Liang-Jun Zhu
+# @Author: Junzhi Liu
+# @Revised: Liang-Jun Zhu
 #
 
 import sqlite3
@@ -93,14 +93,15 @@ def RunoffCoefficent(filepath, sqliteFile):
         stid = int(soilTexture) - 1
         c0 = runoff_c0[int(landuID)][stid]
         s0 = runoff_s0[int(landuID)][stid] / 100.
-        # slp = slope / 100. # For TauDEM, there is no need to divide 100. By LJ
+        # slp = slope / 100. # For TauDEM, there is no need to divide 100. By
+        # LJ
         slp = slope
 
         if slp + s0 < 0.0001:
             return c0
         coef1 = (1 - c0) * slp / (slp + s0)
         coef2 = c0 + coef1
-        ## TODO, Check if it is (landuID >= 98), by lj
+        # TODO, Check if it is (landuID >= 98), by lj
         if (int(landuID) == 106 or int(landuID) == 107 or int(landuID) == 105):
             return coef2 * (1 - imperviousPercInUrbanCell) + imperviousPercInUrbanCell
         else:

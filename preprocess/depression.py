@@ -2,7 +2,8 @@
 # coding=utf-8
 # Identify depression storage capacity from slope, soil, and landuse. Algorithm from WetSpa.
 # Author: Junzhi Liu
-# Revised: Liang-Jun Zhu, 2016-7-6
+# Revised: Liang-Jun Zhu
+# Date: 2016-7-6
 # Note: Code optimization by using numpy.
 # TODO: 1. Add stream order modification, according to depression.ave of WetSpa.
 # TODO: 2. Add another depressional storage method according to SWAT, depstor.f
@@ -14,7 +15,8 @@ from config import *
 def DepressionCap(filepath, sqliteFile):
     # read landuselookup table from sqlite
     stFields = ["DSC_ST%d" % (i,) for i in range(1, 13)]
-    sqlLanduse = 'select LANDUSE_ID,%s from LanduseLookup' % (','.join(stFields),)
+    sqlLanduse = 'select LANDUSE_ID,%s from LanduseLookup' % (
+        ','.join(stFields),)
 
     conn = sqlite3.connect(sqliteFile)
     cursor = conn.cursor()
@@ -67,15 +69,17 @@ def DepressionCap(filepath, sqliteFile):
         except:
             depressionGrid0 = dep_sd0[landuID][lastStid]
 
-        depressionGrid = math.exp(numpy.log(depressionGrid0 + 0.0001) + slp * (-9.5))
-        ## TODO, check if it is  (landuID >= 98)? By LJ
+        depressionGrid = math.exp(
+            numpy.log(depressionGrid0 + 0.0001) + slp * (-9.5))
+        # TODO, check if it is  (landuID >= 98)? By LJ
         if (landuID == 106 or landuID == 107 or landuID == 105):
             return 0.5 * imperviousPercInUrbanCell + (1. - imperviousPercInUrbanCell) * depressionGrid
         else:
             return depressionGrid
 
     calDep_numpy = numpy.frompyfunc(calDep, 4, 1)
-    depStorageCap = calDep_numpy(mask_data, landu_data, soilTextureArray, slo_data)
+    depStorageCap = calDep_numpy(
+        mask_data, landu_data, soilTextureArray, slo_data)
 
     filename = filepath + os.sep + depressionFile
     WriteGTiffFile(filename, ysize, xsize, depStorageCap,
@@ -86,6 +90,6 @@ def DepressionCap(filepath, sqliteFile):
 
 
 if __name__ == '__main__':
-    ## Load Configuration file
+    # Load Configuration file
     LoadConfiguration(GetINIfile())
     DepressionCap(WORKING_DIR, TXT_DB_DIR + os.sep + sqliteFile)

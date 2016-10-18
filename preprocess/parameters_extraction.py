@@ -1,8 +1,9 @@
 #! /usr/bin/env python
 # coding=utf-8
-## @Extract parameters from landuse, soil properties etc.
+# @Extract parameters from landuse, soil properties etc.
 #
 import types
+
 import numpy
 
 from cn2 import GenerateCN2
@@ -22,7 +23,7 @@ from velocity import GenerateVelocity
 def soil_parameters2(dstdir, maskFile, soilSEQNTif, soilSEQNTxt):
     soilSEQNData = ReadDataItemsFromTxt(soilSEQNText)
     defaultSoilType = float(soilSEQNData[1][0])
-    ## Mask soil_SEQN tif
+    # Mask soil_SEQN tif
     configFile = "%s%smaskSoilConfig.txt" % (dstdir, os.sep)
     fMask = open(configFile, 'w')
     fMask.write(maskFile + "\n")
@@ -34,7 +35,7 @@ def soil_parameters2(dstdir, maskFile, soilSEQNTif, soilSEQNTxt):
     s = "%s/mask_raster %s" % (CPP_PROGRAM_DIR, configFile)
     os.system(s)
 
-    ## Read soil properties from txt file
+    # Read soil properties from txt file
     soilInstances = []
     soilPropFlds = soilSEQNData[0][:]
     for i in range(1, len(soilSEQNData)):
@@ -43,8 +44,9 @@ def soil_parameters2(dstdir, maskFile, soilSEQNTif, soilSEQNTxt):
         curSNAM = curSoilDataItem[1]
         curSoilIns = SoilProperty(curSEQN, curSNAM)
         for j in range(2, len(soilPropFlds)):
-            curFlds = SplitStr(curSoilDataItem[j], ',')  ## Get field values
-            for k in range(len(curFlds)): curFlds[k] = float(curFlds[k])  ## Convert to float
+            curFlds = SplitStr(curSoilDataItem[j], ',')  # Get field values
+            for k in range(len(curFlds)):
+                curFlds[k] = float(curFlds[k])  # Convert to float
             if StringMatch(soilPropFlds[j], SOL_NLYRS):
                 curSoilIns.SOILLAYERS = int(curFlds[0])
             elif StringMatch(soilPropFlds[j], SOL_Z):
@@ -132,13 +134,14 @@ def soil_parameters2(dstdir, maskFile, soilSEQNTif, soilSEQNTxt):
                         else:
                             curDict[float(SEQNs[j])] = DEFAULT_NODATA
                     replaceDicts.append(curDict)
-                    dstSoilTifs.append(dstdir + os.sep + key + '_' + str(i + 1) + '.tif')
+                    dstSoilTifs.append(dstdir + os.sep +
+                                       key + '_' + str(i + 1) + '.tif')
     # print replaceDicts
     # print(len(replaceDicts))
     # print dstSoilTifs
     # print(len(dstSoilTifs))
 
-    ## Generate GTIFF
+    # Generate GTIFF
     for i in range(len(dstSoilTifs)):
         print dstSoilTifs[i]
         replaceByDict(soiltypeFile, replaceDicts[i], dstSoilTifs[i])
@@ -146,7 +149,7 @@ def soil_parameters2(dstdir, maskFile, soilSEQNTif, soilSEQNTxt):
 
 def landuse_parameters(dstdir, maskFile, inputLanduse, landuseFile, sqliteFile, defaultLanduse):
     #  TODO, this function should be replaced by replaceByDict() function! By LJ
-    ## mask landuse map using the mask_raster program
+    # mask landuse map using the mask_raster program
     configFile = "%s%s%s" % (dstdir, os.sep, FN_STATUS_MASKLANDUSE)
     fMask = open(configFile, 'w')
     fMask.write(maskFile + "\n")
@@ -158,7 +161,7 @@ def landuse_parameters(dstdir, maskFile, inputLanduse, landuseFile, sqliteFile, 
     s = "%s/mask_raster %s" % (CPP_PROGRAM_DIR, configFile)
     os.system(s)
 
-    ## reclassify
+    # reclassify
     reclassLuFile = "%s/reclassLanduseConfig.txt" % (dstdir)
     fReclassLu = open(reclassLuFile, 'w')
     fReclassLu.write("%s\t%d\n" % (landuseFile, defaultLanduse))
@@ -169,7 +172,8 @@ def landuse_parameters(dstdir, maskFile, inputLanduse, landuseFile, sqliteFile, 
     fReclassLu.write("%d\n" % (n))
     fReclassLu.write("\n".join(landuseAttrList))
     fReclassLu.close()
-    s = "%s/reclassify %s %s/cpp_src/reclassify/neigh.nbr" % (CPP_PROGRAM_DIR, reclassLuFile, PREPROC_SCRIPT_DIR)
+    s = "%s/reclassify %s %s/cpp_src/reclassify/neigh.nbr" % (
+        CPP_PROGRAM_DIR, reclassLuFile, PREPROC_SCRIPT_DIR)
     # MPI version is problematic, do not know why, By LJ
     # s = "mpiexec -n %d %s/reclassify %s %s/cpp_src/reclassify/neigh.nbr" % (
     # np, CPP_PROGRAM_DIR, reclassLuFile, PREPROC_SCRIPT_DIR)
@@ -185,19 +189,21 @@ def ExtractParameters():
     landuseFile = WORKING_DIR + os.sep + landuseMFile
     statusFile = WORKING_DIR + os.sep + FN_STATUS_EXTRACTPARAM
     f = open(statusFile, 'w')
-    ## generate landuse and soil properties lookup tables
+    # generate landuse and soil properties lookup tables
     status = "Generating landuse and soil properties lookup tables..."
     print "[Output] %s, %s" % (WORKING_DIR, status)
     f.write("%d,%s\n" % (10, status))
     f.flush()
-    str_sql = 'select landuse_id, ' + ','.join(LANDUSE_ATTR_LIST) + ' from LanduseLookup'
-    CreateLanduseLookupTable(TXT_DB_DIR + os.sep + sqliteFile, LANDUSE_ATTR_LIST, str_sql, WORKING_DIR)
+    str_sql = 'select landuse_id, ' + \
+        ','.join(LANDUSE_ATTR_LIST) + ' from LanduseLookup'
+    CreateLanduseLookupTable(
+        TXT_DB_DIR + os.sep + sqliteFile, LANDUSE_ATTR_LIST, str_sql, WORKING_DIR)
 
     # Change soil properties to Raster2D data, 2016-5-20, LJ
     # str_sql = 'select soilcode,' + ','.join(SOIL_ATTR_DB) + ' from SoilLookup'
     # CreateLookupTable(sqliteFile, SOIL_ATTR_LIST, str_sql,WORKING_DIR)
 
-    ## landuse parameters
+    # landuse parameters
     status = "Generating landuse attributes..."
     print "[Output] %s, %s" % (WORKING_DIR, status)
     f.write("%d,%s\n" % (20, status))
@@ -205,15 +211,16 @@ def ExtractParameters():
     landuse_parameters(WORKING_DIR, maskFile, landuseOriginFile, landuseFile, TXT_DB_DIR + os.sep + sqliteFile,
                        defaultLanduse)
 
-    ## soil physical and chemical parameters
+    # soil physical and chemical parameters
     status = "Calculating inital soil physical and chemical parameters..."
     print "[Output] %s, %s" % (WORKING_DIR, status)
     f.write("%d,%s\n" % (30, status))
     f.flush()
     soil_parameters2(WORKING_DIR, maskFile, soilSEQNFile, soilSEQNText)
-    ##soil_parameters(WORKING_DIR, maskFile, sandList, clayList, orgList) ## replaced by LJ, 2016-5-21
+    # soil_parameters(WORKING_DIR, maskFile, sandList, clayList, orgList) ##
+    # replaced by LJ, 2016-5-21
 
-    ## parameters derived from DEM
+    # parameters derived from DEM
     status = "Calculating inital soil moisture..."
     print "[Output] %s, %s" % (WORKING_DIR, status)
     f.write("%d,%s\n" % (40, status))
@@ -226,7 +233,7 @@ def ExtractParameters():
         f.write("%d,%s\n" % (50, status))
         f.flush()
 
-        ### THIS seems useless? BY LJ.
+        # THIS seems useless? BY LJ.
         # reclassFile = "%s/reclassCropConfig.txt" % (WORKING_DIR)
         # fReclass = open(reclassFile, 'w')
         # fReclass.write("%s\t%d\n" % (landuseFile, 8))
