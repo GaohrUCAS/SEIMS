@@ -6,8 +6,9 @@
 import pymongo
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
-from util import *
+
 from config import *
+from util import *
 
 
 class SiteInfo:

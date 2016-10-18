@@ -1,5 +1,8 @@
-import sys, importlib
+import importlib
+import sys
+
 from pathlib2 import Path
+
 
 # Supplement for http://stackoverflow.com/a/28154841/2301450
 # Generic boilerplate code for setting __package__ attribute for relative imports

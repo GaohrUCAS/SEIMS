@@ -7,6 +7,7 @@
 import pymongo
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
+
 from config import *
 from util import *
 
@@ -232,4 +233,3 @@ if __name__ == "__main__":
     from hydroclimate_sites import ImportHydroClimateSitesInfo
     SitesMList, SitesPList = ImportHydroClimateSitesInfo()
     ImportDailyMeteoData(SitesMList)
-

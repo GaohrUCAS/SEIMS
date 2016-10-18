@@ -4,18 +4,18 @@
 # Author: Junzhi Liu
 # Revised: Liang-Jun Zhu
 #
-import os
-import math
+import argparse
 import datetime
+import math
+import os
+import shutil
+import socket
+import sys
 import time
 
-import sys
-from osgeo import gdal, osr, ogr
-from gdalconst import *
-import shutil
 import numpy
-import socket
-import argparse
+from gdalconst import *
+from osgeo import gdal, ogr, osr
 
 UTIL_ZERO = 1.e-6
 MINI_SLOPE = 0.0001

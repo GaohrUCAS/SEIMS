@@ -7,10 +7,12 @@
 # Revised: Liang-Jun Zhu, 2016-7-7
 #
 import sys
+
 from numpy import zeros
+
+from chwidth import chwidth
 from config import *
 from util import *
-from chwidth import chwidth
 
 
 def GenerateSubbasinVector(dstdir, subbasinRaster, subbasinVector):

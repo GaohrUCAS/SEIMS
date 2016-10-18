@@ -9,7 +9,8 @@
 # Revised: Liang-Jun Zhu
 #
 
-import os, platform
+import os
+import platform
 import subprocess
 
 

@@ -6,6 +6,7 @@
 #
 
 import sqlite3
+
 from config import *
 
 
@@ -43,5 +44,3 @@ def CreateLanduseLookupTable(dbname, property_namelist, str_sql, dstdir):
             s = "%d %f\n" % (id, property_map[id][propertyName])
             f.write(s)
         f.close()
-
-

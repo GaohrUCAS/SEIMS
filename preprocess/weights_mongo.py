@@ -5,10 +5,12 @@
 # Revised: Liang-Jun Zhu
 #
 
+from struct import *
+
+from gridfs import *
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
-from gridfs import *
-from struct import *
+
 from config import *
 from util import *
 
@@ -306,4 +308,3 @@ if __name__ == "__main__":
         sys.exit(1)
     GenerateWeightInfo(conn, SpatialDBName, 1, False)
     GenerateWeightDependentParameters(conn, 1)
-

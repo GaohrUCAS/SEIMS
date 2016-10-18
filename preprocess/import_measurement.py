@@ -7,6 +7,7 @@
 #
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
+
 from config import *
 
 

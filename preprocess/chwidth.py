@@ -6,8 +6,8 @@
 # Note: Using numpy build-in functions to replace python native for loops, which saving time about 40 times!
 #
 
-from util import *
 from config import *
+from util import *
 
 
 def chwidth(accFile, chwidthFile):

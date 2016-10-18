@@ -7,12 +7,13 @@
 #
 
 
-from TauDEM import *
-from gen_dinf import GenerateDinf
-from util import *
-from config import *
 import numpy
+
+from config import *
+from gen_dinf import GenerateDinf
 from gen_subbasins import GenerateSubbasins
+from TauDEM import *
+from util import *
 
 
 def GenerateCellLatRaster():

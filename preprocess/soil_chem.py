@@ -9,8 +9,8 @@
 # Note: Deprecated the initialization of soil chemical properties in preprocess, and move it to
 #       the corresponding modules.
 
-from util import *
 from config import *
+from util import *
 
 
 ## INPUTS ##

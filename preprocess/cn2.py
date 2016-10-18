@@ -6,9 +6,10 @@
 # Note: 1. Using ReadRaster function from util module.
 #       2. Using numpy.frompyfunc to replace native for loops
 #
-from util import *
-from config import *
 import sqlite3
+
+from config import *
+from util import *
 
 
 def GenerateCN2(dstdir, dbname):

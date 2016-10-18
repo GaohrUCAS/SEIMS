@@ -5,11 +5,12 @@
 # Revised: Liang-Jun Zhu
 # Note: The compressed flow direction is based on ArcGIS rule.
 #
+import numpy
+
+from config import *
 from TauDEM import *
 from text import *
 from util import *
-from config import *
-import numpy
 
 # CounterClockwise radian from east direction
 e = 0

@@ -4,9 +4,9 @@
 #
 
 import ConfigParser
+
 from text import *
 from util import *
-
 
 # Load model configuration from *.ini file
 cf = ConfigParser.ConfigParser()

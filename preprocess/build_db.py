@@ -5,16 +5,17 @@
 # Revised: Liang-Jun Zhu
 #
 
-from config import *
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
-from import_bmp_scenario import ImportBMPTables
-from import_parameters import ImportParameters
-from import_parameters import ImportLookupTables, ImportModelConfiguration
-from generate_stream_input import GenerateReachTable
+
+from config import *
 from find_sites import FindSites
-from weights_mongo import GenerateWeightInfo, GenerateWeightDependentParameters
 from gen_subbasins import ImportSubbasinStatistics
+from generate_stream_input import GenerateReachTable
+from import_bmp_scenario import ImportBMPTables
+from import_parameters import (ImportLookupTables, ImportModelConfiguration,
+                               ImportParameters)
+from weights_mongo import GenerateWeightDependentParameters, GenerateWeightInfo
 
 
 def BuildMongoDB():
@@ -120,4 +121,3 @@ def BuildMongoDB():
 if __name__ == "__main__":
     LoadConfiguration(GetINIfile())
     BuildMongoDB()
-

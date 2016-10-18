@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 
-import os, sys
+import datetime
+import os
+import sys
+
+import matplotlib.cbook as cbook
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+import numpy as np
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
-import numpy, datetime
-import os
 
 a = "2013-10-10 23:40:00"
 # 方法:先转换为时间数组,然后转换为其他格式
@@ -13,11 +18,6 @@ otherStyleTime = datetime.date.strftime(timeArray, "%Y/%m/%d")
 
 print otherStyleTime
 
-import datetime
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-import matplotlib.cbook as cbook
 
 years = mdates.YearLocator()   # every year
 months = mdates.MonthLocator()  # every month

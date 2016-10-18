@@ -6,8 +6,9 @@
 #
 
 import sqlite3
-from util import *
+
 from config import *
+from util import *
 
 
 def ReclassLanduse(landuseFile, dbname, dstdir):

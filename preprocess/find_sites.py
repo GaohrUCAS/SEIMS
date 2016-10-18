@@ -5,10 +5,11 @@
 # Revised: Liang-Jun Zhu
 #
 import pymongo
+from osgeo import ogr
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 from shapely.wkt import loads
-from osgeo import ogr
+
 from config import *
 
 

@@ -4,8 +4,8 @@
 # Author: Junzhi Liu
 # Revised: Liang-Jun Zhu
 #
-from util import *
 from config import *
+from util import *
 
 
 def GenerateRadius(filepath, stormProbability):

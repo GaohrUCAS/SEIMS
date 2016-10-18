@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from hydroPlot import *
-from config import *
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
+
+from config import *
+from hydroPlot import *
 
 if __name__ == "__main__":
     LoadConfiguration(GetINIfile())

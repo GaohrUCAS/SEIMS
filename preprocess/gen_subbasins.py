@@ -244,4 +244,3 @@ def ImportSubbasinStatistics():
 if __name__ == "__main__":
     LoadConfiguration(GetINIfile())
     GenerateSubbasins()
-

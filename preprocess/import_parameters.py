@@ -4,11 +4,13 @@
 # Author: Junzhi Liu
 # Revised: Liang-Jun Zhu
 #
+import sqlite3
+from struct import pack
+
+from gridfs import *
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
-import sqlite3
-from gridfs import *
-from struct import pack
+
 from config import *
 from gen_subbasins import ImportSubbasinStatistics
 from util import *

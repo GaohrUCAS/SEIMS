@@ -6,9 +6,11 @@
 # Note: Code optimization by using numpy.
 #
 
+import sys
+
 from config import *
 from util import *
-import sys
+
 sys.setrecursionlimit(10000)
 
 # Automatically find out the D8 coding system

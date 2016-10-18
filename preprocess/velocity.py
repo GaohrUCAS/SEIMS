@@ -6,6 +6,7 @@
 #
 
 from numpy import *
+
 from config import *
 from util import *
 

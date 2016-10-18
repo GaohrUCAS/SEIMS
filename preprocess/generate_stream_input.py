@@ -5,14 +5,17 @@
 # Revised: Liang-Jun Zhu
 #
 
+import sys
+
 import networkx as nx
 import pymongo
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
+
 from adjust_groups import *
 from config import *
 from util import *
-import sys
+
 sys.setrecursionlimit(10000)
 
 

@@ -4,8 +4,9 @@
 # Author: Liang-Jun Zhu, Fang Shen
 #
 import sqlite3
-from util import *
+
 from config import *
+from util import *
 
 
 def txt2Sqlite(dataFiles, dbFile):
