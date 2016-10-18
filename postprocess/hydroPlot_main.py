@@ -7,7 +7,6 @@ from pymongo.errors import ConnectionFailure
 
 if __name__ == "__main__":
     LoadConfiguration(GetINIfile())
-
     ## @dataDir, data folder, superior directory of "OUTPUT"
     ## @PLOT_VARS, Variables list
 
