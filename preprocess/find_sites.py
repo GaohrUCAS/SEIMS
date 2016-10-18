@@ -4,8 +4,8 @@
 # Author: Junzhi Liu
 # Revised: Liang-Jun Zhu
 #
-import pymongo
 from osgeo import ogr
+import pymongo
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 from shapely.wkt import loads

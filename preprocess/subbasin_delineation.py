@@ -9,10 +9,10 @@
 
 import numpy
 
-from config import *
 from gen_dinf import GenerateDinf
 from gen_subbasins import GenerateSubbasins
 from TauDEM import *
+from config import *
 from util import *
 
 

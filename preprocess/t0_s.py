@@ -7,8 +7,8 @@
 import sys
 
 from config import *
-from delta_s import cal_flowlen
 from util import *
+from delta_s import cal_flowlen
 
 sys.setrecursionlimit(10000)
 

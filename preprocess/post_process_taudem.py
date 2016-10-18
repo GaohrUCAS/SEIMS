@@ -7,8 +7,7 @@
 # Revised: Liang-Jun Zhu, 2016-7-7
 #
 import sys
-
-from numpy import zeros
+from numpy
 
 from chwidth import chwidth
 from config import *
@@ -76,9 +75,9 @@ def SerializeStreamNet(streamNetFile, outputReachFile):
     iLen = layerDef.GetFieldIndex(REACH_LENGTH)
 
     oldIdList = []
-    # there are some reaches with zero length. 
+    # there are some reaches with zero length.
     # this program will remove these zero-length reaches
-    # outputDic is used to store the downstream reaches of these zero-length reaches 
+    # outputDic is used to store the downstream reaches of these zero-length reaches
     outputDic = {}
     ft = layerReach.GetNextFeature()
     while ft is not None:
@@ -145,8 +144,8 @@ def SerializeSubbasin(subbasinFile, streamRasterFile, idMap,
     noDataValueStream = streamRaster.noDataValue
     # print noDataValueStream
 
-    outputSubbasin = zeros((nRows, nCols))
-    outputStream = zeros((nRows, nCols))
+    outputSubbasin = numpy.zeros((nRows, nCols))
+    outputStream = numpy.zeros((nRows, nCols))
     n = len(idMap)
     print "number of reaches: ", n
     for i in range(nRows):

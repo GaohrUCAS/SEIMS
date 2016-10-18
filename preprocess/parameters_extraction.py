@@ -3,7 +3,6 @@
 ## @Extract parameters from landuse, soil properties etc.
 #
 import types
-
 import numpy
 
 from cn2 import GenerateCN2
