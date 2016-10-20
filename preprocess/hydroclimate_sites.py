@@ -68,8 +68,7 @@ def ImportSitesTable(db, siteFile, siteType, isFirst):
             curfilter, dic, upsert=True)
 
         if dic[Tag_ST_StationID.upper()] not in sitesLoc.keys():
-            sitesLoc[dic[Tag_ST_StationID.upper()]] =
-            SiteInfo(dic[Tag_ST_StationID.upper()],
+            sitesLoc[dic[Tag_ST_StationID.upper()]] = SiteInfo(dic[Tag_ST_StationID.upper()],
                      dic[Tag_ST_StationName.upper()],
                      dic[Tag_ST_Latitude.upper()],
                      dic[Tag_ST_Longitude.upper()],
