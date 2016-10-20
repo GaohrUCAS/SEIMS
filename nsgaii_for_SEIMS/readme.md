@@ -1,4 +1,5 @@
 # NSGA-II for Scenario Analysis Using SEIMS
+
 ## 基于NSGA-II和SEIMS模型的情景优化
 
 by Huiran Gao
@@ -65,3 +66,4 @@ NSGA与简单的遗传算法的主要区别在于:该算法在选择算子执行
 5. 然后通过遗传算子(选择、交叉、变异)产生新的子代种群`Qt+1`。
 
 ![](http://i.imgur.com/9Scwo1B.png)
+

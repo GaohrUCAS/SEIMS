@@ -1,14 +1,16 @@
 #! /usr/bin/env python
 # coding=utf-8
-# Generating delta_s
+# Generating delta_s for IUH
 # Author: Junzhi Liu
 # Revised: Liang-Jun Zhu
 # Note: Code optimization by using numpy.
 #
 
+import sys
+
 from config import *
 from util import *
-import sys
+
 sys.setrecursionlimit(10000)
 
 # Automatically find out the D8 coding system
@@ -21,7 +23,8 @@ differ = {}
 # TauDEM flow direction code
 if(isTauDEM):
     celllen = {1: 1, 3: 1, 5: 1, 7: 1, 2: SQ2, 4: SQ2, 6: SQ2, 8: SQ2}
-    differ = {1: [0, 1], 2: [-1, 1], 3: [-1, 0], 4: [-1, -1], 5: [0, -1], 6: [1, -1], 7: [1, 0], 8: [1, 1]}
+    differ = {1: [0, 1], 2: [-1, 1], 3: [-1, 0], 4: [-1, -1],
+              5: [0, -1], 6: [1, -1], 7: [1, 0], 8: [1, 1]}
 else:
     # The value of direction is as following (ArcGIS):
     # 32 64 128
@@ -29,7 +32,8 @@ else:
     # 8   4  2
     # ArcGIS flow direction code
     celllen = {1: 1, 4: 1, 16: 1, 64: 1, 2: SQ2, 8: SQ2, 32: SQ2, 128: SQ2}
-    differ = {1: [0, 1], 2: [1, 1], 4: [1, 0], 8: [1, -1], 16: [0, -1], 32: [-1, -1], 64: [-1, 0], 128: [-1, 1]}
+    differ = {1: [0, 1], 2: [1, 1], 4: [1, 0], 8: [1, -1],
+              16: [0, -1], 32: [-1, -1], 64: [-1, 0], 128: [-1, 1]}
 
 
 def flowlen_cell(i, j, ysize, xsize, fdir, cellsize, weight, length):
@@ -45,7 +49,8 @@ def flowlen_cell(i, j, ysize, xsize, fdir, cellsize, weight, length):
                 dj = differ[fdirV][1]
                 i = i + di
                 j = j + dj
-                relen = flowlen_cell(i, j, ysize, xsize, fdir, cellsize, weight, length)
+                relen = flowlen_cell(i, j, ysize, xsize,
+                                     fdir, cellsize, weight, length)
                 # print i,j,fdirV
                 length[prei][prej] = cellsize * celllen[fdirV] * wt + relen
                 return length[prei][prej]
@@ -79,7 +84,8 @@ def cal_flowlen(filepath, weight):
                 length[i][j] = noDataValue
                 continue
 
-            flowlen_cell(i, j, ysize, xsize, fdir_data, cellsize, weight, length)
+            flowlen_cell(i, j, ysize, xsize, fdir_data,
+                         cellsize, weight, length)
 
     return length
 
@@ -111,7 +117,8 @@ def GenerateDelta_s(filepath):
         # 0 is river
         if slp < 0.0005:
             slp = 0.0005
-        # dampGrid = vel * rad / (slp / 100. * 2.) # No need to divide 100 in my view. By LJ
+        # dampGrid = vel * rad / (slp / 100. * 2.) # No need to divide 100 in
+        # my view. By LJ
         dampGrid = vel * rad / (slp * 2.)
         celerity = vel * 5. / 3.
         weight = dampGrid * 2. / numpy.power(celerity, 3.) * weight

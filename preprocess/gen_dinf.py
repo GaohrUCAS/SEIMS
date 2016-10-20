@@ -5,11 +5,12 @@
 # Revised: Liang-Jun Zhu
 # Note: The compressed flow direction is based on ArcGIS rule.
 #
+import numpy
+
+from config import *
 from TauDEM import *
 from text import *
 from util import *
-from config import *
-import numpy
 
 # CounterClockwise radian from east direction
 e = 0
@@ -84,13 +85,10 @@ def AssignDirCode(a, noDataValue):
     return (d, a1 / math.pi * 4.0)
 
 
-def GenerateDinf(np, wdir, demFilled, flowDir, slopeFile, dirCodeFile, weightFile, mpiexeDir = None, exeDir = None):
+def GenerateDinf(np, wdir, demFilled, flowDir, slopeFile, dirCodeFile, weightFile, mpiexeDir=None, exeDir=None):
     # Invoke TauDEM to get D-inf direction
-    FlowDirDinf(np, wdir, demFilled, flowDir, slopeFile, mpiexeDir = mpiexeDir, exeDir = exeDir)
-    # ds = gdal.Open(flowDir)
-    # band = ds.GetRasterBand(1)
-    # data = band.ReadAsArray()
-    # noDataValue = band.GetNoDataValue()
+    FlowDirDinf(np, wdir, demFilled, flowDir, slopeFile,
+                mpiexeDir=mpiexeDir, exeDir=exeDir)
     dinf_R = ReadRaster(flowDir)
     data = dinf_R.data
     xsize = dinf_R.nCols
@@ -99,17 +97,17 @@ def GenerateDinf(np, wdir, demFilled, flowDir, slopeFile, dirCodeFile, weightFil
 
     calDirCode = numpy.frompyfunc(AssignDirCode, 2, 2)
     dirCode, weight = calDirCode(data, noDataValue)
-    # srs = osr.SpatialReference()
-    # srs.ImportFromWkt(ds.GetProjection())
 
-    WriteGTiffFile(dirCodeFile, ysize, xsize, dirCode, dinf_R.geotrans, dinf_R.srs, DEFAULT_NODATA, gdal.GDT_Int16)
-    WriteGTiffFile(weightFile, ysize, xsize, weight, dinf_R.geotrans, dinf_R.srs, DEFAULT_NODATA, gdal.GDT_Float32)
-
+    WriteGTiffFile(dirCodeFile, ysize, xsize, dirCode,
+                   dinf_R.geotrans, dinf_R.srs, DEFAULT_NODATA, gdal.GDT_Int16)
+    WriteGTiffFile(weightFile, ysize, xsize, weight, dinf_R.geotrans,
+                   dinf_R.srs, DEFAULT_NODATA, gdal.GDT_Float32)
 
 if __name__ == '__main__':
     import os
 
     tauDir = WORKING_DIR + os.sep + DIR_NAME_TAUDEM
-    FlowDirD8(np, tauDir, filledDem, flowDir, slope, mpiexeDir = MPIEXEC_DIR, exeDir = CPP_PROGRAM_DIR)
-    GenerateDinf(np, tauDir, filledDem, flowDirDinf, slopeDinf, dirCodeDinf, weightDinf, mpiexeDir = MPIEXEC_DIR,
-                 exeDir = CPP_PROGRAM_DIR)
+    FlowDirD8(np, tauDir, filledDem, flowDir, slope,
+              mpiexeDir=MPIEXEC_DIR, exeDir=CPP_PROGRAM_DIR)
+    GenerateDinf(np, tauDir, filledDem, flowDirDinf, slopeDinf, dirCodeDinf, weightDinf, mpiexeDir=MPIEXEC_DIR,
+                 exeDir=CPP_PROGRAM_DIR)

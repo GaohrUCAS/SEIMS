@@ -1,11 +1,12 @@
 #! /usr/bin/env python
 # coding=utf-8
 # @Calculate velocity
-# Author: Junzhi Liu
-# Revised: Liang-Jun Zhu
+# @Author: Junzhi Liu
+# @Revised: Liang-Jun Zhu
 #
 
 from numpy import *
+
 from config import *
 from util import *
 
@@ -31,8 +32,8 @@ def GenerateVelocity(filepath):
         if (abs(rad - noDataValue) < UTIL_ZERO):
             return DEFAULT_NODATA
         tmp = numpy.power(man, -1) * numpy.power(rad, 2 / 3) * \
-              numpy.power(slp, 0.5)
-        #print tmp
+            numpy.power(slp, 0.5)
+        # print tmp
         if tmp < vel_min:
             return vel_min
         if tmp > vel_max:
