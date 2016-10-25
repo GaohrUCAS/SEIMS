@@ -79,7 +79,7 @@ def SearchObs(timeStart, timeEnd, sim, ClimateDB):
         else:
             return [[-1]]
     else:
-        print "None"
+        # print "None"
         return [[-1]]
 
 
