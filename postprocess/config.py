@@ -7,7 +7,7 @@ import ConfigParser
 
 from RelativeImportModules import import_parents
 
-from ..preprocess.util import *
+from preprocess.util import *
 
 # import util module located in SEIMS/preprocess
 if __package__ is None:
