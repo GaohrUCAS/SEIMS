@@ -49,7 +49,7 @@ void SSR_DA::FlowInSoil(int id)
     for (int j = 0; j < (int)m_soilLayers[id]; j++)
     {
         float smOld = m_soilStorage[id][j];
-        //sum the upstream overland flow, m3
+        //sum the upstream subsurface flow, m3
         float qUp = 0.f;
         for (int upIndex = 1; upIndex <= nUpstream; ++upIndex)
         {
