@@ -8,7 +8,8 @@
 #include "invoke.h"
 #include "ModuleFactory.h"
 //#include "SimulationModule.h"
-#include "mongo.h"
+#include "mongoc.h"
+// #include "mongo.h"
 
 void CalculateProcess(int rank, int numprocs, int nSlaves, MPI_Comm slaveComm,
                       string &projectPath, string &modulePath, const char *host, int port, const char *dbName,

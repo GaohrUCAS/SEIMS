@@ -197,7 +197,7 @@ private:
     //! The output setting of the model
     SettingsOutput *m_output;
     //! Template raster data
-    clsRasterData *m_templateRasterData;
+    clsRasterData<float> *m_templateRasterData;
     //! Daily time interval
     time_t m_dtDaily;
     //! Hillslope time interval

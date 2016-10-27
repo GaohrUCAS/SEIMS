@@ -217,7 +217,7 @@ public:
      * \param[in] rsMap Map of rasters that have been loaded
      * \param[in] prefixID subbasin ID as prefix in MongoDB
      */
-    clsSubbasins(mongoc_gridfs_t *spatialData, map<string, clsRasterData *> &rsMap, int prefixID);
+    clsSubbasins(mongoc_gridfs_t *spatialData, map<string, clsRasterData<float> *> &rsMap, int prefixID);
 
     /// Destructor
     ~clsSubbasins();

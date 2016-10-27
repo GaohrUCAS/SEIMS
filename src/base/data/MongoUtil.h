@@ -15,7 +15,7 @@
 
 using namespace std;
 
-class clsRasterData;
+template<typename T> class clsRasterData;
 
 /*!
  * \brief Get Integer value from \a bson_iter_t 
@@ -36,6 +36,15 @@ int GetIntFromBSONITER(bson_iter_t *iter);
  * \return Float value if success, or -1.0 if failed.
  */
 float GetFloatFromBSONITER(bson_iter_t *iter);
+/*!
+ * \brief Get Double value from \a bson_iter_t 
+ *
+ * The \a bson_type_t can be BSON_TYPE_INT32 or BSON_TYPE_INT64 or BSON_TYPE_DOUBLE or BSON_TYPE_UTF8
+ *
+ * \param[in] iter \a bson_iter_t
+ * \return Double value if success, or -1.0 if failed.
+ */
+double GetDoubleFromBSONITER(bson_iter_t *iter);
 /*!
  * \brief Get boolean value from \a bson_iter_t 
  *

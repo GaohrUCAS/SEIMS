@@ -8,8 +8,10 @@
 #include "mpi.h"
 #include "util.h"
 
-#include "mongo.h"
-#include "gridfs.h"
+#include "mongoc.h"
+
+//#include "mongo.h"
+//#include "gridfs.h"
 
 #define WORK_TAG 0
 #define MASTER_RANK 0
@@ -29,8 +31,8 @@ using namespace std;
 
 void CombineRasterResults(string &folder, string &sVar, int nSubbasins, string &outputRaster);
 
-void CombineRasterResultsMongo(gridfs *gfs, string &sVar, int nSubbasins, string &outputRaster);
-
+//void CombineRasterResultsMongo(gridfs *gfs, string &sVar, int nSubbasins, string &outputRaster);
+void CombineRasterResultsMongo(mongoc_gridfs_t *gfs, string &sVar, int nSubbasins, string &outputRaster);
 int MasterProcess(map<int, Subbasin *> &subbasinMap, set<int> &groupSet, string &projectPath, string &outputFile);
 
 void CalculateProcess(int rank, int numprocs, int nSlaves, MPI_Comm slaveComm,

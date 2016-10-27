@@ -9,12 +9,10 @@
  * \revised May. 2016
  * 
  */
-
+#pragma once
 #include "clsRasterData.h"
 #include <fstream>
-//#include <vector>
 #include "utils.h"
-//#include "util.h"
 #include "ModelException.h"
 #include <iomanip>
 /// include GDAL
@@ -22,8 +20,8 @@
 #include "gdal_priv.h"
 #include "cpl_string.h"
 #include "ogr_spatialref.h"
-
-clsRasterData::clsRasterData()
+template<typename T>
+clsRasterData<T>::clsRasterData(void)
 {
     m_rasterPositionData = NULL;
     m_rasterData = NULL;
@@ -31,8 +29,8 @@ clsRasterData::clsRasterData()
     m_is2DRaster = false;
     m_raster2DData = NULL;
 }
-
-clsRasterData::clsRasterData(string rstFileName)
+template<typename T>
+clsRasterData<T>::clsRasterData(string rstFileName)
 {
     m_rasterPositionData = NULL;
     m_rasterData = NULL;
@@ -45,8 +43,8 @@ clsRasterData::clsRasterData(string rstFileName)
     else
         ReadFromGDAL(rstFileName);
 }
-
-clsRasterData::clsRasterData(mongoc_gridfs_t *gfs, const char *remoteFilename, clsRasterData *templateRaster)
+template<typename T>
+clsRasterData<T>::clsRasterData(mongoc_gridfs_t *gfs, const char *remoteFilename, clsRasterData<T> *templateRaster)
 {
     m_rasterPositionData = NULL;
     m_rasterData = NULL;
@@ -56,8 +54,8 @@ clsRasterData::clsRasterData(mongoc_gridfs_t *gfs, const char *remoteFilename, c
     m_raster2DData = NULL;
     ReadFromMongoDB(gfs, remoteFilename, templateRaster);
 }
-
-clsRasterData::clsRasterData(string ascFileName, clsRasterData *mask)
+template<typename T>
+clsRasterData<T>::clsRasterData(string ascFileName, clsRasterData<T> *mask)
 {
     m_rasterPositionData = NULL;
     m_rasterData = NULL;
@@ -65,8 +63,8 @@ clsRasterData::clsRasterData(string ascFileName, clsRasterData *mask)
     m_fileName = ascFileName;
     ReadASCFile(ascFileName, mask);
 }
-
-clsRasterData::~clsRasterData(void)
+template<typename T>
+clsRasterData<T>::~clsRasterData(void)
 {
     if (m_rasterData != NULL) delete[] m_rasterData;
 
@@ -74,9 +72,10 @@ clsRasterData::~clsRasterData(void)
     {
         for (int i = 0; i < m_nCells; ++i)
         {
-            if (m_rasterPositionData[i] != NULL)
+            if (m_rasterPositionData[i] != NULL){
                 delete[] m_rasterPositionData[i];
-
+				m_rasterPositionData[i] = NULL;
+			}
         }
         delete[] m_rasterPositionData;
     }
@@ -84,25 +83,26 @@ clsRasterData::~clsRasterData(void)
     {
         for (int i = 0; i < m_nCells; ++i)
         {
-            if (m_raster2DData[i] != NULL)
+            if (m_raster2DData[i] != NULL){
                 delete[] m_raster2DData[i];
-
+				m_raster2DData[i] = NULL;
+			}
         }
         delete[] m_raster2DData;
     }
 }
-
-float clsRasterData::getAverage()
+template<typename T>
+float clsRasterData<T>::getAverage()
 {
-    float temp = 0.0f;
+    double temp = 0.;
     for (int i = 0; i < m_nCells; i++)
     {
         temp += m_rasterData[i];
     }
-    return temp / m_nCells;
+    return float(temp / m_nCells);
 }
-
-float clsRasterData::getAverage(int lyr)
+template<typename T>
+float clsRasterData<T>::getAverage(int lyr)
 {
     if (!m_is2DRaster && m_nLyrs == 1)
         return getAverage();
@@ -110,20 +110,20 @@ float clsRasterData::getAverage(int lyr)
     {
         if (lyr < m_nLyrs && m_raster2DData != NULL)
         {
-            float temp = 0.0f;
+            double temp = 0.;
             for (int i = 0; i < m_nCells; i++)
             {
                 temp += m_raster2DData[i][lyr];
             }
-            return temp / m_nCells;
+            return float(temp / m_nCells);
         }
         else
             throw ModelException("clsRasterData", "getAverage",
                                  "The given layer number is exceed the maximum layers.\n");
     }
 }
-
-int clsRasterData::getPosition(int row, int col)
+template<typename T>
+int clsRasterData<T>::getPosition(int row, int col)
 {
     if (m_rasterPositionData == NULL) return -1;
 
@@ -131,52 +131,57 @@ int clsRasterData::getPosition(int row, int col)
     {
         if (row == m_rasterPositionData[i][0] && col == m_rasterPositionData[i][1]) return i;
     }
-
     return -1;
 }
-
-int clsRasterData::getPosition(float x, float y)
+template<typename T>
+int clsRasterData<T>::getPosition(float x, float y)
 {
-    float xllCenter = this->getXllCenter();
-    float yllCenter = this->getYllCenter();
+	return getPosition((double)x, (double)y);
+}
+template<typename T>
+int clsRasterData<T>::getPosition(double x, double y)
+{
+    double xllCenter = this->getXllCenter();
+    double yllCenter = this->getYllCenter();
     float dx = this->getCellWidth();
     float dy = this->getCellWidth();
     int nRows = this->getRows();
     int nCols = this->getCols();
 
-    float xmin = xllCenter - dx / 2.f;
-    float xMax = xmin + dx * nCols;
+    double xmin = xllCenter - dx / 2.;
+    double xMax = xmin + dx * nCols;
     if (x > xMax || x < xllCenter) throw ModelException("Raster", "At", "The x coordinate is beyond the scale!");
 
-    float ymin = yllCenter - dy / 2.f;
-    float yMax = ymin + dy * nRows;
+    double ymin = yllCenter - dy / 2.;
+    double yMax = ymin + dy * nRows;
     if (y > yMax || y < yllCenter) throw ModelException("Raster", "At", "The y coordinate is beyond the scale!");
 
     int nRow = (int) ((yMax - y) / dy); //calculate from ymax
     int nCol = (int) ((x - xmin) / dx); //calculate from xmin
+
     return getPosition(nRow, nCol);
 }
-
-void clsRasterData::getRasterData(int *nRows, float **data)
+template<typename T>
+void clsRasterData<T>::getRasterData(int *nRows, T **data)
 {
     *nRows = m_nCells;
     *data = m_rasterData;
 }
-
-void clsRasterData::get2DRasterData(int *nRows, int *nCols, float ***data)
+template<typename T>
+void clsRasterData<T>::get2DRasterData(int *nRows, int *nCols, T ***data)
 {
     *nRows = m_nCells;
     *nCols = m_nLyrs;
     *data = m_raster2DData;
 }
-
-map<string, float> *clsRasterData::getRasterHeader()
+template<typename T>
+map<string, double> *clsRasterData<T>::getRasterHeader()
 {
     if (m_mask != NULL) return m_mask->getRasterHeader();
     return &m_headers;
 }
-
-void clsRasterData::getRasterPositionData(int *nRows, float ***data)
+template<typename T>
+void clsRasterData<T>::getRasterPositionData(int *nRows, T ***data)
 {
     if (m_mask != NULL)
         m_mask->getRasterPositionData(nRows, data);
@@ -186,8 +191,8 @@ void clsRasterData::getRasterPositionData(int *nRows, float ***data)
         *data = m_rasterPositionData;
     }
 }
-
-float clsRasterData::getValue(int validCellIndex)
+template<typename T>
+T clsRasterData<T>::getValue(int validCellIndex)
 {
     if (m_rasterData == NULL)
         throw ModelException("Raster", "getValue", "Please first initialize the raster object.");
@@ -196,8 +201,8 @@ float clsRasterData::getValue(int validCellIndex)
                              "The index is too big! There are not so many valid cell in the raster.");
     return m_rasterData[validCellIndex];
 }
-
-float *clsRasterData::getValue(int validCellIndex, int *nLyrs)
+template<typename T>
+T *clsRasterData<T>::getValue(int validCellIndex, int *nLyrs)
 {
     if (m_nCells < validCellIndex)
         throw ModelException("Raster", "getValue",
@@ -206,7 +211,7 @@ float *clsRasterData::getValue(int validCellIndex, int *nLyrs)
     {
         if (m_raster2DData == NULL)
             throw ModelException("Raster", "getValue", "Please first initialize the 2D raster object.");
-        float *cellValues = new float[m_nLyrs];
+        T *cellValues = new float[m_nLyrs];
         for (int i = 0; i < m_nLyrs; i++)
             cellValues[i] = m_raster2DData[validCellIndex][i];
         *nLyrs = m_nLyrs;
@@ -217,29 +222,29 @@ float *clsRasterData::getValue(int validCellIndex, int *nLyrs)
         if (m_rasterData == NULL)
             throw ModelException("Raster", "getValue", "Please first initialize the raster object.");
         *nLyrs = 1;
-        float *cellValues = new float[1];
+        T *cellValues = new float[1];
         cellValues[0] = m_rasterData[validCellIndex];
         return cellValues;
     }
 }
-
-float clsRasterData::getValue(clsRasterData *templateRasterData, float *rasterData, int row, int col)
+template<typename T>
+T clsRasterData<T>::getValue(clsRasterData *templateRasterData, T *rasterData, int row, int col)
 {
     if (templateRasterData == NULL || rasterData == NULL) return NODATA_VALUE;
     int position = templateRasterData->getPosition(row, col);
     if (position == -1) return NODATA_VALUE;
     return rasterData[position];
 }
-
-float *clsRasterData::getValue(clsRasterData *templateRasterData, float *rasterData, int row, int col, int *nLyrs)
+template<typename T>
+T *clsRasterData<T>::getValue(clsRasterData *templateRasterData, T *rasterData, int row, int col, int *nLyrs)
 {
     if (templateRasterData == NULL || rasterData == NULL) return NULL;
     int position = templateRasterData->getPosition(row, col);
     if (position == -1) return NULL;
     return getValue(position, nLyrs);
 }
-
-float clsRasterData::getValue(int row, int col)
+template<typename T>
+T clsRasterData<T>::getValue(int row, int col)
 {
     if (m_rasterData == NULL) return NODATA_VALUE;
     int validCellIndex = this->getPosition(row, col);
@@ -248,8 +253,8 @@ float clsRasterData::getValue(int row, int col)
     else
         return this->getValue(validCellIndex);
 }
-
-float *clsRasterData::getValue(int row, int col, int *nLyrs)
+template<typename T>
+T *clsRasterData<T>::getValue(int row, int col, int *nLyrs)
 {
     int validCellIndex = this->getPosition(row, col);
     if (validCellIndex == -1)
@@ -262,32 +267,32 @@ float *clsRasterData::getValue(int row, int col, int *nLyrs)
         return getValue(validCellIndex, nLyrs);
     }
 }
-
-void clsRasterData::outputASCFile(string &filename)
+template<typename T>
+void clsRasterData<T>::outputASCFile(string &filename)
 {
     if (m_is2DRaster)
-        clsRasterData::outputASCFile(m_headers, m_nCells, m_rasterPositionData, m_raster2DData, filename);
+        clsRasterData<T>::outputASCFile(m_headers, m_nCells, m_rasterPositionData, m_raster2DData, filename);
     else
-        clsRasterData::outputASCFile(m_headers, m_nCells, m_rasterPositionData, m_rasterData, filename);
+        clsRasterData<T>::outputASCFile(m_headers, m_nCells, m_rasterPositionData, m_rasterData, filename);
 }
-
-void clsRasterData::outputASCFile(map<string, float> header, int nRows, float **position, float *value,
-                                  string filename)
+template<typename T>
+void clsRasterData<T>::outputASCFile(map<string, double> header, int nRows, float **position, T *value, string filename)
 {
     //float noData = -9999.0f;/// removed to util.h
 
     ofstream rasterFile(filename.c_str());
+
+	//write file
+	int rows = int(header[HEADER_RS_NROWS]);
+	int cols = int(header[HEADER_RS_NCOLS]);
     /// write header
-    rasterFile << HEADER_RS_NCOLS << " " << header[HEADER_RS_NCOLS] << "\n";
-    rasterFile << HEADER_RS_NROWS << " " << header[HEADER_RS_NROWS] << "\n";
+    rasterFile << HEADER_RS_NCOLS << " " << cols << "\n";
+    rasterFile << HEADER_RS_NROWS << " " << rows << "\n";
     rasterFile << HEADER_RS_XLL << " " << header[HEADER_RS_XLL] << "\n";
     rasterFile << HEADER_RS_YLL << " " << header[HEADER_RS_YLL] << "\n";
-    rasterFile << HEADER_RS_CELLSIZE << " " << header[HEADER_RS_CELLSIZE] << "\n";
+    rasterFile << HEADER_RS_CELLSIZE << " " << (float) header[HEADER_RS_CELLSIZE] << "\n";
     rasterFile << HEADER_RS_NODATA << " " << setprecision(6) << header[HEADER_RS_NODATA] << "\n";
 
-    //write file
-    int rows = int(header[HEADER_RS_NROWS]);
-    int cols = int(header[HEADER_RS_NCOLS]);
 
     int index = 0;
     for (int i = 0; i < rows; ++i)
@@ -309,8 +314,8 @@ void clsRasterData::outputASCFile(map<string, float> header, int nRows, float **
     }
     rasterFile.close();
 }
-
-void clsRasterData::outputASCFile(map<string, float> header, int nRows, float **position, float **value,
+template<typename T>
+void clsRasterData<T>::outputASCFile(map<string, double> header, int nRows, float **position, T **value,
                                   string filename)
 {
     string prePath = GetPathFromFullName(filename);
@@ -321,17 +326,18 @@ void clsRasterData::outputASCFile(map<string, float> header, int nRows, float **
         stringstream oss;
         oss << prePath << coreName << "_" << (lyr + 1) << ASCIIExtension;
         ofstream rasterFile(oss.str().c_str());
+
+		//write file
+		int rows = int(header[HEADER_RS_NROWS]);
+		int cols = int(header[HEADER_RS_NCOLS]);
         /// write header
-        rasterFile << HEADER_RS_NCOLS << " " << header[HEADER_RS_NCOLS] << "\n";
-        rasterFile << HEADER_RS_NROWS << " " << header[HEADER_RS_NROWS] << "\n";
+        rasterFile << HEADER_RS_NCOLS << " " << cols << "\n";
+        rasterFile << HEADER_RS_NROWS << " " << rows << "\n";
         rasterFile << HEADER_RS_XLL << " " << header[HEADER_RS_XLL] << "\n";
         rasterFile << HEADER_RS_YLL << " " << header[HEADER_RS_YLL] << "\n";
-        rasterFile << HEADER_RS_CELLSIZE << " " << header[HEADER_RS_CELLSIZE] << "\n";
+        rasterFile << HEADER_RS_CELLSIZE << " " << (float) header[HEADER_RS_CELLSIZE] << "\n";
         rasterFile << HEADER_RS_NODATA << " " << setprecision(6) << header[HEADER_RS_NODATA] << "\n";
 
-        //write file
-        int rows = int(header[HEADER_RS_NROWS]);
-        int cols = int(header[HEADER_RS_NCOLS]);
 
         int index = 0;
         for (int i = 0; i < rows; ++i)
@@ -354,42 +360,42 @@ void clsRasterData::outputASCFile(map<string, float> header, int nRows, float **
         rasterFile.close();
     }
 }
-
-void clsRasterData::outputASCFile(clsRasterData *templateRasterData, float *value, string filename)
+template<typename T>
+void clsRasterData<T>::outputASCFile(clsRasterData *templateRasterData, T *value, string filename)
 {
     int nRows;
     float **position;
     templateRasterData->getRasterPositionData(&nRows, &position);
-    clsRasterData::outputASCFile(*(templateRasterData->getRasterHeader()), nRows, position, value, filename);
+    clsRasterData<T>::outputASCFile(*(templateRasterData->getRasterHeader()), nRows, position, value, filename);
 }
-
-void clsRasterData::outputASCFile(clsRasterData *templateRasterData, float **value, string filename)
+template<typename T>
+void clsRasterData<T>::outputASCFile(clsRasterData *templateRasterData, T **value, string filename)
 {
     int nRows;
     float **position;
     templateRasterData->getRasterPositionData(&nRows, &position);
-    clsRasterData::outputASCFile(*(templateRasterData->getRasterHeader()), nRows, position, value, filename);
+    clsRasterData<T>::outputASCFile(*(templateRasterData->getRasterHeader()), nRows, position, value, filename);
 }
-
-void clsRasterData::outputGTiff(string filename)
+template<typename T>
+void clsRasterData<T>::outputGTiff(string filename)
 {
     if (m_is2DRaster)
-        clsRasterData::outputGTiff(m_headers, m_srs, m_nCells, m_rasterPositionData, m_raster2DData, filename);
+        clsRasterData<T>::outputGTiff(m_headers, m_srs, m_nCells, m_rasterPositionData, m_raster2DData, filename);
     else
-        clsRasterData::outputGTiff(m_headers, m_srs, m_nCells, m_rasterPositionData, m_rasterData, filename);
+        clsRasterData<T>::outputGTiff(m_headers, m_srs, m_nCells, m_rasterPositionData, m_rasterData, filename);
 }
-
-void clsRasterData::outputGTiff(map<string, float> header, string &srs, int nValidCells, float **position, float *value,
+template<typename T>
+void clsRasterData<T>::outputGTiff(map<string, double> header, string &srs, int nValidCells, float **position, T *value,
                                 string filename)
 {
-    float noDataValue = header[HEADER_RS_NODATA];
+    double noDataValue = header[HEADER_RS_NODATA];
     int nCols = (int) header[HEADER_RS_NCOLS];
     int nRows = (int) header[HEADER_RS_NROWS];
-    float xll = header[HEADER_RS_XLL];
-    float yll = header[HEADER_RS_YLL];
-    float dx = header[HEADER_RS_CELLSIZE];
+    double xll = header[HEADER_RS_XLL];
+    double yll = header[HEADER_RS_YLL];
+    double dx = header[HEADER_RS_CELLSIZE];
     int n = nRows * nCols;
-    float *data = new float[n];
+    T *data = new T[n];
 
     int index = 0;
     for (int i = 0; i < nRows; ++i)
@@ -404,10 +410,10 @@ void clsRasterData::outputGTiff(map<string, float> header, string &srs, int nVal
                     index++;
                 }
                 else
-                    data[i * nCols + j] = noDataValue;
+                    data[i * nCols + j] = (T) noDataValue;
             }
             else
-                data[i * nCols + j] = noDataValue;
+                data[i * nCols + j] = (T) noDataValue;
         }
     }
 
@@ -425,9 +431,9 @@ void clsRasterData::outputGTiff(map<string, float> header, string &srs, int nVal
     double geoTrans[6];
     geoTrans[0] = xll;
     geoTrans[1] = dx;
-    geoTrans[2] = 0;
+    geoTrans[2] = 0.;
     geoTrans[3] = yll + nRows * dx;
-    geoTrans[4] = 0;
+    geoTrans[4] = 0.;
     geoTrans[5] = -dx;
     poDstDS->SetGeoTransform(geoTrans);
     poDstDS->SetProjection(srs.c_str());
@@ -442,26 +448,26 @@ void clsRasterData::outputGTiff(map<string, float> header, string &srs, int nVal
 
     delete[] data;
 }
-
-void clsRasterData::outputGTiff(map<string, float> header, string &srs, int nValidCells, float **position,
-                                float **value, string filename)
+template<typename T>
+void clsRasterData<T>::outputGTiff(map<string, double> header, string &srs, int nValidCells, float **position,
+                                T **value, string filename)
 {
     string prePath = GetPathFromFullName(filename);
     string coreName = GetCoreFileName(filename);
     int nLyrs = (int) header[HEADER_RS_LAYERS];
-    float noDataValue = header[HEADER_RS_NODATA];
+    double noDataValue = header[HEADER_RS_NODATA];
     int nCols = (int) header[HEADER_RS_NCOLS];
     int nRows = (int) header[HEADER_RS_NROWS];
-    float xll = header[HEADER_RS_XLL];
-    float yll = header[HEADER_RS_YLL];
-    float dx = header[HEADER_RS_CELLSIZE];
+    double xll = header[HEADER_RS_XLL];
+    double yll = header[HEADER_RS_YLL];
+    double dx = header[HEADER_RS_CELLSIZE];
     int n = nRows * nCols;
 
     for (int lyr = 0; lyr < nLyrs; lyr++)
     {
         stringstream oss;
         oss << prePath << coreName << "_" << (lyr + 1) << GTiffExtension;
-        float *data = new float[n];
+        T *data = new T[n];
         int index = 0;
         for (int i = 0; i < nRows; ++i)
         {
@@ -475,10 +481,10 @@ void clsRasterData::outputGTiff(map<string, float> header, string &srs, int nVal
                         index++;
                     }
                     else
-                        data[i * nCols + j] = noDataValue;
+                        data[i * nCols + j] = (T) noDataValue;
                 }
                 else
-                    data[i * nCols + j] = noDataValue;
+                    data[i * nCols + j] = (T) noDataValue;
             }
         }
 
@@ -496,9 +502,9 @@ void clsRasterData::outputGTiff(map<string, float> header, string &srs, int nVal
         double geoTrans[6];
         geoTrans[0] = xll;
         geoTrans[1] = dx;
-        geoTrans[2] = 0;
+        geoTrans[2] = 0.;
         geoTrans[3] = yll + nRows * dx;
-        geoTrans[4] = 0;
+        geoTrans[4] = 0.;
         geoTrans[5] = -dx;
         poDstDS->SetGeoTransform(geoTrans);
         poDstDS->SetProjection(srs.c_str());
@@ -507,43 +513,43 @@ void clsRasterData::outputGTiff(map<string, float> header, string &srs, int nVal
         delete[] data;
     }
 }
-
-void clsRasterData::outputGTiff(clsRasterData *templateRasterData, float *value, string rasterName)
+template<typename T>
+void clsRasterData<T>::outputGTiff(clsRasterData *templateRasterData, T *value, string rasterName)
 {
     int nRows;
     float **position;
     templateRasterData->getRasterPositionData(&nRows, &position);
     string srs(templateRasterData->getSRS());
-    clsRasterData::outputGTiff(*(templateRasterData->getRasterHeader()), srs, nRows, position, value, rasterName);
+    clsRasterData<T>::outputGTiff(*(templateRasterData->getRasterHeader()), srs, nRows, position, value, rasterName);
 }
-
-void clsRasterData::outputGTiff(clsRasterData *templateRasterData, float **value, string rasterName)
+template<typename T>
+void clsRasterData<T>::outputGTiff(clsRasterData *templateRasterData, T **value, string rasterName)
 {
     int nRows;
     float **position;
     templateRasterData->getRasterPositionData(&nRows, &position);
     string srs(templateRasterData->getSRS());
-    clsRasterData::outputGTiff(*(templateRasterData->getRasterHeader()), srs, nRows, position, value, rasterName);
+    clsRasterData<T>::outputGTiff(*(templateRasterData->getRasterHeader()), srs, nRows, position, value, rasterName);
 }
-
-void clsRasterData::outputToMongoDB(string remoteFilename, mongoc_gridfs_t *gfs)
+template<typename T>
+void clsRasterData<T>::outputToMongoDB(string remoteFilename, mongoc_gridfs_t *gfs)
 {
     if (m_is2DRaster && m_nLyrs > 0)
-        clsRasterData::outputToMongoDB(m_headers, m_srs, m_nCells, m_rasterPositionData, m_raster2DData, m_nLyrs,
+        clsRasterData<T>::outputToMongoDB(m_headers, m_srs, m_nCells, m_rasterPositionData, m_raster2DData, m_nLyrs,
                                        remoteFilename, gfs);
     else
-        clsRasterData::outputToMongoDB(m_headers, m_srs, m_nCells, m_rasterPositionData, m_rasterData, remoteFilename,
+        clsRasterData<T>::outputToMongoDB(m_headers, m_srs, m_nCells, m_rasterPositionData, m_rasterData, remoteFilename,
                                        gfs);
 }
-
-void clsRasterData::outputToMongoDB(map<string, float> header, string &srs, int nValid, float **position, float *value,
+template<typename T>
+void clsRasterData<T>::outputToMongoDB(map<string, double> header, string &srs, int nValid, float **position, T *value,
                                     string remoteFilename, mongoc_gridfs_t *gfs)
 {
     //float noData = -9999.0f; /// removed to util.h #define
     /// Prepare binary data
     int rows = int(header[HEADER_RS_NROWS]);
     int cols = int(header[HEADER_RS_NCOLS]);
-    float *data = new float[rows * cols];
+    T *data = new T[rows * cols];
 
     int index = 0;
     int dataIndex = 0;
@@ -560,10 +566,10 @@ void clsRasterData::outputToMongoDB(map<string, float> header, string &srs, int 
                     index++;
                 }
                 else
-                    data[dataIndex] = NODATA_VALUE;
+                    data[dataIndex] = (T) NODATA_VALUE;
             }
             else
-                data[dataIndex] = NODATA_VALUE;
+                data[dataIndex] = (T) NODATA_VALUE;
         }
     }
     size_t iID = remoteFilename.find_first_of('_');
@@ -577,34 +583,34 @@ void clsRasterData::outputToMongoDB(map<string, float> header, string &srs, int 
     BSON_APPEND_DOUBLE(p, HEADER_RS_XLL, header[HEADER_RS_XLL]);
     BSON_APPEND_DOUBLE(p, HEADER_RS_YLL, header[HEADER_RS_YLL]);
     BSON_APPEND_DOUBLE(p, HEADER_RS_CELLSIZE, header[HEADER_RS_CELLSIZE]);
-    BSON_APPEND_DOUBLE(p, HEADER_RS_NODATA, NODATA_VALUE);
+    BSON_APPEND_DOUBLE(p, HEADER_RS_NODATA, (T) NODATA_VALUE);
     BSON_APPEND_UTF8(p, HEADER_RS_SRS, srs.c_str());
     mongoc_gridfs_file_t *gfile;
 	mongoc_gridfs_file_opt_t gopt = {0};
     gopt.filename = remoteFilename.c_str();
-    gopt.content_type = "float";
+    gopt.content_type = "float"; // TODO, Is the content_type can be any STRING?
     gopt.metadata = p;
     gfile = mongoc_gridfs_create_file(gfs, &gopt);
     mongoc_iovec_t ovec;
     ovec.iov_base = (char *) data;
-    ovec.iov_len = rows * cols * sizeof(float);
+    ovec.iov_len = rows * cols * sizeof(T);
 	//ssize_t r = mongoc_gridfs_file_writev(gfile, &ovec, 1, 0);
 	mongoc_gridfs_file_writev(gfile, &ovec, 1, 0);
     mongoc_gridfs_file_save(gfile);
     mongoc_gridfs_file_destroy(gfile);
     bson_destroy(p);
     free(p);
-    delete data;
+    delete[] data;
 }
-
-void clsRasterData::outputToMongoDB(map<string, float> header, string &srs, int inValid, float **position,
-                                    float **value, int lyrs, string remoteFilename, mongoc_gridfs_t *gfs)
+template<typename T>
+void clsRasterData<T>::outputToMongoDB(map<string, double> header, string &srs, int inValid, float **position,
+                                    T **value, int lyrs, string remoteFilename, mongoc_gridfs_t *gfs)
 {
     /// Prepare binary data
     int rows = int(header[HEADER_RS_NROWS]);
     int cols = int(header[HEADER_RS_NCOLS]);
     int nLyrs = lyrs;
-    float *data = new float[rows * cols * nLyrs];
+    T *data = new T[rows * cols * nLyrs];
 
     int index = 0;
     int dataIndex = 0;
@@ -623,10 +629,10 @@ void clsRasterData::outputToMongoDB(map<string, float> header, string &srs, int 
                         index++;
                     }
                     else
-                        data[dataIndex] = NODATA_VALUE;
+                        data[dataIndex] = (T) NODATA_VALUE;
                 }
                 else
-                    data[dataIndex] = NODATA_VALUE;
+                    data[dataIndex] = (T) NODATA_VALUE;
             }
         }
     }
@@ -652,39 +658,39 @@ void clsRasterData::outputToMongoDB(map<string, float> header, string &srs, int 
     gfile = mongoc_gridfs_create_file(gfs, &gopt);
     mongoc_iovec_t ovec;
     ovec.iov_base = (char *) data;
-    ovec.iov_len = rows * cols * nLyrs * sizeof(float);
+    ovec.iov_len = rows * cols * nLyrs * sizeof(T);
     //ssize_t r = mongoc_gridfs_file_writev(gfile, &ovec, 1, 0);
 	mongoc_gridfs_file_writev(gfile, &ovec, 1, 0);
     mongoc_gridfs_file_save(gfile);
     mongoc_gridfs_file_destroy(gfile);
     bson_destroy(p);
     free(p);
-    delete data;
+    delete[] data;
 }
-
-void clsRasterData::outputToMongoDB(clsRasterData *templateRasterData, float *value, string filename,
+template<typename T>
+void clsRasterData<T>::outputToMongoDB(clsRasterData *templateRasterData, T *value, string filename,
                                     mongoc_gridfs_t *gfs)
 {
     int nRows;
     float **position;
     templateRasterData->getRasterPositionData(&nRows, &position);
     string srs(templateRasterData->getSRS());
-    clsRasterData::outputToMongoDB(*(templateRasterData->getRasterHeader()), srs, nRows, position, value, filename,
+    clsRasterData<T>::outputToMongoDB(*(templateRasterData->getRasterHeader()), srs, nRows, position, value, filename,
                                    gfs);
 }
-
-void clsRasterData::outputToMongoDB(clsRasterData *templateRasterData, float **value, int lyrs, string filename,
+template<typename T>
+void clsRasterData<T>::outputToMongoDB(clsRasterData *templateRasterData, T **value, int lyrs, string filename,
                                     mongoc_gridfs_t *gfs)
 {
     int nRows;
     float **position;
     templateRasterData->getRasterPositionData(&nRows, &position);
     string srs(templateRasterData->getSRS());
-    clsRasterData::outputToMongoDB(*(templateRasterData->getRasterHeader()), srs, nRows, position, value, lyrs,
+    clsRasterData<T>::outputToMongoDB(*(templateRasterData->getRasterHeader()), srs, nRows, position, value, lyrs,
                                    filename, gfs);
 }
-
-void clsRasterData::outputWeightFile(clsRasterData *templateRasterData, int nCols, float weight, string filename)
+template<typename T>
+void clsRasterData<T>::outputWeightFile(clsRasterData *templateRasterData, int nCols, float weight, string filename)
 {
     int nRows;
     float **position;
@@ -708,8 +714,8 @@ void clsRasterData::outputWeightFile(clsRasterData *templateRasterData, int nCol
     }
     rasterFile.close();
 }
-
-void clsRasterData::ReadASCFile(string ascFileName)
+template<typename T>
+void clsRasterData<T>::ReadASCFile(string ascFileName)
 {
     utils util;
     if (!util.FileExists(ascFileName))
@@ -718,18 +724,18 @@ void clsRasterData::ReadASCFile(string ascFileName)
     //StatusMessage(("read " + ascFileName + "...").c_str());
     ifstream rasterFile(ascFileName.c_str());
     string tmp;
-    float noData;
+    T noData;
     int rows, cols;
-    float tempFloat;
-    vector<float> values;
+    T tempFloat;
+    vector<T> values;
     vector<int> positionRows;
     vector<int> positionCols;
 
     /// read header
     rasterFile >> tmp >> cols;
-    m_headers[HEADER_RS_NCOLS] = float(cols);  ///m_headers[GetUpper(tmp)] = float(cols);
+    m_headers[HEADER_RS_NCOLS] = double(cols);  ///m_headers[GetUpper(tmp)] = float(cols);
     rasterFile >> tmp >> rows;
-    m_headers[HEADER_RS_NROWS] = float(rows);
+    m_headers[HEADER_RS_NROWS] = double(rows);
     rasterFile >> tmp >> tempFloat;
     m_headers[HEADER_RS_XLL] = tempFloat;
     rasterFile >> tmp >> tempFloat;
@@ -756,7 +762,7 @@ void clsRasterData::ReadASCFile(string ascFileName)
 
     /// create float array
     m_nCells = (int) values.size();
-    m_rasterData = new float[m_nCells];
+    m_rasterData = new T[m_nCells];
     m_rasterPositionData = new float *[m_nCells];
     for (int i = 0; i < m_nCells; ++i)
     {
@@ -766,8 +772,8 @@ void clsRasterData::ReadASCFile(string ascFileName)
         m_rasterPositionData[i][1] = float(positionCols.at(i));
     }
 }
-
-void clsRasterData::ReadASCFile(string ascFileName, clsRasterData *mask)
+template<typename T>
+void clsRasterData<T>::ReadASCFile(string ascFileName, clsRasterData *mask)
 {
     if (mask == NULL) ReadASCFile(ascFileName);
     else
@@ -786,7 +792,7 @@ void clsRasterData::ReadASCFile(string ascFileName, clsRasterData *mask)
 
         ifstream rasterFile(ascFileName.c_str());
         string tmp;
-        float noDataValue;
+        double noDataValue;
 
         /// Read header and get header from mask
         rasterFile >> tmp >> tmp; /// cols
@@ -796,7 +802,7 @@ void clsRasterData::ReadASCFile(string ascFileName, clsRasterData *mask)
         rasterFile >> tmp >> tmp; /// cell size
         rasterFile >> tmp >> noDataValue; /// nodata
         /// Set header
-        map<string, float> *maskHeader = mask->getRasterHeader();
+        map<string, double> *maskHeader = mask->getRasterHeader();
         m_headers[HEADER_RS_NCOLS] = (*maskHeader)[HEADER_RS_NCOLS];
         m_headers[HEADER_RS_NROWS] = (*maskHeader)[HEADER_RS_NROWS];
         m_headers[HEADER_RS_NODATA] = (*maskHeader)[HEADER_RS_NODATA];
@@ -805,12 +811,12 @@ void clsRasterData::ReadASCFile(string ascFileName, clsRasterData *mask)
         m_headers[HEADER_RS_YLL] = (*maskHeader)[HEADER_RS_YLL];
 
         /// Read data
-        m_rasterData = new float[nRows];
+        m_rasterData = new T[nRows];
         int ascCols = mask->getCols();
         int ascRows = mask->getRows();
 
 //        int index = 0;
-        float *pData = new float[ascRows * ascCols];
+        T *pData = new T[ascRows * ascCols];
         for (int i = 0; i < ascRows; ++i)
         {
             for (int j = 0; j < ascCols; ++j)
@@ -826,12 +832,12 @@ void clsRasterData::ReadASCFile(string ascFileName, clsRasterData *mask)
             int rasterIndex = i * ascCols + j;
             m_rasterData[index] = pData[rasterIndex];
         }
-        delete pData;
+        delete[] pData;
         rasterFile.close();
     }
 }
-
-void clsRasterData::ReadFromGDAL(string filename)
+template<typename T>
+void clsRasterData<T>::ReadFromGDAL(string filename)
 {
     GDALDataset *poDataset = (GDALDataset *) GDALOpen(filename.c_str(), GA_ReadOnly);
     if (poDataset == NULL)
@@ -842,18 +848,17 @@ void clsRasterData::ReadFromGDAL(string filename)
     GDALRasterBand *poBand = poDataset->GetRasterBand(1);
     m_headers[HEADER_RS_NCOLS] = poBand->GetXSize();
     m_headers[HEADER_RS_NROWS] = poBand->GetYSize();
-    m_headers[HEADER_RS_NODATA] = (float) poBand->GetNoDataValue();
+    m_headers[HEADER_RS_NODATA] = (double) poBand->GetNoDataValue();
     double adfGeoTransform[6];
     poDataset->GetGeoTransform(adfGeoTransform);
-    m_headers[HEADER_RS_CELLSIZE] = (float) adfGeoTransform[1];
-    m_headers[HEADER_RS_XLL] = (float) adfGeoTransform[0] + 0.5f * m_headers[HEADER_RS_CELLSIZE];
-    m_headers[HEADER_RS_YLL] =
-            (float) adfGeoTransform[3] + (m_headers[HEADER_RS_NROWS] - 0.5f) * m_headers[HEADER_RS_CELLSIZE];
+    m_headers[HEADER_RS_CELLSIZE] = adfGeoTransform[1];
+    m_headers[HEADER_RS_XLL] = adfGeoTransform[0] + 0.5 * m_headers[HEADER_RS_CELLSIZE];
+    m_headers[HEADER_RS_YLL] = adfGeoTransform[3] + (m_headers[HEADER_RS_NROWS] - 0.5) * m_headers[HEADER_RS_CELLSIZE];
     m_srs = string(poDataset->GetProjectionRef());
     int nRows = (int) m_headers[HEADER_RS_NROWS];
     int nCols = (int) m_headers[HEADER_RS_NCOLS];
 
-    vector<float> values;
+    vector<T> values;
     vector<int> positionRows;
     vector<int> positionCols;
     /// Get all valid values
@@ -906,18 +911,18 @@ void clsRasterData::ReadFromGDAL(string filename)
 
     /// Create float array
     m_nCells = (int) values.size();
-    m_rasterData = new float[m_nCells];
+    m_rasterData = new T[m_nCells];
     m_rasterPositionData = new float *[m_nCells];
     for (int i = 0; i < m_nCells; ++i)
     {
-        m_rasterData[i] = values.at(i);
+        m_rasterData[i] = (T) values.at(i);
         m_rasterPositionData[i] = new float[2];
         m_rasterPositionData[i][0] = float(positionRows.at(i));
         m_rasterPositionData[i][1] = float(positionCols.at(i));
     }
 }
-
-void clsRasterData::ReadFromGDAL(string fileName, clsRasterData *mask)
+template<typename T>
+void clsRasterData<T>::ReadFromGDAL(string fileName, clsRasterData *mask)
 {
     if (mask == NULL)
         ReadFromGDAL(fileName);
@@ -930,7 +935,7 @@ void clsRasterData::ReadFromGDAL(string fileName, clsRasterData *mask)
                                                                   " does not exist or has not read permission.");
         StatusMessage(("read " + fileName + "...").c_str());
         /// Set header
-        map<string, float> *maskHeader = mask->getRasterHeader();
+        map<string, double> *maskHeader = mask->getRasterHeader();
         m_headers[HEADER_RS_NCOLS] = (*maskHeader)[HEADER_RS_NCOLS];
         m_headers[HEADER_RS_NROWS] = (*maskHeader)[HEADER_RS_NROWS];
         m_headers[HEADER_RS_NODATA] = (*maskHeader)[HEADER_RS_NODATA];
@@ -946,7 +951,7 @@ void clsRasterData::ReadFromGDAL(string fileName, clsRasterData *mask)
         m_nCells = nRows;
 
         /// Read data
-        m_rasterData = new float[nRows];
+        m_rasterData = new T[nRows];
         int ascCols = mask->getCols();
         int ascRows = mask->getRows();
 
@@ -968,7 +973,7 @@ void clsRasterData::ReadFromGDAL(string fileName, clsRasterData *mask)
                 int i = (int) validPosition[index][0];
                 int j = (int) validPosition[index][1];
                 int rasterIndex = i * ascCols + j;
-                m_rasterData[index] = pData[rasterIndex];
+                m_rasterData[index] = (T) pData[rasterIndex];
             }
             CPLFree(pData);
         }
@@ -981,7 +986,7 @@ void clsRasterData::ReadFromGDAL(string fileName, clsRasterData *mask)
                 int i = (int) validPosition[index][0];
                 int j = (int) validPosition[index][1];
                 int rasterIndex = i * ascCols + j;
-                m_rasterData[index] = (float)pData[rasterIndex];
+                m_rasterData[index] = (T) pData[rasterIndex];
             }
             CPLFree(pData);
         }
@@ -994,8 +999,8 @@ void clsRasterData::ReadFromGDAL(string fileName, clsRasterData *mask)
         GDALClose(poDataset);
     }
 }
-
-int clsRasterData::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFilename)
+template<typename T>
+int clsRasterData<T>::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFilename)
 {
     /// Integrate 1D and 2D raster data
     mongoc_gridfs_file_t *gfile;
@@ -1015,7 +1020,7 @@ int clsRasterData::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFilen
     stream = mongoc_stream_gridfs_new(gfile);
 	//ssize_t r = mongoc_stream_readv(stream, &iov, 1, -1, 0);
 	mongoc_stream_readv(stream, &iov, 1, -1, 0);
-    float *data = (float *) buf;
+    T *data = (T *) buf;
     /// Get metadata
     const bson_t *bmeta;
     bmeta = mongoc_gridfs_file_get_metadata(gfile);
@@ -1027,11 +1032,11 @@ int clsRasterData::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFilen
     {
         if (bson_iter_init(&iter, bmeta) && bson_iter_find(&iter, headers[i]))
         {
-            m_headers[string(bson_iter_key(&iter))] = GetFloatFromBSONITER(&iter);
+            m_headers[string(bson_iter_key(&iter))] = GetDoubleFromBSONITER(&iter);
         }
         else
             throw ModelException("clsRasterData", "ReadRasterFromMongoDB",
-                                 "Failed in get FLOAT value: " + string(headers[i]) + "\n");
+                                 "Failed in get DOUBLE value: " + string(headers[i]) + "\n");
     }
     if (bson_iter_init(&iter, bmeta) && bson_iter_find(&iter, HEADER_RS_SRS))
     {
@@ -1046,18 +1051,18 @@ int clsRasterData::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFilen
     /// Is 1D or 2D raster?
     vector<int> positionRows;
     vector<int> positionCols;
-    float nodataFloat = m_headers[HEADER_RS_NODATA];
+    T nodataFloat = m_headers[HEADER_RS_NODATA];
     if (m_nLyrs == 1)
     {
         m_is2DRaster = false;
-        vector<float> values;
+        vector<T> values;
         //get all valid values
         for (int i = 0; i < nRows; ++i)
         {
             for (int j = 0; j < nCols; ++j)
             {
                 int index = i * nCols + j;
-                float value = data[index];
+                T value = data[index];
                 if (FloatEqual(nodataFloat, value))
                     continue;
                 values.push_back(value);
@@ -1068,7 +1073,7 @@ int clsRasterData::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFilen
 
         //create float array
         m_nCells = values.size();
-        m_rasterData = new float[m_nCells];
+        m_rasterData = new T[m_nCells];
         m_rasterPositionData = new float *[m_nCells];
         for (int i = 0; i < m_nCells; ++i)
         {
@@ -1081,7 +1086,7 @@ int clsRasterData::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFilen
     else
     {
         m_is2DRaster = true;
-        vector<vector<float>> values(m_nLyrs);
+        vector<vector<T>> values(m_nLyrs);
         //get all valid values
         bool hasAddRowColPos = false;
         for (int i = 0; i < nRows; ++i)
@@ -1092,7 +1097,7 @@ int clsRasterData::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFilen
                 for (int k = 0; k < m_nLyrs; k++)
                 {
                     int index = i * nCols * m_nLyrs + j * m_nLyrs + k;
-                    float value = data[index];
+                    T value = data[index];
                     if (FloatEqual(nodataFloat, value))
                         continue;
                     values[k].push_back(value);
@@ -1109,11 +1114,11 @@ int clsRasterData::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFilen
         //create float array
         m_nCells = values[0].size();
         m_rasterPositionData = new float *[m_nCells];
-        m_raster2DData = new float *[m_nCells];
+        m_raster2DData = new T *[m_nCells];
 
         for (int i = 0; i < m_nCells; ++i)
         {
-            m_raster2DData[i] = new float[m_nLyrs];
+            m_raster2DData[i] = new T[m_nLyrs];
             for (int j = 0; j < m_nLyrs; i++)
             {
                 m_raster2DData[i][j] = values[j].at(i);
@@ -1127,10 +1132,10 @@ int clsRasterData::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFilen
     mongoc_gridfs_file_destroy(gfile);
     return 0;
 }
-
-int clsRasterData::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFilename, clsRasterData *mask)
+template<typename T>
+int clsRasterData<T>::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFilename, clsRasterData<T> *mask)
 {
-    if (mask == NULL) ReadFromMongoDB(gfs, remoteFilename);
+    if (mask == NULL) clsRasterData<T>::ReadFromMongoDB(gfs, remoteFilename);
     else
     {
         mongoc_gridfs_file_t *gfile;
@@ -1160,7 +1165,7 @@ int clsRasterData::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFilen
         stream = mongoc_stream_gridfs_new(gfile);
 		//ssize_t r = mongoc_stream_readv(stream, &iov, 1, -1, 0);
 		mongoc_stream_readv(stream, &iov, 1, -1, 0);
-        float *data = (float *) buf;
+        T *data = (T *) buf;
         /// Get the valid raster data positions from mask
         int nRows;
         float **validPosition;
@@ -1184,7 +1189,7 @@ int clsRasterData::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFilen
         {
             m_is2DRaster = false;
             /// Read data
-            m_rasterData = new float[nRows];
+            m_rasterData = new T[nRows];
             for (int index = 0; index < nRows; index++)
             {
                 int i = (int)validPosition[index][0];
@@ -1198,12 +1203,12 @@ int clsRasterData::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFilen
         {
             m_is2DRaster = true;
             /// Read data
-            m_raster2DData = new float *[m_nCells];
+            m_raster2DData = new T *[m_nCells];
             for (int index = 0; index < m_nCells; ++index)
             {
                 int i = (int)validPosition[index][0];
                 int j = (int)validPosition[index][1];
-                m_raster2DData[index] = new float[m_nLyrs];
+                m_raster2DData[index] = new T[m_nLyrs];
                 for (int k = 0; k < m_nLyrs; k++)
                 {
                     int rasterIndex = i * ascCols * m_nLyrs + j * m_nLyrs + k;
@@ -1218,14 +1223,14 @@ int clsRasterData::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFilen
 }
 
 
-//int clsRasterData::getCols()
+//int clsRasterData<T>::getCols()
 //{
 //	map<string,float>* header =  getRasterHeader();
 //	return int((*header)["NCOLS"]);
 //}
 
 
-//void clsRasterData::getHeaders(string databasePath,map<string,float>* headers)
+//void clsRasterData<T>::getHeaders(string databasePath,map<string,float>* headers)
 //{
 //	DBManager dbman;
 //	string sql;
@@ -1250,13 +1255,13 @@ int clsRasterData::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFilen
 //	dbman.Close();
 //}
 
-//int clsRasterData::getCellWidth()
+//int clsRasterData<T>::getCellWidth()
 //{
 //	map<string,float>* header =  getRasterHeader();
 //	return int((*header)[Tag_CellSize]);
 //}
 
-//int clsRasterData::getRows()
+//int clsRasterData<T>::getRows()
 //{
 //	map<string,float>* header =  getRasterHeader();
 //	return int((*header)["NROWS"]);

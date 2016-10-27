@@ -71,7 +71,7 @@ int ReadInputData(int index, string &layerFilePrefix, string &dirFilePrefix,
     }
     fFlowIn.close();
 
-    clsRasterData slopeRaster(slopeFile.c_str());
+    clsRasterData<float> slopeRaster(slopeFile.c_str());
     if (slopeRaster.getCellNumber() != cellsCount)
     {
         throw ModelException("", "ReadInputData", "The slope file is not consistent with the layer file.");
@@ -84,7 +84,7 @@ int ReadInputData(int index, string &layerFilePrefix, string &dirFilePrefix,
             slope[i] = 0.0001f;
     }
 
-    clsRasterData streamRaster(streamFile.c_str(), &slopeRaster);
+    clsRasterData<float> streamRaster(streamFile.c_str(), &slopeRaster);
     stream = new float[cellsCount];
     for (int i = 0; i < cellsCount; ++i)
     {
@@ -119,7 +119,7 @@ int BuildLayer(Subbasin *pDownStream)
     return 1;
 }
 
-int GetGroupCount(mongo *conn, const char *dbName, int decompostionPlan, const char *groupField)
+int GetGroupCount(mongoc_client_t *conn, const char *dbName, int decompostionPlan, const char *groupField)
 {
     bson b[1];
     bson_init(b);
@@ -155,7 +155,7 @@ int GetGroupCount(mongo *conn, const char *dbName, int decompostionPlan, const c
     return groupSet.size();
 }
 
-int ReadTopologyFromMongoDB(mongo *conn, const char *dbName, map<int, Subbasin *> &subbasins, set<int> &groupSet,
+int ReadTopologyFromMongoDB(mongoc_client_t *conn, const char *dbName, map<int, Subbasin *> &subbasins, set<int> &groupSet,
                             int decompostionPlan, const char *groupField)
 {
     bson b[1];

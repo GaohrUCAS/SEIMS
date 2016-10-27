@@ -6,6 +6,7 @@
  *
  * 
  */
+#pragma once
 #include "ModelMain.h"
 #include "utils.h"
 #include "util.h"
@@ -13,6 +14,7 @@
 #include "ModelException.h"
 #include "PrintInfo.h"
 #include "MongoUtil.h"
+#include "clsRasterData.cpp"
 #include <ctime>
 #include <sstream>
 
@@ -309,7 +311,7 @@ void ModelMain::CheckOutput(mongoc_gridfs_t *gfs)
 #ifdef USE_MONGODB
 	// Read Mask raster data and add to m_rsMap in m_factory, by LJ.
     oss << m_subBasinID << "_" << GetUpper(NAME_MASK);
-    m_templateRasterData = new clsRasterData(gfs, oss.str().c_str());
+    m_templateRasterData = new clsRasterData<float>(gfs, oss.str().c_str());
 	m_factory->AddMaskRaster(oss.str(), m_templateRasterData);
 #endif
 }

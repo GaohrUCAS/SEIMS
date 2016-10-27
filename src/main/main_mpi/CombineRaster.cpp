@@ -6,8 +6,11 @@
 #include "gdal.h"
 #include "gdal_priv.h"
 #include "cpl_string.h"
+
 #include "parallel.h"
-#include "Raster.cpp"
+#include "clsRasterData.h"
+
+//#include "Raster.h"
 
 void CombineRasterResults(string &folder, string &sVar, int nSubbasins, string &outputRaster)
 {

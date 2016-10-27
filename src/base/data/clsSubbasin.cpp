@@ -3,7 +3,6 @@
 #include <iostream>
 #include <sstream>
 #include "ModelException.h"
-
 using namespace std;
 
 Subbasin::Subbasin(int id) : m_id(id), m_nCells(-1), m_cells(NULL), m_isRevapChanged(true), 
@@ -78,7 +77,7 @@ void Subbasin::setSlope(float *slope)
 //////////////////////////////////////////////////////////////////////////
 //////////  clsSubbasins                           ///////////////////////
 ////////////////////////////////////////////////////////////////////////// 
-clsSubbasins::clsSubbasins(mongoc_gridfs_t *spatialData, map<string, clsRasterData *> &rsMap,int prefixID):
+clsSubbasins::clsSubbasins(mongoc_gridfs_t *spatialData, map<string, clsRasterData<float> *> &rsMap,int prefixID):
 m_nSubbasins(-1)
 {
 	m_subbasinIDs.clear();
@@ -100,10 +99,10 @@ m_nSubbasins(-1)
 
 	if (rsMap.find(subbasinFileName) == rsMap.end()) // if subbasin not loaded yet
 	{
-		clsRasterData *subbasinRaster = NULL;
+		clsRasterData<float> *subbasinRaster = NULL;
 		try
 		{			
-			subbasinRaster = new clsRasterData(spatialData, subbasinFileName.c_str(), rsMap[maskFileName]);			
+			subbasinRaster = new clsRasterData<float>(spatialData, subbasinFileName.c_str(), rsMap[maskFileName]);			
 			subbasinRaster->getRasterData(&nCells, &subbasinData);
 		}
 		catch (ModelException e)

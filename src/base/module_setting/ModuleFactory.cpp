@@ -1,4 +1,6 @@
+#pragma once
 #include "ModuleFactory.h"
+#include "clsRasterData.cpp"
 
 ModuleFactory::ModuleFactory(const string &configFileName, const string &modelPath, mongoc_client_t *conn,
                              const string &dbName, int subBasinID, LayeringMethod layingMethod, int scenarioID)
@@ -77,7 +79,7 @@ ModuleFactory::~ModuleFactory(void)
     }
     m_weightDataMap.clear();
 
-    for (map<string, clsRasterData *>::iterator it = m_rsMap.begin(); it != m_rsMap.end();)
+    for (map<string, clsRasterData<float> *>::iterator it = m_rsMap.begin(); it != m_rsMap.end();)
     {
         if (it->second != NULL)
         {
@@ -279,7 +281,7 @@ string ModuleFactory::GetComparableName(string &paraName)
 }
 
 float ModuleFactory::CreateModuleList(string dbName, int subbasinID, int numThreads, LayeringMethod layeringMethod,
-                                    clsRasterData *templateRaster, SettingsInput *settingsInput,
+                                    clsRasterData<float> *templateRaster, SettingsInput *settingsInput,
                                     vector<SimulationModule *> &modules)
 {
     m_layingMethod = layeringMethod;
@@ -941,7 +943,7 @@ void ModuleFactory::ReadConfigFile(const char *configFileName)
 }
 
 void ModuleFactory::SetData(string &dbName, int nSubbasin, SEIMSModuleSetting *setting, ParamInfo *param,
-                            clsRasterData *templateRaster,
+                            clsRasterData<float> *templateRaster,
                             SettingsInput *settingsInput, SimulationModule *pModule, bool vertitalItp)
 {
     //set the parameter data to the module
@@ -1024,7 +1026,7 @@ void ModuleFactory::SetData(string &dbName, int nSubbasin, SEIMSModuleSetting *s
     //	cout << name << "\t" << end-start << endl;
 }
 
-void ModuleFactory::SetValue(ParamInfo *param, clsRasterData *templateRaster, SettingsInput *settingsInput,
+void ModuleFactory::SetValue(ParamInfo *param, clsRasterData<float> *templateRaster, SettingsInput *settingsInput,
                              SimulationModule *pModule)
 {
     //get parameter data
@@ -1062,7 +1064,7 @@ void ModuleFactory::SetValue(ParamInfo *param, clsRasterData *templateRaster, Se
     pModule->SetValue(param->Name.c_str(), param->Value);
 }
 
-void ModuleFactory::Set1DData(string &dbName, string &paraName, string &remoteFileName, clsRasterData *templateRaster,
+void ModuleFactory::Set1DData(string &dbName, string &paraName, string &remoteFileName, clsRasterData<float> *templateRaster,
                               SimulationModule *pModule, SettingsInput *settingsInput, bool vertitalItp)
 {
     int n;
@@ -1181,7 +1183,7 @@ void ModuleFactory::Set1DData(string &dbName, string &paraName, string &remoteFi
 }
 
 void ModuleFactory::Set2DData(string &dbName, string &paraName, int nSubbasin, string &remoteFileName,
-                              clsRasterData *templateRaster, SimulationModule *pModule)
+                              clsRasterData<float> *templateRaster, SimulationModule *pModule)
 {
     int nRows = 0;
     int nCols = 1;
@@ -1291,19 +1293,19 @@ void ModuleFactory::Set2DData(string &dbName, string &paraName, int nSubbasin, s
     pModule->Set2DData(paraName.c_str(), nRows, nCols, data);
 }
 
-void ModuleFactory::SetRaster(string &dbName, string &paraName, string &remoteFileName, clsRasterData *templateRaster,
+void ModuleFactory::SetRaster(string &dbName, string &paraName, string &remoteFileName, clsRasterData<float> *templateRaster,
                               SimulationModule *pModule)
 {
     int n, lyrs;
     float *data = NULL;
     float **data2D = NULL;
-    clsRasterData *raster = NULL;
+    clsRasterData<float> *raster = NULL;
     if (m_rsMap.find(remoteFileName) == m_rsMap.end())
     {
         try
         {
 #ifdef USE_MONGODB
-            raster = new clsRasterData(m_spatialData, remoteFileName.c_str(), templateRaster);
+            raster = new clsRasterData<float>(m_spatialData, remoteFileName.c_str(), templateRaster);
             string upperName = GetUpper(paraName);
             /// 1D or 2D raster data
             if (raster->is2DRaster())
@@ -1370,7 +1372,7 @@ void ModuleFactory::SetReaches(SimulationModule *pModule)
         m_reaches = new clsReaches(m_conn, m_dbName, DB_TAB_REACH);
     pModule->SetReaches(m_reaches);
 }
-void ModuleFactory::AddMaskRaster(string maskName, clsRasterData *maskData)
+void ModuleFactory::AddMaskRaster(string maskName, clsRasterData<float> *maskData)
 {
 	if (m_rsMap.find(maskName) == m_rsMap.end()) // not loaded yet
 		m_rsMap[maskName] = maskData;

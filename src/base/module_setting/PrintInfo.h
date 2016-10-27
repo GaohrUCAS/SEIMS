@@ -136,7 +136,7 @@ public:
 	//! Aggregation type string
 	string AggType;
     //! create "output" folder to store all results
-    void Flush(string, clsRasterData *, string);
+    void Flush(string, clsRasterData<float> *, string);
 
     //! Determine if the given date is within the date range for this item
     bool IsDateInRange(time_t dt);

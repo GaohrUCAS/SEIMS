@@ -22,9 +22,9 @@
 #include "ParamInfo.h"
 #include "Scenario.h"
 #include "clsReach.h"
+#include "clsRasterData.h"
 #include "clsSubbasin.h"
 #include "clsInterpolationWeightData.h"
-#include "clsRasterData.h"
 #include "SettingsInput.h"
 #include "MongoUtil.h"
 #include "util.h"
@@ -54,7 +54,7 @@ public:
 
     //! Create a set of objects and set up the relationship among them. Return time-consuming.
     float CreateModuleList(string dbName, int subbasinID, int numThreads, LayeringMethod layeringMethod,
-                         clsRasterData *templateRaster, SettingsInput *settingsInput,
+                         clsRasterData<float> *templateRaster, SettingsInput *settingsInput,
                          vector<SimulationModule *> &modules);
 
     //! Update inputs, such climate data.
@@ -70,7 +70,7 @@ public:
     string GetModuleID(int i) { return m_moduleIDs[i]; }
 
 	//! Add mask raster to m_rsMap
-	void AddMaskRaster(string, clsRasterData *);
+	void AddMaskRaster(string, clsRasterData<float> *);
 private:
     typedef SimulationModule *(*InstanceFunction)(void);
 
@@ -137,7 +137,7 @@ private:
     //! Interpolation weight data map
     map<string, clsInterpolationWeightData *> m_weightDataMap;
     //! Raster data (include 1D and/or 2D) map
-    map<string, clsRasterData *> m_rsMap;
+    map<string, clsRasterData<float> *> m_rsMap;
     //! BMPs Scenario data
     Scenario *m_scenario;
     //! Reaches information
@@ -190,23 +190,23 @@ private:
 
     //! Set data for modules, include all datatype
     void SetData(string &dbName, int nSubbasin, SEIMSModuleSetting *setting, ParamInfo *param,
-                 clsRasterData *templateRaster,
+                 clsRasterData<float> *templateRaster,
                  SettingsInput *settingsInput, SimulationModule *pModule, bool vertitalItp);
 
     //! Set single Value
-    void SetValue(ParamInfo *param, clsRasterData *templateRaster, SettingsInput *settingsInput,
+    void SetValue(ParamInfo *param, clsRasterData<float> *templateRaster, SettingsInput *settingsInput,
                   SimulationModule *pModule);
 
     //! Set 1D Data
-    void Set1DData(string &dbName, string &paraName, string &remoteFileName, clsRasterData *templateRaster,
+    void Set1DData(string &dbName, string &paraName, string &remoteFileName, clsRasterData<float> *templateRaster,
                    SimulationModule *pModule, SettingsInput *settingsInput, bool vertitalItp);
 
     //! Set 2D Data
     void Set2DData(string &dbName, string &paraName, int nSubbasin, string &remoteFileName,
-                   clsRasterData *templateRaster, SimulationModule *pModule);
+                   clsRasterData<float> *templateRaster, SimulationModule *pModule);
 
     //! Set raster data
-    void SetRaster(string &dbName, string &paraName, string &remoteFileName, clsRasterData *templateRaster,
+    void SetRaster(string &dbName, string &paraName, string &remoteFileName, clsRasterData<float> *templateRaster,
                    SimulationModule *pModule);
 
     //! Set BMPs Scenario data

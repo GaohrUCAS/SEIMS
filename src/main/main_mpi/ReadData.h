@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 #include <map>
-
-#include "mongo.h"
+#include "mongoc.h"
+// #include "mongo.h"
 
 using namespace std;
 
@@ -35,7 +35,12 @@ int ReadSubbasinOutlets(const char *outletFile, int nSubbasins, float **&outlets
 
 int ReadRiverTopology(const char *reachFile, map<int, Subbasin *> &subbasins, set<int> &groupSet);
 
-int GetGroupCount(mongo *conn, const char *dbName, int decompostionPlan);
+int GetGroupCount(mongoc_client_t *conn, const char *dbName, int decompostionPlan);
 
-int ReadTopologyFromMongoDB(mongo *conn, const char *dbName, map<int, Subbasin *> &subbasins, set<int> &groupSet,
-                            int decompostionPlan, const char *groupField);
+int ReadTopologyFromMongoDB(mongoc_client_t *conn, const char *dbName, map<int, Subbasin *> &subbasins, set<int> &groupSet,
+	int decompostionPlan, const char *groupField);
+
+//int GetGroupCount(mongo *conn, const char *dbName, int decompostionPlan);
+//
+//int ReadTopologyFromMongoDB(mongo *conn, const char *dbName, map<int, Subbasin *> &subbasins, set<int> &groupSet,
+//                            int decompostionPlan, const char *groupField);

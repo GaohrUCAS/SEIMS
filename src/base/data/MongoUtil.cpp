@@ -52,6 +52,24 @@ float GetFloatFromBSONITER(bson_iter_t *iter)
     else
         throw ModelException("MongoDB Utility", "ReadFromMongoDB", "Failed in get FLOAT value.\n");
 }
+double GetDoubleFromBSONITER(bson_iter_t *iter)
+{
+	//	bson_type_t vtype = bson_iter_type(iter);
+	const bson_value_t *vv = bson_iter_value(iter);
+	if (vv->value_type == BSON_TYPE_INT32)
+		return (double) vv->value.v_int32;
+	else if (vv->value_type == BSON_TYPE_INT64)
+		return (double) vv->value.v_int64;
+	else if (vv->value_type == BSON_TYPE_DOUBLE)
+		return (double) vv->value.v_double;
+	else if (vv->value_type == BSON_TYPE_UTF8)
+	{
+		string tmp = vv->value.v_utf8.str;
+		return (double) atof(tmp.c_str());
+	}
+	else
+		throw ModelException("MongoDB Utility", "ReadFromMongoDB", "Failed in get FLOAT value.\n");
+}
 
 bool GetBoolFromBSONITER(bson_iter_t *iter)
 {
