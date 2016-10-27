@@ -30,37 +30,43 @@ IF (WIN32)
     SET(GDAL_HOME ${CMAKE_CURRENT_SOURCE_DIR}/include/gdal)
     SET(BSON_INC ${MONGO_HOME}/mongo-win/libbson-1.0)
     SET(MONGO_INC ${MONGO_HOME}/mongo-win/libmongoc-1.0)
-    ## SET MPI
-    #For MS-MPI in Windows, version v6 and above.
-    set(MPIEXEC "C:/Program Files/Microsoft MPI/Bin/mpiexec.exe")
-    #set(MPIEXEC "C:/Program Files/Microsoft HPC Pack 2012/Bin/mpiexec.exe")
-    # For building MPI programs the selected Visual Studio compiler is used, namely cl.exe.
-    # So there is no need to set a specific MPI compiler.
-    # Make sure the correct libraries (64-bit or 32-bit) are selected.
-    # Decide between 32-bit and 64-bit libraries for Microsoft's MPI
-    if (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "AMD64")
-        set(MS_MPI_ARCH_DIR x64)
-        set(MS_MPI_PATH "C:/Program Files (x86)/Microsoft SDKs/MPI")
-    else ()
-        set(MS_MPI_PATH "C:/Program Files/Microsoft SDKs/MPI")
-        set(MS_MPI_ARCH_DIR x86)
-    endif ()
-    set(MPI_CXX_INCLUDE_PATH "${MS_MPI_PATH}/Include")
-    # Currently, because the GDAL is 32-bit, then only x86 MPI is supported. LJ
-    #set(MPI_CXX_LIBRARIES "${MS_MPI_PATH}/Lib/${MS_MPI_ARCH_DIR}/msmpi.lib")
-    set(MPI_CXX_LIBRARIES "${MS_MPI_PATH}/Lib/x86/msmpi.lib")
-    set(MPI_C_INCLUDE_PATH "${MPI_CXX_INCLUDE_PATH}")
-    set(MPI_C_LIBRARIES "${MPI_CXX_LIBRARIES}")
-    set(MPI_INCLUDE "${MPI_CXX_INCLUDE_PATH}")
-    set(MPI_LIB "${MPI_CXX_LIBRARIES}")
-    ## END SETTING MPI
+    IF (SEIMSVERSION STREQUAL MPI)
+        ## SET MPI
+        #For MS-MPI in Windows, version v6 and above.
+        set(MPIEXEC "C:/Program Files/Microsoft MPI/Bin/mpiexec.exe")
+        #set(MPIEXEC "C:/Program Files/Microsoft HPC Pack 2012/Bin/mpiexec.exe")
+        # For building MPI programs the selected Visual Studio compiler is used, namely cl.exe.
+        # So there is no need to set a specific MPI compiler.
+        # Make sure the correct libraries (64-bit or 32-bit) are selected.
+        # Decide between 32-bit and 64-bit libraries for Microsoft's MPI
+        if (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "AMD64")
+            set(MS_MPI_ARCH_DIR x64)
+            set(MS_MPI_PATH "C:/Program Files (x86)/Microsoft SDKs/MPI")
+        else ()
+            set(MS_MPI_PATH "C:/Program Files/Microsoft SDKs/MPI")
+            set(MS_MPI_ARCH_DIR x86)
+        endif ()
+        set(MPI_CXX_INCLUDE_PATH "${MS_MPI_PATH}/Include")
+        # Currently, because the GDAL is 32-bit, then only x86 MPI is supported. LJ
+        #set(MPI_CXX_LIBRARIES "${MS_MPI_PATH}/Lib/${MS_MPI_ARCH_DIR}/msmpi.lib")
+        set(MPI_CXX_LIBRARIES "${MS_MPI_PATH}/Lib/x86/msmpi.lib")
+        set(MPI_C_INCLUDE_PATH "${MPI_CXX_INCLUDE_PATH}")
+        set(MPI_C_LIBRARIES "${MPI_CXX_LIBRARIES}")
+        set(MPI_INCLUDE "${MPI_CXX_INCLUDE_PATH}")
+        set(MPI_LIB "${MPI_CXX_LIBRARIES}")
+        ## END SETTING MPI
+    ENDIF()
 ELSE ()
     SET(GDAL_HOME /soft/share)
     SET(BSON_INC ${MONGO_HOME}/mongo-linux/libbson-1.0)
     SET(MONGO_INC ${MONGO_HOME}/mongo-linux/libmongoc-1.0)
-    ## SET MPI, openmpi (/opt/openmpi) or mpich (/home/zhulj/mpich)
-    SET(MPI_HOME /home/zhulj/mpich/)
-    SET(CMAKE_CXX_COMPILER "/home/zhulj/gcc4.8.4/bin/g++")
+    IF (SEIMSVERSION STREQUAL MPI)
+        ## SET MPI, openmpi (/opt/openmpi) or mpich (/home/zhulj/mpich)
+        SET(MPI_HOME /home/zhulj/mpich/)
+        SET(CMAKE_CXX_COMPILER "/home/zhulj/mpich/bin/mpic++")
+    ELSE()
+        SET(CMAKE_CXX_COMPILER "/home/zhulj/gcc4.8.4/bin/g++")
+    ENDIF()
     # Set pthreads
     SET (CMAKE_THREAD_PREFER_PTHREAD TRUE)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++11 -ldl -fopenmp -fPIC -static-libstdc++ -static-libgcc -lpthread")
@@ -83,7 +89,10 @@ SET(MODULE_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/base/util/SimulationModule.cpp)
 
 INCLUDE_DIRECTORIES(${BSON_INC} ${MONGO_INC} ${GDAL_HOME} ${GDAL_HOME}/include ${BASE_UTIL} ${BASE_DATA} ${BASE_MODS} ${BASE_BMPS})
 LINK_DIRECTORIES(${GDAL_HOME}/lib ${LIB_DIR} ${PROJECT_BINARY_DIR})
-
+IF (SEIMSVERSION STREQUAL MPI)
+    INCLUDE_DIRECTORIES(./src/main/main_omp ${MPI_INCLUDE})
+    LINK_DIRECTORIES(${MPI_LIB})
+ENDIF()
 SET(BASE_HOME ./src/base)
 SET(MODULE_HOME ./src/modules)
 SET(MAIN_HOME ./src/main)
