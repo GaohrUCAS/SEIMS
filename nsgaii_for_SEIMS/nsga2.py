@@ -76,12 +76,15 @@ class NSGAII:
                 del P[population_size:]
             Q = self.make_new_pop(P)
 
-        for f in fronts.values():
-            for info in f:
-                print info.__dict__['attributes']
+        # for f in fronts.values():
+        #     for info in f:
+        #         print info.__dict__['attributes']
         # print fronts.values()[0][0].__dict__
         # for ss in range(len(Q)):
         #     print Q[ss].__dict__['attributes']
+
+        return P
+
     def sort_ranking(self, P):
         for i in range(len(P) - 1, -1, -1):
             for j in range(1, i + 1):
