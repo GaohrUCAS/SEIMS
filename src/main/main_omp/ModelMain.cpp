@@ -6,7 +6,6 @@
  *
  * 
  */
-#pragma once
 #include "ModelMain.h"
 #include "utils.h"
 #include "util.h"
@@ -14,9 +13,9 @@
 #include "ModelException.h"
 #include "PrintInfo.h"
 #include "MongoUtil.h"
-#include "clsRasterData.cpp"
 #include <ctime>
 #include <sstream>
+#include "clsRasterData.cpp"
 
 ModelMain::ModelMain(mongoc_client_t *conn, string dbName, string projectPath, SettingsInput *input,
                      ModuleFactory *factory, int subBasinID, int scenarioID, int numThread,
@@ -508,8 +507,8 @@ void ModelMain::Output(time_t time)
     }
 }
 
-//void ModelMain::SetChannelFlowIn(float value)
-//{
-//	int index = m_channelModules[0];
-//	m_simulationModules[index]->SetValue(VAR_QUPREACH, value);
-//}
+void ModelMain::SetChannelFlowIn(float value)
+{
+	int index = m_channelModules[0];
+	m_simulationModules[index]->SetValue(VAR_QUPREACH, value);
+}

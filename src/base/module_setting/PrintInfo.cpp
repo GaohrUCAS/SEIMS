@@ -6,7 +6,6 @@
  * \version 1.1
  * \date June 2010
  */
-#pragma once
 #include "ModelException.h"
 #include "PrintInfo.h"
 #include "clsRasterData.cpp"

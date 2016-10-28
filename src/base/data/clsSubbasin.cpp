@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include "ModelException.h"
+#include "clsRasterData.cpp"
 using namespace std;
 
 Subbasin::Subbasin(int id) : m_id(id), m_nCells(-1), m_cells(NULL), m_isRevapChanged(true), 

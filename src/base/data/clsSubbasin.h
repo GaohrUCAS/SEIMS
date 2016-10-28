@@ -5,8 +5,8 @@
 #include <string>
 #include <cmath>
 #include "mongoc.h"
-#include "clsRasterData.h"
 #include "ModelException.h"
+#include "clsRasterData.cpp"
 using namespace std;
 
 /*!

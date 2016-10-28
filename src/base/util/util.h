@@ -265,16 +265,6 @@ void Release2DArray(int row, T **&data)
 void LocalTime(time_t tValue, struct tm *tmStruct);
 
 /*!
- * \brief Max value of a double array
- *
- * Get maximum value in a double array with size n.
- *
- * \param[in] a, n
- * \return max value
- */
-extern double Max(double *a, int n);
-
-/*!
  * \brief Write 1D array to a file
  *
  * \sa Read1DArrayFromTxtFile(), Read2DArrayFromTxtFile(), Output2DArrayToTxtFile()
@@ -352,7 +342,27 @@ extern bool StrEqualIgnoreCase(const char *, const char *);
  * \return true or false
  */
 extern bool StringMatch(string text1, string text2);
-
+/*!
+ * \brief Max value of a numeric array
+ *
+ * Get maximum value in a numeric array with size n.
+ *
+ * \param[in] a, n
+ * \return max value
+ */
+template<typename T>
+T Max(T *a, int n)
+{
+	T m = a[0];
+	for (int i = 1; i < n; i++)
+	{
+		if (a[i] > m)
+		{
+			m = a[i];
+		}
+	}
+	return m;
+}
 /*!
  * \brief Sum of a numeric array
  *

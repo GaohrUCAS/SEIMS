@@ -12,6 +12,7 @@
 #include "utils.h"
 #include "util.h"
 #include <fstream>
+#include "clsRasterData.cpp"
 
 using namespace std;
 

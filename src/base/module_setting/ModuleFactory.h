@@ -22,7 +22,6 @@
 #include "ParamInfo.h"
 #include "Scenario.h"
 #include "clsReach.h"
-#include "clsRasterData.h"
 #include "clsSubbasin.h"
 #include "clsInterpolationWeightData.h"
 #include "SettingsInput.h"

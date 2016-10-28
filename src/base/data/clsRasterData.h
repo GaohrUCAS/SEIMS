@@ -1,5 +1,4 @@
 /*!
- * \file clsRasterData.h
  * \ingroup data
  * \brief Define Raster class to handle raster data
  *
@@ -122,7 +121,8 @@ public:
 
     //! Get the spatial reference
     const char *getSRS() { return m_srs.c_str(); }
-
+	//! Get the spatial reference string
+	string getSRSString() { return m_srs; }
     //! Get raster data at the valid cell index
     T getValue(int validCellIndex);
 
@@ -239,7 +239,11 @@ public:
      */
     static void outputGTiff(map<string, double> header, string &srs, int nValidCells, float **position, T **value,
                             string filename);
-
+	/*
+	 * \brief Write 2D-array raster data into GTIFF file
+	 *        Used when valid position data is not available.
+	 */
+	static void outputGTiff(map<string, double> header, string &srs, T *value, string &filename);
     //! Write raster data to MongoDB, if 2D raster, output name will be filename_LyrNum
     void outputToMongoDB(string remoteFilename, mongoc_gridfs_t *gfs);
 

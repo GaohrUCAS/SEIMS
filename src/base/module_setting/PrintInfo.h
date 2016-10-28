@@ -16,9 +16,9 @@
 #include <map>
 #include "mongoc.h"
 #include "ParamInfo.h"
-#include "clsRasterData.h"
 #include "util.h"
 #include "utils.h"
+#include "clsRasterData.cpp"
 //#include "clsSpecificOutput.h"
 
 

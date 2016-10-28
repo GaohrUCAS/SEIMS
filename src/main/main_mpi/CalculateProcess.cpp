@@ -1,12 +1,15 @@
 #include "parallel.h"
 #include "mpi.h"
 #include "util.h"
+
 #include <sstream>
 #include <iostream>
-
+#include "PrintInfo.h"
 #include "ModelMain.h"
 #include "invoke.h"
 #include "ModuleFactory.h"
+#include "ClimateParams.h"
+#include "clsRasterData.cpp"
 //#include "SimulationModule.h"
 #include "mongoc.h"
 // #include "mongo.h"
@@ -122,32 +125,45 @@ void CalculateProcess(int rank, int numprocs, int nSlaves, MPI_Comm slaveComm,
     ////////////////////////////////////////////////////////////////////
     //cout << "rank " << rank << " check project.\n";
     checkProject(projectPath);
+
     //string dbName = "model_1";
-    mongo conn[1];
+    // mongo conn[1];
     //const char* host = "127.0.0.1";
     //int port = 27017;
 
-    int mongoStatus = mongo_connect(conn, host, port);
-    if (MONGO_OK != mongoStatus)
-    {
-        cout << "can not connect to mongodb.\n";
-        exit(-1);
-    }
+    //int mongoStatus = mongo_connect(conn, host, port);
+    //if (MONGO_OK != mongoStatus)
+    //{
+    //    cout << "can not connect to mongodb.\n";
+    //    exit(-1);
+    //}
     //checkDatabase(conn, string(dbName));
 
-    ModuleFactory *factory = new ModuleFactory(projectPath + File_Config, modulePath, conn, string(dbName));
+	mongoc_client_t *conn;
+	if (!isIPAddress(host))
+		throw ModelException("MainMongoDB", "Connect to MongoDB",
+		"IP address: " + string(host) + "is invalid, Please check!\n");
+	mongoc_init();
+	mongoc_uri_t *uri = mongoc_uri_new_for_host_port(host, port);
+	conn = mongoc_client_new_from_uri(uri);
 
+    // ModuleFactory *factory = new ModuleFactory(projectPath + File_Config, modulePath, conn, string(dbName));
+	int nSubbasin = 1;
+	int scenarioID = 0;
+	ModuleFactory *factory = new ModuleFactory(projectPath + File_Config, modulePath, conn, string(dbName), nSubbasin, layeringMethod, scenarioID);
     string db = dbName;
     string inputFile = projectPath + File_Input;
     for (int i = 0; i < nSubbasins; i++)
     {
         //cout << rank << " " <<  pTasks[i] << endl;
-        ModelMain *p = new ModelMain(conn, db, projectPath, factory, pTasks[i], 0, layeringMethod);
+		SettingsInput *input = new SettingsInput(inputFile, conn, db, pTasks[i]);
+        // ModelMain *p = new ModelMain(conn, db, projectPath, factory, pTasks[i], 0, layeringMethod);
+		ModelMain *p = new ModelMain(conn, db, projectPath, input, factory, pTasks[i], scenarioID, nThreads, layeringMethod);
         //if(i == 0)
-        {
-            SettingsInput *input = new SettingsInput(inputFile, conn, db, pTasks[i]);
-            p->Init(input, nThreads);
-        }
+        //{
+        //    SettingsInput *input = new SettingsInput(inputFile, conn, db, pTasks[i]);
+        //    p->Init(input, nThreads);
+        //}
         modelList.push_back(p);
     }
     //cout << rank << " after constructor\n";
@@ -160,7 +176,8 @@ void CalculateProcess(int rank, int numprocs, int nSlaves, MPI_Comm slaveComm,
     if (slaveRank == 0)
     {
         ioTime = Max(tReceive, nSlaves);
-        cout << "[DEBUG]\tTime of reading data -- Max:" << ioTime << "   Total:" << Sum(tReceive, nSlaves) << "\n";
+        //cout << "[DEBUG]\tTime of reading data -- Max:" << ioTime << "   Total:" << Sum(tReceive, nSlaves) << "\n";
+		cout << "[DEBUG]\tTime of reading data -- Max:" << ioTime << "   Total:" << Sum(nSlaves, tReceive) << "\n";
         cout << "[DEBUG][TIMESPAN][IO]" << ioTime << endl;
     }
     t1 = MPI_Wtime();
@@ -205,8 +222,11 @@ void CalculateProcess(int rank, int numprocs, int nSlaves, MPI_Comm slaveComm,
     //cout << p->getStartTime() << "\t" << p->getEndTime() << "\t" << dtCh << endl;
     utils util;
     //cout << "Whether include channel: " << includeChannel << endl;
-    for (time_t t = p->getStartTime(); t <= p->getEndTime(); t += dtCh)
+	time_t curTime = p->getStartTime();
+	int startYear = GetYear(curTime);
+    for ( ; curTime <= p->getEndTime(); curTime += dtCh)
     {
+		int yearIdx = GetYear(curTime) - startYear;
         int nHs = int(dtCh / dtHs);
 
         //if(slaveRank == 0)
@@ -233,14 +253,14 @@ void CalculateProcess(int rank, int numprocs, int nSlaves, MPI_Comm slaveComm,
             //	cout << "RANK" << rank << ":" << pTasks[index] << " Before execution" << endl;
             //modelList[index]->Step(t);
             for (int i = 0; i < nHs; ++i)
-                pSubbasin->StepHillSlope(t + i * dtHs, i);
+                pSubbasin->StepHillSlope(curTime + i * dtHs, yearIdx, i);
             //if (rank == R)
             //	cout << "RANK" << rank << ":" << pTasks[index] << " End Hillslope execution" << endl;
-            pSubbasin->StepChannel(t);
+            pSubbasin->StepChannel(curTime, yearIdx);
             //if (rank == R)
             //	cout << "RANK" << rank << ":" << pTasks[index] << " End source execution" << endl;
 
-            pSubbasin->Output(t);
+            pSubbasin->Output(curTime);
             //if (rank == R)
             //	cout << "RANK" << rank << ":" << pTasks[index] << " End output" << endl;
             if (includeChannel)
@@ -292,7 +312,7 @@ void CalculateProcess(int rank, int numprocs, int nSlaves, MPI_Comm slaveComm,
             //    pSubbasin->Init(input, nThreads);
             //}
             for (int i = 0; i < nHs; ++i)
-                pSubbasin->StepHillSlope(t + i * dtHs, i);
+                pSubbasin->StepHillSlope(curTime + i * dtHs, yearIdx, i);
         }
         tTask2 = MPI_Wtime();
         tSlope = tSlope + tTask2 - tTask1;
@@ -420,8 +440,8 @@ void CalculateProcess(int rank, int numprocs, int nSlaves, MPI_Comm slaveComm,
                         overFlowIn += qMap[upId];
                     }
                     pSubbasin->SetChannelFlowIn(overFlowIn);
-                    pSubbasin->StepChannel(t);
-                    pSubbasin->Output(t);
+                    pSubbasin->StepChannel(curTime, yearIdx);
+                    pSubbasin->Output(curTime);
 
                     float qOutlet = pSubbasin->GetQOutlet();
 

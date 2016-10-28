@@ -7,6 +7,7 @@
 #pragma once
 
 #include <stdlib.h>
+#include <map>
 #include "BMPFactory.h"
 #include "utils.h"
 using namespace MainBMP;

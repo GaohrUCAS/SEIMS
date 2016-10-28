@@ -531,6 +531,40 @@ void clsRasterData<T>::outputGTiff(clsRasterData *templateRasterData, T **value,
     string srs(templateRasterData->getSRS());
     clsRasterData<T>::outputGTiff(*(templateRasterData->getRasterHeader()), srs, nRows, position, value, rasterName);
 }
+template <typename T>
+void clsRasterData<T>::outputGTiff(map<string, double> header, string &srs, T *value, string &filename)
+{
+	double noDataValue = header[HEADER_RS_NODATA];
+	int nCols = (int) header[HEADER_RS_NCOLS];
+	int nRows = (int) header[HEADER_RS_NROWS];
+	double xll = header[HEADER_RS_XLL];
+	double yll = header[HEADER_RS_YLL];
+	double dx = header[HEADER_RS_CELLSIZE];
+	//int n = nRows * nCols;
+	
+	const char *pszFormat = "GTiff";
+	GDALDriver *poDriver = GetGDALDriverManager()->GetDriverByName(pszFormat);
+
+	char **papszOptions = poDriver->GetMetadata();
+	GDALDataset *poDstDS = poDriver->Create(filename.c_str(), nCols, nRows, 1, GDT_Float32, papszOptions);
+
+	/// Write the data to new file
+	GDALRasterBand *poDstBand = poDstDS->GetRasterBand(1);
+	poDstBand->RasterIO(GF_Write, 0, 0, nCols, nRows, value, nCols, nRows, GDT_Float32, 0, 0);
+	poDstBand->SetNoDataValue(noDataValue);
+
+	double geoTrans[6];
+	geoTrans[0] = xll;
+	geoTrans[1] = dx;
+	geoTrans[2] = 0.;
+	geoTrans[3] = yll + nRows * dx;
+	geoTrans[4] = 0.;
+	geoTrans[5] = -dx;
+	poDstDS->SetGeoTransform(geoTrans);
+	poDstDS->SetProjection(srs.c_str());
+	GDALClose(poDstDS);
+}
+
 template<typename T>
 void clsRasterData<T>::outputToMongoDB(string remoteFilename, mongoc_gridfs_t *gfs)
 {
