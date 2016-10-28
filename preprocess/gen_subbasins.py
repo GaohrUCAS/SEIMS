@@ -42,7 +42,7 @@ def GetMaskFromRaster(rasterFile, dstdir):
     yMaxMask = yMax - iMin * dx
     print "%dx%d -> %dx%d" % (xsize, ysize, xSizeMask, ySizeMask)
 
-    mask = zeros((ySizeMask, xSizeMask))
+    mask = numpy.zeros((ySizeMask, xSizeMask))
 
     for i in range(ySizeMask):
         for j in range(xSizeMask):

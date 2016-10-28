@@ -18,7 +18,7 @@ clsReach::clsReach(const bson_t *&bsonTable)
     /// reset default values
     Reset();
     if (bson_iter_init_find(&iterator, bsonTable, REACH_SUBBASIN))
-        this->Subbasin = GetIntFromBSONITER(&iterator);
+        this->SubbasinID = GetIntFromBSONITER(&iterator);
     if (bson_iter_init_find(&iterator, bsonTable, REACH_DOWNSTREAM))
         this->DownStream = GetIntFromBSONITER(&iterator);
     if (bson_iter_init_find(&iterator, bsonTable, REACH_UPDOWN_ORDER))
@@ -120,7 +120,7 @@ void clsReach::Reset(void)
     Manning = NODATA_VALUE;
     NumCells = -1;
     Slope = NODATA_VALUE;
-    Subbasin = -1;
+    SubbasinID = -1;
     UpDownOrder = -1;
     V0 = NODATA_VALUE;
     Width = NODATA_VALUE;

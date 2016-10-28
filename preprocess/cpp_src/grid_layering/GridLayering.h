@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-*	Purpose: 	Raster Data
+*	Purpose:  Raster Data
 *
 *	Created:	Junzhi Liu
 *	Date:		29-July-2012
@@ -18,10 +18,10 @@ using namespace std;
 
 struct RasterHeader
 {
-    int noDataValue;
-    int nRows, nCols;
-    double xll, yll;
-    double dx;
+        int noDataValue;
+        int nRows, nCols;
+        double xll, yll;
+        double dx;
 };
 
 int CalCompressedIndex(int n, int *mask, int noDataValue, int *compressedIndex);

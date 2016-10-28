@@ -7,92 +7,92 @@
 #include "ogrsf_frmts.h"
 
 #include "ReadData.h"
-#include "clsRasterData.h"
+#include "clsRasterData.cpp"
 #include "ModelException.h"
-
+#include "invoke.h"
 
 #include "bson.h"
 
 using namespace std;
 
-int ReadInputData(int index, string &layerFilePrefix, string &dirFilePrefix,
-                  string &slopeFilePrefix, string &streamFilePrefix,
-                  float **&rtLayers, float **&flowIn, float *&flowOut, float *&dir, float *&slope, float *&stream,
-                  int &layersCount, int &cellsCount)
-{
-    //input
-    ostringstream oss;
-    oss << layerFilePrefix << index << ".txt";
-    string layerFile = oss.str();
-
-    oss.str("");
-    oss << dirFilePrefix << index << ".txt";
-    string dirFile = oss.str();
-
-    oss.str("");
-    oss << slopeFilePrefix << index << ".txt";
-    string slopeFile = oss.str();
-
-    oss.str("");
-    oss << streamFilePrefix << index << ".txt";
-    string streamFile = oss.str();
-
-    // read data from files
-    ifstream fLayer(layerFile.c_str());
-    string tmp;
-    fLayer >> tmp >> layersCount;
-    rtLayers = new float *[layersCount];
-    for (int i = 0; i < layersCount; ++i)
-    {
-        int nCells;
-        fLayer >> nCells;
-        rtLayers[i] = new float[nCells + 1];
-        rtLayers[i][0] = (float) nCells;
-        for (int j = 1; j <= nCells; ++j)
-            fLayer >> rtLayers[i][j];
-    }
-    fLayer.close();
-
-    ifstream fFlowIn(dirFile.c_str());
-    fFlowIn >> tmp >> cellsCount;
-    flowIn = new float *[cellsCount];
-    flowOut = new float[cellsCount];
-    dir = new float[cellsCount];
-    for (int i = 0; i < cellsCount; ++i)
-    {
-        int inNum;
-        fFlowIn >> dir[i] >> flowOut[i] >> inNum;
-        flowIn[i] = new float[inNum + 1];
-        flowIn[i][0] = (float) inNum;
-        for (int j = 1; j <= inNum; ++j)
-        {
-            fFlowIn >> flowIn[i][j];
-        }
-    }
-    fFlowIn.close();
-
-    clsRasterData slopeRaster(slopeFile.c_str());
-    if (slopeRaster.getCellNumber() != cellsCount)
-    {
-        throw ModelException("", "ReadInputData", "The slope file is not consistent with the layer file.");
-    }
-    slope = new float[cellsCount];
-    for (int i = 0; i < cellsCount; ++i)
-    {
-        slope[i] = 0.01f * slopeRaster.getValue(i);
-        if (abs(slope[i]) < 0.0001f)
-            slope[i] = 0.0001f;
-    }
-
-    clsRasterData streamRaster(streamFile.c_str(), &slopeRaster);
-    stream = new float[cellsCount];
-    for (int i = 0; i < cellsCount; ++i)
-    {
-        stream[i] = streamRaster.getValue(i);
-        //    cout << int(stream[i]) << " ";
-    }
-    return 0;
-}
+//int ReadInputData(int index, string &layerFilePrefix, string &dirFilePrefix,
+//                  string &slopeFilePrefix, string &streamFilePrefix,
+//                  float **&rtLayers, float **&flowIn, float *&flowOut, float *&dir, float *&slope, float *&stream,
+//                  int &layersCount, int &cellsCount)
+//{
+//    //input
+//    ostringstream oss;
+//    oss << layerFilePrefix << index << ".txt";
+//    string layerFile = oss.str();
+//
+//    oss.str("");
+//    oss << dirFilePrefix << index << ".txt";
+//    string dirFile = oss.str();
+//
+//    oss.str("");
+//    oss << slopeFilePrefix << index << ".txt";
+//    string slopeFile = oss.str();
+//
+//    oss.str("");
+//    oss << streamFilePrefix << index << ".txt";
+//    string streamFile = oss.str();
+//
+//    // read data from files
+//    ifstream fLayer(layerFile.c_str());
+//    string tmp;
+//    fLayer >> tmp >> layersCount;
+//    rtLayers = new float *[layersCount];
+//    for (int i = 0; i < layersCount; ++i)
+//    {
+//        int nCells;
+//        fLayer >> nCells;
+//        rtLayers[i] = new float[nCells + 1];
+//        rtLayers[i][0] = (float) nCells;
+//        for (int j = 1; j <= nCells; ++j)
+//            fLayer >> rtLayers[i][j];
+//    }
+//    fLayer.close();
+//
+//    ifstream fFlowIn(dirFile.c_str());
+//    fFlowIn >> tmp >> cellsCount;
+//    flowIn = new float *[cellsCount];
+//    flowOut = new float[cellsCount];
+//    dir = new float[cellsCount];
+//    for (int i = 0; i < cellsCount; ++i)
+//    {
+//        int inNum;
+//        fFlowIn >> dir[i] >> flowOut[i] >> inNum;
+//        flowIn[i] = new float[inNum + 1];
+//        flowIn[i][0] = (float) inNum;
+//        for (int j = 1; j <= inNum; ++j)
+//        {
+//            fFlowIn >> flowIn[i][j];
+//        }
+//    }
+//    fFlowIn.close();
+//
+//    clsRasterData<float> slopeRaster(slopeFile.c_str());
+//    if (slopeRaster.getCellNumber() != cellsCount)
+//    {
+//        throw ModelException("", "ReadInputData", "The slope file is not consistent with the layer file.");
+//    }
+//    slope = new float[cellsCount];
+//    for (int i = 0; i < cellsCount; ++i)
+//    {
+//        slope[i] = 0.01f * slopeRaster.getValue(i);
+//        if (abs(slope[i]) < 0.0001f)
+//            slope[i] = 0.0001f;
+//    }
+//
+//    clsRasterData<float> streamRaster(streamFile.c_str(), &slopeRaster);
+//    stream = new float[cellsCount];
+//    for (int i = 0; i < cellsCount; ++i)
+//    {
+//        stream[i] = streamRaster.getValue(i);
+//        //    cout << int(stream[i]) << " ";
+//    }
+//    return 0;
+//}
 
 
 int ReadSubbasinOutlets(const char *outletFile, int nSubbasins, float **&outlets)
@@ -108,9 +108,9 @@ int ReadSubbasinOutlets(const char *outletFile, int nSubbasins, float **&outlets
     return 0;
 }
 
-int BuildLayer(Subbasin *pDownStream)
+int BuildLayer(SubbasinStruct *pDownStream)
 {
-    vector<Subbasin *> &ups = pDownStream->upStreams;
+    vector<SubbasinStruct *> &ups = pDownStream->upStreams;
     for (size_t i = 0; i < ups.size(); ++i)
     {
         ups[i]->disToOutlet = pDownStream->disToOutlet + 1;
@@ -119,103 +119,124 @@ int BuildLayer(Subbasin *pDownStream)
     return 1;
 }
 
-int GetGroupCount(mongo *conn, const char *dbName, int decompostionPlan, const char *groupField)
-{
-    bson b[1];
-    bson_init(b);
-    bson_append_int(b, "GROUP_DIVIDE", decompostionPlan);
-    bson_finish(b);
+//int GetGroupCount(mongoc_client_t *conn, const char *dbName, int decompostionPlan, const char *groupField)
+//{
+//    bson b[1];
+//    bson_init(b);
+//    bson_append_int(b, "GROUP_DIVIDE", decompostionPlan);
+//    bson_finish(b);
+//
+//    ostringstream oss;
+//    oss << dbName << ".reaches";
+//    mongo_cursor cursor[1];
+//    mongo_cursor_init(cursor, conn, oss.str().c_str());
+//    mongo_cursor_set_query(cursor, b);
+//
+//    // set subbasin
+//    set<int> groupSet;
+//    while (mongo_cursor_next(cursor) == MONGO_OK)
+//    {
+//        bson &rec = cursor->current;
+//
+//        int group;
+//        bson_iterator iterator[1];
+//        if (bson_find(iterator, &rec, groupField))
+//            group = bson_iterator_int(iterator);
+//        else if (bson_find(iterator, &rec, "GROUP"))
+//            group = bson_iterator_int(iterator);
+//        else
+//            throw ModelException("ReadData", "ReadTopologyFromMongoDB", "Subbasin GROUP is not found in database.");
+//
+//
+//        groupSet.insert(group);
+//    }
+//    mongo_cursor_destroy(cursor);
+//
+//    return groupSet.size();
+//}
 
-    ostringstream oss;
-    oss << dbName << ".reaches";
-    mongo_cursor cursor[1];
-    mongo_cursor_init(cursor, conn, oss.str().c_str());
-    mongo_cursor_set_query(cursor, b);
-
-    // set subbasin
-    set<int> groupSet;
-    while (mongo_cursor_next(cursor) == MONGO_OK)
-    {
-        bson &rec = cursor->current;
-
-        int group;
-        bson_iterator iterator[1];
-        if (bson_find(iterator, &rec, groupField))
-            group = bson_iterator_int(iterator);
-        else if (bson_find(iterator, &rec, "GROUP"))
-            group = bson_iterator_int(iterator);
-        else
-            throw ModelException("ReadData", "ReadTopologyFromMongoDB", "Subbasin GROUP is not found in database.");
-
-
-        groupSet.insert(group);
-    }
-    mongo_cursor_destroy(cursor);
-
-    return groupSet.size();
-}
-
-int ReadTopologyFromMongoDB(mongo *conn, const char *dbName, map<int, Subbasin *> &subbasins, set<int> &groupSet,
+int ReadReachTopologyFromMongoDB(mongoc_client_t *conn, const char *dbName, map<int, SubbasinStruct *> &subbasins, set<int> &groupSet,
                             int decompostionPlan, const char *groupField)
 {
-    bson b[1];
-    bson_init(b);
-    bson_append_int(b, "GROUP_DIVIDE", decompostionPlan);
-    bson_finish(b);
-    //bson_print(b);
-    ostringstream oss;
-    oss << dbName << ".reaches";
-    //cout << oss.str() << endl;
-    mongo_cursor cursor[1];
-    mongo_cursor_init(cursor, conn, oss.str().c_str());
-    mongo_cursor_set_query(cursor, b);
+	bson_t *b = bson_new();
+	BSON_APPEND_INT32(b, REACH_GROUPDIVIDED, decompostionPlan);
+	
+    //bson b[1];
+    //bson_init(b);
+    //bson_append_int(b, "GROUP_DIVIDE", decompostionPlan);
+    //bson_finish(b);
+
+    //ostringstream oss;
+    //oss << dbName << ".reaches";
+    //mongo_cursor cursor[1];
+    //mongo_cursor_init(cursor, conn, oss.str().c_str());
+    //mongo_cursor_set_query(cursor, b);
+
+	mongoc_cursor_t *cursor;
+	const bson_t *rec;
+	mongoc_collection_t *collection = NULL;
+	collection = mongoc_client_get_collection(conn, dbName, DB_TAB_REACH);
+	if (collection == NULL)
+		throw ModelException("ReadData", "ReadReachesTopologyFromMongoDB", "Failed to get collection: " + string(DB_TAB_REACH) + ".\n");
+	cursor = mongoc_collection_find(collection, MONGOC_QUERY_NONE, 0, 0, 0, b, NULL, NULL);
 
     // set subbasin
     map<int, int> downStreamMap;
-    //cout << mongo_cursor_next( cursor ) << endl;
     bool readFailed = true;
-    while (mongo_cursor_next(cursor) == MONGO_OK)
-    {
-        bson &rec = cursor->current;
+	while (mongoc_cursor_more(cursor) && mongoc_cursor_next(cursor, &rec))
+	{
+    //while (mongo_cursor_next(cursor) == MONGO_OK)
+    //{
+    //    bson &rec = cursor->current;
 
         int id, group;
-        bson_iterator iterator[1];
-        if (bson_find(iterator, &rec, "SUBBASIN"))
-            id = bson_iterator_int(iterator);
+        //bson_iterator iterator[1];
+		bson_iter_t iterator;
+        //if (bson_find(iterator, &rec, "SUBBASIN"))
+        //    id = bson_iterator_int(iterator);
+		if (bson_iter_init_find(&iterator, rec, REACH_SUBBASIN))
+			id = GetIntFromBSONITER(&iterator);
         else
-            throw ModelException("ReadData", "ReadTopologyFromMongoDB", "Subbasin ID is not found in database.");
+            throw ModelException("ReadData", "ReadReachesTopologyFromMongoDB", "Subbasin ID is not found in database.");
 
-        if (bson_find(iterator, &rec, groupField))
-            group = bson_iterator_int(iterator);
+        //if (bson_find(iterator, &rec, groupField))
+        //    group = bson_iterator_int(iterator);
+		if (bson_iter_init_find(&iterator, rec, groupField))
+			group = GetIntFromBSONITER(&iterator);
         else
         {
             return -1;
             //cout <<  "Subbasin GROUP_KMETIS or GROUP is not found in database.\n";
-            //throw ModelException("ReadData", "ReadTopologyFromMongoDB", "Subbasin GROUP is not found in database.");
+            //throw ModelException("ReadData", "ReadReachesTopologyFromMongoDB", "Subbasin GROUP is not found in database.");
         }
-        if (bson_find(iterator, &rec, "DOWNSTREAM"))
-            downStreamMap[id] = bson_iterator_int(iterator);
+        //if (bson_find(iterator, &rec, "DOWNSTREAM"))
+        //    downStreamMap[id] = bson_iterator_int(iterator);
+		if (bson_iter_init_find(&iterator, rec, REACH_DOWNSTREAM))
+			downStreamMap[id] = GetIntFromBSONITER(&iterator);
         else
             return -1;
-        //throw ModelException("ReadData", "ReadTopologyFromMongoDB", "Subbasin DOWNSTREAM is not found in database.");
+        //throw ModelException("ReadData", "ReadReachesTopologyFromMongoDB", "Subbasin DOWNSTREAM is not found in database.");
 
-        subbasins[id] = new Subbasin(id, group);
-        //cout << "ReadTopologyFromMongoDB: " << id << endl;
+        subbasins[id] = new SubbasinStruct(id, group);
         groupSet.insert(group);
-
         readFailed = false;
     }
-    mongo_cursor_destroy(cursor);
+
+	bson_destroy(b);
+    // mongo_cursor_destroy(cursor);
+	mongoc_cursor_destroy(cursor);
+	mongoc_collection_destroy(collection);
     //cout << "Size of groupSet: " << groupSet.size() << endl;
     if (readFailed)
     {
-        bson_print(b);
-        cout << "The result of query in ReadTopologyFromMongoDB is null.\n";
+        // bson_print(b);
+		cout << bson_as_json(b,NULL) <<endl;
+        cout << "The result of query in ReadReachTopologyFromMongoDB is null.\n";
         return -1;
     }
 
     // fill topology information
-    Subbasin *pOutlet = NULL;
+    SubbasinStruct *pOutlet = NULL;
     for (map<int, int>::iterator it = downStreamMap.begin(); it != downStreamMap.end(); it++)
     {
         int id = it->first;
@@ -243,11 +264,11 @@ int ReadTopologyFromMongoDB(mongo *conn, const char *dbName, map<int, Subbasin *
     while (!finished)
     {
         finished = true;
-        for (map<int, Subbasin *>::iterator it = subbasins.begin(); it != subbasins.end(); ++it)
+        for (map<int, SubbasinStruct *>::iterator it = subbasins.begin(); it != subbasins.end(); ++it)
         {
             if (it->second->rank < 0)
             {
-                vector<Subbasin *> &ups = it->second->upStreams;
+                vector<SubbasinStruct *> &ups = it->second->upStreams;
                 // most upstream rivers
                 if (ups.empty())
                 {
@@ -276,12 +297,10 @@ int ReadTopologyFromMongoDB(mongo *conn, const char *dbName, map<int, Subbasin *
 
         }
     }
-
-
     return 0;
 }
 
-int ReadRiverTopology(const char *reachFile, map<int, Subbasin *> &subbasins, set<int> &groupSet)
+int ReadRiverTopology(const char *reachFile, map<int, SubbasinStruct *> &subbasins, set<int> &groupSet)
 {
     OGRDataSource *poDS;
 
@@ -302,7 +321,7 @@ int ReadRiverTopology(const char *reachFile, map<int, Subbasin *> &subbasins, se
     {
         int id = poFeature->GetFieldAsInteger("Subbasin");
         int group = poFeature->GetFieldAsInteger("GROUP");
-        subbasins[id] = new Subbasin(id, group);
+        subbasins[id] = new SubbasinStruct(id, group);
         groupSet.insert(group);
     }
     //for(set<int>::iterator iter = groupSet.begin(); iter!=groupSet.end(); iter++)
@@ -310,7 +329,7 @@ int ReadRiverTopology(const char *reachFile, map<int, Subbasin *> &subbasins, se
 
     // fill topology information
     poLayer->ResetReading();
-    Subbasin *pOutlet = NULL;
+    SubbasinStruct *pOutlet = NULL;
     while ((poFeature = poLayer->GetNextFeature()) != NULL)
     {
         int id = poFeature->GetFieldAsInteger("Subbasin");
@@ -336,11 +355,11 @@ int ReadRiverTopology(const char *reachFile, map<int, Subbasin *> &subbasins, se
     while (!finished)
     {
         finished = true;
-        for (map<int, Subbasin *>::iterator it = subbasins.begin(); it != subbasins.end(); ++it)
+        for (map<int, SubbasinStruct *>::iterator it = subbasins.begin(); it != subbasins.end(); ++it)
         {
             if (it->second->rank < 0)
             {
-                vector<Subbasin *> &ups = it->second->upStreams;
+                vector<SubbasinStruct *> &ups = it->second->upStreams;
                 // most upstream rivers
                 if (ups.empty())
                 {

@@ -13,10 +13,10 @@
 #include <map>
 #include "SettingsInput.h"
 #include "SettingsOutput.h"
-#include "clsRasterData.h"
 #include "mongoc.h"
 #include "ModuleFactory.h"
 #include "utils.h"
+#include "clsRasterData.cpp"
 
 using namespace std;
 
@@ -112,7 +112,7 @@ public:
     //! Execute overall modules in the entire simulation period, e.g., COST module.
     void StepOverall(time_t startT, time_t endT);
     //! Set Flow In Channel data for Channel-related module, e.g., CH_DW
-    ///void	SetChannelFlowIn(float value);/// Deprecated. LJ
+    void SetChannelFlowIn(float value);
     //! Check module input data, date and execute module
     ///void	Step(time_t time);/// Deprecated. LJ
     //! Execute overland modules in current step
@@ -197,7 +197,7 @@ private:
     //! The output setting of the model
     SettingsOutput *m_output;
     //! Template raster data
-    clsRasterData *m_templateRasterData;
+    clsRasterData<float> *m_templateRasterData;
     //! Daily time interval
     time_t m_dtDaily;
     //! Hillslope time interval

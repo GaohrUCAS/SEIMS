@@ -19,7 +19,7 @@ dirlist = []
 # parlist = ['COD', 'TN', 'TP']
 # solidReduction = [611.76, 118.98, 60.5]
 parDict = {'COD': 611.76, 'TN': 118.98, 'TP': 60.5}
-baseFolder = r"E:\code\Hydro\SEIMS\model_data\dianbu"
+baseFolder = r"C:\z_code\Hydro\SEIMS\model_data\dianbu"
 watershedList = ["", "2", "3"]
 outputList = ["2", "3"]
 
