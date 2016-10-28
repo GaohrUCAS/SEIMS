@@ -9,6 +9,7 @@
 #include "util.h"
 #include "utils.h"
 #include "ModelException.h"
+#include "clsRasterData.cpp"
 
 SettingsOutput::SettingsOutput(int subBasinID, string fileName, mongoc_client_t *conn, string dbName,
                                mongoc_gridfs_t *gfs)

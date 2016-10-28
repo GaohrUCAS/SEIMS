@@ -15,15 +15,18 @@
 #include "ReadData.h"
 #include "util.h"
 #include "ModelException.h"
-
-#include "mongo.h"
+#include "invoke.h"
+#include "mongoc.h"
+//#include "mongo.h"
 #include "bson.h"
-#include "gridfs.h"
+//#include "gridfs.h"
 
 #include "parallel.h"
 
 using namespace std;
-
+/*
+ * Deprecated
+ */
 void WriteFileInOut(string &projectPath, string &startTime, string &endTime)
 {
     string fileInName = projectPath + "file.in";
@@ -64,7 +67,7 @@ int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
-        cout << "Usage: seims configFile [outputQFile] [numThreads]\n";
+        cout << "Usage: mpiexec -n [threadsNum] seims_mpi configFile [outputQFile]\n";
         exit(-1);
     }
 
@@ -145,33 +148,48 @@ int main(int argc, char *argv[])
 
     if (rank == MASTER_RANK)
     {
-        // connect to mongodb
-        mongo conn[1];
-        int status = mongo_connect(conn, dbAddress.c_str(), dbPort);
-        //cout << "mongodb at " << dbAddress << ":" << dbPort << endl;
+        //// connect to mongodb
+        //mongo conn[1];
+        //int status = mongo_connect(conn, dbAddress.c_str(), dbPort);
+        ////cout << "mongodb at " << dbAddress << ":" << dbPort << endl;
 
-        if (MONGO_OK != status)
-        {
-            cout << "can not connect to mongodb at " << dbAddress << ":" << dbPort << endl;
-            exit(-1);
-        }
+        //if (MONGO_OK != status)
+        //{
+        //    cout << "can not connect to mongodb at " << dbAddress << ":" << dbPort << endl;
+        //    exit(-1);
+        //}
+		/// connect to mongoDB using mongo-c-driver-1.3.5 or later
+		mongoc_client_t *conn;
+		const char* host = dbAddress.c_str();
+		if (!isIPAddress(host))
+			throw ModelException("MainMPI", "Connect to MongoDB",
+			"IP address: " + string(host) + "is invalid, Please check!\n");
+		mongoc_init();
+		mongoc_uri_t *uri = mongoc_uri_new_for_host_port(host, dbPort);
+		conn = mongoc_client_new_from_uri(uri);
+		/// Check the connection to MongoDB is success or not
+		bson_t *reply = bson_new();
+		bson_error_t *err = NULL;
+		if (!mongoc_client_get_server_status(conn, NULL, reply, err))
+			throw ModelException(MODEL_NAME, "MainMongoDB", "Failed to connect to MongoDB!\n");
+		bson_destroy(reply);
 
         // read river topology data
-        map<int, Subbasin *> subbasinMap;
+        map<int, SubbasinStruct *> subbasinMap;
         set<int> groupSet;
         //ReadRiverTopology(reachFile, subbasinMap, groupSet);
         string groupMethod = "KMETIS";
-        ReadTopologyFromMongoDB(conn, modelName.c_str(), subbasinMap, groupSet, nSlaves, "GROUP_KMETIS");
+        ReadReachTopologyFromMongoDB(conn, modelName.c_str(), subbasinMap, groupSet, nSlaves, REACH_KMETIS);
         if ((size_t) nSlaves != groupSet.size())
         {
             groupSet.clear();
             groupMethod = "PMETIS";
-            ReadTopologyFromMongoDB(conn, modelName.c_str(), subbasinMap, groupSet, nSlaves, "GROUP_PMETIS");
+            ReadReachTopologyFromMongoDB(conn, modelName.c_str(), subbasinMap, groupSet, nSlaves, REACH_PMETIS);
             if ((size_t) nSlaves != groupSet.size())
             {
                 groupSet.clear();
                 groupMethod = "GROUP";
-                ReadTopologyFromMongoDB(conn, modelName.c_str(), subbasinMap, groupSet, nSlaves, "GROUP");
+                ReadReachTopologyFromMongoDB(conn, modelName.c_str(), subbasinMap, groupSet, nSlaves, REACH_GROUP);
                 if ((size_t) nSlaves != groupSet.size())
                 {
                     cout << "The number of slave processes (" << nSlaves << ") is not consist with the group number(" <<
@@ -189,8 +207,8 @@ int main(int argc, char *argv[])
         {
             cout << e.toString() << endl;
         }
-
-        mongo_destroy(conn);
+		mongoc_uri_destroy(uri);
+        // mongo_destroy(conn);
 
         MPI_Finalize();
         return 0;

@@ -1,5 +1,4 @@
 /*!
- * \file clsRasterData.h
  * \ingroup data
  * \brief Define Raster class to handle raster data
  *
@@ -27,6 +26,7 @@ using namespace std;
  *
  * \brief Raster data (1D and 2D) class to get access to raster data in MongoDB.
  */
+template<typename T>
 class clsRasterData
 {
 public:
@@ -44,7 +44,7 @@ public:
      * By default, 1D raster data
      * Set \a m_rasterPositionData, \a m_rasterData, \a m_mask to \a NULL
      */
-    clsRasterData();
+    clsRasterData(void);
 
     /*!
      * \brief Constructor of clsRasterData instance from  ASCII file and mask clsRasterData
@@ -53,7 +53,7 @@ public:
      * \param[in] ascFileName \a string
      * \param[in] mask \a clsRasterData
      */
-    clsRasterData(string, clsRasterData *);
+    clsRasterData<T>(string, clsRasterData<T> *);
 
     /*!
      * \brief Constructor of clsRasterData instance from mongoDB
@@ -64,7 +64,7 @@ public:
      * \param[in] romoteFilename \a char*
      * \param[in] templateRaster \a clsRasterData, NULL as default
      */
-    clsRasterData(mongoc_gridfs_t *gfs, const char *remoteFilename, clsRasterData *templateRaster = NULL);
+    clsRasterData<T>(mongoc_gridfs_t *gfs, const char *remoteFilename, clsRasterData<T> *templateRaster = NULL);
 
     //! Destructor, Set \a m_rasterPositionData, \a m_rasterData, \a m_mask to \a NULL
     ~clsRasterData(void);
@@ -82,7 +82,7 @@ public:
     int getRows() { return (int) m_headers[HEADER_RS_NROWS]; }
 
     //! Get cell size of raster data
-    float getCellWidth() { return m_headers[HEADER_RS_CELLSIZE]; }
+    float getCellWidth() { return (float) m_headers[HEADER_RS_CELLSIZE]; }
 
     //! Get cell numbers ignore NoData
     int getCellNumber() { return m_nCells; }
@@ -90,7 +90,7 @@ public:
     int getLayers() { return m_nLyrs; }
 
     //! Get NoDATA value of raster data
-    float getNoDataValue() { return m_headers[HEADER_RS_NODATA]; }
+    T getNoDataValue() { return (T) m_headers[HEADER_RS_NODATA]; }
 
     //! Get position index in 1D raster data for specific row and column, return -1 is error occurs.
     int getPosition(int row, int col);
@@ -98,17 +98,20 @@ public:
     //! Get position index in 1D raster data for given coordinate (x,y)
     int getPosition(float x, float y);
 
+	//! Get position index in 1D raster data for given coordinate (x,y)
+	int getPosition(double x, double y);
+
     //! Get raster data, include valid cell number and data
-    void getRasterData(int *, float **);
+    void getRasterData(int *, T **);
 
     //! Get 2D raster data, include valid cell number of each layer, layer number, and data
-    void get2DRasterData(int *, int *, float ***);
+    void get2DRasterData(int *, int *, T ***);
 
     //! Get raster header information
-    map<string, float> *getRasterHeader(void);
+    map<string, double> *getRasterHeader(void);
 
     //! Get non-NODATA position index data, include cell number and (row, col)
-    void getRasterPositionData(int *, float ***);
+    void getRasterPositionData(int *, T ***);
 
     //! Get pointer of raster data
     float *getRasterDataPointer() { return m_rasterData; }
@@ -118,30 +121,31 @@ public:
 
     //! Get the spatial reference
     const char *getSRS() { return m_srs.c_str(); }
-
+	//! Get the spatial reference string
+	string getSRSString() { return m_srs; }
     //! Get raster data at the valid cell index
-    float getValue(int validCellIndex);
+    T getValue(int validCellIndex);
 
     //! Get raster data at the valid cell index (both for 1D and 2D raster), return a float array with length as nLyrs
-    float *getValue(int validCellIndex, int *nLyrs);
+    T *getValue(int validCellIndex, int *nLyrs);
 
     //! Get raster data at the row and col
-    float getValue(int row, int col);
+    T getValue(int row, int col);
 
     //! Get raster data (both for 1D and 2D raster) at the row and col, return a float array with length as nLyrs
-    float *getValue(int row, int col, int *nLyrs);
+    T *getValue(int row, int col, int *nLyrs);
 
     //! Get raster data value at row and column of \a templateRasterData and \a rasterData
-    float getValue(clsRasterData *templateRasterData, float *rasterData, int row, int col);
+    T getValue(clsRasterData *templateRasterData, T *rasterData, int row, int col);
 
     //! Get raster data value at row and column of \a templateRasterData and \a rasterData
-    float *getValue(clsRasterData *templateRasterData, float *rasterData, int row, int col, int *nLyrs);
+    T *getValue(clsRasterData *templateRasterData, T *rasterData, int row, int col, int *nLyrs);
 
     //! Get X coordinate of left lower corner of raster data
-    float getXllCenter() { return m_headers[HEADER_RS_XLL]; }
+    double getXllCenter() { return m_headers[HEADER_RS_XLL]; }
 
     //! Get Y coordinate of left lower corner of raster data
-    float getYllCenter() { return m_headers[HEADER_RS_YLL]; }
+    double getYllCenter() { return m_headers[HEADER_RS_YLL]; }
 
     //! Is 2D raster data?
     bool is2DRaster() { return m_is2DRaster; }
@@ -155,10 +159,10 @@ public:
      * \param[in] header header information
      * \param[in] nRows \a int, valid cell number
      * \param[in] position \a float**, position index
-     * \param[in] value \a float*, Raster data
+     * \param[in] value \a T*, Raster data
      * \param[in] filename \a string, output ASC file path
      */
-    static void outputASCFile(map<string, float>, int, float **, float *, string);
+    static void outputASCFile(map<string, double>, int, float **, T *, string);
 
     /*!
      * \brief Write 2D raster data into ASC file
@@ -166,28 +170,28 @@ public:
      * \param[in] header header information
      * \param[in] nRows \a int, valid cell number
      * \param[in] position \a float**, position index
-     * \param[in] value \a float**, 2D Raster data
+     * \param[in] value \a T**, 2D Raster data
      * \param[in] filename \a string, output ASC file path, take the CoreName as prefix
      */
-    static void outputASCFile(map<string, float>, int, float **, float **, string);
+    static void outputASCFile(map<string, double>, int, float **, T **, string);
 
     /*!
      * \brief Write raster data into ASC file
      *
      * \param[in] templateRasterData
-     * \param[in] value \a float*, Raster data
+     * \param[in] value \a T*, Raster data
      * \param[in] filename \a string, output ASC file path
      */
-    static void outputASCFile(clsRasterData *, float *, string);
+    static void outputASCFile(clsRasterData *, T *, string);
 
     /*!
      * \brief Write 2D raster data into ASC file
      *
      * \param[in] templateRasterData \sa  clsRasterData
-     * \param[in] value \a float**, 2D Raster data
+     * \param[in] value \a T**, 2D Raster data
      * \param[in] filename \a string, output ASC file path
      */
-    static void outputASCFile(clsRasterData *, float **, string);
+    static void outputASCFile(clsRasterData *, T **, string);
 
     //! Write raster to GTIFF Grid file, if 2D raster, output name will be filename_LyrNum
     void outputGTiff(string filename);
@@ -196,10 +200,10 @@ public:
      * \brief Write raster data into GTIFF file
      *
      * \param[in] templateRasterData \sa  clsRasterData
-     * \param[in] value \a float*, Raster data
+     * \param[in] value \a T*, Raster data
      * \param[in] rasterName \a string, output GTIFF file path
      */
-    static void outputGTiff(clsRasterData *templateRasterData, float *value, string rasterName);
+    static void outputGTiff(clsRasterData *templateRasterData, T *value, string rasterName);
 
     /*!
      * \brief Write raster data into GTIFF file
@@ -208,20 +212,20 @@ public:
      * \param[in] srs spatial reference string
      * \param[in] nValidCells \a int, valid cell number
      * \param[in] position \a float**, position index
-     * \param[in] value \a float*, Raster data
+     * \param[in] value \a T*, Raster data
      * \param[in] filename \a string, output GTIFF file path
      */
-    static void outputGTiff(map<string, float> header, string &srs, int nValidCells, float **position, float *value,
+    static void outputGTiff(map<string, double> header, string &srs, int nValidCells, float **position, T *value,
                             string filename);
 
     /*!
      * \brief Write 2D raster data into GTIFF file
      *
      * \param[in] templateRasterData
-     * \param[in] value \a float**, Raster data
+     * \param[in] value \a T**, Raster data
      * \param[in] rasterName \a string, output GTIFF file path
      */
-    static void outputGTiff(clsRasterData *templateRasterData, float **value, string rasterName);
+    static void outputGTiff(clsRasterData *templateRasterData, T **value, string rasterName);
 
     /*!
      * \brief Write 2D raster data into GTIFF file
@@ -230,12 +234,16 @@ public:
      * \param[in] srs spatial reference string
      * \param[in] nValidCells \a int, valid cell number
      * \param[in] position \a float**, position index
-     * \param[in] value \a float**, Raster data
+     * \param[in] value \a T**, Raster data
      * \param[in] filename \a string, output GTIFF file path
      */
-    static void outputGTiff(map<string, float> header, string &srs, int nValidCells, float **position, float **value,
+    static void outputGTiff(map<string, double> header, string &srs, int nValidCells, float **position, T **value,
                             string filename);
-
+	/*
+	 * \brief Write 2D-array raster data into GTIFF file
+	 *        Used when valid position data is not available.
+	 */
+	static void outputGTiff(map<string, double> header, string &srs, T *value, string &filename);
     //! Write raster data to MongoDB, if 2D raster, output name will be filename_LyrNum
     void outputToMongoDB(string remoteFilename, mongoc_gridfs_t *gfs);
 
@@ -246,21 +254,22 @@ public:
      * \param[in] srs spatial reference string
      * \param[in] nValidCells \a int, valid cell number
      * \param[in] position \a float**, position index
+	 * \param[in] value \a T*, Raster data
      * \param[in] filename \a string, output file name
      * \param[in] gfs \a mongoc_gridfs_t
      */
-    static void outputToMongoDB(map<string, float> header, string &srs, int nValid, float **position, float *value,
+    static void outputToMongoDB(map<string, double> header, string &srs, int nValid, float **position, T *value,
                                 string remoteFilename, mongoc_gridfs_t *gfs);
 
     /*!
      * \brief Write raster data into MongoDB
      *
      * \param[in] templateRasterData \a clsRasterData
-     * \param[in] value \a float*, Raster data
+     * \param[in] value \a T*, Raster data
      * \param[in] filename \a string, output file name
      * \param[in] gfs \a mongoc_gridfs_t
      */
-    static void outputToMongoDB(clsRasterData *templateRasterData, float *value, string filename, mongoc_gridfs_t *gfs);
+    static void outputToMongoDB(clsRasterData *templateRasterData, T *value, string filename, mongoc_gridfs_t *gfs);
 
     /*!
      * \brief Write 2D raster data into MongoDB
@@ -269,24 +278,24 @@ public:
      * \param[in] srs spatial reference string
      * \param[in] nValidCells \a int, valid cell number
      * \param[in] position \a float**, position index
-     * \param[in] value \a 2D RasterData
+     * \param[in] value \a T** 2D RasterData
      * \param[in] lyrs \a layer number
      * \param[in] filename \a string, output file name
      * \param[in] gfs \a mongoc_gridfs_t
      */
-    static void outputToMongoDB(map<string, float> header, string &srs, int nValid, float **position, float **value,
+    static void outputToMongoDB(map<string, double> header, string &srs, int nValid, float **position, T **value,
                                 int lyrs, string remoteFilename, mongoc_gridfs_t *gfs);
 
     /*!
      * \brief Write 2D raster data into MongoDB
      *
      * \param[in] templateRasterData \a clsRasterData
-     * \param[in] value \a float**, Raster data with multi-layers, e.g., soil properties
+     * \param[in] value \a T**, Raster data with multi-layers, e.g., soil properties
      * \param[in] lyrs \a layer number
      * \param[in] filename \a string, output file name
      * \param[in] gfs \a mongoc_gridfs_t
      */
-    static void outputToMongoDB(clsRasterData *templateRasterData, float **value, int lyrs, string filename,
+    static void outputToMongoDB(clsRasterData *templateRasterData, T **value, int lyrs, string filename,
                                 mongoc_gridfs_t *gfs);
 
     /*!
@@ -353,26 +362,34 @@ public:
     int Size() { return m_nCells; }
 
 private:
+	///< noDataValue
+	T m_noDataValue;
     ///< raster file name
     string m_fileName;
     ///< raster data (1D array)
-    float *m_rasterData;
+    T *m_rasterData;
     ///< cell index (row, col) in m_rasterData (2D array)
     float **m_rasterPositionData;
     ///< cell number of raster data (exclude NODATA_VALUE)
     int m_nCells;
-    ///< Header information
-    map<string, float> m_headers;
+    ///< Header information, using double in case of truncation of coordinate value
+    map<string, double> m_headers;
     ///< mask clsRasterData instance
-    clsRasterData *m_mask;
+    clsRasterData<float> *m_mask;
 
     //! raster data (2D array)
-    float **m_raster2DData;
+    T **m_raster2DData;
     //! Flag to identify 1D or 2D raster
     bool m_is2DRaster;
     //! Layer number of the 2D raster
     int m_nLyrs;
     //! OGRSpatialReference
     string m_srs;
+
+//private:
+//	void DeleteExistingData(void);
+//public:
+//	bool IsNull(int i, int j);
+//	bool IsEmpty(void);
 };
 

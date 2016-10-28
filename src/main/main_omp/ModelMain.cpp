@@ -15,6 +15,7 @@
 #include "MongoUtil.h"
 #include <ctime>
 #include <sstream>
+#include "clsRasterData.cpp"
 
 ModelMain::ModelMain(mongoc_client_t *conn, string dbName, string projectPath, SettingsInput *input,
                      ModuleFactory *factory, int subBasinID, int scenarioID, int numThread,
@@ -309,7 +310,7 @@ void ModelMain::CheckOutput(mongoc_gridfs_t *gfs)
 #ifdef USE_MONGODB
 	// Read Mask raster data and add to m_rsMap in m_factory, by LJ.
     oss << m_subBasinID << "_" << GetUpper(NAME_MASK);
-    m_templateRasterData = new clsRasterData(gfs, oss.str().c_str());
+    m_templateRasterData = new clsRasterData<float>(gfs, oss.str().c_str());
 	m_factory->AddMaskRaster(oss.str(), m_templateRasterData);
 #endif
 }
@@ -506,8 +507,8 @@ void ModelMain::Output(time_t time)
     }
 }
 
-//void ModelMain::SetChannelFlowIn(float value)
-//{
-//	int index = m_channelModules[0];
-//	m_simulationModules[index]->SetValue(VAR_QUPREACH, value);
-//}
+void ModelMain::SetChannelFlowIn(float value)
+{
+	int index = m_channelModules[0];
+	m_simulationModules[index]->SetValue(VAR_QUPREACH, value);
+}

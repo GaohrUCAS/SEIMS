@@ -35,7 +35,7 @@ public:
     //! Reset the contents of the object to default values
     void Reset(void);
 
-    int GetSubbasinID() { return Subbasin; }
+    int GetSubbasinID() { return SubbasinID; }
 
     float GetArea() { return this->Area; }
 
@@ -138,7 +138,7 @@ private:
     //! Slope gradient
     float Slope;
     //! Subbasin ID
-    int Subbasin;
+    int SubbasinID;
     //! UP_DOWN stream order
     int UpDownOrder;
     //! V0

@@ -1,5 +1,4 @@
 /*!
- * \file ClimateParams.h
  * \brief Functions for climate related intermediate parameters, 
  *  e.g., saturation vapor pressure, max solar radiation.
  * \ingroup data
