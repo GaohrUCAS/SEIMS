@@ -191,6 +191,8 @@ def ImportMeasurementData():
     :param ClimateDBName: HydroClimate database name
     :param MEASUREMENT_DATA_DIR: MEASUREMENT_DATA_DIR of measurement data files
     '''
+    if not useObserved:
+        return False
     try:
         connMongo = MongoClient(HOSTNAME, PORT)
         print "Import Site Measurement Data... "
@@ -217,6 +219,7 @@ def ImportMeasurementData():
         else:
             siteLoc.append(fl)
     ImportData(db, measFileList, siteLoc)
+    return True
 
 
 if __name__ == "__main__":

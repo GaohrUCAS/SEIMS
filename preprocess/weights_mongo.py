@@ -322,5 +322,12 @@ if __name__ == "__main__":
     except ConnectionFailure, e:
         sys.stderr.write("Could not connect to MongoDB: %s" % e)
         sys.exit(1)
-    GenerateWeightInfo(conn, SpatialDBName, 1, False)
-    GenerateWeightDependentParameters(conn, 1)
+    subbasinStartID = 1
+    if not forCluster:
+        subbasinStartID = 0
+    nSubbasins = 0
+    # print subbasinStartID, nSubbasins + 1
+    for i in range(subbasinStartID, nSubbasins + 1):
+        GenerateWeightInfo(conn, SpatialDBName, i, stormMode)
+        # 　added by Liangjun, 2016-6-17
+        GenerateWeightDependentParameters(conn, i)

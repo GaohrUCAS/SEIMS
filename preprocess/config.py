@@ -5,7 +5,7 @@
 #
 
 import ConfigParser
-
+import errno
 from text import *
 from util import *
 
@@ -37,12 +37,14 @@ if not (isPathExists(BASE_DATA_DIR) and isPathExists(MODEL_DIR) and isPathExists
     raise IOError("Please Check Directories defined in [PATH]")
 if not isPathExists(MPIEXEC_DIR):
     MPIEXEC_DIR = None
-if os.path.isdir(WORKING_DIR):
-    if not os.path.exists(WORKING_DIR):
+if not os.path.isdir(WORKING_DIR):
+    try: # first try to make dirs
         os.mkdir(WORKING_DIR)
-else:
-    WORKING_DIR = MODEL_DIR + os.sep + 'preprocess_output'
-    os.mkdir(WORKING_DIR)
+    except OSError as exc:
+        WORKING_DIR = MODEL_DIR + os.sep + 'preprocess_output'
+        if not os.path.exists(WORKING_DIR):
+            os.mkdir(WORKING_DIR)
+        pass
 
 if not (isPathExists(CLIMATE_DATA_DIR) and isPathExists(SPATIAL_DATA_DIR)):
     raise IOError(
@@ -103,41 +105,28 @@ if ClimateDBName is not None and stormMode:
 
 # 4. Climate Input
 if 'CLIMATE' in cf.sections():
-    HydroClimateVarFile = CLIMATE_DATA_DIR + os.sep + \
-        cf.get('CLIMATE', 'HydroClimateVarFile'.lower())
-    MetroSiteFile = CLIMATE_DATA_DIR + os.sep + \
-        cf.get('CLIMATE', 'MetroSiteFile'.lower())
-    PrecSiteFile = CLIMATE_DATA_DIR + os.sep + \
-        cf.get('CLIMATE', 'PrecSiteFile'.lower())
-    MeteoDailyFile = CLIMATE_DATA_DIR + os.sep + \
-        cf.get('CLIMATE', 'MeteoDailyFile'.lower())
-    PrecDailyFile = CLIMATE_DATA_DIR + os.sep + \
-        cf.get('CLIMATE', 'PrecDailyFile'.lower())
+    HydroClimateVarFile = CLIMATE_DATA_DIR + os.sep + cf.get('CLIMATE', 'HydroClimateVarFile'.lower())
+    MetroSiteFile = CLIMATE_DATA_DIR + os.sep + cf.get('CLIMATE', 'MetroSiteFile'.lower())
+    PrecSiteFile = CLIMATE_DATA_DIR + os.sep + cf.get('CLIMATE', 'PrecSiteFile'.lower())
+    MeteoDailyFile = CLIMATE_DATA_DIR + os.sep + cf.get('CLIMATE', 'MeteoDailyFile'.lower())
+    PrecDailyFile = CLIMATE_DATA_DIR + os.sep + cf.get('CLIMATE', 'PrecDailyFile'.lower())
     thiessenIdField = cf.get('CLIMATE', 'thiessenIdField'.lower())
 else:
     raise ValueError("Climate input file names MUST be provided in [CLIMATE]!")
 
 # 5. Spatial Input
 if 'SPATIAL' in cf.sections():
-    PrecSitesThiessen = SPATIAL_DATA_DIR + os.sep + \
-        cf.get('SPATIAL', 'PrecSitesThiessen'.lower())
-    MeteorSitesThiessen = SPATIAL_DATA_DIR + os.sep + \
-        cf.get('SPATIAL', 'MeteorSitesThiessen'.lower())
+    PrecSitesThiessen = SPATIAL_DATA_DIR + os.sep + cf.get('SPATIAL', 'PrecSitesThiessen'.lower())
+    MeteorSitesThiessen = SPATIAL_DATA_DIR + os.sep + cf.get('SPATIAL', 'MeteorSitesThiessen'.lower())
     dem = SPATIAL_DATA_DIR + os.sep + cf.get('SPATIAL', 'dem'.lower())
-    outlet_file = SPATIAL_DATA_DIR + os.sep + \
-        cf.get('SPATIAL', 'outlet_file'.lower())
+    outlet_file = SPATIAL_DATA_DIR + os.sep + cf.get('SPATIAL', 'outlet_file'.lower())
     if not os.path.exists(outlet_file):
         outlet_file = None
-    landuseOriginFile = SPATIAL_DATA_DIR + os.sep + \
-        cf.get('SPATIAL', 'landuseFile'.lower())
-    landcoverInitFile = SPATIAL_DATA_DIR + os.sep + \
-        cf.get('SPATIAL', 'landcoverInitFile'.lower())
-    soilSEQNFile = SPATIAL_DATA_DIR + os.sep + \
-        cf.get('SPATIAL', 'soilSEQNFile'.lower())
-    soilSEQNText = SPATIAL_DATA_DIR + os.sep + \
-        cf.get('SPATIAL', 'soilSEQNText'.lower())
-    mgtFieldFile = SPATIAL_DATA_DIR + os.sep + \
-        cf.get('SPATIAL', 'mgtFieldFile'.lower())
+    landuseOriginFile = SPATIAL_DATA_DIR + os.sep + cf.get('SPATIAL', 'landuseFile'.lower())
+    landcoverInitFile = SPATIAL_DATA_DIR + os.sep + cf.get('SPATIAL', 'landcoverInitFile'.lower())
+    soilSEQNFile = SPATIAL_DATA_DIR + os.sep + cf.get('SPATIAL', 'soilSEQNFile'.lower())
+    soilSEQNText = SPATIAL_DATA_DIR + os.sep + cf.get('SPATIAL', 'soilSEQNText'.lower())
+    mgtFieldFile = SPATIAL_DATA_DIR + os.sep + cf.get('SPATIAL', 'mgtFieldFile'.lower())
     if not os.path.exists(mgtFieldFile) or StringMatch(mgtFieldFile, 'none'):
         mgtFieldFile = None
 else:
