@@ -29,8 +29,7 @@ def OGRWkt2Shapely(input_shape, idField):
 
 
 def FindSites(db, hydroDBName, subbasinFile, subbasinIdField, thiessenFileList, siteTypeList, mode):
-    subbasinList, subbasinIDList = OGRWkt2Shapely(
-        subbasinFile, subbasinIdField)
+    subbasinList, subbasinIDList = OGRWkt2Shapely(subbasinFile, subbasinIdField)
     nSubbasins = len(subbasinList)
 
     n = len(thiessenFileList)
@@ -38,22 +37,23 @@ def FindSites(db, hydroDBName, subbasinFile, subbasinIdField, thiessenFileList, 
     for i in range(len(subbasinList)):
         subbasin = subbasinList[i]
         id = subbasinIDList[i]
+        if not forCluster: # if not for cluster, force the SUBBASINID to 0. by LJ.
+            id = 0
         dic = {}
         dic[FLD_SUBBASINID.upper()] = id
         dic[FLD_DB.upper()] = hydroDBName
         dic[FLD_MODE.upper()] = mode
-        curFileter = {FLD_SUBBASINID.upper(): id, FLD_DB.upper()
-                                           : hydroDBName, FLD_MODE.upper(): mode}
+        curFileter = {FLD_SUBBASINID.upper(): id,
+                      FLD_DB.upper(): hydroDBName,
+                      FLD_MODE.upper(): mode}
         for i in range(0, n):
             thiessenFile = thiessenFileList[i]
             # print thiessenFile
             siteType = siteTypeList[i]
             try:
-                thiessenList, thiessenIDList = OGRWkt2Shapely(
-                    thiessenFile, thiessenIdField)
+                thiessenList, thiessenIDList = OGRWkt2Shapely(thiessenFile, thiessenIdField)
             except:
-                thiessenList, thiessenIDList = OGRWkt2Shapely(
-                    thiessenFile, 'Subbasin')
+                thiessenList, thiessenIDList = OGRWkt2Shapely(thiessenFile, 'Subbasin')
             siteList = []
             for j in range(len(thiessenList)):
                 thiessen = thiessenList[j]
@@ -65,8 +65,7 @@ def FindSites(db, hydroDBName, subbasinFile, subbasinIdField, thiessenFileList, 
 
             siteField = '%s%s' % (DB_TAB_SITELIST.upper(), siteType)
             dic[siteField] = siteListStr
-        db[DB_TAB_SITELIST.upper()].find_one_and_replace(
-            curFileter, dic, upsert=True)
+        db[DB_TAB_SITELIST.upper()].find_one_and_replace(curFileter, dic, upsert=True)
 
     db[DB_TAB_SITELIST.upper()].create_index([(FLD_SUBBASINID.upper(), pymongo.ASCENDING),
                                               (FLD_MODE.upper(), pymongo.ASCENDING)])
@@ -89,5 +88,4 @@ if __name__ == "__main__":
     basinFile = WORKING_DIR + os.sep + 'basin.shp'
     typeList = ['M', 'P']
     db = conn[SpatialDBName]
-    FindSites(db, ClimateDBName, basinFile, FLD_BASINID,
-              thiessenFileList, typeList, 'DAILY')
+    FindSites(db, ClimateDBName, basinFile, FLD_BASINID, thiessenFileList, typeList, 'DAILY')
