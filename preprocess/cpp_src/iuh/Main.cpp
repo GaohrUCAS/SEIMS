@@ -26,8 +26,9 @@ void MainMongoDB(const char *modelStr, const char *gridFSName, int nSubbasins, c
     }
 
     gridfs_init(conn, modelStr, gridFSName, gfs);
-
-    for (int i = 1; i <= nSubbasins; i++)
+	int subbasinStartID = 1;
+	if (nSubbasins == 0) subbasinStartID = 0;
+    for (int i = subbasinStartID; i <= nSubbasins; i++)
     {
         //cout << "subbasin: " << i << endl;
         //input
