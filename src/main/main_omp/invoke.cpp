@@ -185,7 +185,7 @@ void MainMongoDB(string modelPath, char *host, int port, int scenarioID, int num
             throw ModelException(MODEL_NAME, "MainMongoDB", "Database: " + dbName + " is not existed in MongoDB!\n");
         /// CHECK FINISHED
 
-        int nSubbasin = 1;
+        int nSubbasin = 0; // updated 2016-10-28, 0 means the whole basin. By LJ
 		/// Load Setting Input from file.in, which is deprecated now! By LJ
         /// SettingsInput *input = new SettingsInput(projectPath + File_Input, conn, dbName, nSubbasin);
         SettingsInput *input = new SettingsInput(conn, dbName, nSubbasin);
