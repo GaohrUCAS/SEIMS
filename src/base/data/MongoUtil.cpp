@@ -182,15 +182,17 @@ vector<string> GetGridFsFileNames(mongoc_gridfs_t *gfs)
 
 void Read1DArrayFromMongoDB(mongoc_gridfs_t *spatialData, string &remoteFilename, int &num, float *&data)
 {
-    mongoc_gridfs_file_t *gfile;
-    bson_t *b;
-    bson_error_t *err = NULL;
-    b = bson_new();
-    BSON_APPEND_UTF8(b, "filename", remoteFilename.c_str());
-    gfile = mongoc_gridfs_find_one(spatialData, b, err);
-    if (err != NULL)
+	mongoc_gridfs_file_t *gfile = NULL;
+	bson_error_t *err = NULL;
+    //bson_t *b;
+    //b = bson_new();
+    //BSON_APPEND_UTF8(b, "filename", remoteFilename.c_str());
+    //gfile = mongoc_gridfs_find_one(spatialData, b, err);
+	gfile = mongoc_gridfs_find_one_by_filename(spatialData, remoteFilename.c_str(), err);
+    if (err != NULL || gfile == NULL)
         throw ModelException("ModuleParamter", "Read1DArrayFromMongoDB",
                              "Failed in gridfs_find_query filename: " + remoteFilename + "\n");
+	// cout << remoteFilename << endl;
     size_t length = (size_t) mongoc_gridfs_file_get_length(gfile);
     mongoc_stream_t *stream = mongoc_stream_gridfs_new(gfile);
     num = length / 4;
@@ -202,20 +204,22 @@ void Read1DArrayFromMongoDB(mongoc_gridfs_t *spatialData, string &remoteFilename
 	mongoc_stream_readv(stream, &iov, 1, -1, 0);
     mongoc_stream_destroy(stream);
     mongoc_gridfs_file_destroy(gfile);
-    bson_destroy(b);
+    //bson_destroy(b);
 }
 
 void Read2DArrayFromMongoDB(mongoc_gridfs_t *spatialData, string &remoteFilename, int &rows, int &cols, float **&data)
 {
-    mongoc_gridfs_file_t *gfile;
-    bson_t *b;
-    bson_error_t *err = NULL;
-    b = bson_new();
-    BSON_APPEND_UTF8(b, "filename", remoteFilename.c_str());
-    gfile = mongoc_gridfs_find_one(spatialData, b, err);
-    if (err != NULL)
+	mongoc_gridfs_file_t *gfile = NULL;
+	bson_error_t *err = NULL;
+    //bson_t *b;
+    //b = bson_new();
+    //BSON_APPEND_UTF8(b, "filename", remoteFilename.c_str());
+    //gfile = mongoc_gridfs_find_one(spatialData, b, err);
+	gfile = mongoc_gridfs_find_one_by_filename(spatialData, remoteFilename.c_str(), err);
+    if (err != NULL || gfile == NULL)
         throw ModelException("MongoUtil", "Read2DArrayFromMongoDB",
                              "Failed in  mongoc_gridfs_find_one filename: " + remoteFilename + "\n");
+	// cout << remoteFilename << endl;
     size_t length = (size_t) mongoc_gridfs_file_get_length(gfile);
     mongoc_stream_t *stream = mongoc_stream_gridfs_new(gfile);
     float *floatValues = new float[length / 4];
@@ -251,21 +255,23 @@ void Read2DArrayFromMongoDB(mongoc_gridfs_t *spatialData, string &remoteFilename
 	cols = nCols;
     mongoc_stream_destroy(stream);
     mongoc_gridfs_file_destroy(gfile);
-    bson_destroy(b);
+    //bson_destroy(b);
     free(floatValues);
 }
 
 void ReadIUHFromMongoDB(mongoc_gridfs_t *spatialData, string &remoteFilename, int &n, float **&data)
 {
-    mongoc_gridfs_file_t *gfile;
-    bson_t *b;
+    mongoc_gridfs_file_t *gfile = NULL;
     bson_error_t *err = NULL;
-    b = bson_new();
-    BSON_APPEND_UTF8(b, "filename", remoteFilename.c_str());
-    gfile = mongoc_gridfs_find_one(spatialData, b, err);
-    if (err != NULL)
+	//bson_t *b;
+	//b = bson_new();
+	//BSON_APPEND_UTF8(b, "filename", remoteFilename.c_str());
+	//gfile = mongoc_gridfs_find_one(spatialData, b, err);
+	gfile = mongoc_gridfs_find_one_by_filename(spatialData, remoteFilename.c_str(), err);
+    if (err != NULL || gfile == NULL)
         throw ModelException("MongoUtil", "ReadIUHFromMongoDB",
                              "Failed in  mongoc_gridfs_find_one filename: " + remoteFilename + "\n");
+	// cout << remoteFilename << endl;
     size_t length = (size_t) mongoc_gridfs_file_get_length(gfile);
     mongoc_stream_t *stream = mongoc_stream_gridfs_new(gfile);
     float *floatValues = new float[length / 4];
@@ -292,7 +298,7 @@ void ReadIUHFromMongoDB(mongoc_gridfs_t *spatialData, string &remoteFilename, in
     }
     mongoc_stream_destroy(stream);
     mongoc_gridfs_file_destroy(gfile);
-    bson_destroy(b);
+    //bson_destroy(b);
     free(floatValues);
 }
 

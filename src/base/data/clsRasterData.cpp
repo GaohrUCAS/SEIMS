@@ -619,7 +619,7 @@ void clsRasterData<T>::outputToMongoDB(map<string, double> header, string &srs, 
     BSON_APPEND_DOUBLE(p, HEADER_RS_CELLSIZE, header[HEADER_RS_CELLSIZE]);
     BSON_APPEND_DOUBLE(p, HEADER_RS_NODATA, (T) NODATA_VALUE);
     BSON_APPEND_UTF8(p, HEADER_RS_SRS, srs.c_str());
-    mongoc_gridfs_file_t *gfile;
+    mongoc_gridfs_file_t *gfile = NULL;
 	mongoc_gridfs_file_opt_t gopt = {0};
     gopt.filename = remoteFilename.c_str();
     gopt.content_type = "float"; // TODO, Is the content_type can be any STRING?
@@ -684,7 +684,7 @@ void clsRasterData<T>::outputToMongoDB(map<string, double> header, string &srs, 
     BSON_APPEND_DOUBLE(p, HEADER_RS_NODATA, NODATA_VALUE);
     BSON_APPEND_DOUBLE(p, HEADER_RS_LAYERS, nLyrs);
     BSON_APPEND_UTF8(p, HEADER_RS_SRS, srs.c_str());
-    mongoc_gridfs_file_t *gfile;
+    mongoc_gridfs_file_t *gfile = NULL;
     mongoc_gridfs_file_opt_t gopt = {0};
     gopt.filename = remoteFilename.c_str();
     gopt.content_type = "float";
@@ -1037,14 +1037,15 @@ template<typename T>
 int clsRasterData<T>::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFilename)
 {
     /// Integrate 1D and 2D raster data
-    mongoc_gridfs_file_t *gfile;
+    mongoc_gridfs_file_t *gfile = NULL;
     bson_error_t *err = NULL;
     gfile = mongoc_gridfs_find_one_by_filename(gfs, remoteFilename, err);
-    if (err != NULL)
+    if (err != NULL || gfile == NULL)
     {
         throw ModelException("clsRasterData", "ReadRasterFromMongoDB",
                              "The file " + string(remoteFilename) + " does not exist.");
     }
+	// cout << remoteFilename << endl;
     size_t length = (size_t) mongoc_gridfs_file_get_length(gfile);
     char *buf = (char *) malloc(length);
     mongoc_iovec_t iov;
@@ -1172,7 +1173,7 @@ int clsRasterData<T>::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFi
     if (mask == NULL) clsRasterData<T>::ReadFromMongoDB(gfs, remoteFilename);
     else
     {
-        mongoc_gridfs_file_t *gfile;
+        mongoc_gridfs_file_t *gfile = NULL;
         bson_error_t *err = NULL;
         gfile = mongoc_gridfs_find_one_by_filename(gfs, remoteFilename, err);
         if (err != NULL || gfile == NULL)
@@ -1190,6 +1191,7 @@ int clsRasterData<T>::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFi
             m_nLyrs = GetIntFromBSONITER(&iter);
         else
             throw ModelException("clsRasterData", "ReadRasterFromMongoDB", "Failed in get FLOAT value: LAYERS.\n");
+		// cout << remoteFilename << endl;
         size_t length = (size_t) mongoc_gridfs_file_get_length(gfile);
         char *buf = (char *) malloc(length);
         mongoc_iovec_t iov;
