@@ -37,7 +37,8 @@ def FindSites(db, hydroDBName, subbasinFile, subbasinIdField, thiessenFileList, 
     for i in range(len(subbasinList)):
         subbasin = subbasinList[i]
         id = subbasinIDList[i]
-        if not forCluster: # if not for cluster, force the SUBBASINID to 0. by LJ.
+        # if not for cluster and basin.shp is used, force the SUBBASINID to 0. by LJ.
+        if not forCluster and len(subbasinList) == 1:
             id = 0
         dic = {}
         dic[FLD_SUBBASINID.upper()] = id
@@ -46,19 +47,19 @@ def FindSites(db, hydroDBName, subbasinFile, subbasinIdField, thiessenFileList, 
         curFileter = {FLD_SUBBASINID.upper(): id,
                       FLD_DB.upper(): hydroDBName,
                       FLD_MODE.upper(): mode}
-        for i in range(0, n):
-            thiessenFile = thiessenFileList[i]
+        for metroID in range(0, n):
+            thiessenFile = thiessenFileList[metroID]
             # print thiessenFile
-            siteType = siteTypeList[i]
+            siteType = siteTypeList[metroID]
             try:
                 thiessenList, thiessenIDList = OGRWkt2Shapely(thiessenFile, thiessenIdField)
             except:
                 thiessenList, thiessenIDList = OGRWkt2Shapely(thiessenFile, 'Subbasin')
             siteList = []
-            for j in range(len(thiessenList)):
-                thiessen = thiessenList[j]
+            for polyID in range(len(thiessenList)):
+                thiessen = thiessenList[polyID]
                 if subbasin.intersects(thiessen):
-                    siteList.append(thiessenIDList[j])
+                    siteList.append(thiessenIDList[polyID])
             siteList.sort()
             slist = [str(item) for item in siteList]
             siteListStr = ','.join(slist)
@@ -85,7 +86,10 @@ if __name__ == "__main__":
         sys.exit(1)
 
     thiessenFileList = [MeteorSitesThiessen, PrecSitesThiessen]
-    basinFile = WORKING_DIR + os.sep + 'basin.shp'
-    typeList = ['M', 'P']
+    typeList = [DataType_Meteorology, DataType_Precipitation]
     db = conn[SpatialDBName]
-    FindSites(db, ClimateDBName, basinFile, FLD_BASINID, thiessenFileList, typeList, 'DAILY')
+    if not forCluster:
+        basinFile = WORKING_DIR + os.sep + basinVec
+        FindSites(db, ClimateDBName, basinFile, FLD_BASINID, thiessenFileList, typeList, 'DAILY')
+    subbasinFile = WORKING_DIR + os.sep + DIR_NAME_SUBBSN + os.sep + subbasinVec  # subbasin.shp, for MPI version
+    FindSites(db, ClimateDBName, subbasinFile, FLD_SUBBASINID, thiessenFileList, typeList, 'DAILY')
