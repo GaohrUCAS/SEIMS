@@ -376,6 +376,8 @@ private:
 	float *m_potNH4;
 	/// soluble phosphorus amount, kg
 	float *m_potSolP;
+	/// field capacity (FC-WP), mm
+	float **m_sol_fc;
 	/// amount of water held in the soil layer at saturation (sat - wp water), mm
 	float **m_sol_sat;
 	/// soil water storage (mm)
