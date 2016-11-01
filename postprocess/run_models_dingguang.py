@@ -16,23 +16,28 @@ def SumByFile(filename, year):
 
 
 dirlist = []
-# parlist = ['COD', 'TN', 'TP']
-# solidReduction = [611.76, 118.98, 60.5]
-parDict = {'COD': 687., 'TN': 127., 'TP': 62.}
-baseFolder = r"C:\z_code\Hydro\SEIMS\model_data\dianbu"
-watershedList = ["", "2", "3"]
-outputList = ["2", "3"]
-
+baseFolder = r"C:\z_code\Hydro\SEIMS\model_data\dingguang\model_dingguang_30m_longterm"
+baseSceneID = "0"
+ScenarioIDs = ["1", "2", "3", "4"]
+ScenarioNames = ["DemoExtend_ALL", "DemoExtend_PLANT", "DemoExtend_ANIMAL", "DemoExtend_SEWAGE"]
 year = 2014
-for par in parDict.keys():
-    varTotalPre = 0.
-    varTotalAfter = 0.
-    for wsID in watershedList:
-        filenamePre = r'%s\model_dianbu%s_30m_longterm\OUTPUT%s\0_CH_%s.txt' % (baseFolder, wsID, 3, par)
-        filenameAfter = r'%s\model_dianbu%s_30m_longterm\OUTPUT%s\0_CH_%s.txt' % (baseFolder, wsID, 2, par)
-        varTotalPre += SumByFile(filenamePre, year)
-        varTotalAfter += SumByFile(filenameAfter, year)
-    liquid = (varTotalPre - varTotalAfter) / 1000.
-    total = parDict.get(par) + liquid
-    print "%s: Base: %.2f, DemoExtended: %.2f, L: %.2f, Total: %.2f, ReduceRate: %.2f" % \
-          (par, varTotalPre, varTotalAfter, liquid, total, liquid * 100. / varTotalPre * 1000.)
+subbasinID = 0
+# statistics base scenario outputs
+baseParDict = {'COD': 0., 'TN': 0., 'TP': 0.}
+for par in baseParDict.keys():
+    filename = r'%s\OUTPUT%s\%d_CH_%s.txt' % (baseFolder, baseSceneID, subbasinID, par)
+    baseParDict[par] = round(SumByFile(filename, year) / 1000., 2)
+print "base Scene, ", baseParDict
+
+for idx, sceneID in enumerate(ScenarioIDs):
+    parDict = {'COD': 0., 'TN': 0., 'TP': 0.}
+    reduceDict = {'COD': 0., 'TN': 0., 'TP': 0.}
+    reduceRateDict = {'COD': 0., 'TN': 0., 'TP': 0.}
+    for par in parDict.keys():
+        filename = r'%s\OUTPUT%s\%d_CH_%s.txt' % (baseFolder, sceneID, subbasinID, par)
+        parDict[par] = round(SumByFile(filename, year) / 1000., 2)
+        reduceDict[par] = round(baseParDict[par] - parDict[par], 2)
+        reduceRateDict[par] = round(reduceDict[par]/baseParDict[par], 2)
+    print ScenarioNames[idx], parDict
+    print "    reduce, ", reduceDict
+    print "    reduceRate, ", reduceRateDict

@@ -34,7 +34,7 @@ if __name__ == "__main__":
     # simulation
     dataSimList = []
     for i in range(len(PLOT_VARS)):
-        txtData = ReadSimfromTxt(TIME_Start, TIME_End, MODEL_DIR, PLOT_VARS[i])
+        txtData = ReadSimfromTxt(TIME_Start, TIME_End, MODEL_DIR, PLOT_VARS[i], PLOT_SUBBASINID)
         dataSimList.append(txtData)
 
     # # Create multiple plot
