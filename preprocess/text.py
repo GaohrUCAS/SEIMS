@@ -131,6 +131,7 @@ Tag_VAR_Time = 'TimeSupport'
 
 Tag_ClimateDB_Sites = "Sites"
 Tag_ST_StationID = 'StationID'
+Tag_ST_SubbasinID = 'SubbasinID'
 Tag_ST_StationName = 'Name'
 Tag_ST_LocalX = 'LocalX'
 Tag_ST_LocalY = 'LocalY'

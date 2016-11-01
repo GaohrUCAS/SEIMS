@@ -70,7 +70,7 @@ def FindSites(db, hydroDBName, subbasinFile, subbasinIdField, thiessenFileList, 
 
     db[DB_TAB_SITELIST.upper()].create_index([(FLD_SUBBASINID.upper(), pymongo.ASCENDING),
                                               (FLD_MODE.upper(), pymongo.ASCENDING)])
-    print 'Meteorology sites table was generated.'
+    # print 'Meteorology sites table was generated.'
     return nSubbasins
 
 

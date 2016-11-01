@@ -40,12 +40,9 @@ def BuildMongoDB():
     GenerateReachTable(WORKING_DIR, db, forCluster)
 
     # prepare meteorology data
-    subbasinFile = WORKING_DIR + os.sep + basinVec  # basin.shp, for OpenMP version
-    fldID = FLD_BASINID
-    subbasinRaster = WORKING_DIR + os.sep + mask_to_ext  # mask.tif
-    if forCluster:
-        subbasinFile = WORKING_DIR + os.sep + DIR_NAME_SUBBSN + os.sep + subbasinVec  # subbasin.shp, for MPI version
-        fldID = FLD_SUBBASINID
+    if not forCluster:
+        subbasinRaster = WORKING_DIR + os.sep + mask_to_ext  # mask.tif
+    else:
         subbasinRaster = WORKING_DIR + os.sep + subbasinOut  # subbasin.tif
 
     if stormMode:
@@ -57,10 +54,15 @@ def BuildMongoDB():
 
     f.write("20, Finding nearby stations for each sub-basin...\n")
     f.flush()
-    nSubbasins = FindSites(db, ClimateDBName, subbasinFile, fldID, meteoThiessenList, meteoTypeList, simuMode)
-    print "Number of sub-basins:%d" % nSubbasins
+    if not forCluster: #  OMP version
+        basinFile = WORKING_DIR + os.sep + basinVec
+        nSubbasins = FindSites(db, ClimateDBName, basinFile, FLD_BASINID, meteoThiessenList, meteoTypeList, simuMode)
+    subbasinFile = WORKING_DIR + os.sep + DIR_NAME_SUBBSN + os.sep + subbasinVec  #  MPI version
+    nSubbasins = FindSites(db, ClimateDBName, subbasinFile, FLD_SUBBASINID, meteoThiessenList, meteoTypeList, simuMode)
 
-    if not forCluster: # changed by LJ, SubbasinID is 0 means the whole basin!
+    print "Meteorology sites table generated done. Number of sub-basins:%d" % nSubbasins
+
+    if not forCluster:  # changed by LJ, SubbasinID is 0 means the whole basin!
         nSubbasins = 0
 
     # import raster data to MongoDB
