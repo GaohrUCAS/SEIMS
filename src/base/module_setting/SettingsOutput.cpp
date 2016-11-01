@@ -498,6 +498,7 @@ void SettingsOutput::checkDate(time_t startTime, time_t endTime)
         for (itemIt = (*it)->m_PrintItems.begin(); itemIt < (*it)->m_PrintItems.end(); itemIt++)
         {
             if ((*itemIt)->getStartTime() < startTime){
+				// cout<<(*itemIt)->getStartTime()<<", "<<startTime<<endl;
 				(*itemIt)->setStartTime(startTime);
 				cout<<"WARNING: The start time of output "<<(*it)->getOutputID()<<" to "<<(*itemIt)->Filename<<" is "<<(*itemIt)->StartTime<<
 					". It's earlier than start time of time series data "<<util.ConvertToString(&startTime)<<", and will be updated."<<endl;
