@@ -3,7 +3,7 @@ TYPE	NAME	DESCRIPTION	UNIT	MODULE	VALUE	IMPACT	CHANGE	MAX	MIN	USE
 TEXT	TEXT	TEXT	TEXT	TEXT	REAL	REAL	VARCHAR(2)	REAL	REAL	VARCHAR(1)
 Discharge	a_bnk	bank flow recession constant	none	ALL	0.2	0	AC	1	0	Y
 Sediment	adj_pkr	peak rate adjustment factor	none	MUSLE_I30	1	0	AC	1	0.1	Y
-Nutrient	ai0	Ratio of chlorophyll-a to algal biomass	ug/mg	NutCHRout	50	0	AC	100	10	Y
+Nutrient	ai0	Ratio of chlorophyll-a to algal biomass	ug/mg	NutCHRout	50	0	AC	100	1.00E+01	Y
 Nutrient	ai1	Fraction of algal biomass that is nigrogen	mg/mg	NutCHRout	0.08	1	RC	0.09	7.00E-02	Y
 Nutrient	ai2	Fraction of algal biomass that is phosphorus	mg/mg	NutCHRout	0.015	1	RC	0.02	1.00E-02	Y
 Nutrient	ai3	Rate of oxygen production per unit algal photosynthesis	mg/mg	NutCHRout	1.6	0	AC	1.8	1.4	Y
@@ -26,7 +26,7 @@ Snow	c_snow12	Melt factor on December 21	mm/deg C/day	SNO_SP	6.5	0	AC	9	6	Y
 Snow	c_snow6	Melt factor on June 21	mm/deg C/day	SNO_SP	2.5	0	AC	4	1	Y
 InstreamWQ	cbod	Carbonaceous bideg Chemical oxygen demand in reach on the first day	mg O2/L	ChannelRouting	0	1	AC	1	0	Y
 Sediment	ccoe	calibration coefficient of overland flow detachment erosion	none	KinWavSed_OL	0.05	1	RC	100	0.001	Y
-Nutrient	cdn	rate coefficient for denitrification	none	NMINRL	1	1	RC	3	0	Y
+Nutrient	cdn	rate coefficient for denitrification	none	NMINRL	1	0	AC	3	0	Y
 Discharge	Ch_iuh	Channel flow IUH	none	ChannelRouting	-9999		NC	-9999	-9999	Y
 Discharge	CH_ManningFactor	Manning scaling factor of channel routing	none	IKW_CH	1	0	AC	3	0.1	Y
 Nutrient	ch_onco	Channel organic nitrogen concentration in basin	mg/kg	NUTR_QUAL2E	0	0	AC	100	0	Y
@@ -34,7 +34,7 @@ Nutrient	ch_opco	Channel organic phosphorus concentration in basin	mg/kg	NUTR_QU
 Sediment	ChDetCo	calibration coefficient of channel flow detachment	none	KinWavSed_CH	0.001	1	RC	1	0.0001	Y
 InstreamWQ	chlora	ChlorophyII-a concentration in reach on the first day	mg chla/L	ChannelRouting	0	0	AC	200	0	Y
 Discharge	chs0	initial channel storage	m3/m	All	0	0	AC	100	0	Y
-Discharge	chs0_perc	initial percentage of channel volume	none	ALL	0.05	0.05	AC	1	0	Y
+Discharge	chs0_perc	initial percentage of channel depth	none	ALL	0.05	0.05	AC	1	0	Y
 Sediment	ChTcCo	calibration coefficient of transport capacity calculation	none	KinWavSed_CH	0.8	1	RC	100000	0.001	Y
 Discharge	CHWIDTH	Channel width	m	ALL	-9999	0	AC	-9999	-9999	N
 WaterBalance	Clay	Clay proportion	%	ALL	-9999	1	RC	1.2	0.8	Y
@@ -56,7 +56,7 @@ Sediment	decay	dacay constant	1/day	ChannelRouting	0.184	0	NC	1	0	Y
 Climate	DEM	Elevation of each grid cell	m	ALL	-9999		NC	-9999	-9999	
 WaterBalance	Density	Soil bulk density	mg/cm3	ALL	-9999	1	RC	1.2	0.8	Y
 Sediment	depRatio	deposition ratio	None	MUSLE_AS	0.8	1	RC	1	0	Y
-WaterBalance	Depre_in	Initial depression storage coefficient	none	ALL	0	0	AC	1	0	Y
+WaterBalance	Depre_in	Initial depression storage coefficient	none	ALL	0.2	0	AC	1	0	Y
 WaterBalance	Depression	Depression storage capacity	mm	ALL	-9999	1	RC	5	0.5	Y
 Discharge	df_coef	Deep percolation coefficient	mm	GW_RSVR	0	0	AC	1	0	Y
 InstreamWQ	diso2	Dissolved oxygen concentration in reach on the first day	mg O2/L	ChannelRouting	0	1	RC	1	0	Y
@@ -89,7 +89,7 @@ Nutrient	InitConc_NO3	Initial average concentration of NO3 in the soil	kg/kg	All
 Nutrient	InitConc_P	Initial average concentration of P in the soil	kg/kg	All	0.001	1	RC	0.001	1.00E-05	Y
 Interception	Interc_max	Maximum Interception Capacity	mm	ALL	-9999	1	RC	1.5	0.5	Y
 Interception	Interc_min	Minimum Interception Capacity	mm	ALL	-9999	1	RC	1.5	0.5	Y
-Nutrient	isep_opt	initial septic operational condition	none	NutRemv	0	0	AC	2	0	Y
+Nutrient	isep_opt	initial septic operational condition	none	NutrMV	0	0	AC	2	0	Y
 Discharge	k_bank	channel bank hydraulic conductivity	mm/hr	ALL	20	0	AC	150	0	Y
 Snow	k_blow	fraction of precipitation as snow	None	SNO_SP	1	1	RC	1	0	Y
 Discharge	k_chb	channel bottom hydraulic conductivity	mm/hr	ALL	0.5	0	AC	150	0	Y
@@ -106,6 +106,8 @@ WaterBalance	k_soil10	ratio between soil temperature at 10 cm and the mean	none	
 Snow	k_subli	Praction of PET for sublimation	none	SSM_PE	1	0	AC	5	0	Y
 Discharge	Kg	Baseflow recession coefficient	none	GW_RSVR	0.005	0	AC	0.1	0.001	Y
 Discharge	Ki	Interflow scaling factor	none	SSR_DA	3	0	AC	10	0	Y
+Nutrient	kn_paddy	nitrification rate constant in impounded water body	/day	IMP_SWAT	0.5	0	AC	2	0.02	Y
+Nutrient	kv_paddy	volatilization rate constant in impounded water body	/day	IMP_SWAT	0.4	0	AC	0.8	0.043	Y
 Snow	lag_snow	Snow temperature lag factor	none	SNO_SP	0.8	0	AC	1	0	Y
 Nutrient	lambda0	Non-algal portion of hte light extinction coefficient	1/m	NutCHRout	1	0	AC	10	0	Y
 Nutrient	lambda1	Linear algal self-shading coefficient	(1/m)1/(ug chla/L)	NutCHRout	0.03	1	RC	0.065	0.0065	Y
@@ -124,7 +126,7 @@ PlantGrowth	nfixmx	Maximum daily-n fixation (kg/ha)	kg/ha	BIO_EPIC	20	1	RC	20	1	
 InstreamWQ	nh3	Ammonia concentration in reach on the first day	mg N/L	ChannelRouting	0	0	AC	50	0	Y
 InstreamWQ	no2	NO2-N concentration in reach on the first day	mg N/L	ChannelRouting	0	0	AC	10	0	Y
 InstreamWQ	no3	NO3-N concentration in reach on the first day	mg N/L	ChannelRouting	0	0	AC	30	0	Y
-Nutrient	nperco	Nitrogen percolation coefficient	none	NutRemv	0.5	0.001	RC	1	0	Y
+Nutrient	nperco	Nitrogen percolation coefficient	none	NutrMV	0.5	0.005	RC	1	0	Y
 Discharge	Ol_iuh	Overland flow IUH	none	ALL	-9999		NC	-9999	-9999	Y
 Sediment	Omega	calibration coefficient of splash detachment erosion	none	SplashEro_Park	0.02	1	RC	10	0.0001	Y
 InstreamWQ	orgn	Organic N concentration in reach on the first day	mg N/L	ChannelRouting	0	1	RC	100	0	Y
@@ -133,14 +135,15 @@ WaterBalance	P_max	Maximum rainfall intensity when k_run = 1.0	mm	SUR_MR	30	0	AC
 Nutrient	p_n	Algal preference factor for ammonia	mg/L	NutCHRout	0.5	1	RC	1	0	Y
 Sediment	p_rf	 Peak rate adjustment factor 	none	ChannelRouting	1	0	AC	3	1	Y
 PlantGrowth	p_updis	phosphorus uptake distribution parameter	None	BIO_EPIC	20	1	RC	100	0	Y
-Nutrient	phoskd	Phosphorus soil partitioning coefficient	m^3/Mg	NutRemv	175	25	AC	200	100	Y
+Nutrient	phoskd	Phosphorus soil partitioning coefficient	m^3/Mg	NutrMV	175	25	AC	200	100	Y
 Interception	Pi_b	Interception Storage Capacity Exponent	none	ALL	1.35	0	AC	1.5	0.5	Y
 WaterBalance	Poreindex	Pore size distribution index	none	ALL	-9999	1	RC	1.2	0.8	Y
 WaterBalance	Porosity	Soil porosity	m3/m3	ALL	-9999	1	RC	1.2	0.8	Y
+WaterBalance	pot_k	hydraulic conductivity of soil surface of pothole	mm/hr	IMP_SWAT	0.1	0	AC	10	0.01	Y
 Pothole	pot_no3l	Nitrate decay rate in impounded water body	1/day	IMP_SWAT	0	0	AC	1	0	Y
 Pothole	pot_solpl	Soluble phosphorus decay rate in impounded water body	1/day	IMP_SWAT	0	0	AC	1	0	Y
 Pothole	pot_tile	Average daily outflow to main channel from tile flow if drainage tiles are installed in the pothole.	mm	IMP_SWAT	0	0	AC	100	0	Y
-Nutrient	pperco	Phosphorus percolation coefficient	none	NutRemv	10	7.5	AC	17.5	10	Y
+Nutrient	pperco	Phosphorus percolation coefficient	none	NutrMV	10	7.5	AC	17.5	10	Y
 Nutrient	psp	nitrogen active pool fraction	none	NMINRL	0.02	1	RC	1	0	Y
 Discharge	q_iter	Thrashold of storage change rate	m3/s	ChannelRouting	0.01	0	AC	0.1	0.001	Y
 Sediment	rain_yrs	number of yeares of data used to obtain values for RAINHHMX	none	MUSLE_I30	10	0	AC	10	5	Y
@@ -188,7 +191,7 @@ WaterBalance	soil_tb2	Empirical coefficient for estimating soil temperature	deg 
 WaterBalance	soil_td1	Empirical coefficient for estimating soil temperature	deg C	STP_FP	0.057	0	AC	1	0	Y
 WaterBalance	soil_td2	Empirical coefficient for estimating soil temperature	deg C	STP_FP	0.339	0	AC	1	0	Y
 WaterBalance	soiltemp0	Initial soil temperature	deg C	SOI_EB	-9999	1	RC	1.2	0.8	Y
-Sediment	spcon	 Coefficient in sediment transport equation	none	ChannelRouting	0.0001	20	RC	0.01	0.0001	Y
+Sediment	spcon	Coefficient in sediment transport equation	none	ChannelRouting	0.0001	1	RC	0.01	0.0001	Y
 Sediment	spexp	Exponent in sediment transport equation	none	ChannelRouting	1.5	0	AC	2	1	Y
 Sediment	Spl_delratio	Splash delivery ratio	none	SplashEro_KinEen	0.1	1	RC	1	0	Y
 Discharge	STREAM_LINK	Stream link	none	ALL	-9999	0	AC	-9999	-9999	N
@@ -203,9 +206,9 @@ Sediment	T0_s	time of concentration	hr	ALL	-9999	0	NC	-9999	-9999	Y
 Nutrient	tfact	Fraction of solar radiation that is photosynthetically active	none	NutCHRout	0.3	1	RC	1	0	Y
 Discharge	THETA	Parameter theta for the implicit finite deffirent equation	none	ALL	0.75	0	AC	1	0	Y
 Snow	U0	Wind speed over Ut at which WWi=1	m/s	SRD_MB	10	0	AC	1	0.2	Y
-Sediment	USLE_C	the cover management factor	none	ALL	-9999	0	NC	-9999	-9999	Y
-Sediment	USLE_K	the soil erodibility factor	none	ALL	-9999	0	NC	-9999	-9999	Y
-Sediment	USLE_P	the erosion control practice factor	none	ALL	-9999	0	NC	-9999	-9999	Y
+Sediment	USLE_C	the cover management factor	none	ALL	-9999	1	RC	1	0	Y
+Sediment	USLE_K	the soil erodibility factor	none	ALL	-9999	0.5	RC	1	0	Y
+Sediment	USLE_P	the erosion control practice factor	none	ALL	-9999	1	RC	1	0	Y
 Snow	Ut0	Threshold wind speed at -27 degree	m/s	SRD_MB	6.98	0	AC	10	4	Y
 Sediment	vcd	channel degredation code	None	SEDR	0	0	AC	1	0	Y
 Sediment	vcrit	critical veldeg Ctiy for sediment deposition	m/s	ChannelRouting	0.01	0	AC	1	0	Y
@@ -214,7 +217,3 @@ Climate	Weight_P	Weight Coefficient of Precipitation	none	ALL	-9999		NC	-9999	-9
 Climate	Weight_PET	Weight Coefficient of Potential Evapotranspiration	none	ALL	-9999		NC	-9999	-9999	Y
 Climate	Weight_T	Weight Coefficient of Temperature	none	ALL	-9999		NC	-9999	-9999	Y
 WaterBalance	Wiltingpoint	Plant wilting point moisture	m3/m3	ALL	-9999	1	RC	1.2	0.8	Y
-Nutrient	kv_paddy	volatilization rate constant in impounded water body	/day	IMP_SWAT	0.4	0	AC	0.8	0.043	Y
-Nutrient	kn_paddy	nitrification rate constant in impounded water body	/day	IMP_SWAT	0.5	0	AC	2	0.02	Y
-WaterBalance	pot_k	hydraulic conductivity of soil surface of pothole	mm/hr	IMP_SWAT	0.1	0	AC	10	0.01	Y
-
