@@ -76,11 +76,11 @@ void clsInterpolationWeightData::dump(string fileName)
 void clsInterpolationWeightData::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFilename)
 {
     //clock_t start = clock();
-    mongoc_gridfs_file_t *gfile;
+    mongoc_gridfs_file_t *gfile = NULL;
     bson_error_t *err = NULL;
     gfile = mongoc_gridfs_find_one_by_filename(gfs, remoteFilename, err);
 
-    if (err != NULL)  /// no query result exists
+    if (err != NULL || gfile == NULL)  /// no query result exists
     {
         string filename = remoteFilename;
         int index = filename.find_last_of('_');
@@ -92,14 +92,14 @@ void clsInterpolationWeightData::ReadFromMongoDB(mongoc_gridfs_t *gfs, const cha
         {
             string meteoFileName = filename.substr(0, index + 1) + DataType_Meteorology;
             gfile = mongoc_gridfs_find_one_by_filename(gfs, meteoFileName.c_str(), err);
-            if (err != NULL)
+            if (err != NULL || gfile == NULL)
             {
                 throw ModelException("clsInterpolationWeightData", "ReadFromMongoDB",
                                      "Failed in finding GridFS file: " + string(remoteFilename) + ".\n");
             }
         }
     }
-
+	// cout << remoteFilename << endl;
     size_t length = (size_t) mongoc_gridfs_file_get_length(gfile);
     m_weightData = new float[length / 4];
     mongoc_iovec_t iov;

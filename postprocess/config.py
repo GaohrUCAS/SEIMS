@@ -9,6 +9,7 @@ from RelativeImportModules import import_parents
 if __package__ is None:
     __package__ = import_parents(level = 2)
 from ..preprocess.util import *
+from ..preprocess.text import *
 # Load model configuration from *.ini file
 cf = ConfigParser.ConfigParser()
 cf.read(GetINIfile())
@@ -32,12 +33,16 @@ if not isIPValid(HOSTNAME):
     raise ValueError("HOSTNAME illegal defined in [MONGODB]!")
 
 # 3. Parameters
+PLOT_SUBBASINID = -1
 PLOTVAR_STRING = ''
 PLOT_VARS = []
 if 'PARAMETERS' in cf.sections():
+    PLOT_SUBBASINID = cf.getint('PARAMETERS', 'PLOT_SUBBASINID'.lower())
     PLOTVAR_STRING = cf.get('PARAMETERS', 'PLOT_VARIABLES'.lower())
 else:
     raise ValueError("[PARAMETERS] section MUST be existed in *.ini file.")
+if PLOT_SUBBASINID < 0:
+    raise ValueError("PLOT_SUBBASINID must be greater or equal than 0.")
 if PLOTVAR_STRING != '':
     PLOT_VARS = SplitStr(StripStr(PLOTVAR_STRING))
 else:

@@ -55,8 +55,7 @@ def ImportPrecipitation(db, ClimateDateFile, sitesLoc, isFirst):
             if (isFirst):
                 db[DB_TAB_DATAVALUES.upper()].insert_one(curDic)
             else:
-                db[DB_TAB_DATAVALUES.upper()].find_one_and_replace
-                (curfilter, curDic, upsert=True)
+                db[DB_TAB_DATAVALUES.upper()].find_one_and_replace(curfilter, curDic, upsert=True)
     # Create index
     db[DB_TAB_DATAVALUES.upper()].create_index(
         [(Tag_DT_StationID.upper(), pymongo.ASCENDING),

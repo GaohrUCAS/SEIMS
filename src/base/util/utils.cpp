@@ -175,7 +175,6 @@ time_t utils::ConvertToTime2(const string &strDate, const char *format, bool inc
         timeinfo.tm_sec = s;
         timeinfo.tm_isdst = false;
         t = mktime(&timeinfo);
-
     }
     catch (...)
     {

@@ -101,7 +101,7 @@
 #define BMP_PTSRC_FLD_LON                    "LON"
 #define BMP_PTSRC_FLD_LOCALX            "LOCALX"
 #define BMP_PTSRC_FLD_LOCALY            "LOCALY"
-#define BMP_PTSRC_FLD_SUBBSN            "SUBBASIN"
+#define BMP_PTSRC_FLD_SUBBSN            "SUBBASINID"
 #define BMP_PTSRC_FLD_SIZE                    "SIZE"
 #define BMP_PTSRC_FLD_DISTDOWN        "DIST2REACH"
 /// Areal source management fields

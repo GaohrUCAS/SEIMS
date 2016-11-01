@@ -57,7 +57,7 @@ MGTOpt_SWAT::MGTOpt_SWAT(void) : m_nCells(-1), m_nSub(-1), m_soilLayers(-1),
                                  m_nGrazingDays(NULL), m_grzFlag(NULL),
         /// Release or impound operation
                                  m_impoundTriger(NULL), m_potVol(NULL), m_potVolMax(NULL),m_potVolLow(NULL),
-								 m_sol_sat(NULL), m_soilStorage(NULL), m_soilStorageProfile(NULL),
+								 m_sol_fc(NULL), m_sol_sat(NULL), m_soilStorage(NULL), m_soilStorageProfile(NULL),
 								 m_potNo3(NULL), m_potNH4(NULL), m_potSolP(NULL),
 		/// CENTURY C/N cycling related variables
 								m_sol_HSN(NULL), m_sol_LM(NULL), m_sol_LMC(NULL), m_sol_LMN(NULL), m_sol_LSC(NULL), 
@@ -347,6 +347,7 @@ void MGTOpt_SWAT::Set2DData(const char *key, int n, int col, float **data)
     else if (StringMatch(sk, VAR_SOL_ACTP)) m_soilActiveMinP = data;
     else if (StringMatch(sk, VAR_SOL_STAP)) m_soilStableMinP = data;
 	else if (StringMatch(sk, VAR_SOL_RSD)) m_soilRsd = data;
+	else if (StringMatch(sk, VAR_SOL_AWC)) m_sol_fc = data;
 	else if (StringMatch(sk, VAR_SOL_UL)) m_sol_sat = data;
 	else if (StringMatch(sk, VAR_SOL_ST)) m_soilStorage = data;
 	/// inputs for CENTURY C/N cycling model in stated and necessary
@@ -906,7 +907,7 @@ void MGTOpt_SWAT::ExecuteFertilizerOperation(int i, int &factoryID, int nOp)
     float rtof = 0.5f;
     float xx; /// fraction of fertilizer applied to layer
     float gc = 0.f; //, gc1 = 0.f;
-	/// if current landcover is paddy rice, only apply the commercial fertilizer to the top surface.
+	/// if current landcover is paddy rice, then apply the commercial fertilizer to the top surface and pothole.
 	int lyrs = 2;
 	if (m_potVol != NULL){
 	if (FloatEqual(m_landCover[i], CROP_PADDYRICE) && fertype == 0 && m_potVol[i] > 0.f){
@@ -1762,7 +1763,8 @@ void MGTOpt_SWAT::ExecuteReleaseImpoundOperation(int i, int &factoryID, int nOp)
 		/// force the soil water storage to field capacity
 		for (int ly = 0; ly < (int)m_nSoilLayers[i]; ly++)
 		{
-			float dep2cap = m_sol_sat[i][ly] - m_soilStorage[i][ly];
+			// float dep2cap = m_sol_sat[i][ly] - m_soilStorage[i][ly];
+			float dep2cap = m_sol_fc[i][ly] - m_soilStorage[i][ly];
 			if (dep2cap > 0.f)
 			{
 				dep2cap = min(dep2cap, m_potVol[i]);
@@ -1896,7 +1898,7 @@ int MGTOpt_SWAT::Execute()
 				//if (i == 8144){
 				//	ofstream fs;
 				//	utils util;
-				//	string filename = "E:\\pltMgt.txt";
+				//	string filename = "D:\\pltMgt.txt";
 				//	fs.open(filename.c_str(), ios::out|ios::app);
 				//	if (fs.is_open())
 				//	{

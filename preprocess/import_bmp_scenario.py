@@ -16,7 +16,8 @@ def ImportBMPTables():
     '''
     Import BMPs Scenario data to MongoDB
     '''
-
+    if not useScernario:
+        return False
     BMPFiles = GetFileNameWithSuffixes(BMP_DATA_DIR, ['.txt'])
     BMP_tabs = []
     BMP_tabs_path = []
@@ -80,6 +81,7 @@ def ImportBMPTables():
     mainDB[DB_TAB_BMP_DB.upper()].find_one_and_replace(
         bmpInfoDic, bmpInfoDic, upsert=True)
     conn.close()
+    return True
 
 if __name__ == "__main__":
     LoadConfiguration(GetINIfile())

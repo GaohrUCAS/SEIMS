@@ -25,6 +25,11 @@ def MPIHeader(mpiexeDir, inputProc, hostfile=None):
         cmd += ' -n '
     return cmd
 
+def abortRun(lines):
+    for line in lines:
+        if "ERROR" in line.upper():
+            return False
+    return True
 
 def Fill(np, workingDir, dem, filledDem, mpiexeDir=None, exeDir=None):
     os.chdir(workingDir)
@@ -36,7 +41,12 @@ def Fill(np, workingDir, dem, filledDem, mpiexeDir=None, exeDir=None):
     strCmd = strCmd + " %d %s -z %s -fel %s" % (np, exe, dem, filledDem)
     print strCmd
     process = subprocess.Popen(strCmd, shell=True, stdout=subprocess.PIPE)
-    return process.stdout.readlines()
+    runMsg = process.stdout.readlines()
+    if abortRun(runMsg):
+        return runMsg
+    else:
+        print runMsg
+        raise RuntimeError("Error occurs when running external program, please check!")
 
 
 def FlowDirD8(np, workingDir, filledDem, flowDir, slope, mpiexeDir=None, exeDir=None):
@@ -50,7 +60,12 @@ def FlowDirD8(np, workingDir, filledDem, flowDir, slope, mpiexeDir=None, exeDir=
         " %d %s -fel %s -p %s  -sd8 %s" % (np, exe, filledDem, flowDir, slope)
     print strCmd
     process = subprocess.Popen(strCmd, shell=True, stdout=subprocess.PIPE)
-    return process.stdout.readlines()
+    runMsg = process.stdout.readlines()
+    if abortRun(runMsg):
+        return runMsg
+    else:
+        print runMsg
+        raise RuntimeError("Error occurs when running external program, please check!")
 
 
 def D8DistDownToStream(np, workingDir, p, fel, src, dist, distancemethod, thresh, mpiexeDir=None, exeDir=None,
@@ -77,7 +92,12 @@ def D8DistDownToStream(np, workingDir, p, fel, src, dist, distancemethod, thresh
             thresh)
     print cmd
     process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    return process.stdout.readlines()
+    runMsg = process.stdout.readlines()
+    if abortRun(runMsg):
+        return runMsg
+    else:
+        print runMsg
+        raise RuntimeError("Error occurs when running external program, please check!")
 
 
 def FlowDirDinf(np, workingDir, filledDem, flowAngle, slope, mpiexeDir=None, exeDir=None):
@@ -92,7 +112,12 @@ def FlowDirDinf(np, workingDir, filledDem, flowAngle, slope, mpiexeDir=None, exe
                                             exe, filledDem, flowAngle, slope)
     print strCmd
     process = subprocess.Popen(strCmd, shell=True, stdout=subprocess.PIPE)
-    return process.stdout.readlines()
+    runMsg = process.stdout.readlines()
+    if abortRun(runMsg):
+        return runMsg
+    else:
+        print runMsg
+        raise RuntimeError("Error occurs when running external program, please check!")
 
 
 def FlowAccD8(np, workingDir, flowDir, acc, outlet=None, streamSkeleton=None, mpiexeDir=None, exeDir=None):
@@ -121,7 +146,12 @@ def FlowAccD8(np, workingDir, flowDir, acc, outlet=None, streamSkeleton=None, mp
     # -nc means donot consider edge contaimination
     print strCmd
     process = subprocess.Popen(strCmd, shell=True, stdout=subprocess.PIPE)
-    return process.stdout.readlines()
+    runMsg = process.stdout.readlines()
+    if abortRun(runMsg):
+        return runMsg
+    else:
+        print runMsg
+        raise RuntimeError("Error occurs when running external program, please check!")
 
 
 def StreamRaster(np, workingDir, acc, streamRaster, threshold=1000, mpiexeDir=None, exeDir=None):
@@ -136,7 +166,12 @@ def StreamRaster(np, workingDir, acc, streamRaster, threshold=1000, mpiexeDir=No
                                                 exe, acc, str(threshold), streamRaster)
     print strCmd
     process = subprocess.Popen(strCmd, shell=True, stdout=subprocess.PIPE)
-    return process.stdout.readlines()
+    runMsg = process.stdout.readlines()
+    if abortRun(runMsg):
+        return runMsg
+    else:
+        print runMsg
+        raise RuntimeError("Error occurs when running external program, please check!")
 
 
 def MoveOutlet(np, workingDir, flowDir, streamRaster, outlet, modifiedOutlet, mpiexeDir=None, exeDir=None):
@@ -150,7 +185,12 @@ def MoveOutlet(np, workingDir, flowDir, streamRaster, outlet, modifiedOutlet, mp
         np, exe, flowDir, streamRaster, outlet, modifiedOutlet)
     print strCmd
     process = subprocess.Popen(strCmd, shell=True, stdout=subprocess.PIPE)
-    return process.stdout.readlines()
+    runMsg = process.stdout.readlines()
+    if abortRun(runMsg):
+        return runMsg
+    else:
+        print runMsg
+        raise RuntimeError("Error occurs when running external program, please check!")
 
 
 def StreamSkeleton(np, workingDir, filledDem, streamSkeleton, mpiexeDir=None, exeDir=None):
@@ -164,7 +204,12 @@ def StreamSkeleton(np, workingDir, filledDem, streamSkeleton, mpiexeDir=None, ex
         " %d %s -fel %s -ss %s" % (np, exe, filledDem, streamSkeleton)
     print strCmd
     process = subprocess.Popen(strCmd, shell=True, stdout=subprocess.PIPE)
-    return process.stdout.readlines()
+    runMsg = process.stdout.readlines()
+    if abortRun(runMsg):
+        return runMsg
+    else:
+        print runMsg
+        raise RuntimeError("Error occurs when running external program, please check!")
 
 
 def StreamNet(np, workingDir, filledDem, flowDir, acc, streamRaster, modifiedOutlet, streamOrder, chNetwork, chCoord,
@@ -180,7 +225,12 @@ def StreamNet(np, workingDir, filledDem, flowDir, acc, streamRaster, modifiedOut
         subbasin)
     print strCmd
     process = subprocess.Popen(strCmd, shell=True, stdout=subprocess.PIPE)
-    return process.stdout.readlines()
+    runMsg = process.stdout.readlines()
+    if abortRun(runMsg):
+        return runMsg
+    else:
+        print runMsg
+        raise RuntimeError("Error occurs when running external program, please check!")
 
 
 def DropAnalysis(np, workingDir, fel, p, ad8, ssa, shapefile, minthresh, maxthresh, numthresh, logspace, drp,
@@ -199,4 +249,9 @@ def DropAnalysis(np, workingDir, fel, p, ad8, ssa, shapefile, minthresh, maxthre
         strCmd = strCmd + ' 0'
     print strCmd
     process = subprocess.Popen(strCmd, shell=True, stdout=subprocess.PIPE)
-    return process.stdout.readlines()
+    runMsg = process.stdout.readlines()
+    if abortRun(runMsg):
+        return runMsg
+    else:
+        print runMsg
+        raise RuntimeError("Error occurs when running external program, please check!")
