@@ -21,35 +21,35 @@ from readTextInfo import *
 
 class T1Solution(Solution):
     # Solution for the T1 function.
-    def __init__(self):
+    def __init__(self, bmps_sce):
         # Constructor.
         Solution.__init__(self, num_objs)
         # self.min = 0.
         # self.max = 1.
         self.num_objectives = num_objs
 
-        # for _ in range(self.size):
-        #     self.attributes.append(random.randint(1, 5))
-        # self.evaluate_solution()
-        S = Scenario()
-        S.getIdfromMong()
-        S.create()
-        S.decoding()
-        S.importoMongo()
-        self.attributes = S.attributes
-        self.evaluate_solution()
+        bmps_sce.getIdfromMongo()
+        bmps_sce.create()
+        bmps_sce.cost()
+        # S.decoding()
+        # S.importoMongo()
+        self.attributes = bmps_sce.attributes
         self.size = len(self.attributes)
         # print self.size
 
+        self.cost_eco = bmps_sce.cost_eco
+        self.benefit_env = 0
+        self.evaluate_solution()
+
+
     def evaluate_solution(self):
-        # Implementation of method evaluate_solution() for T1 function.
-        self.objectives[0] = sum(self.attributes)
-        self.objectives[1] = -sum([math.pow(abs(x), 0.5)**3 for x in self.attributes])
+        self.objectives[0] = self.cost_eco
+        self.objectives[1] = sum(self.attributes)
         # print self.attributes
 
     def crossover(self, other):
         # Crossover of T1 solutions.
-        child_solution = T1Solution()
+        child_solution = T1Solution(Scenario())
         cpoint = random.randint(0, self.size - 1)
         # for i in range(cpoint):
         #     child_solution.attributes[i] = self.attributes[i]
@@ -66,7 +66,7 @@ class T1Solution(Solution):
         field_index = farm_Num - 1
         point_cattle_index = point_cattle_Num + field_index
         point_pig_index = point_pig_Num + point_cattle_index
-        point_sewage_index = point_sewage_Num + point_pig_index
+        # point_sewage_index = point_sewage_Num + point_pig_index
 
         mpoint = random.randint(0, self.size - 1)
         if mpoint <= field_index:
@@ -80,12 +80,12 @@ class T1Solution(Solution):
 
 if __name__ == '__main__':
 
-    pop_size = 10   # size of populations
+    pop_size = 50   # size of populations
     # chro_size = 20 # size of chrosome
-    num_gens = 2   # number of generations
+    num_gens = 20   # number of generations
 
-    muta_rate=0.25  # mutation rate
-    crsr_rate=0.75  # crossover rate
+    muta_rate=0.05  # mutation rate
+    crsr_rate=0.65  # crossover rate
     num_objs = 2    # number of objectives
 
     startT = time.clock()
@@ -93,7 +93,8 @@ if __name__ == '__main__':
     P = []
 
     for i in range(pop_size):
-        P.append(T1Solution())
+        S = Scenario()
+        P.append(T1Solution(S))
 
     # Result
     B = nsga2.run(P, pop_size, num_gens)

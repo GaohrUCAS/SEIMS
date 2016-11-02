@@ -5,6 +5,8 @@
 
 import os, sys
 import random
+import numpy
+
 
 def delSpecialStr(line):
     '''
@@ -123,14 +125,31 @@ def getBMPsInfo(pointBMPsFile):
 
     BMPs_farm = [0, 1]
     for cc in range(len(BMPs_cattle_id)):
-        BMPs_cattle.append(int(float(BMPs_cattle_id[cc]) % 10000.))
+        BMPs_cattle.append(int(BMPs_cattle_id[cc]) - 10000)
     for pp in range(len(BMPs_pig_id)):
-        BMPs_pig.append(int(float(BMPs_pig_id[pp]) % 10000.))
+        BMPs_pig.append(int(BMPs_pig_id[pp]) - 20000)
     for ss in range(len(BMPs_sewage_id)):
-        BMPs_sewage.append(int(float(BMPs_sewage_id[ss]) % 10000.))
+        BMPs_sewage.append(int(BMPs_sewage_id[ss]) - 40000)
 
-    # print BMPs_farm,'\n',BMPs_cattle,'\n',BMPs_pig,'\n',BMPs_sewage
-    return (BMPs_farm, BMPs_cattle, BMPs_pig, BMPs_sewage)
+    # BMP cost
+    BMPs_farm_cost = []
+    BMPs_cattle_cost = numpy.zeros((len(BMPs_cattle) + 1))
+    BMPs_pig_cost = numpy.zeros((len(BMPs_pig) + 1))
+    BMPs_sewage_cost = numpy.zeros((len(BMPs_sewage) + 1))
+    for j in range(1, len(pointbmpsTextArr)):
+        pointbmpsInfo = pointbmpsTextArr[j].split('\t')
+        cost = float(pointbmpsInfo[20]) + float(pointbmpsInfo[21]) + float(pointbmpsInfo[22])
+        if int(float(pointbmpsInfo[0]) / 10000.) == 1:
+            BMPs_cattle_cost[int(float(pointbmpsInfo[0]) - 10000.)] = cost
+        elif int(float(pointbmpsInfo[0]) / 10000.) == 2:
+            BMPs_pig_cost[int(float(pointbmpsInfo[0]) - 20000.)] = cost
+        else:
+            BMPs_sewage_cost[int(float(pointbmpsInfo[0]) - 40000.)] = cost
+
+    # print BMPs_farm, '\n', BMPs_cattle, '\n', BMPs_pig, '\n', BMPs_sewage, '\n', \
+    #         BMPs_cattle_cost, '\n', BMPs_pig_cost, '\n', BMPs_sewage_cost
+    return (BMPs_farm, BMPs_cattle, BMPs_pig, BMPs_sewage, BMPs_cattle_cost, BMPs_pig_cost, BMPs_sewage_cost)
+
 
 def selectBMPatRandom(arr):
     '''
@@ -140,6 +159,7 @@ def selectBMPatRandom(arr):
     aLen = len(arr)
     n = random.randint(0, aLen - 1)
     return arr[n]
+
 
 def getPointConfig(scenario, bmps_point, point_source, start_index, end_index):
     '''
@@ -162,6 +182,7 @@ def getPointConfig(scenario, bmps_point, point_source, start_index, end_index):
         pointConfig.append(bmp_index)
     return pointConfig
 
+
 def decodPointScenario(id, pointConfig, ptsrc):
     '''
     :param pointConfig: config info array obtained from function getPointConfig()
@@ -171,7 +192,7 @@ def decodPointScenario(id, pointConfig, ptsrc):
     for config in pointConfig:
         if len(config) > 1:
             scenario_Row = ""
-            scenario_Row += str(id) + "\tsName\t1\t" + str(ptsrc + config[0]) + "\tARRAY|point_source_distribution|"\
+            scenario_Row += str(id) + "\tsName\t1\t" + str(ptsrc + config[0]) + "\tARRAY|point_source_distribution|" \
                             + str(ptsrc) + "\tpoint_source_management\t"
             pidArr = ""
             for pid in range(1, len(config)):
@@ -182,3 +203,8 @@ def decodPointScenario(id, pointConfig, ptsrc):
             scenario_Row += pidArr
             scenario_Table.append(scenario_Row)
     return scenario_Table
+
+
+if __name__ == "__main__":
+    pointBMPsFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\management\point_source_management.txt'
+    print getBMPsInfo(pointBMPsFile)[4]

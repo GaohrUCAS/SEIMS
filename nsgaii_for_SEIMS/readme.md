@@ -95,7 +95,7 @@ NSGA与简单的遗传算法的主要区别在于:该算法在选择算子执行
 
 |方法|功能|
 |---|---|
-|getIdfromMong(self)|根据MongoDB生成该情景的编号|
+|getIdfromMongo(self)|根据MongoDB生成该情景的编号|
 |create(self)|染色体编码，生成情景编码字符串|
 |decoding(self)|染色体解码，生成情景列表|
 |importoMongo(self)|将情景列表导入数据库（其实可以与decoding()合并）|

@@ -67,6 +67,7 @@ def SearchObs(timeStart, timeEnd, sim, ClimateDB):
             # print obs['TYPE']
             obsValue.append(obs['VALUE'])
             obsDate.append(obs['LOCALDATETIME'])
+        print obsValue
         dateArr = GetDateArr(timeStart, timeEnd)
         obsValueArr = numpy.zeros(len(dateArr))
         if len(obsValue) > 0:

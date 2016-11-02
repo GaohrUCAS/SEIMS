@@ -18,8 +18,10 @@ class Scenario:
         self.point_pig_Num = point_pig_Num
         self.point_sewage_Num = point_sewage_Num
         self.sce_list = []
+        self.cost_eco = 0.
+        self.benefit_env = 0.
 
-    def getIdfromMong(self):
+    def getIdfromMongo(self):
         client = MongoClient(HOSTNAME, PORT)
         db = client[BMPScenarioDBName]
         collection = db.BMP_SCENARIOS
@@ -42,6 +44,10 @@ class Scenario:
 
     def decoding(self):
         # scenario section
+        if len(self.attributes) == 0:
+            raise Exception("<attributes> cannot be Null!")
+        if self.id is None:
+            raise Exception("<id> cannot be None!")
         field_index = self.field_Num
         point_cattle_index = self.point_cattle_Num + field_index
         point_pig_index = self.point_pig_Num + point_cattle_index
@@ -70,13 +76,13 @@ class Scenario:
         self.sce_list.extend(decodPointScenario(self.id, pigConfig, 20000))
         self.sce_list.extend(decodPointScenario(self.id, sewageConfig, 40000))
 
-    def importoMongo(self):
+    def importoMongo(self, hostname, port, dbname):
         '''
         Import scenario list to MongoDB
         :return:
         '''
-        client = MongoClient(HOSTNAME, PORT)
-        db = client[BMPScenarioDBName]
+        client = MongoClient(hostname, port)
+        db = client[dbname]
         collection = db.BMP_SCENARIOS
         keyarray = ["ID", "NAME", "BMPID", "SUBSCENARIO", "DISTRIBUTION", "COLLECTION", "LOCATION"]
         for line in self.sce_list:
@@ -86,9 +92,35 @@ class Scenario:
                 conf[keyarray[i]] = li_list[i]
             collection.insert(conf)
 
+    def cost(self):
+        if len(self.attributes) == 0:
+            raise Exception("<attributes> cannot be Null!")
+        field_index = self.field_Num
+        point_cattle_index = self.point_cattle_Num + field_index
+        point_pig_index = self.point_pig_Num + point_cattle_index
+        point_sewage_index = self.point_sewage_Num + point_pig_index
+        for i1 in range(0, field_index):
+            self.cost_eco += bmps_farm_cost[int(self.attributes[i1])]
+        for i2 in range(field_index, point_cattle_index):
+            self.cost_eco += bmps_cattle_cost[int(self.attributes[i2])]
+        for i3 in range(point_cattle_index, point_pig_index):
+            self.cost_eco += bmps_pig_cost[int(self.attributes[i3])]
+        for i4 in range(point_pig_index, point_sewage_index):
+            self.cost_eco += bmps_sewage_cost[int(self.attributes[i4])]
+
+    def benefit(self):
+
+        cmdStr = "%s %s %d %d %s %d %d" % (model_Dir, model_Workdir, threadsNum, layeringMethod, HOSTNAME, PORT, self.id)
+
+        self.benefit_env = 0.
+
 if __name__ == "__main__":
     Sce = Scenario()
-    Sce.getIdfromMong()
+    Sce.getIdfromMongo()
     Sce.create()
     Sce.decoding()
-    Sce.importoMongo()
+    Sce.cost()
+    # Sce.importoMongo(HOSTNAME, PORT, BMPScenarioDBName)
+    print "id: ", Sce.id
+    print "attributes: ", Sce.attributes
+    print "cost_eco: ", Sce.cost_eco
