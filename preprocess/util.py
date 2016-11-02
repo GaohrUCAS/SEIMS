@@ -21,6 +21,7 @@ UTIL_ZERO = 1.e-6
 MINI_SLOPE = 0.0001
 DEFAULT_NODATA = -9999.
 SQ2 = math.sqrt(2.)
+# all possible file extensions of ArcGIS shapefile
 shp_ext_list = ['.shp', '.dbf', '.shx', '.prj', 'sbn', 'sbx', 'cpg']
 
 

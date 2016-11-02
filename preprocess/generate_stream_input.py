@@ -171,10 +171,11 @@ def add_group_field(shpFile, subbasinFieldName, n, groupKmetis, groupPmetis, ns)
     for ext in shp_ext_list:
         prefix = os.path.splitext(shpFile)[0]
         src = prefix + ext
-        dst = prefix + "_" + str(n) + ext
-        if os.path.exists(dst):
-            os.remove(dst)
-        shutil.copy(src, dst)
+        if os.path.isfile(src): # Is the ArcGIS Shapefile with the extension existed
+            dst = prefix + "_" + str(n) + ext
+            if os.path.exists(dst):
+                os.remove(dst)
+            shutil.copy(src, dst)
 
     return groupDic, groupDicPmetis
 
@@ -244,6 +245,8 @@ def GenerateReachTable(folder, db, forCluster):
         # nlist.extend([576, 288, 512, 258, 172])
         nlist = list(set(nlist))
         nlist.sort()
+    # nlist should be less than the number of subbasin, otherwise it will make nonsense. by LJ
+    nlist = [x for x in nlist if x <= max(ns)]
 
     # interpolation among different stream orders
     minManning = 0.035
@@ -311,8 +314,7 @@ def GenerateReachTable(folder, db, forCluster):
             dic[REACH_GWSOLP.upper()] = 0  # 10.
 
             curFilter = {REACH_SUBBASIN.upper(): id}
-            db[DB_TAB_REACH.upper()].find_one_and_replace(
-                curFilter, dic, upsert=True)
+            db[DB_TAB_REACH.upper()].find_one_and_replace(curFilter, dic, upsert=True)
 
     for n in nlist:
         print 'divide number: ', n
@@ -349,10 +351,8 @@ def GenerateReachTable(folder, db, forCluster):
         f.close()
         AdjustGroupResult(g, areaDic, groupPmetis, n)
 
-        groupDicK, groupDicP = add_group_field(
-            reachFile, FLD_LINKNO.upper(), n, groupKmetis, groupPmetis, ns)
-        groupDicK, groupDicP = add_group_field(
-            subbasinFile, REACH_SUBBASIN.upper(), n, groupKmetis, groupPmetis, ns)
+        groupDicK, groupDicP = add_group_field(reachFile, FLD_LINKNO.upper(), n, groupKmetis, groupPmetis, ns)
+        groupDicK, groupDicP = add_group_field(subbasinFile, REACH_SUBBASIN.upper(), n, groupKmetis, groupPmetis, ns)
 
         importReachInfo(n, downStreamDic, groupDicK, groupDicP)
     db[DB_TAB_REACH.upper()].create_index([(REACH_SUBBASIN.upper(), pymongo.ASCENDING),
@@ -369,4 +369,7 @@ if __name__ == "__main__":
         sys.stderr.write("Could not connect to MongoDB: %s" % e)
         sys.exit(1)
     db = conn[SpatialDBName]
-    GenerateReachTable(WORKING_DIR, db, False)
+    if forCluster:
+        GenerateReachTable(WORKING_DIR, db, True)
+    else:
+        GenerateReachTable(WORKING_DIR, db, False)

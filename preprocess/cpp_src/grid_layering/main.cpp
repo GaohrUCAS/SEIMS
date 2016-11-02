@@ -47,8 +47,10 @@ int main(int argc, char **argv)
 
         int outputNoDataValue = -9999;
         clock_t t1 = clock();
-
-        for (int i = 1; i <= nSubbasins; i++)
+		int subbasinStartID = 1;
+		if (nSubbasins == 0)
+			subbasinStartID = 0;
+        for (int i = subbasinStartID; i <= nSubbasins; i++)
         {
                 // read D8 flow direction
                 ostringstream oss;

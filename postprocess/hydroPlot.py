@@ -83,15 +83,80 @@ def SearchObs(timeStart, timeEnd, sim, ClimateDB):
         # print "None"
         return [[-1]]
 
+def getObservedParameter(name):
+    if '_' in name:
+        name = name.split('_')[1]
+    return name
+def getBaseVariableName(name):
+    name = getObservedParameter(name)
+    if 'Conc' in name:
+        name = name.split('Conc')[0]
+    return name
+
+def SearchObs2(timeStart, timeEnd, paramName, subbasinID, ClimateDB):
+    '''
+    Look up the observed data according to time range, parameter name, and subbasinID.
+    The observed dates and the corresponding values will be returned.
+    :param timeStart:
+    :param timeEnd:
+    :param paramName:
+    :param subbasinID:
+    :param ClimateDB:
+    :return:
+    '''
+    TIME_Start = datetime.datetime.strptime(timeStart, "%Y-%m-%d")
+    TIME_End = datetime.datetime.strptime(timeEnd, "%Y-%m-%d")
+    # simNameArr = paramName.split('_') # no need to do
+    # print simNameArr
+    obsValue = []
+    obsDate = []
+    fieldList = ClimateDB.collection_names()
+    if Tag_ClimateDB_Measurement.upper() not in fieldList:
+        return None, None
+
+    if subbasinID == 0: # for the whole basin
+        siteItems = None
+        siteItems = ClimateDB[Tag_ClimateDB_Sites.upper()].find_one({
+            'TYPE': getBaseVariableName(paramName),
+            'ISOUTLET': 1,
+        })  # this should be unique
+
+        if siteItems is None:
+            return None, None
+        siteID = siteItems['STATIONID']
+        for obs in ClimateDB[Tag_ClimateDB_Measurement.upper()].find({
+            'LOCALDATETIME': {"$gte": TIME_Start, '$lte': TIME_End},
+            'TYPE': getObservedParameter(paramName),
+            'STATIONID': siteID}):
+            # print obs['TYPE']
+            obsValue.append(obs['VALUE'])
+            obsDate.append(obs['LOCALDATETIME'])
+    else: # TODO, not finised yet!
+        pass
+    # dateArr = GetDateArr(timeStart, timeEnd)
+    # obsValueArr = numpy.zeros(len(dateArr))
+    if len(obsValue) > 0:
+        return obsDate, obsValue
+        # for s in range(len(dateArr)):
+        #     for t in range(len(obsDate)):
+        #         if dateArr[s] == obsDate[t]:
+        #             obsValueArr[s] = obsValue[t]
+        # print obsValueArr
+        # return (obsValueArr, obsValue)
+    else:
+        return None, None
 
 LFs = ['\r\n', '\n\r', '\r', '\n']
 
 
-def ReadSimfromTxt(timeStart, timeEnd, dataDir, sim):
+def ReadSimfromTxt(timeStart, timeEnd, dataDir, sim, subbasinID = 0):
     TIME_Start = datetime.datetime.strptime(timeStart, "%Y-%m-%d")
     TIME_End = datetime.datetime.strptime(timeEnd, "%Y-%m-%d")
     ## Read simulation txt
-    simData = "%s/1_%s.txt" % (dataDir, sim)
+    simData = "%s/%d_%s.txt" % (dataDir, subbasinID, sim)
+    # whether the text file existed?
+    if not os.path.isfile(simData):
+        raise IOError("%s is not existed, please check the configuration!" % simData)
     simulate = []
     if os.path.exists(simData):
         simfile = open(simData, "r")
@@ -115,7 +180,7 @@ def ReadSimfromTxt(timeStart, timeEnd, dataDir, sim):
         # print simulate
         return simulate
     else:
-        raise (IOError, "%s is not exist" % simData)
+        raise IOError("%s is not exist" % simData)
 
 
 ## Calculate Nash coefficient
@@ -135,6 +200,50 @@ def NashCoef(qObs, qSimu, obsNum=9999):
     else:
         return "NAN"
 
+def NashCoef2(qObs, qSimu):
+    '''
+    Calculate Nash coefficient
+    :param qObs:
+    :param qSimu:
+    :return: NSE, numeric value
+    '''
+    if len(qObs) != len(qSimu):
+        raise ValueError("The size of observed and simulated values must be the same for NSE calculation!")
+    n = len(qObs)
+    ave = sum(qObs) / n
+    a1 = 0.
+    a2 = 0.
+    for i in range(n):
+        a1 += pow(float(qObs[i]) - float(qSimu[i]), 2.)
+        a2 += pow(float(qObs[i]) - ave, 2.)
+    if a2 == 0.:
+        return 1.
+    return 1. - a1 / a2
+
+def RSquare2(qObs, qSimu):
+    '''
+    Calculate R-square
+    :param qObs:
+    :param qSimu:
+    :return: R-square numeric value
+    '''
+    if len(qObs) != len(qSimu):
+        raise ValueError("The size of observed and simulated values must be the same for R-square calculation!")
+    n = len(qObs)
+    obsAvg = sum(qObs) / n
+    predAvg = sum(qSimu) / n
+    obsMinusAvgSq = 0.
+    predMinusAvgSq = 0.
+    obsPredMinusAvgs = 0.
+    for i in range(n):
+        obsMinusAvgSq += pow((qObs[i] - obsAvg), 2.)
+        predMinusAvgSq += pow((qSimu[i] - predAvg), 2.)
+        obsPredMinusAvgs += (qObs[i] - obsAvg) * (qSimu[i] - predAvg)
+    # Calculate R-square
+    yy = (pow(obsMinusAvgSq, 0.5) * pow(predMinusAvgSq, 0.5))
+    if yy == 0.:
+        return 1.
+    return pow((obsPredMinusAvgs / yy), 2.)
 
 ## Calculate R2
 def RSquare(qObs, qSimu, obsNum=9999):
@@ -307,16 +416,20 @@ def CreatePlot2(sim_date, preci, simList, vari_Sim, model_dir, ClimateDB):
         fig, ax = plt.subplots(figsize = (12, 4))
         # if vari_Sim[i] == "Q":
         ylabelStr = vari_Sim[i]
-        if vari_Sim[i] == "Q":
+        if vari_Sim[i] in ["Q", "Qi", "QG", "QS"]:
             ylabelStr += " (m$^3$/s)"
         elif "CONC" in vari_Sim[i].upper(): # Concentrate
             ylabelStr += " (mg/L)"
         else: # amount
             ylabelStr += " (kg)"
-        print ylabelStr
-        obs = SearchObs(timeStart, timeEnd, vari_Sim[i], ClimateDB)
+        # print ylabelStr
+        # obs = SearchObs(timeStart, timeEnd, vari_Sim[i], ClimateDB)
+        obsDates, obsValues = SearchObs2(timeStart, timeEnd, vari_Sim[i], PLOT_SUBBASINID, ClimateDB)
         # print obs
-        p1 = ax.bar(sim_date, obs[0], label = "Observation", color = "none", edgecolor = 'black',
+        # p1 = ax.bar(sim_date, obs[0], label = "Observation", color = "none", edgecolor = 'black',
+        #             linewidth = 1, align = "center", hatch = "//")
+        if obsValues is not None:
+            p1 = ax.bar(obsDates, obsValues, label = "Observation", color = "none", edgecolor = 'black',
                     linewidth = 1, align = "center", hatch = "//")
         p2, = ax.plot(sim_date, simList[i], label = "Simulation", color = "black",
                       marker = "o", markersize = 2, linewidth = 1)
@@ -342,13 +455,33 @@ def CreatePlot2(sim_date, preci, simList, vari_Sim, model_dir, ClimateDB):
         ax2.set_ylabel(r"Precipitation (mm)")
         p3 = ax2.bar(sim_date, preci, label = "Rainfall", color = "black", linewidth = 0, align = "center")
         ax2.set_ylim(float(max(preci)) * 1.8, float(min(preci)) * 0.8)
-        ax.legend([p3, p1, p2], ["Rainfall", "Observation", "Simulation"], bbox_to_anchor = (0.03, 0.85), loc = 2,
-                  shadow = True)
+        if obsValues is None or len(obsValues) < 2:
+            ax.legend([p3, p2], ["Rainfall", "Simulation"],
+                      bbox_to_anchor = (0.03, 0.85), loc = 2, shadow = True)
+        else:
+            ax.legend([p3, p1, p2], ["Rainfall", "Observation", "Simulation"],
+                      bbox_to_anchor = (0.03, 0.85), loc = 2, shadow = True)
+            simValues = []
+            obsValuesNew = []
+            for obsIdx, dd in enumerate(obsDates):
+                try:
+                    idx = sim_date.index(dd)
+                    simValues.append(simList[i][idx])
+                    obsValuesNew.append(obsValues[obsIdx])
+                except ValueError:
+                    pass
+            if len(obsValuesNew) > 1:
+                # print vari_Sim[i]
+                # print "obs: ", obsValuesNew
+                # print "sim: ", simValues
+                plt.title("\nNash: %.2f, R$^2$: %.2f" % (NashCoef2(obsValuesNew, simValues),
+                                                         RSquare2(obsValuesNew, simValues)),
+                          color = "red", loc = 'right')
         plt.title("Simulation of %s\n" % vari_Sim[i], color = "#aa0903")
-        plt.title("\nNash: %s, R$^2$: %s" %
-                  (NashCoef(obs[0], simList[i], len(obs[1])),
-                   RSquare(obs[0], simList[i], len(obs[1]))),
-                  color = "red", loc = 'right')
+        # plt.title("\nNash: %s, R$^2$: %s" %
+        #           (NashCoef(obs[0], simList[i], len(obs[1])),
+        #            RSquare(obs[0], simList[i], len(obs[1]))),
+        #           color = "red", loc = 'right')
         plt.tight_layout()
         plt.savefig(model_dir + os.sep + vari_Sim[i] + ".png")
-    plt.show()
+    # plt.show()

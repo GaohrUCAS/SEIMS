@@ -69,8 +69,7 @@ def CalLatDependParas():
     # values to northern hemisphere
     # the angular velocity of the earth's rotation, omega, = 15 deg/hr or
     # 0.2618 rad/hr and 2/0.2618 = 7.6394
-    cellLatR = ReadRaster(WORKING_DIR + os.sep +
-                          DIR_NAME_TAUDEM + os.sep + cellLat)
+    cellLatR = ReadRaster(WORKING_DIR + os.sep + DIR_NAME_TAUDEM + os.sep + cellLat)
     latData = cellLatR.data
     # daylmnData = cellLatR.data
     zero = numpy.zeros((cellLatR.nRows, cellLatR.nCols))

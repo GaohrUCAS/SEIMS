@@ -6,7 +6,7 @@
 #include <sstream>
 #include <fstream>
 #include <cstdlib>
-#include<algorithm>
+#include <algorithm>
 
 //gdal
 #include "gdal.h"
@@ -83,6 +83,9 @@ int DecompositeRasterToMongoDB(map<int, SubBasin> &bboxMap, Raster<int> &rsSubba
     for (it = bboxMap.begin(); it != bboxMap.end(); it++)
     {
         int id = it->first;
+		int subbasinID = id;
+		if (bboxMap.size() == 1)
+			id = 0;
         SubBasin &subbasin = it->second;
         int subXSize = subbasin.xMax - subbasin.xMin + 1;
         int subYSize = subbasin.yMax - subbasin.yMin + 1;
@@ -95,7 +98,7 @@ int DecompositeRasterToMongoDB(map<int, SubBasin> &bboxMap, Raster<int> &rsSubba
             {
                 int index = i * nXSize + j;
                 int subIndex = (i - subbasin.yMin) * subXSize + (j - subbasin.xMin);
-                if (subbasinData[i][j] == id)
+                if (subbasinData[i][j] == subbasinID)
                     subData[subIndex] = rsData[i][j];
                 else
                     subData[subIndex] = noDataValue;
@@ -169,6 +172,9 @@ int Decomposite2DRasterToMongoDB(map<int, SubBasin> &bboxMap, Raster<int> &rsSub
     for (it = bboxMap.begin(); it != bboxMap.end(); it++)
     {
         int id = it->first;
+		int subbasinID = id;
+		if (bboxMap.size() == 1)
+			id = 0;
         SubBasin &subbasin = it->second;
         int subXSize = subbasin.xMax - subbasin.xMin + 1;
         int subYSize = subbasin.yMax - subbasin.yMin + 1;
@@ -183,7 +189,7 @@ int Decomposite2DRasterToMongoDB(map<int, SubBasin> &bboxMap, Raster<int> &rsSub
             {
                 int index = i * nXSize + j;
                 int subIndex = (i - subbasin.yMin) * subXSize + (j - subbasin.xMin);
-                if (subbasinData[i][j] == id)
+                if (subbasinData[i][j] == subbasinID)
                 {
                     for (int k = 0; k < colNum; k++)
                         sub2DData[subIndex][k] = rssData[k][i][j];
@@ -258,6 +264,9 @@ int DecompositeRaster(map<int, SubBasin> &bboxMap, Raster<int> &rsSubbasin, cons
     for (it = bboxMap.begin(); it != bboxMap.end(); it++)
     {
         int id = it->first;
+		int subbasinID = id;
+		if (bboxMap.size() == 1) // means not for Cluster
+			id = 0;
         SubBasin &subbasin = it->second;
         int subXSize = subbasin.xMax - subbasin.xMin + 1;
         int subYSize = subbasin.yMax - subbasin.yMin + 1;
@@ -277,7 +286,7 @@ int DecompositeRaster(map<int, SubBasin> &bboxMap, Raster<int> &rsSubbasin, cons
             {
                 int index = i * nXSize + j;
                 int subIndex = (i - subbasin.yMin) * subXSize + (j - subbasin.xMin);
-                if (subbasinData[i][j] == id)
+                if (subbasinData[i][j] == subbasinID)
                     subData[subIndex] = rsData[i][j];
                 else
                     subData[subIndex] = noDataValue;

@@ -1,36 +1,7 @@
-## This file define point source related inputs.						
-## SUBSCENARIO: Sub-Scenario ID which used in BMP_scenarios.txt, MUST BE INTEGER						
-## NAME: Name of Sub-Scenario						
-## PTSRC: Point source code includes:						
-## 		10000: Cattle farm				
-## 		20000: Pig farm				
-## 		30000: Water release point, such as spillway of upstream reservoir				
-## 		40000: Sewage outlet in rural resident				
-## 	SEQUENCE: The operation sequence, which is scheduled by starting date and ending date.					
-## 	SYear, SMonth, SDay and EYear, EMonth, EDay can be used to define the starting and ending release date respectively.					
-## 		If all set to -9999, then every time step will release the water, sediment, and nutrient.				
-## 	Here after is the parameters information:					
-## 	Parameter	Description	Unit			
-## 	Q	Water volume	m3/'size'/day ('Size' may be one cattle or one pig, depends on PTSRC code)			
-## 	Sed	Sediment concentration	g/cm3			
-## 	TN	Total Nitrogen concentration	mg/L			
-## 	NO3	Nitrate Nitrogen concentration	mg/L			
-## 	NH4	Ammonium Nitrogen concentration	mg/L			
-## 	ORGN	Organic Nitrogen concentration	mg/L			
-## 	TP	Total phosphorus concentration	mg/L			
-## 	SOLP	Dissolved (soluble) phosphorus concentration	mg/L			
-## 	ORGP	Organic phosphorus concentration	mg/L			
-##	CAPEX	capital expenditures	RMB/'size'			
-##	OPEX	operation expenses	RMB/'size'/year			
-##	INCOME	additional incoime	RMB/'size'/year			
-##	Hypothesis: NO3:OrgN = 	4	,	SOLP:OrgP = 	4	
-
-
 SUBSCENARIO	NAME	PTSRC	SEQUENCE	SYear	SMonth	SDay	EYear	EMonth	EDay	Q	SED	TN	NO3	NH4	ORGN	TP	SOLP	ORGP	COD	CAPEX	OPEX	INCOME
-10001	trad_cattle	10000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.55	0	286.25	0.00	268.08	18.17	41.73	0.00	41.73	1015.81	0	0	0
-20001	trad_pig	20000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.09	0	393	0.00	297.01	95.99	69.26	0.00	69.26	1767.81	0	0	0
-40001	trad_sewage	40000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.06	0	36.6625	0	25.6855	10.977	3.19	0	3.19	221.5175	0	0	0
-10002	mgt_cattle	10000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.0125	0	2.95	0.00	1.81	1.14	0.54	0.00	0.54	44.81	0	0	0
-20002	mgt_pig	20000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.001	0	45.14	0.00	26.35	18.79	3.8	0.00	3.80	72.51	0	0	0
-40002	mgt_sewage_avg	40000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.06	0	6.7025	0	2.1825	4.52	0.625	0	0.625	40.3825	0	0	0
-
+10001	trad_cattle	10000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.55	0	286.25	16.52	268.08	1.65	41.73	3.79	37.94	2031.62	0	0	0
+20001	trad_pig	20000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.09	0	393	87.26	297.01	8.73	69.26	6.30	62.96	3535.62	0	0	0
+40001	trad_sewage	40000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.06	0	36.66	9.98	25.69	1.0	3.19	0.29	2.9	221.52	0	0	0
+10002	mgt_cattle	10000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.0125	0	2.95	1.04	1.81	0.10	0.54	0.05	0.49	44.81	0	0	0
+20002	mgt_pig	20000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.001	0	45.14	17.08	26.35	1.71	3.8	0.35	3.45	72.51	0	0	0
+40002	mgt_sewage_avg	40000	0	-9999	-9999	-9999	-9999	-9999	-9999	0.06	0	6.7025	4.10	2.18	0.41	0.625	0.057	0.57	40.38	0	0	0

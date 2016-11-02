@@ -147,8 +147,7 @@ def ImportModelConfiguration(db):
         fileInDict = {}
         values = SplitStr(StripStr(item[0]), ['|'])
         if len(values) != 2:
-            raise ValueError(
-                "One item should only have one Tag and one value string, split by '|'")
+            raise ValueError("One item should only have one Tag and one value string, split by '|'")
         fileInDict[FLD_CONF_TAG] = values[0]
         fileInDict[FLD_CONF_VALUE] = values[1]
         db[DB_TAB_FILE_IN.upper()].find_one_and_replace(
