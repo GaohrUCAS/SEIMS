@@ -7,7 +7,7 @@ from readTextInfo import *
 # MongoDB
 HOSTNAME = "192.168.6.55"
 PORT = 27017
-BMPScenarioDBName = "BMP_Scenario_dianbu2_30m_longterm"
+BMPScenarioDBName = "BMP_Scenario_dianbu_30m_longterm"
 
 # Files
 fieldFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\spatial\mgtfield_t100.txt'
@@ -15,10 +15,13 @@ pointFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\manageme
 pointBMPsFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\management\point_source_management.txt'
 
 # SEIMS Model
-model_Dir = r'D:\SEIMS_model\SEIMS\Release\seims_omp'
+model_Exe = r'D:\SEIMS_model\SEIMS\Release\seims_omp'
 model_Workdir = r'D:\SEIMS_model\Model_data\model_dianbu_30m_longterm'
 threadsNum = 8
 layeringMethod = 0
+
+timeStart = "2014-01-01"
+timeEnd = "2014-12-31"
 
 # Scenario
 field_farm = getFieldInfo(fieldFile)[1]

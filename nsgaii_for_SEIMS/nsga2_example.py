@@ -27,24 +27,22 @@ class T1Solution(Solution):
         # self.min = 0.
         # self.max = 1.
         self.num_objectives = num_objs
-
         bmps_sce.getIdfromMongo()
         bmps_sce.create()
+        bmps_sce.decoding()
+        bmps_sce.importoMongo(HOSTNAME, PORT, BMPScenarioDBName)
         bmps_sce.cost()
-        # S.decoding()
-        # S.importoMongo()
+        bmps_sce.benefit()
         self.attributes = bmps_sce.attributes
         self.size = len(self.attributes)
         # print self.size
-
         self.cost_eco = bmps_sce.cost_eco
-        self.benefit_env = 0
+        self.benefit_env = bmps_sce.benefit_env
         self.evaluate_solution()
-
 
     def evaluate_solution(self):
         self.objectives[0] = self.cost_eco
-        self.objectives[1] = sum(self.attributes)
+        self.objectives[1] = self.benefit_env
         # print self.attributes
 
     def crossover(self, other):
@@ -80,9 +78,9 @@ class T1Solution(Solution):
 
 if __name__ == '__main__':
 
-    pop_size = 50   # size of populations
+    pop_size = 10   # size of populations
     # chro_size = 20 # size of chrosome
-    num_gens = 20   # number of generations
+    num_gens = 5   # number of generations
 
     muta_rate=0.05  # mutation rate
     crsr_rate=0.65  # crossover rate

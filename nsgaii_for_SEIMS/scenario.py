@@ -6,6 +6,8 @@
 import os, sys
 import random
 from pymongo import MongoClient
+from subprocess import Popen
+from subprocess import PIPE
 from config import *
 from readTextInfo import *
 
@@ -55,7 +57,7 @@ class Scenario:
         # farm field
         for f in range(len(bmps_farm)):
             scenario_Row = ""
-            scenario_Row += str(self.id) + "\tsName\t12\t"
+            scenario_Row += str(self.id) + "\tsName" + str(self.id) + "\t12\t"
             farm_BMP_do = False
             for i in range(0, field_index):
                 if self.attributes[i] == 1:
@@ -66,7 +68,7 @@ class Scenario:
                 scenario_Row += str(bmps_farm[f] + 2) + "\t"
             else:
                 scenario_Row += str(bmps_farm[f]) + "\t"
-            scenario_Row += "RASTER|MGT_FIELDS\tplant_management\tALL"
+            scenario_Row += "RASTER|MGT_FIELDS\tPLANT_MANAGEMENT\tALL"
             self.sce_list.append(scenario_Row)
         # point source
         cattleConfig = getPointConfig(self.attributes, bmps_cattle, point_cattle, field_index, point_cattle_index)
@@ -109,18 +111,34 @@ class Scenario:
             self.cost_eco += bmps_sewage_cost[int(self.attributes[i4])]
 
     def benefit(self):
-
-        cmdStr = "%s %s %d %d %s %d %d" % (model_Dir, model_Workdir, threadsNum, layeringMethod, HOSTNAME, PORT, self.id)
-
-        self.benefit_env = 0.
+        cmdStr = "%s %s %d %d %s %d %d" % (model_Exe, model_Workdir, threadsNum, layeringMethod, HOSTNAME, PORT, self.id)
+        print cmdStr
+        process = Popen(cmdStr, shell=True, stdout=PIPE)
+        while process.stdout.readline() != "":
+            line = process.stdout.readline().split("\n")
+            if line[0] != "":
+                print line[0]
+            # continue
+        process.wait()
+        if process.returncode == 0:
+        # if True:
+            dataDir = model_Workdir + os.sep + "OUTPUT" + str(self.id)
+            polluteList = ['CH_COD', 'CH_TN', 'CH_TP']
+            polluteWt = [27., 4., 1.]
+            for pp in range(len(polluteList)):
+                simData = ReadSimfromTxt(timeStart, timeEnd, dataDir, polluteList[pp], subbasinID=1)
+                self.benefit_env += sum(simData) / polluteWt[pp]
+        print self.benefit_env
 
 if __name__ == "__main__":
     Sce = Scenario()
     Sce.getIdfromMongo()
     Sce.create()
     Sce.decoding()
+    Sce.importoMongo(HOSTNAME, PORT, BMPScenarioDBName)
     Sce.cost()
-    # Sce.importoMongo(HOSTNAME, PORT, BMPScenarioDBName)
+    Sce.benefit()
     print "id: ", Sce.id
     print "attributes: ", Sce.attributes
     print "cost_eco: ", Sce.cost_eco
+    print "benefit_env: ", Sce.benefit_env

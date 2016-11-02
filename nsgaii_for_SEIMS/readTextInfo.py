@@ -6,6 +6,7 @@
 import os, sys
 import random
 import numpy
+from preprocess.util import *
 
 
 def delSpecialStr(line):
@@ -192,8 +193,8 @@ def decodPointScenario(id, pointConfig, ptsrc):
     for config in pointConfig:
         if len(config) > 1:
             scenario_Row = ""
-            scenario_Row += str(id) + "\tsName\t1\t" + str(ptsrc + config[0]) + "\tARRAY|point_source_distribution|" \
-                            + str(ptsrc) + "\tpoint_source_management\t"
+            scenario_Row += str(id) + "\tsName" + str(id) + "\t1\t" + str(ptsrc + config[0]) \
+                            + "\tARRAY|POINT_SOURCE_DISTRIBUTION|" + str(ptsrc) + "\tPOINT_SOURCE_MANAGEMENT\t"
             pidArr = ""
             for pid in range(1, len(config)):
                 if pid == len(config) - 1:
@@ -203,6 +204,41 @@ def decodPointScenario(id, pointConfig, ptsrc):
             scenario_Row += pidArr
             scenario_Table.append(scenario_Row)
     return scenario_Table
+
+
+def ReadSimfromTxt(timeStart, timeEnd, dataDir, sim, subbasinID=0):
+    TIME_Start = datetime.datetime.strptime(timeStart, "%Y-%m-%d")
+    TIME_End = datetime.datetime.strptime(timeEnd, "%Y-%m-%d")
+    ## Read simulation txt
+    simData = "%s/%d_%s.txt" % (dataDir, subbasinID, sim)
+    # whether the text file existed?
+    if not os.path.isfile(simData):
+        raise IOError("%s is not existed, please check the configuration!" % simData)
+    simulate = []
+    LFs = ['\r\n', '\n\r', '\r', '\n']
+    if os.path.exists(simData):
+        simfile = open(simData, "r")
+        while True:
+            line = simfile.readline()
+            # print line[0]
+            if line:
+                for LF in LFs:
+                    if LF in line:
+                        line = line.split(LF)[0]
+                        break
+                strList = SplitStr(StripStr(line), spliters=" ")
+                if len(strList) == 3:
+                    dateStr = strList[0] + " " + strList[1]
+                    simDatetime = datetime.datetime.strptime(dateStr, "%Y-%m-%d %H:%M:%S")
+                    if simDatetime >= TIME_Start and simDatetime <= TIME_End:
+                        simulate.append(float(strList[2]))
+            else:
+                break
+        simfile.close()
+        # print simulate
+        return simulate
+    else:
+        raise IOError("%s is not exist" % simData)
 
 
 if __name__ == "__main__":
