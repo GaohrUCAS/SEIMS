@@ -56,7 +56,7 @@ class NSGAII:
             s.evaluate_solution()
         Q = []
         for i in range(num_generations):
-            print "Iteration: ", i
+            print "###### Iteration: %d ######" % i
             R = []
             R.extend(P)
             R.extend(Q)
