@@ -12,6 +12,7 @@ from chwidth import chwidth
 from config import *
 from util import *
 
+def GetExecutableFullPath():
 
 def GenerateSubbasinVector(dstdir, subbasinRaster, subbasinVector):
     RemoveShpFile(subbasinVector)

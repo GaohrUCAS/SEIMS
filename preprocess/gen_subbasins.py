@@ -5,6 +5,9 @@
 # Revised: Liang-Jun Zhu
 # Note: Improve calculation efficiency by numpy
 #
+import subprocess
+import platform
+
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 
@@ -116,9 +119,21 @@ def GenerateSubbasins():
     def convert2GeoJson(jsonFile, src_srs, dst_srs, src_file):
         if os.path.exists(jsonFile):
             os.remove(jsonFile)
-        s = 'ogr2ogr -f GeoJSON -s_srs "%s" -t_srs %s %s %s' % \
-            (src_srs, dst_srs, jsonFile, src_file)
-        os.system(s)
+        exepath = ''
+        if platform.system() == 'Windows':
+            exepath = '"%s/Lib/site-packages/osgeo/ogr2ogr"' % sys.exec_prefix
+        else:
+            process = subprocess.Popen('which ogr2ogr', shell = True, stdout = subprocess.PIPE)
+            findout = process.stdout.readlines()
+            if findout == [] or len(findout) == 0:
+                print "ogr2ogr is not included in the env path"
+                exit(-1)
+            exepath = findout[0].split('\n')[0]
+
+        # os.system(s)
+        s = '%s -f GeoJSON -s_srs "%s" -t_srs %s %s %s' % \
+            (exepath, src_srs, dst_srs, jsonFile, src_file)
+        process = subprocess.Popen(s, shell = True, stdout = subprocess.PIPE)
 
     geoJson_dict = {GEOJSON_REACH: WORKING_DIR + os.sep + DIR_NAME_REACH + os.sep + reachesOut,
                     GEOJSON_SUBBSN: WORKING_DIR + os.sep + DIR_NAME_SUBBSN + os.sep + subbasinVec,
