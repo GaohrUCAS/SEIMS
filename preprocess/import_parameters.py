@@ -109,8 +109,7 @@ def ImportLookupTables(sqlite_file, db):
                 spatial.delete(x._id)
             metadic = {META_LOOKUP_ITEM_COUNT.upper(): nRow,
                        META_LOOKUP_FIELD_COUNT.upper(): nCol}
-            curLookupGridFS = spatial.new_file(
-                filename=tablename.upper(), metadata=metadic)
+            curLookupGridFS = spatial.new_file(filename=tablename.upper(), metadata=metadic)
             header = [nRow]
             fmt = '%df' % (1)
             s = pack(fmt, *header)

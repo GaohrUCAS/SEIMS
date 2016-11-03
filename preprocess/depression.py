@@ -78,8 +78,7 @@ def DepressionCap(filepath, sqliteFile):
             return depressionGrid
 
     calDep_numpy = numpy.frompyfunc(calDep, 4, 1)
-    depStorageCap = calDep_numpy(
-        mask_data, landu_data, soilTextureArray, slo_data)
+    depStorageCap = calDep_numpy(mask_data, landu_data, soilTextureArray, slo_data)
 
     filename = filepath + os.sep + depressionFile
     WriteGTiffFile(filename, ysize, xsize, depStorageCap,
