@@ -32,8 +32,9 @@ def soil_parameters2(dstdir, maskFile, soilSEQNTif, soilSEQNTxt):
     s = "%s\t%d\t%s\n" % (soilSEQNTif, defaultSoilType, soiltypeFile)
     fMask.write(s)
     fMask.close()
-    s = "%s/mask_raster %s" % (CPP_PROGRAM_DIR, configFile)
-    os.system(s)
+    s = '"%s/mask_raster" %s' % (CPP_PROGRAM_DIR, configFile)
+    # os.system(s)
+    RunExternalCmd(s)
 
     # Read soil properties from txt file
     soilInstances = []
@@ -158,8 +159,9 @@ def landuse_parameters(dstdir, maskFile, inputLanduse, landuseFile, sqliteFile, 
     fMask.write(s)
     fMask.close()
 
-    s = "%s/mask_raster %s" % (CPP_PROGRAM_DIR, configFile)
-    os.system(s)
+    s = '"%s/mask_raster" %s' % (CPP_PROGRAM_DIR, configFile)
+    # os.system(s)
+    RunExternalCmd(s)
 
     # reclassify
     reclassLuFile = "%s/reclassLanduseConfig.txt" % (dstdir)
@@ -172,14 +174,15 @@ def landuse_parameters(dstdir, maskFile, inputLanduse, landuseFile, sqliteFile, 
     fReclassLu.write("%d\n" % (n))
     fReclassLu.write("\n".join(landuseAttrList))
     fReclassLu.close()
-    s = "%s/reclassify %s %s/cpp_src/reclassify/neigh.nbr" % (
+    s = '"%s/reclassify" %s %s/cpp_src/reclassify/neigh.nbr' % (
         CPP_PROGRAM_DIR, reclassLuFile, PREPROC_SCRIPT_DIR)
     # MPI version is problematic, do not know why, By LJ
     # s = "mpiexec -n %d %s/reclassify %s %s/cpp_src/reclassify/neigh.nbr" % (
     # np, CPP_PROGRAM_DIR, reclassLuFile, PREPROC_SCRIPT_DIR)
     # if MPIEXEC_DIR is not None:
     #     s = MPIEXEC_DIR + os.sep + s
-    os.system(s)
+    # os.system(s)
+    RunExternalCmd(s)
     # ReclassLanduse(landuseFile, sqliteFile, dstdir)
 
 

@@ -14,6 +14,7 @@ from gen_dinf import GenerateDinf
 from gen_subbasins import GenerateSubbasins
 from TauDEM import *
 from util import *
+from osgeo import ogr
 
 
 def GenerateCellLatRaster():
