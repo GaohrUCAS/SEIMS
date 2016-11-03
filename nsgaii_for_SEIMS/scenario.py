@@ -91,7 +91,11 @@ class Scenario:
             conf = {}
             li_list = line.split('\t')
             for i in range(len(li_list)):
-                conf[keyarray[i]] = li_list[i]
+                if isNumericValue(li_list[i]):
+                    conf[keyarray[i]] = float(li_list[i])
+                else:
+                    conf[keyarray[i]] = str(li_list[i]).upper()
+                # conf[keyarray[i]] = li_list[i]
             collection.insert(conf)
 
     def cost(self):
@@ -111,14 +115,18 @@ class Scenario:
             self.cost_eco += bmps_sewage_cost[int(self.attributes[i4])]
 
     def benefit(self):
+        print "Scenario ID: ", self.id
+        startT = time.clock()
         cmdStr = "%s %s %d %d %s %d %d" % (model_Exe, model_Workdir, threadsNum, layeringMethod, HOSTNAME, PORT, self.id)
-        print cmdStr
+        # print cmdStr
         process = Popen(cmdStr, shell=True, stdout=PIPE)
         while process.stdout.readline() != "":
-            line = process.stdout.readline().split("\n")
-            if line[0] != "":
-                print line[0]
-            # continue
+            # line = process.stdout.readline().split("\n")
+            # if line[0] != "":
+            #     lineArr = line[0].split(' ')[0].split('-')
+            #     if int(lineArr[2]) == 1:
+            #         sys.stdout.write(str(lineArr[1]) + "-" + str(lineArr[1]) + " ")
+            continue
         process.wait()
         if process.returncode == 0:
         # if True:
@@ -126,19 +134,23 @@ class Scenario:
             polluteList = ['CH_COD', 'CH_TN', 'CH_TP']
             polluteWt = [27., 4., 1.]
             for pp in range(len(polluteList)):
-                simData = ReadSimfromTxt(timeStart, timeEnd, dataDir, polluteList[pp], subbasinID=1)
+                simData = ReadSimfromTxt(timeStart, timeEnd, dataDir, polluteList[pp], subbasinID=0)
                 self.benefit_env += sum(simData) / polluteWt[pp]
-        print self.benefit_env
+        # print self.benefit_env
+        print "cost_eco: ", self.cost_eco
+        print "benefit_env: ", self.benefit_env
+        endT = time.clock()
+        print "SEIMS running time: %.2fs" % (endT - startT)
 
 if __name__ == "__main__":
     Sce = Scenario()
     Sce.getIdfromMongo()
     Sce.create()
     Sce.decoding()
-    Sce.importoMongo(HOSTNAME, PORT, BMPScenarioDBName)
+    # Sce.importoMongo(HOSTNAME, PORT, BMPScenarioDBName)
     Sce.cost()
-    Sce.benefit()
+    # Sce.benefit()
     print "id: ", Sce.id
-    print "attributes: ", Sce.attributes
+    print "attributes: ", Sce.sce_list
     print "cost_eco: ", Sce.cost_eco
     print "benefit_env: ", Sce.benefit_env

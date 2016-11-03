@@ -72,6 +72,8 @@ python G:\code_zhulj\SEIMS\preprocess\parameters_extraction.py -ini G:\code_zhul
 + python D:\GaohrWS\GithubPrj\SEIMS\preprocess\import_bmp_scenario.py -ini D:\GaohrWS\GithubPrj\SEIMS\preprocess\dianbu_30m_longterm_omp_ghr_win.ini
 + python D:\GaohrWS\GithubPrj\SEIMS\preprocess\main.py -ini D:\GaohrWS\GithubPrj\SEIMS\preprocess\dianbu_30m_longterm_omp_ghr_win.ini
 
++ D:\SEIMS_model\SEIMS_preprocessing\build\Release\grid_layering 192.168.6.55 27017 D:\SEIMS_model\Model_data\dianbu2_30m_omp\layering_info model_dianbu2_30m_longterm SPATIAL 0
+
 + Under LINUX
   + /home/zhulj/SEIMS/seims_omp/seims_omp /home/zhulj/SEIMS/models/dianbu/model_dianbu_30m_longterm 8 0 127.0.0.1 27017 0
   

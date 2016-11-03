@@ -19,5 +19,8 @@ from pymongo import MongoClient
 client = MongoClient(HOSTNAME, PORT)
 db = client[BMPScenarioDBName]
 collection = db.BMP_SCENARIOS
-# for i in range(7, 15):
-collection.remove({'ID': '8', 'BMPID':'1'})
+for i in range(7, 75):
+    collection.remove({'ID': 75})
+
+# a = [1, '2']
+# print type(a[1])

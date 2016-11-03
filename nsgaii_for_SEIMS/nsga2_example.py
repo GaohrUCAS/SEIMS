@@ -78,14 +78,15 @@ class T1Solution(Solution):
 
 if __name__ == '__main__':
 
-    pop_size = 10   # size of populations
+    pop_size = 5   # size of populations
     # chro_size = 20 # size of chrosome
-    num_gens = 5   # number of generations
+    num_gens = 2   # number of generations
 
     muta_rate=0.05  # mutation rate
     crsr_rate=0.65  # crossover rate
     num_objs = 2    # number of objectives
 
+    print "### START TO SCENARIOS OPTIMIZING ###"
     startT = time.clock()
     nsga2 = NSGAII(num_objs, muta_rate, crsr_rate)
     P = []
@@ -108,4 +109,5 @@ if __name__ == '__main__':
         print B[i].attributes
 
     plt.scatter(obj1, obj2, c="b")
+    plt.savefig("result_Scatter.png")
     plt.show()
