@@ -121,11 +121,11 @@ class Scenario:
         # print cmdStr
         process = Popen(cmdStr, shell=True, stdout=PIPE)
         while process.stdout.readline() != "":
-            # line = process.stdout.readline().split("\n")
-            # if line[0] != "":
-            #     lineArr = line[0].split(' ')[0].split('-')
-            #     if int(lineArr[2]) == 1:
-            #         sys.stdout.write(str(lineArr[1]) + "-" + str(lineArr[1]) + " ")
+            line = process.stdout.readline().split("\n")
+            if line[0] != "" and len(line[0]) == 20:
+                lineArr = line[0].split(' ')[0].split('-')
+                if int(lineArr[2]) == 1:
+                    sys.stdout.write(str(lineArr[1]) + " ")
             continue
         process.wait()
         if process.returncode == 0:
@@ -137,7 +137,7 @@ class Scenario:
                 simData = ReadSimfromTxt(timeStart, timeEnd, dataDir, polluteList[pp], subbasinID=0)
                 self.benefit_env += sum(simData) / polluteWt[pp]
         # print self.benefit_env
-        print "cost_eco: ", self.cost_eco
+        print "\ncost_eco: ", self.cost_eco
         print "benefit_env: ", self.benefit_env
         endT = time.clock()
         print "SEIMS running time: %.2fs" % (endT - startT)

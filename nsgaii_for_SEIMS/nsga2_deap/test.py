@@ -1,6 +1,6 @@
-
 import random
 import numpy
+import array
 from subprocess import *
 from config import *
 from pymongo import MongoClient
@@ -16,11 +16,8 @@ from pymongo import MongoClient
 # if process.returncode == 0:
 #     print "OK"
 
-client = MongoClient(HOSTNAME, PORT)
-db = client[BMPScenarioDBName]
-collection = db.BMP_SCENARIOS
-for i in range(7, 75):
-    collection.remove({'ID': 75})
-
-# a = [1, '2']
-# print type(a[1])
+# client = MongoClient(HOSTNAME, PORT)
+# db = client[BMPScenarioDBName]
+# collection = db.BMP_SCENARIOS
+# for i in range(7, 160):
+#     collection.remove({'ID': i})
