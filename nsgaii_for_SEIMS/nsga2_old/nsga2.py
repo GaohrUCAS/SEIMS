@@ -143,6 +143,7 @@ class NSGAII:
         n = {}
         for s in P:
             S[s] = []
+            print s
             n[s] = 0
         fronts[1] = []
         
