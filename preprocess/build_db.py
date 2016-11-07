@@ -7,6 +7,7 @@
 
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
+from gridfs import *
 
 from config import *
 from find_sites import FindSites
@@ -79,11 +80,12 @@ def BuildMongoDB():
         subdir = tifFolder + os.sep + str(i)
         if not os.path.exists(subdir):
             os.mkdir(subdir)
-    strCmd = "%s/import_raster %s %s %s %s %s %d %s" % (
+    strCmd = '"%s/import_raster" %s %s %s %s %s %d %s' % (
         CPP_PROGRAM_DIR, subbasinRaster, WORKING_DIR, SpatialDBName,
         DB_TAB_SPATIAL.upper(), HOSTNAME, PORT, tifFolder)
     print strCmd
-    os.system(strCmd)
+    RunExternalCmd(strCmd)
+    # os.system(strCmd)
 
     print 'Generating weight data...'
     f.write("70, Generating weight data for interpolation of meteorology data...\n")
@@ -97,10 +99,11 @@ def BuildMongoDB():
         f.flush()
         dt = 24
         print 'Generating IUH (Instantaneous Unit Hydrograph)...'
-        strCmd = "%s/iuh %s %d %s %s %s %d" % (CPP_PROGRAM_DIR, HOSTNAME, PORT,
+        strCmd = '"%s/iuh" %s %d %s %s %s %d' % (CPP_PROGRAM_DIR, HOSTNAME, PORT,
                                                SpatialDBName, DB_TAB_SPATIAL.upper(), dt, nSubbasins)
         print strCmd
-        os.system(strCmd)
+        # os.system(strCmd)
+        RunExternalCmd(strCmd)
 
     f.write("90, Generating Grid layering...\n")
     f.flush()
@@ -108,10 +111,23 @@ def BuildMongoDB():
     if not os.path.exists(layeringDir):
         os.mkdir(layeringDir)
     print 'Generating Grid layering...'
-    strCmd = "%s/grid_layering %s %d %s %s %s %d" % (
+    strCmd = '"%s/grid_layering" %s %d %s %s %s %d' % (
         CPP_PROGRAM_DIR, HOSTNAME, PORT, layeringDir, SpatialDBName, DB_TAB_SPATIAL.upper(), nSubbasins)
     print strCmd
-    os.system(strCmd)
+    # os.system(strCmd)
+    RunExternalCmd(strCmd)
+    # Test if the grid layering data is imported successfully. Added by LJ, 2016-11-3
+    gridLayeringFiles = ['%d_FLOWOUT_INDEX_D8' % nSubbasins, '%d_FLOWIN_INDEX_D8' % nSubbasins]
+    spatial = GridFS(db, DB_TAB_SPATIAL.upper())
+    needReRun = False
+    while not needReRun:
+        needReRun = True
+        for gridlyr in gridLayeringFiles:
+            if not spatial.exists(filename=gridlyr):
+                needReRun = False
+                print "%s is not imported successfully, grid_layering will be rerun!" % gridlyr
+                RunExternalCmd(strCmd)
+                break
 
     # Import BMP scenario database to MongoDB
     ImportBMPTables()

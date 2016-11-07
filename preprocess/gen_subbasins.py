@@ -5,11 +5,13 @@
 # Revised: Liang-Jun Zhu
 # Note: Improve calculation efficiency by numpy
 #
+import platform
+
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 
 from post_process_taudem import *
-
+from util import GetExecutableFullPath, RunExternalCmd
 
 def GetMaskFromRaster(rasterFile, dstdir):
     rasterR = ReadRaster(rasterFile)
@@ -91,8 +93,9 @@ def MaskDEMFiles(workingDir, exeDir=None):
         f.write(s)
     f.close()
 
-    s = "%s/mask_raster %s" % (exeDir, configFile)
-    os.system(s)
+    # s = '"%s/mask_raster" %s' % (exeDir, configFile)
+    # os.system(s)
+    RunExternalCmd('"%s/mask_raster" %s' % (exeDir, configFile))
 
 
 def GenerateSubbasins():
@@ -116,9 +119,14 @@ def GenerateSubbasins():
     def convert2GeoJson(jsonFile, src_srs, dst_srs, src_file):
         if os.path.exists(jsonFile):
             os.remove(jsonFile)
-        s = 'ogr2ogr -f GeoJSON -s_srs "%s" -t_srs %s %s %s' % \
-            (src_srs, dst_srs, jsonFile, src_file)
-        os.system(s)
+        if platform.system() == 'Windows':
+            exepath = '"%s/Lib/site-packages/osgeo/ogr2ogr"' % sys.exec_prefix
+        else:
+            exepath = GetExecutableFullPath("ogr2ogr")
+        # os.system(s)
+        s = '%s -f GeoJSON -s_srs "%s" -t_srs %s %s %s' % \
+            (exepath, src_srs, dst_srs, jsonFile, src_file)
+        RunExternalCmd(s)
 
     geoJson_dict = {GEOJSON_REACH: WORKING_DIR + os.sep + DIR_NAME_REACH + os.sep + reachesOut,
                     GEOJSON_SUBBSN: WORKING_DIR + os.sep + DIR_NAME_SUBBSN + os.sep + subbasinVec,

@@ -5,7 +5,7 @@
 # Revised: Liang-Jun Zhu
 #
 
-import sys
+from osgeo import ogr
 
 import networkx as nx
 import pymongo
@@ -323,10 +323,12 @@ def GenerateReachTable(folder, db, forCluster):
             continue
 
         # for cluster, based on kmetis
-        strCommand = '%s/gpmetis %s %d' % (METIS_DIR, metisInput, n)
-        result = os.popen(strCommand)
+        strCommand = '"%s/gpmetis" %s %d' % (METIS_DIR, metisInput, n)
+        # result = os.popen(strCommand)
+        result = RunExternalCmd(strCommand)
         fMetisOutput = open('%s/kmetisResult%d.txt' % (metisFolder, n), 'w')
-        for line in result.readlines():
+        # for line in result.readlines():
+        for line in result:
             fMetisOutput.write(line)
         fMetisOutput.close()
 
@@ -338,10 +340,12 @@ def GenerateReachTable(folder, db, forCluster):
         AdjustGroupResult(g, areaDic, groupKmetis, n)
 
         # pmetis
-        strCommand = '%s/gpmetis -ptype=rb %s %d' % (METIS_DIR, metisInput, n)
-        result = os.popen(strCommand)
+        strCommand = '"%s/gpmetis" -ptype=rb %s %d' % (METIS_DIR, metisInput, n)
+        result = RunExternalCmd(strCommand)
+        # result = os.popen(strCommand)
         fMetisOutput = open('%s/pmetisResult%d.txt' % (metisFolder, n), 'w')
-        for line in result.readlines():
+        # for line in result.readlines():
+        for line in result:
             fMetisOutput.write(line)
         fMetisOutput.close()
 

@@ -6,22 +6,25 @@
 # @Author: Junzhi Liu, 2012-4-12
 # @Revised: Liang-Jun Zhu, 2016-7-7
 #
-import sys,subprocess
+import platform
+from osgeo import ogr
 
 from chwidth import chwidth
 from config import *
 from util import *
 
-
-def GenerateSubbasinVector(dstdir, subbasinRaster, subbasinVector, layerName, fieldName):
+def GenerateSubbasinVector(subbasinRaster, subbasinVector, layerName, fieldName):
     RemoveShpFile(subbasinVector)
     # raster to polygon vector
-    strCmd = '"%s" "%s/gdal_polygonize.py" -f "ESRI Shapefile" %s %s %s %s' % \
-             (sys.executable, sys.exec_prefix + os.sep + "Scripts",
-              subbasinRaster, subbasinVector, layerName, fieldName)
+    if platform.system() == 'Windows':
+        exepath = '"%s/Scripts/gdal_polygonize.py"' % sys.exec_prefix
+    else:
+        exepath = GetExecutableFullPath("gdal_polygonize.py")
+    strCmd = '%s -f "ESRI Shapefile" %s %s %s %s' % (exepath, subbasinRaster, subbasinVector, layerName, fieldName)
     print strCmd
     # os.system(strCmd)
     process = subprocess.Popen(strCmd, shell=True, stdout=subprocess.PIPE)
+    print process.stdout.readlines()
 
 
 def SerializeStreamNet(streamNetFile, outputReachFile):
@@ -229,16 +232,12 @@ def PostProcessTauDEM(dstdir):
     AddWidthToReach(outputReachFile, outputStreamLinkFile, width)
 
     print "Generating subbasin vector..."
-    GenerateSubbasinVector(dstdir, outputSubbasinFile, subbasinVectorFile, "subbasin", FLD_SUBBASINID)
+    GenerateSubbasinVector(outputSubbasinFile, subbasinVectorFile, "subbasin", FLD_SUBBASINID)
 
     maskFile = dstdir + os.sep + mask_to_ext
     basinVector = dstdir + os.sep + basinVec
-    GenerateSubbasinVector(dstdir, maskFile, basinVector, "basin", FLD_BASINID)
-    #RemoveShpFile(basinVector)
-    #strCmd = '"%s" "%s/gdal_polygonize.py" -f "ESRI Shapefile" %s %s %s %s' % \
-    #         (sys.executable, sys.exec_prefix + os.sep + "Scripts",
-    #          maskFile, basinVector, "basin", FLD_BASINID)
-    #os.system(strCmd)
+    print "Generating basin vector..."
+    GenerateSubbasinVector(maskFile, basinVector, "basin", FLD_BASINID)
 
 
 if __name__ == '__main__':

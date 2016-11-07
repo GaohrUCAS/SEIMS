@@ -8,6 +8,7 @@ import argparse
 import datetime
 import math
 import os
+import subprocess
 import shutil
 import socket
 import sys
@@ -15,7 +16,7 @@ import time
 
 import numpy
 from gdalconst import *
-from osgeo import gdal, ogr, osr
+from osgeo import gdal, osr
 
 UTIL_ZERO = 1.e-6
 MINI_SLOPE = 0.0001
@@ -539,6 +540,26 @@ def LoadConfiguration(inifile):
     # print strCmd
     os.system(strCmd)
 
+def GetExecutableFullPath(name):
+    '''
+    Not for Windows
+    get the full path of a given executable name
+    :return:
+    '''
+    findout = RunExternalCmd('which %s' % name)
+    if findout == [] or len(findout) == 0:
+        print "%s is not included in the env path" % name
+        exit(-1)
+    return findout[0].split('\n')[0]
+
+def RunExternalCmd(cmdStr):
+    '''
+    Execute external command, and return the output lines list
+    :param cmdStr:
+    :return: output lines
+    '''
+    process = subprocess.Popen(cmdStr, shell = True, stdout = subprocess.PIPE)
+    return process.stdout.readlines()
 
 # TEST CODE
 if __name__ == "__main__":
