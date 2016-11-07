@@ -78,11 +78,11 @@ class T1Solution(Solution):
 
 if __name__ == '__main__':
 
-    pop_size = 5   # size of populations
+    pop_size = 2   # size of populations
     # chro_size = 20 # size of chrosome
-    num_gens = 2   # number of generations
+    num_gens = 1   # number of generations
 
-    muta_rate=0.05  # mutation rate
+    muta_rate=0.25  # mutation rate
     crsr_rate=0.65  # crossover rate
     num_objs = 2    # number of objectives
 
@@ -95,12 +95,12 @@ if __name__ == '__main__':
         S = Scenario()
         P.append(T1Solution(S))
 
-    # Result
+    # Run
     B = nsga2.run(P, pop_size, num_gens)
 
     endT = time.clock()
     print "Running time: %.2fs" % (endT - startT)
-
+    # Result
     obj1 = []
     obj2 = []
     for i in range(len(B)):
@@ -108,6 +108,11 @@ if __name__ == '__main__':
         obj2.append(B[i].objectives[1])
         print B[i].attributes
 
+    # Plot
+    plt.title("Scenarios Optimizing\n", color="#aa0903")
+    plt.xlabel("cost(Yuan)")
+    plt.ylabel("contaminants(t)")
     plt.scatter(obj1, obj2, c="b")
-    plt.savefig("result_Scatter.png")
+    plt.title("\nPopulation: %d, Generation: %d" % (pop_size, num_gens), color="green", fontsize=9, loc='right')
+    plt.savefig("result_Scatter1.png")
     plt.show()
