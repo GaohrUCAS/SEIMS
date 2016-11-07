@@ -7,7 +7,7 @@
 *	Revision:   Liangjun Zhu
 *   Date:       21-July-2016
 *   Description:
-*               The 
+*               The output list:
 *               1. X_FLOWOUT_INDEX_{FD}, X_FLOWIN_INDEX_{FD}
 *                     in which X is subbasinID, FD is the flow direction algorithm
 *                     {FD} include D8, Dinf
