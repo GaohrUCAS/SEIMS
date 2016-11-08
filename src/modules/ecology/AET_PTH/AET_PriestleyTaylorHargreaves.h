@@ -41,6 +41,8 @@ private:
     float *m_lai;
     /// potential evapotranspiration on current day
     float *m_pet;
+	/// Evaporation loss from canopy storage
+	float *m_canEvp;
     /// depression storage capacity
     float *m_depSt;
     /// soil evaporation compensation factor, if not set or existed, it will be assigned 0.95 as default.
@@ -55,7 +57,7 @@ private:
 	/// soil thickness
 	float **m_soilThick;
     /// amount of water available to plants in soil layer at field capacity (FC-WP)
-    float **m_solAWC;
+    float **m_solFC;
     /// amount of residue on soil surface (kg/ha)
     float *m_solCov;
     /// amount of nitrogen stored in the nitrate pool

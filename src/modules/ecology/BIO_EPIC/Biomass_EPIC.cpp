@@ -75,15 +75,15 @@ Biomass_EPIC::~Biomass_EPIC(void)
 	if (m_biomass != NULL) Release1DArray(m_biomass);
 }
 
-void Biomass_EPIC::SetValue(const char *key, float data)
+void Biomass_EPIC::SetValue(const char *key, float value)
 {
     string sk(key);
-    if (StringMatch(sk, VAR_CO2)) m_co2 = data;
-    else if (StringMatch(sk, VAR_OMP_THREADNUM)) omp_set_num_threads((int) data);
-    else if (StringMatch(sk, VAR_NUPDIS)) m_NUpDis = data;
-    else if (StringMatch(sk, VAR_PUPDIS)) m_PUpDis = data;
-    else if (StringMatch(sk, VAR_NFIXCO)) m_NFixCoef = data;
-    else if (StringMatch(sk, VAR_NFIXMX)) m_NFixMax = data;
+    if (StringMatch(sk, VAR_CO2)) m_co2 = value;
+    else if (StringMatch(sk, VAR_OMP_THREADNUM)) omp_set_num_threads((int) value);
+    else if (StringMatch(sk, VAR_NUPDIS)) m_NUpDis = value;
+    else if (StringMatch(sk, VAR_PUPDIS)) m_PUpDis = value;
+    else if (StringMatch(sk, VAR_NFIXCO)) m_NFixCoef = value;
+    else if (StringMatch(sk, VAR_NFIXMX)) m_NFixMax = value;
     else
         throw ModelException(MID_BIO_EPIC, "SetValue", "Parameter " + sk + " does not exist.");
 }
@@ -262,7 +262,7 @@ bool Biomass_EPIC::CheckInputData(void)
     if (m_soilESDay == NULL)
         throw ModelException(MID_BIO_EPIC, "CheckInputData", "The actual soil et can not be NULL.");
 	if (this->m_sol_rsdin == NULL)
-		throw ModelException(MID_MINRL, "CheckInputData", "The m_sol_rsdin can not be NULL.");
+		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_rsdin can not be NULL.");
     if (m_igro == NULL)
         throw ModelException(MID_BIO_EPIC, "CheckInputData", "The land cover status code can not be NULL.");
     if (m_landCoverCls == NULL)
@@ -726,7 +726,7 @@ void Biomass_EPIC::PlantNitrogenUptake(int i)
     for (int l = 0; l < m_nSoilLayers[i]; l++)
         tno3 += m_soilNO3[i][l];
     tno3 /= n_reduc;
-    float up_reduc = tno3 / (tno3 + exp(1.56f - 4.5f * tno3)); /// However, up_reduc is not used hereafter.
+    // float up_reduc = tno3 / (tno3 + exp(1.56f - 4.5f * tno3)); /// However, up_reduc is not used hereafter.
     /// icrop is land cover code in SWAT.
     /// in SEIMS, it is no need to use it.
     //// determine shape parameters for plant nitrogen uptake equation, from readplant.f

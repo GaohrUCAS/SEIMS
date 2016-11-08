@@ -14,7 +14,7 @@
 
 float deepGw = 0.f;
 
-int MasterProcess(map<int, Subbasin *> &subbasinMap, set<int> &groupSet, string &projectPath, string &outputFile)
+int MasterProcess(map<int, SubbasinStruct *> &subbasinMap, set<int> &groupSet, string &projectPath, string &outputFile)
 {
     //cout << "Enter master process.\n";
     MPI_Request request;
@@ -27,7 +27,7 @@ int MasterProcess(map<int, Subbasin *> &subbasinMap, set<int> &groupSet, string 
 
     // get the subbasin id list of different groups
     int idOutlet = -1;
-    for (map<int, Subbasin *>::iterator it = subbasinMap.begin(); it != subbasinMap.end(); ++it)
+    for (map<int, SubbasinStruct *>::iterator it = subbasinMap.begin(); it != subbasinMap.end(); ++it)
     {
         groupMap[it->second->group].push_back(it->second->id);
         if (it->second->downStream == NULL)
@@ -130,7 +130,7 @@ int MasterProcess(map<int, Subbasin *> &subbasinMap, set<int> &groupSet, string 
 
 #ifdef DEBUG_OUTPUT
             cout << "subbasins>> in: " << id << "  all: ";
-            for (map<int, Subbasin*>::iterator it = subbasinMap.begin(); it != subbasinMap.end(); it++)
+            for (map<int, SubbasinStruct*>::iterator it = subbasinMap.begin(); it != subbasinMap.end(); it++)
             {
                 if (it->second->calculated)
                     cout << it->first << " ";
@@ -194,7 +194,7 @@ int MasterProcess(map<int, Subbasin *> &subbasinMap, set<int> &groupSet, string 
                 if (subbasinMap[id]->rank > 1)
                 {
                     // find if their upstream basins are newly calculated
-                    vector<Subbasin *> &ups = subbasinMap[id]->upStreams;
+                    vector<SubbasinStruct *> &ups = subbasinMap[id]->upStreams;
                     for (size_t j = 0; j < ups.size(); j++)
                     {
                         if (ups[j]->calculated)
@@ -240,7 +240,7 @@ int MasterProcess(map<int, Subbasin *> &subbasinMap, set<int> &groupSet, string 
         }
         else if (msgCode == 0) // reset all qOutlet informaion
         {
-            for (map<int, Subbasin *>::iterator it = subbasinMap.begin(); it != subbasinMap.end(); ++it)
+            for (map<int, SubbasinStruct *>::iterator it = subbasinMap.begin(); it != subbasinMap.end(); ++it)
             {
                 it->second->calculated = false;
                 it->second->qOutlet = 0.f;
@@ -257,7 +257,7 @@ int MasterProcess(map<int, Subbasin *> &subbasinMap, set<int> &groupSet, string 
     }
     fOutput.close();
 
-    for (map<int, Subbasin *>::iterator it = subbasinMap.begin(); it != subbasinMap.end(); ++it)
+    for (map<int, SubbasinStruct *>::iterator it = subbasinMap.begin(); it != subbasinMap.end(); ++it)
     {
         delete it->second;
     }

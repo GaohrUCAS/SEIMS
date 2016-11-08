@@ -107,7 +107,10 @@ void MUSLE_AS::initialOutputs()
 
 float MUSLE_AS::getPeakRunoffRate(int cell)
 {
-    return m_cellAreaKM1 * m_slopeForPq[cell] *
+	if (m_surfaceRunoff[cell] < 0.01f)
+		return 0.f;
+	else
+		return m_cellAreaKM1 * m_slopeForPq[cell] *
            pow(m_surfaceRunoff[cell] / 25.4f, m_cellAreaKM2); //equation 2 in memo, peak flow
 }
 
@@ -129,7 +132,8 @@ int MUSLE_AS::Execute()
             if (m_snowAccumulation[i] > 0.0001f)
                 Y /= exp(3.f * m_snowAccumulation[i] / 25.4f);  //equation 4 in memo, the snow pack effect
             m_sedimentYield[i] = Y * 1000.f; /// kg
-        }
+		}
+		//if(i == 1000) cout << m_sedimentYield[i] << "," << m_surfaceRunoff[i] << endl;
 		/// particle size distribution of sediment yield
 		m_sandYield[i] = m_sedimentYield[i] * m_detachSand[i];
 		m_siltYield[i] = m_sedimentYield[i] * m_detachSilt[i];
@@ -170,9 +174,7 @@ void MUSLE_AS::SetValue(const char *key, float data)
         omp_set_num_threads((int) data);
     }
     else
-        throw ModelException(MID_MUSLE_AS, "SetValue", "Parameter " + sk
-                                                       +
-                                                       " does not exist in current module. Please contact the module developer.");
+        throw ModelException(MID_MUSLE_AS, "SetValue", "Parameter " + sk+" does not exist in current module.");
 }
 
 void MUSLE_AS::Set1DData(const char *key, int n, float *data)
@@ -185,7 +187,8 @@ void MUSLE_AS::Set1DData(const char *key, int n, float *data)
     else if (StringMatch(s, VAR_ACC)) m_flowacc = data;
     else if (StringMatch(s, VAR_SLOPE)) m_slope = data;
     //else if (StringMatch(s, VAR_SUBBSN)) m_subbasin = data;
-    else if (StringMatch(s, VAR_FLOW_OL)) m_surfaceRunoff = data;
+	//else if (StringMatch(s, VAR_SURU)) m_surfaceRunoff = data;
+	else if (StringMatch(s, VAR_OLFLOW))m_surfaceRunoff = data;
     else if (StringMatch(s, VAR_SNAC)) m_snowAccumulation = data;
     else if (StringMatch(s, VAR_STREAM_LINK))m_streamLink = data;
 	else if (StringMatch(s, VAR_DETACH_SAND)) m_detachSand = data;

@@ -1,11 +1,22 @@
 /*----------------------------------------------------------------------
-*	Purpose: 	Raster Data
+*	Purpose:  Raster Data
 *
 *	Created:	Junzhi Liu
 *	Date:		29-July-2012
 *
-*	Revision:
-*   Date:
+*	Revision:   Liangjun Zhu
+*   Date:       21-July-2016
+*   Description:
+*               The 
+*               1. X_FLOWOUT_INDEX_{FD}, X_FLOWIN_INDEX_{FD}
+*                     in which X is subbasinID, FD is the flow direction algorithm
+*                     {FD} include D8, Dinf
+*                  X_FLOWIN_PERCENTAGE_{MFD}
+*                     in which MFD is multi-flow direction algorithm
+*                     {MFD} include Dinf
+*               2. X_ROUTING_LAYERS_UP_DOWN or X_ROUTING_LAYERS_DOWN_UP for D8
+*                  X_ROUTING_LAYERS_DINF for Dinf
+*
 *---------------------------------------------------------------------*/
 
 #ifndef GRID_LAYERING_RASTER_INCLUDE
@@ -18,10 +29,10 @@ using namespace std;
 
 struct RasterHeader
 {
-    int noDataValue;
-    int nRows, nCols;
-    double xll, yll;
-    double dx;
+        int noDataValue;
+        int nRows, nCols;
+        double xll, yll;
+        double dx;
 };
 
 int CalCompressedIndex(int n, int *mask, int noDataValue, int *compressedIndex);

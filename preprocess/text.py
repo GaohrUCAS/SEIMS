@@ -1,11 +1,11 @@
 #! /usr/bin/env python
 # coding=utf-8
-## @ Constant strings used in SEIMS, means both in
-##   data preprocessing and SEIMS modules
-# Author: Liang-Jun Zhu
+# @ Constant strings used in SEIMS, means both in
+#   data preprocessing and SEIMS modules
+# @Author: Liang-Jun Zhu
 #
 
-## Simulation Model related tages
+# Simulation Model related tages
 Tag_Model = "model"
 Tag_Cluster = "cluster"
 Tag_Mode = "MODE"
@@ -13,7 +13,7 @@ Tag_Mode_Storm = "STORM"
 Tag_Mode_Daily = "DAILY"
 Tag_CLIM_STORM_Suf = "storm_cmorph"
 
-## Names for folders in output workspace for Spatial data preprocessing
+# Names for folders in output workspace for Spatial data preprocessing
 DIR_NAME_TAUDEM = "taudir"
 DIR_NAME_REACH = "reaches"
 DIR_NAME_SUBBSN = "subbasins"
@@ -21,10 +21,10 @@ DIR_NAME_LAYERINFO = "layering_info"
 DIR_NAME_METISOUT = "metis_output"
 DIR_NAME_TIFFIMPORT = "tif_files"
 DIR_NAME_LOOKUP = "lookup"
-## File names
+# File names
 FILE_IN = "file.in"
 FILE_OUT = "file.out"
-## Regenerated SQLite database of Parameters for SEIMS
+# Regenerated SQLite database of Parameters for SEIMS
 Tag_Params = "param"
 Tag_Lookup = "lookup"
 init_params = 'model_param_ini'
@@ -33,8 +33,8 @@ lookup_tabs = ['SoilLookup', 'LanduseLookup', 'TillageLookup',
 CROP_FILE = 'CropLookup.txt'
 sqliteFile = "Parameter.db3"
 
-### CROP, LANDUSE, and SOIL attribute are imported to mongoDB
-### Match to the new lookup table of SWAT 2012 rev.637. LJ
+# CROP, LANDUSE, and SOIL attribute are imported to mongoDB
+# Match to the new lookup table of SWAT 2012 rev.637. LJ
 CROP_ATTR_LIST = ["IDC", "BIO_E", "HVSTI", "BLAI", "FRGRW1", "LAIMX1", "FRGRW2",
                   "LAIMX2", "DLAI", "CHTMX", "RDMX", "T_OPT", "T_BASE", "CNYLD",
                   "CPYLD", "BN1", "BN2", "BN3", "BP1", "BP2", "BP3", "WSYF",
@@ -42,7 +42,7 @@ CROP_ATTR_LIST = ["IDC", "BIO_E", "HVSTI", "BLAI", "FRGRW1", "LAIMX1", "FRGRW2",
                   "RSDCO_PL", "OV_N", "CN2A", "CN2B", "CN2C", "CN2D", "FERTFIELD",
                   "ALAI_MIN", "BIO_LEAF", "MAT_YRS", "BMX_TREES", "EXT_COEF", "BM_DIEOFF"]
 
-### USLE_C is extracted from cropLookup database
+# USLE_C is extracted from cropLookup database
 LANDUSE_ATTR_LIST = ["CN2A", "CN2B", "CN2C", "CN2D", "ROOTDEPTH", "MANNING",
                      "INTERC_MAX", "INTERC_MIN", "SHC", "SOIL_T10",
                      "PET_FR", "PRC_ST1", "PRC_ST2", "PRC_ST3", "PRC_ST4",
@@ -53,14 +53,14 @@ LANDUSE_ATTR_LIST = ["CN2A", "CN2B", "CN2C", "CN2D", "ROOTDEPTH", "MANNING",
                      "DSC_ST3", "DSC_ST4", "DSC_ST5", "DSC_ST6", "DSC_ST7", "DSC_ST8",
                      "DSC_ST9", "DSC_ST10", "DSC_ST11", "DSC_ST12"]
 
-## Metadata field names
+# Metadata field names
 META_LOOKUP_ITEM_COUNT = 'ITEM_COUNT'
 META_LOOKUP_FIELD_COUNT = 'FIELD_COUNT'
 
-## SOIL PARAMETERS NAMES, which will be appeared in MongoDB
+# SOIL PARAMETERS NAMES, which will be appeared in MongoDB
 SOL_SEQN = "SEQN"
 SOL_NAME = "SNAM"
-## required inputs
+# required inputs
 SOL_NLYRS = "SOILLAYERS"
 SOL_Z = "SOL_Z"
 SOL_OM = "SOL_OM"
@@ -68,7 +68,7 @@ SOL_CLAY = "SOL_CLAY"
 SOL_SILT = "SOL_SILT"
 SOL_SAND = "SOL_SAND"
 SOL_ROCK = "SOL_ROCK"
-## optional inputs, which can be auto-calculated
+# optional inputs, which can be auto-calculated
 SOL_ZMX = "SOL_ZMX"
 SOL_ANIONEXCL = "ANION_EXCL"
 SOL_CRK = "SOL_CRK"
@@ -81,18 +81,18 @@ SOL_POROSITY = "SOL_POROSITY"
 SOL_USLE_K = "SOL_USLE_K"
 SOL_ALB = "SOL_ALB"
 ESCO = "ESCO"
-## soil N and P concentrate
+# soil N and P concentrate
 SOL_NO3 = "SOL_NO3"
-SOL_NH3 = "SOL_NH3"
+SOL_NH4 = "SOL_NH                                                                                                  4"
 SOL_ORGN = "SOL_ORGN"
 SOL_ORGP = "SOL_ORGP"
 SOL_SOLP = "SOL_SOLP"
 
 
-## Climate datatype tags, MUST BE coincident with text.h in SEIMS
-## /src/base/util/text.h
-## BE AWARE: TMIN, TMAX, WS, Residual is required, and TMEAN, PET, SR is optional
-##           WHEN SR is not provided, the SSD MUST be there!
+# Climate datatype tags, MUST BE coincident with text.h in SEIMS
+# /src/base/util/text.h
+# BE AWARE: TMIN, TMAX, WS, Residual is required, and TMEAN, PET, SR is optional
+# WHEN SR is not provided, the SSD MUST be there!
 
 DataType_Precipitation = "P"  # 1, Suffix of precipitation data
 DataType_MeanTemperature = "TMEAN"  # 2
@@ -131,6 +131,7 @@ Tag_VAR_Time = 'TimeSupport'
 
 Tag_ClimateDB_Sites = "Sites"
 Tag_ST_StationID = 'StationID'
+Tag_ST_SubbasinID = 'SubbasinID'
 Tag_ST_StationName = 'Name'
 Tag_ST_LocalX = 'LocalX'
 Tag_ST_LocalY = 'LocalY'
@@ -143,7 +144,7 @@ Tag_ST_Type = 'Type'
 Tag_ST_IsOutlet = 'isOutlet'
 Tag_ST_UNIT = 'Unit'
 
-## Table Names required in MongoDB
+# Table Names required in MongoDB
 DB_TAB_PARAMETERS = "parameters"
 DB_TAB_LOOKUP_LANDUSE = "LanduseLookup"
 DB_TAB_LOOKUP_SOIL = "SoilLookup"
@@ -157,7 +158,7 @@ DB_TAB_BMP_DB = "BMPDatabase"
 DB_TAB_FILE_IN = "FILE_IN"
 DB_TAB_FILE_OUT = "FILE_OUT"
 ### Fields in DB_TAB_REACH
-REACH_SUBBASIN = "SUBBASIN"
+REACH_SUBBASIN = "SUBBASINID"
 REACH_NUMCELLS = "NUM_CELLS"
 REACH_GROUP = "GROUP"
 REACH_GROUPDIVIDED = "GROUP_DIVIDE"
@@ -169,10 +170,11 @@ REACH_LENGTH = "LENGTH"
 REACH_DEPTH = "DEPTH"
 REACH_V0 = "V0"
 REACH_AREA = "AREA"
+REACH_SIDESLP = "SIDE_SLOPE"
 REACH_MANNING = "MANNING"
 REACH_SLOPE = "SLOPE"
-REACH_KMETIS = 'GROUP_KMETIS'
-REACH_PMETIS = 'GROUP_PMETIS'
+REACH_KMETIS = 'KMETIS' # GROUP_KMETIS is too long for ArcGIS Shapefile
+REACH_PMETIS = 'PMETIS' # the same reason
 REACH_BC1 = 'BC1'
 REACH_BC2 = 'BC2'
 REACH_BC3 = 'BC3'
@@ -187,21 +189,21 @@ REACH_RS3 = 'RS3'
 REACH_RS4 = 'RS4'
 REACH_RS5 = 'RS5'
 # reach erosion related parameters, 2016-8-16, LJ
-REACH_COVER = 'COVER' # -0.05 - 0.6
+REACH_COVER = 'COVER'  # -0.05 - 0.6
 REACH_EROD = 'EROD'   # -0.001 - 1
 # nutrient routing related parameters
-REACH_DISOX = 'DISOX' # 0-50 mg/L
+REACH_DISOX = 'DISOX'  # 0-50 mg/L
 REACH_BOD = 'BOD'     # 0-1000 mg/L
-REACH_ALGAE = 'ALGAE' # 0-200 mg/L
+REACH_ALGAE = 'ALGAE'  # 0-200 mg/L
 REACH_ORGN = 'ORGN'   # 0-100 mg/L
-REACH_NH3 = 'NH3'     # 0-50 mg/L
+REACH_NH4 = 'NH4'     # 0-50 mg/L
 REACH_NO2 = 'NO2'     # 0-100 mg/L
 REACH_NO3 = 'NO3'     # 0-50 mg/L
 REACH_ORGP = 'ORGP'   # 0-25 mg/L
 REACH_SOLP = 'SOLP'   # 0-25 mg/L
 # groundwater related parameters
-REACH_GWNO3 = 'GWNO3' # 0-1000 mg/L
-REACH_GWSOLP = 'GWSOLP' # 0-1000 mg/L
+REACH_GWNO3 = 'GWNO3'  # 0-1000 mg/L
+REACH_GWSOLP = 'GWSOLP'  # 0-1000 mg/L
 # Field in SiteList table or other tables, such as subbasin.shp
 FLD_SUBBASINID = 'SUBBASINID'
 FLD_BASINID = 'BASIN'
@@ -230,10 +232,10 @@ FLD_DSLINKNO = "DSLINKNO"
 
 BMP_FLD_PT_DISTDOWN = "DIST2REACH"
 
-## Field metadata in MongoDB
+# Field metadata in MongoDB
 
-## Spatial Data related string or values
-## intermediate data files' names
+# Spatial Data related string or values
+# intermediate data files' names
 filledDem = "demFilledTau.tif"
 flowDir = "flowDirTauD8.tif"
 slope = "slopeTau.tif"
@@ -258,16 +260,16 @@ streamNet = "streamNet.shp"
 dist2StreamD8 = "dist2StreamD8Org.tif"
 subbasin = "subbasinTau.tif"
 mask_to_ext = "mask.tif"
-## masked file names
+# masked file names
 subbasinM = "subbasinTauM.tif"
 flowDirM = "flowDirTauM.tif"
 streamRasterM = "streamRasterTauM.tif"
-## output to mongoDB file names
+# output to mongoDB file names
 reachesOut = "reach.shp"
 subbasinOut = "subbasin.tif"
 flowDirOut = "flow_dir.tif"
 streamLinkOut = "stream_link.tif"
-## masked and output to mongoDB file names
+# masked and output to mongoDB file names
 slopeM = "slope.tif"
 filldemM = "dem.tif"
 accM = "acc.tif"
@@ -286,7 +288,7 @@ basinVec = "basin.shp"
 chwidthName = "chwidth.tif"
 
 landuseMFile = "landuse.tif"
-cropMFile = "landcover.tif"  ### added by LJ.
+cropMFile = "landcover.tif"  # added by LJ.
 soiltypeMFile = "soiltype.tif"
 mgtFieldMFile = "mgt_fields.tif"
 
@@ -301,25 +303,25 @@ CN2File = "CN2.tif"
 radiusFile = "radius.tif"
 ManningFile = "MANNING.tif"
 velocityFile = "velocity.tif"
-## flow time to the main river from each grid cell
+# flow time to the main river from each grid cell
 t0_sFile = "t0_s.tif"
-## standard deviation of t0_s
+# standard deviation of t0_s
 delta_sFile = "delta_s.tif"
-## potential runoff coefficient
+# potential runoff coefficient
 runoff_coefFile = "runoff_co.tif"
 
-## GeoJson format files (WGS 1984 coordinate)
+# GeoJson format files (WGS 1984 coordinate)
 GEOJSON_REACH = "river.json"
 GEOJSON_SUBBSN = "subbasin.json"
 GEOJSON_OUTLET = "outlet.json"
-## Other filenames used in preprocessing
+# Other filenames used in preprocessing
 FN_STATUS_DELINEATION = "status_SubbasinDelineation.txt"
 FN_STATUS_MASKRASTERS = "maskDemConfig.txt"
 FN_STATUS_MASKLANDUSE = "maskLanduseConfig.txt"
 FN_STATUS_GENSUBBSN = "status_GenerateSubbasins.txt"
 FN_STATUS_EXTRACTPARAM = "status_ExtractParameters.txt"
 FN_STATUS_MONGO = "status_BuildMongoDB.txt"
-## Header information of raster data (Derived from Mask.tif)
+# Header information of raster data (Derived from Mask.tif)
 HEADER_RS_TAB = "Header"
 HEADER_RS_NODATA = "NODATA_VALUE"
 HEADER_RS_XLL = "XLLCENTER"
@@ -328,7 +330,7 @@ HEADER_RS_NROWS = "NROWS"
 HEADER_RS_NCOLS = "NCOLS"
 HEADER_RS_CELLSIZE = "CELLSIZE"
 
-## Fields in parameter table of MongoDB
+# Fields in parameter table of MongoDB
 PARAM_FLD_NAME = "NAME"
 PARAM_FLD_DESC = "DESCRIPTION"
 PARAM_FLD_UNIT = "UNIT"

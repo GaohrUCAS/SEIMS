@@ -12,14 +12,14 @@
 #include "ModelException.h"
 
 using namespace std;
-/** \defgroup NutGW
+/** \defgroup NutrGW
  * \ingroup Nutrient
  * \brief Calculates the nitrate and soluble phosphorus loading contributed by groundwater flow.
  */
 
 /*!
  * \class NutrientinGroundwater
- * \ingroup NutGW
+ * \ingroup NutrGW
  *
  * \brief Calculates the nitrate and soluble phosphorus loading contributed by groundwater flow.
  *
@@ -55,17 +55,23 @@ private:
 	int m_TimeStep;
 
     /// input data
+	/// gw0
+	float m_gw0;
     /// nitrate N concentration in groundwater loading to reach (mg/L, i.e. g/m3)
     float *m_gwno3Con;
+	/// kg
+	float *m_gwNO3; 
     /// soluble P concentration in groundwater loading to reach (mg/L, i.e. g/m3)
-    float *m_gwminpCon;
+    float *m_gwSolCon;
+	/// kg
+	float *m_gwSolP;
     /// groundwater contribution to stream flow (m3/s)
     float *m_gw_q; 
 	/// groundwater storage
 	float *m_gwStor;
-	/// amount of nitrate percolating past bottom of soil profile
+	/// amount of nitrate percolating past bottom of soil profile, kg
 	float *m_perco_no3_gw;
-	/// amount of solute P percolating past bottom of soil profile
+	/// amount of solute P percolating past bottom of soil profile, kg
 	float *m_perco_solp_gw;
 
 	// soil related
@@ -82,9 +88,9 @@ private:
     /// outputs
 
     /// nitrate loading to reach in groundwater to channel
-    float *m_no3gwToCh;
+    float *m_no3GwToCh;
     /// soluble P loading to reach in groundwater to channel
-    float *m_minpgwToCh;
+    float *m_solpGwToCh;
 
 	/// subbasin related
 	/// the total number of subbasins
@@ -112,7 +118,6 @@ private:
      * \return bool The validity of the dimension
      */
     bool CheckInputSize(const char *, int);
-
+	/// initial outputs
     void initialOutputs();
-
 };

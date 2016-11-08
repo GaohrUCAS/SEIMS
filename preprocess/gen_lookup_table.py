@@ -1,17 +1,17 @@
 #! /usr/bin/env python
 # coding=utf-8
-## @Generate landuse lookup table
+# @Generate landuse lookup table
 # Author: Junzhi Liu
 # Revised: Liang-Jun Zhu
 #
 
 import sqlite3
+
 from config import *
 
 
 def CreateLanduseLookupTable(dbname, property_namelist, str_sql, dstdir):
     property_map = {}
-    # num_propeties = len(property_namelist)
     conn = sqlite3.connect(dbname)
     cursor = conn.cursor()
 
@@ -23,7 +23,7 @@ def CreateLanduseLookupTable(dbname, property_namelist, str_sql, dstdir):
         value_map = {}
         for i in range(len(property_namelist)):
             pName = property_namelist[i]
-            if pName == "USLE_P":  ### Currently, USLE_P is set as 1 for all landuse.
+            if pName == "USLE_P":  # Currently, USLE_P is set as 1 for all landuse.
                 value_map[pName] = 1
             else:
                 if pName == "Manning":
@@ -43,5 +43,3 @@ def CreateLanduseLookupTable(dbname, property_namelist, str_sql, dstdir):
             s = "%d %f\n" % (id, property_map[id][propertyName])
             f.write(s)
         f.close()
-
-

@@ -1,26 +1,29 @@
 #! /usr/bin/env python
 # coding=utf-8
-## @Subbasin delineation based on TauDEM, as well as calculation of latitude dependent parameters
-# Author: Junzhi Liu
-# Revised: Liang-Jun Zhu
-# Note: Improve calculation efficiency by numpy
+# @Subbasin delineation based on TauDEM, as well as calculation of latitude dependent parameters
+# @Author: Junzhi Liu
+# @Revised: Liang-Jun Zhu
+# @Note: Improve calculation efficiency by numpy
 #
 
 
-from TauDEM import *
-from gen_dinf import GenerateDinf
-from util import *
-from config import *
 import numpy
+
+from config import *
+from gen_dinf import GenerateDinf
 from gen_subbasins import GenerateSubbasins
+from TauDEM import *
+from util import *
+from osgeo import ogr
 
 
 def GenerateCellLatRaster():
-    ds = ReadRaster(WORKING_DIR + os.sep + DIR_NAME_TAUDEM + os.sep + filledDem)
+    ds = ReadRaster(WORKING_DIR + os.sep +
+                    DIR_NAME_TAUDEM + os.sep + filledDem)
     src_srs = ds.srs
 
     dst_srs = osr.SpatialReference()
-    dst_srs.ImportFromEPSG(4326)  ## WGS84
+    dst_srs.ImportFromEPSG(4326)  # WGS84
     # dst_wkt = dst_srs.ExportToWkt()
 
     transform = osr.CoordinateTransformation(src_srs, dst_srs)
@@ -37,8 +40,6 @@ def GenerateCellLatRaster():
     rows = ds.nRows
     cols = ds.nCols
 
-    # data = ds.data
-    # dataLat = numpy.copy(data)
     deltaLat = (upLat - lowerLat) / float(rows)
 
     def calCellLat(row, col):
@@ -61,20 +62,20 @@ def CalLatDependParas():
        1. minimum daylength (daylmn), 2. day length threshold for dormancy (dormhr)
     :return: GeoTIFF
     '''
-    ### calculate minimum daylength, from readwgn.f of SWAT
-    ## daylength=2*acos(-tan(sd)*tan(lat))/omega
-    ## where solar declination, sd, = -23.5 degrees for minimum daylength in
-    ##                      northern hemisphere and -tan(sd) = .4348
-    ##       absolute value is taken of tan(lat) to convert southern hemisphere
-    ##                      values to northern hemisphere
-    ##       the angular velocity of the earth's rotation, omega, = 15 deg/hr or
-    ##                      0.2618 rad/hr and 2/0.2618 = 7.6394
+    # calculate minimum daylength, from readwgn.f of SWAT
+    # daylength=2*acos(-tan(sd)*tan(lat))/omega
+    # where solar declination, sd, = -23.5 degrees for minimum daylength in
+    # northern hemisphere and -tan(sd) = .4348
+    # absolute value is taken of tan(lat) to convert southern hemisphere
+    # values to northern hemisphere
+    # the angular velocity of the earth's rotation, omega, = 15 deg/hr or
+    # 0.2618 rad/hr and 2/0.2618 = 7.6394
     cellLatR = ReadRaster(WORKING_DIR + os.sep + DIR_NAME_TAUDEM + os.sep + cellLat)
     latData = cellLatR.data
     # daylmnData = cellLatR.data
     zero = numpy.zeros((cellLatR.nRows, cellLatR.nCols))
     # nodata = numpy.ones((cellLatR.nRows, cellLatR.nCols)) * cellLatR.noDataValue
-    ## convert degrees to radians (2pi/360=1/57.296)
+    # convert degrees to radians (2pi/360=1/57.296)
     daylmnData = 0.4348 * numpy.abs(numpy.tan(latData / 57.296))
     condition = daylmnData < 1.
     daylmnData = numpy.where(condition, numpy.arccos(daylmnData), zero)
@@ -85,7 +86,7 @@ def CalLatDependParas():
                    daylmnData,
                    cellLatR.geotrans, cellLatR.srs, cellLatR.noDataValue, GDT_Float32)
 
-    ## calculate day length threshold for dormancy
+    # calculate day length threshold for dormancy
     def calDormHr(lat):
         if lat == cellLatR.noDataValue:
             return cellLatR.noDataValue
@@ -102,16 +103,6 @@ def CalLatDependParas():
     # dormhrData = numpy.copy(latData)
     if dorm_hr < -UTIL_ZERO:
         dormhrData = calDormHr_numpy(latData)
-        # for i in range(cellLatR.nRows):
-        #     for j in range(cellLatR.nCols):
-        #         if dormhrData[i][j] != cellLatR.noDataValue:
-        #             tmpLat = dormhrData[i][j]
-        #             if tmpLat <= 40. and tmpLat >= 20.:
-        #                 dormhrData[i][j] = (numpy.abs(tmpLat - 20.)) / 20.
-        #             elif tmpLat > 40.:
-        #                 dormhrData[i][j] = 1.
-        #             elif tmpLat < 20.:
-        #                 dormhrData[i][j] = -1.
     else:
         dormhrData = numpy.where(cellLatR.validZone,
                                  numpy.ones((cellLatR.nRows, cellLatR.nCols)) * dorm_hr, latData)
@@ -131,56 +122,54 @@ def SubbasinDelineation():
     status = "Fill DEM..."
     fStatus.write("%d,%s\n" % (10, status))
     fStatus.flush()
-    print Fill(np, tauDir, dem, filledDem, mpiexeDir = MPIEXEC_DIR, exeDir = CPP_PROGRAM_DIR)
+    print Fill(np, tauDir, dem, filledDem, mpiexeDir=MPIEXEC_DIR, exeDir=CPP_PROGRAM_DIR)
     print "[Output], %s, %s" % (WORKING_DIR, status)
 
     status = "Calculating D8 and Dinf flow direction..."
     fStatus.write("%d,%s\n" % (20, status))
     fStatus.flush()
-    print FlowDirD8(np, tauDir, filledDem, flowDir, slope, mpiexeDir = MPIEXEC_DIR, exeDir = CPP_PROGRAM_DIR)
-    print GenerateDinf(np, tauDir, filledDem, flowDirDinf, slopeDinf, dirCodeDinf, weightDinf, mpiexeDir = MPIEXEC_DIR,
-                       exeDir = CPP_PROGRAM_DIR)
+    print FlowDirD8(np, tauDir, filledDem, flowDir, slope, mpiexeDir=MPIEXEC_DIR, exeDir=CPP_PROGRAM_DIR)
+    print GenerateDinf(np, tauDir, filledDem, flowDirDinf, slopeDinf, dirCodeDinf, weightDinf, mpiexeDir=MPIEXEC_DIR,
+                       exeDir=CPP_PROGRAM_DIR)
     print "[Output], %s, %s" % (WORKING_DIR, status)
 
     status = "D8 flow accumulation..."
     fStatus.write("%d,%s\n" % (40, status))
     fStatus.flush()
-    print FlowAccD8(np, tauDir, flowDir, acc, outlet = None, streamSkeleton = None, mpiexeDir = MPIEXEC_DIR,
-                    exeDir = CPP_PROGRAM_DIR)
+    print FlowAccD8(np, tauDir, flowDir, acc, outlet=None, streamSkeleton=None, mpiexeDir=MPIEXEC_DIR,
+                    exeDir=CPP_PROGRAM_DIR)
     print "[Output], %s, %s" % (WORKING_DIR, status)
 
     status = "Generating stream raster initially..."
     fStatus.write("%d,%s\n" % (50, status))
     fStatus.flush()
     if D8AccThreshold > 0:
-        print StreamRaster(np, tauDir, acc, streamRaster, D8AccThreshold, mpiexeDir = MPIEXEC_DIR,
-                           exeDir = CPP_PROGRAM_DIR)
+        print StreamRaster(np, tauDir, acc, streamRaster, D8AccThreshold, mpiexeDir=MPIEXEC_DIR,
+                           exeDir=CPP_PROGRAM_DIR)
     else:
         accD8 = tauDir + os.sep + acc
         maxAccum, minAccum, meanAccum, STDAccum = GetRasterStat(accD8)
-        print StreamRaster(np, tauDir, acc, streamRaster, meanAccum, mpiexeDir = MPIEXEC_DIR, exeDir = CPP_PROGRAM_DIR)
+        print StreamRaster(np, tauDir, acc, streamRaster, meanAccum, mpiexeDir=MPIEXEC_DIR, exeDir=CPP_PROGRAM_DIR)
         print "[Output], %s, %s" % (WORKING_DIR, status)
 
     status = "Moving outlet to stream..."
     fStatus.write("%d,%s\n" % (60, status))
     fStatus.flush()
-    print MoveOutlet(np, tauDir, flowDir, streamRaster, outlet_file, modifiedOutlet, mpiexeDir = MPIEXEC_DIR,
-                     exeDir = CPP_PROGRAM_DIR)
+    print MoveOutlet(np, tauDir, flowDir, streamRaster, outlet_file, modifiedOutlet, mpiexeDir=MPIEXEC_DIR,
+                     exeDir=CPP_PROGRAM_DIR)
     print "[Output], %s, %s" % (WORKING_DIR, status)
-
-
 
     if D8AccThreshold <= 0:
         status = "Generating stream skeleton..."
         fStatus.write("%d,%s\n" % (30, status))
         fStatus.flush()
-        print StreamSkeleton(np, tauDir, filledDem, streamSkeleton, mpiexeDir = MPIEXEC_DIR, exeDir = CPP_PROGRAM_DIR)
+        print StreamSkeleton(np, tauDir, filledDem, streamSkeleton, mpiexeDir=MPIEXEC_DIR, exeDir=CPP_PROGRAM_DIR)
         print "[Output], %s, %s" % (WORKING_DIR, status)
         status = "Flow accumulation with outlet..."
         fStatus.write("%d,%s\n" % (70, status))
         fStatus.flush()
-        print FlowAccD8(np, tauDir, flowDir, accWithWeight, modifiedOutlet, streamSkeleton, mpiexeDir = MPIEXEC_DIR,
-                        exeDir = CPP_PROGRAM_DIR)
+        print FlowAccD8(np, tauDir, flowDir, accWithWeight, modifiedOutlet, streamSkeleton, mpiexeDir=MPIEXEC_DIR,
+                        exeDir=CPP_PROGRAM_DIR)
         print "[Output], %s, %s" % (WORKING_DIR, status)
         status = "Drop analysis to select optimal threshold..."
         fStatus.write("%d,%s\n" % (75, status))
@@ -196,7 +185,7 @@ def SubbasinDelineation():
         drpFile = 'drp.txt'
         print DropAnalysis(np, tauDir, filledDem, flowDir, accWithWeight, accWithWeight, modifiedOutlet, minthresh,
                            maxthresh, numthresh, logspace, drpFile,
-                           mpiexeDir = MPIEXEC_DIR, exeDir = CPP_PROGRAM_DIR)
+                           mpiexeDir=MPIEXEC_DIR, exeDir=CPP_PROGRAM_DIR)
         drpf = open(drpFile, "r")
         tempContents = drpf.read()
         (beg, Threshold) = tempContents.rsplit(' ', 1)
@@ -207,21 +196,21 @@ def SubbasinDelineation():
         status = "Generating stream raster..."
         fStatus.write("%d,%s\n" % (80, status))
         fStatus.flush()
-        print StreamRaster(np, tauDir, accWithWeight, streamRaster, float(Threshold), mpiexeDir = MPIEXEC_DIR,
-                           exeDir = CPP_PROGRAM_DIR)
+        print StreamRaster(np, tauDir, accWithWeight, streamRaster, float(Threshold), mpiexeDir=MPIEXEC_DIR,
+                           exeDir=CPP_PROGRAM_DIR)
         print "[Output], %s, %s" % (WORKING_DIR, status)
     else:
         status = "Flow accumulation with outlet..."
         fStatus.write("%d,%s\n" % (70, status))
         fStatus.flush()
-        print FlowAccD8(np, tauDir, flowDir, acc, modifiedOutlet, streamSkeleton = None,
-                        mpiexeDir = MPIEXEC_DIR, exeDir = CPP_PROGRAM_DIR)
+        print FlowAccD8(np, tauDir, flowDir, acc, modifiedOutlet, streamSkeleton=None,
+                        mpiexeDir=MPIEXEC_DIR, exeDir=CPP_PROGRAM_DIR)
         print "[Output], %s, %s" % (WORKING_DIR, status)
         status = "Generating stream raster..."
         fStatus.write("%d,%s\n" % (80, status))
         fStatus.flush()
-        print StreamRaster(np, tauDir, acc, streamRaster, D8AccThreshold, mpiexeDir = MPIEXEC_DIR,
-                           exeDir = CPP_PROGRAM_DIR)
+        print StreamRaster(np, tauDir, acc, streamRaster, D8AccThreshold, mpiexeDir=MPIEXEC_DIR,
+                           exeDir=CPP_PROGRAM_DIR)
         print "[Output], %s, %s" % (WORKING_DIR, status)
     status = "Generating stream net..."
     fStatus.write("%d,%s\n" % (90, status))
@@ -231,23 +220,23 @@ def SubbasinDelineation():
     else:
         tmpAcc = acc
     print StreamNet(np, tauDir, filledDem, flowDir, tmpAcc, streamRaster, modifiedOutlet, streamOrder, chNetwork,
-                    chCoord, streamNet, subbasin, mpiexeDir = MPIEXEC_DIR, exeDir = CPP_PROGRAM_DIR)
+                    chCoord, streamNet, subbasin, mpiexeDir=MPIEXEC_DIR, exeDir=CPP_PROGRAM_DIR)
     print "[Output], %s, %s" % (WORKING_DIR, status)
 
     status = "Calculating distance to stream (D8)..."
     fStatus.write("%d,%s\n" % (95, status))
     fStatus.flush()
     print D8DistDownToStream(np, tauDir, flowDir, filledDem, streamRaster, dist2StreamD8, D8DownMethod, 1,
-                             mpiexeDir = MPIEXEC_DIR, exeDir = CPP_PROGRAM_DIR)
+                             mpiexeDir=MPIEXEC_DIR, exeDir=CPP_PROGRAM_DIR)
     print "[Output], %s, %s" % (WORKING_DIR, status)
 
     fStatus.write("100,subbasin delineation is finished!")
     fStatus.close()
 
     # There is no need to write projection config to file. By LJ
-    ## Get spatial reference from Source DEM file
+    # Get spatial reference from Source DEM file
     # ds = gdal.Open(dem)
-    ## Write Projection Configuration file
+    # Write Projection Configuration file
     # configFile = WORKING_DIR + os.sep + 'ProjConfig.txt'
     # f = open(configFile, 'w')
     # f.write(dem + "\n")
@@ -270,6 +259,3 @@ def SubbasinDelineation():
 if __name__ == "__main__":
     LoadConfiguration(GetINIfile())
     SubbasinDelineation()
-    # tauDir = WORKING_DIR + os.sep + DIR_NAME_TAUDEM
-    # FlowAccD8(np, tauDir, flowDir, acc, outlet=None, streamSkeleton=None, mpiexeDir=MPIEXEC_DIR,
-    #                 exeDir=CPP_PROGRAM_DIR)

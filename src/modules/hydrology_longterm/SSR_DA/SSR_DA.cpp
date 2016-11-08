@@ -4,7 +4,7 @@
 #include "MetadataInfo.h"
 #include "ModelException.h"
 #include "util.h"
-#include <omp.h>
+#include <omp.h >
 #include <stdlib.h>
 
 #include <map>
@@ -49,7 +49,7 @@ void SSR_DA::FlowInSoil(int id)
     for (int j = 0; j < (int)m_soilLayers[id]; j++)
     {
         float smOld = m_soilStorage[id][j];
-        //sum the upstream overland flow, m3
+        //sum the upstream subsurface flow, m3
         float qUp = 0.f;
         for (int upIndex = 1; upIndex <= nUpstream; ++upIndex)
         {
@@ -72,7 +72,7 @@ void SSR_DA::FlowInSoil(int id)
             throw ModelException(MID_SSR_DA, "Execute:FlowInSoil", oss.str());
         }
 
-        // if soil moisture is below the field capacity, no interflow will be generated
+        // if soil moisture is below the field capacity, no interflow will be generated, otherwise:
         if (m_soilStorage[id][j] > m_fcmm[id][j])
         {
             // for the upper two layers, soil may be frozen
@@ -89,7 +89,8 @@ void SSR_DA::FlowInSoil(int id)
                 k = m_ks[id][j];
             else
             {
-                float dcIndex = 2.f / m_poreIndex[id][j] + 3.f; // pore disconnectedness index
+				/// Using Clapp and Hornberger (1978) equation to calculate unsaturated hydraulic conductivity.
+                float dcIndex = 2.f * m_poreIndex[id][j] + 3.f; // pore disconnectedness index
                 k = m_ks[id][j] * pow(m_soilStorage[id][j] / maxSoilWater, dcIndex);
 				if(k < 0.f) k = 0.f;
             }
@@ -153,16 +154,19 @@ int SSR_DA::Execute()
 					qiAllLayers += m_qiVol[i][j]/m_dt; /// m^3/s
 			}
             //cout << m_nSubbasin << "\tsubbasin:" << m_subbasin[i] << "\t" << qiAllLayers << endl;
-            if (m_nSubbasin > 1)
-                m_qiSubbasin[int(m_subbasin[i])] += qiAllLayers;
-            else
-                m_qiSubbasin[1] += qiAllLayers;
+            //if (m_nSubbasin > 1)
+            //    m_qiSubbasin[int(m_subbasin[i])] += qiAllLayers;
+            //else
+            //    m_qiSubbasin[1] += qiAllLayers;
+			m_qiSubbasin[int(m_subbasin[i])] += qiAllLayers;
         }
     }
 
-    for (int i = 1; i <= m_nSubbasin; i++)
+    for (int i = 1; i <= m_nSubbasin; i++){
+		//cout<<", "<<i<<": "<<m_qiSubbasin[i];
         m_qiSubbasin[0] += m_qiSubbasin[i];
-
+	}
+	//cout<<endl;
     return 0;
 }
 
@@ -238,7 +242,7 @@ void SSR_DA::Set2DData(const char *key, int nrows, int ncols, float **data)
 		m_nSoilLayers = ncols;
 		m_wpmm = data;
 	}
-    else if (StringMatch(sk, VAR_POREID))
+    else if (StringMatch(sk, VAR_POREIDX))
     {
         CheckInputSize(key, nrows);
         m_nSoilLayers = ncols;

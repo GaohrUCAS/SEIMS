@@ -1,14 +1,17 @@
 #! /usr/bin/env python
 # coding=utf-8
-## @Import model calibrateion parameters
+# @Import model calibrateion parameters
 # Author: Junzhi Liu
 # Revised: Liang-Jun Zhu
 #
+
+import sqlite3
+from struct import pack
+
+from gridfs import *
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
-import sqlite3
-from gridfs import *
-from struct import pack
+
 from config import *
 from gen_subbasins import ImportSubbasinStatistics
 from util import *
@@ -19,8 +22,8 @@ def ImportParameters(sqlite_file, db):
     cList = db.collection_names()
     if not StringInList(DB_TAB_PARAMETERS.upper(), cList):
         db.create_collection(DB_TAB_PARAMETERS.upper())
-    #else:
-    #    db.drop_collection(DB_TAB_PARAMETERS.upper())
+    else:
+        db.drop_collection(DB_TAB_PARAMETERS.upper())
     # read sqlite database
     conn = sqlite3.connect(sqlite_file)
     c = conn.cursor()
@@ -28,7 +31,8 @@ def ImportParameters(sqlite_file, db):
     c.execute("select name from sqlite_master where type='table' order by name;")
     tablelist = c.fetchall()
     # Find parameter table list excluding "XXLookup"
-    tablelist = [item[0].encode("ascii") for item in tablelist if (item[0].lower().find("lookup") < 0)]
+    tablelist = [item[0].encode("ascii") for item in tablelist if (
+        item[0].lower().find("lookup") < 0)]
     # print tablelist
 
     field_list = [PARAM_FLD_NAME.upper(), PARAM_FLD_DESC.upper(), PARAM_FLD_UNIT.upper(),
@@ -48,8 +52,10 @@ def ImportParameters(sqlite_file, db):
                     dic[field_list[i].upper()] = items[i].encode('ascii')
                 else:
                     dic[field_list[i].upper()] = items[i]
-            curfilter = {PARAM_FLD_NAME.upper(): dic[PARAM_FLD_NAME.upper()], Tag_DT_Type.upper(): tablename}
-            db[DB_TAB_PARAMETERS.upper()].find_one_and_replace(curfilter, dic, upsert=True)
+            curfilter = {PARAM_FLD_NAME.upper(): dic[
+                PARAM_FLD_NAME.upper()], Tag_DT_Type.upper(): tablename}
+            db[DB_TAB_PARAMETERS.upper()].find_one_and_replace(
+                curfilter, dic, upsert=True)
 
     db[DB_TAB_PARAMETERS.upper()].create_index(PARAM_FLD_NAME.upper())
     c.close()
@@ -70,7 +76,8 @@ def ImportLookupTables(sqlite_file, db):
     c.execute("select name from sqlite_master where type='table' order by name;")
     tablelist = c.fetchall()
     # Find parameter table list excluding "XXLookup"
-    tablelist = [item[0].encode("ascii") for item in tablelist if (item[0].lower().find("lookup") >= 0)]
+    tablelist = [item[0].encode("ascii") for item in tablelist if (
+        item[0].lower().find("lookup") >= 0)]
     # print tablelist
     for tablename in tablelist:
         # print tablename
@@ -91,16 +98,17 @@ def ImportLookupTables(sqlite_file, db):
             for i in range(nRow):
                 if (nCol != len(itemValues[i])):
                     raise ValueError(
-                            "Please check %s to make sure each item has the same numeric dimension." % tablename)
+                        "Please check %s to make sure each item has the same numeric dimension." % tablename)
                 else:
                     itemValues[i].insert(0, nCol)
-            ### import to mongoDB as GridFS
+            # import to mongoDB as GridFS
             spatial = GridFS(db, DB_TAB_SPATIAL.upper())
-            ### delete if the tablename file existed already.
+            # delete if the tablename file existed already.
             if (spatial.exists(filename=tablename.upper())):
                 x = spatial.get_version(filename=tablename.upper())
                 spatial.delete(x._id)
-            metadic = {META_LOOKUP_ITEM_COUNT.upper(): nRow, META_LOOKUP_FIELD_COUNT.upper(): nCol}
+            metadic = {META_LOOKUP_ITEM_COUNT.upper(): nRow,
+                       META_LOOKUP_FIELD_COUNT.upper(): nCol}
             curLookupGridFS = spatial.new_file(filename=tablename.upper(), metadata=metadic)
             header = [nRow]
             fmt = '%df' % (1)
@@ -123,7 +131,7 @@ def ImportModelConfiguration(db):
     '''
     fileIn = MODEL_DIR + os.sep + FILE_IN
     fileOut = MODEL_DIR + os.sep + FILE_OUT
-    ## create if collection not existed
+    # create if collection not existed
     cList = db.collection_names()
     conf_tabs = [DB_TAB_FILE_IN.upper(), DB_TAB_FILE_OUT.upper()]
     for item in conf_tabs:
@@ -141,7 +149,8 @@ def ImportModelConfiguration(db):
             raise ValueError("One item should only have one Tag and one value string, split by '|'")
         fileInDict[FLD_CONF_TAG] = values[0]
         fileInDict[FLD_CONF_VALUE] = values[1]
-        db[DB_TAB_FILE_IN.upper()].find_one_and_replace(fileInDict, fileInDict, upsert=True)
+        db[DB_TAB_FILE_IN.upper()].find_one_and_replace(
+            fileInDict, fileInDict, upsert=True)
 
     outFieldArray = fileOutItems[0]
     outDataArray = fileOutItems[1:]
@@ -174,16 +183,18 @@ def ImportModelConfiguration(db):
             elif StringMatch(FLD_CONF_SUBBSN, outFieldArray[i]):
                 fileOutDict[FLD_CONF_SUBBSN] = item[i]
         if fileOutDict.keys() is []:
-            raise ValueError("There are not any valid output item stored in file.out!")
+            raise ValueError(
+                "There are not any valid output item stored in file.out!")
         curFileter = {FLD_CONF_MODCLS: fileOutDict[FLD_CONF_MODCLS],
                       FLD_CONF_OUTPUTID: fileOutDict[FLD_CONF_OUTPUTID],
                       FLD_CONF_STIME: fileOutDict[FLD_CONF_STIME],
                       FLD_CONF_ETIME: fileOutDict[FLD_CONF_ETIME]}
-        db[DB_TAB_FILE_OUT].find_one_and_replace(curFileter, fileOutDict, upsert=True)
+        db[DB_TAB_FILE_OUT].find_one_and_replace(
+            curFileter, fileOutDict, upsert=True)
     print 'Model configuration tables are imported.'
 
 if __name__ == "__main__":
-    ## Load Configuration file
+    # Load Configuration file
     LoadConfiguration(GetINIfile())
     import sys
     try:
@@ -195,7 +206,7 @@ if __name__ == "__main__":
     from txt2db3 import reConstructSQLiteDB
     reConstructSQLiteDB()
     ImportParameters(TXT_DB_DIR + os.sep + sqliteFile, db)
-    ## IMPORT LOOKUP TABLES AS GRIDFS, DT_Array2D
+    # IMPORT LOOKUP TABLES AS GRIDFS, DT_Array2D
     ImportLookupTables(TXT_DB_DIR + os.sep + sqliteFile, db)
     ImportModelConfiguration(db)
     ImportSubbasinStatistics()

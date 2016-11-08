@@ -11,7 +11,6 @@
 #include "Settings.h"
 #include "PrintInfo.h"
 #include <vector>
-#include "clsRasterData.h"
 #include "mongoc.h"
 
 /*!
@@ -82,4 +81,3 @@ private:
     //! Parse output settings for given subBasinID
     bool ParseOutputSettings(int);
 };
-

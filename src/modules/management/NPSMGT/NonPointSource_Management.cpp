@@ -8,7 +8,7 @@ using namespace std;
 
 NPS_Management::NPS_Management(void) : m_nCells(-1), m_cellWidth(-1.f), m_timestep(-1.f), m_cellArea(-1.f),
 	m_mgtFields(NULL),
-	m_soilStorage(NULL), m_sol_no3(NULL), m_sol_nh3(NULL), m_sol_solp(NULL)
+	m_soilStorage(NULL), m_sol_no3(NULL), m_sol_nh4(NULL), m_sol_solp(NULL),m_sol_orgn(NULL),m_sol_orgp(NULL)
 {
 	m_arealSrcFactory.clear();
 }
@@ -66,8 +66,10 @@ void NPS_Management::Set2DData(const char *key, int n, int col, float **data)
 	CheckInputSize(key,n);
 	if (StringMatch(sk, VAR_SOL_ST)) m_soilStorage = data;
 	else if (StringMatch(sk, VAR_SOL_NO3)) m_sol_no3 = data;
-	else if (StringMatch(sk, VAR_SOL_NH3)) m_sol_nh3 = data;
+	else if (StringMatch(sk, VAR_SOL_NH4)) m_sol_nh4 = data;
 	else if (StringMatch(sk, VAR_SOL_SOLP)) m_sol_solp = data;
+	else if (StringMatch(sk, VAR_SOL_SORGN)) m_sol_orgn = data;
+	else if (StringMatch(sk, VAR_SOL_HORGP)) m_sol_orgp = data;
 	else
 		throw ModelException(MID_NPSMGT, "Set2DData", "Parameter " + sk + " does not exist.");
 }
@@ -89,9 +91,15 @@ void NPS_Management::SetScenario(Scenario *sce)
 		throw ModelException(MID_MUSK_CH, "SetScenario", "The scenario can not to be NULL.");
 }
 
-
+bool NPS_Management::CheckInputData()
+{
+	/// TOTO to be implemented.
+	return true;
+}
 int NPS_Management::Execute()
 {
+	CheckInputData();
+	//cout<<"NPSMGT, pre: "<<m_sol_solp[46364][0];
 	if (m_cellArea < 0.f) m_cellArea = m_cellWidth * m_cellWidth;
 	for (map<int, BMPArealSrcFactory*>::iterator it = m_arealSrcFactory.begin(); it != m_arealSrcFactory.end(); it++)
 	{
@@ -111,7 +119,7 @@ int NPS_Management::Execute()
 			}
 			for (vector<int>::iterator fIDIter = tmpArealFieldIDs.begin(); fIDIter != tmpArealFieldIDs.end(); fIDIter++)
 			{
-				float deltaWtrMM = 0.f, deltaNH3 = 0.f, deltaNO3 = 0.f, deltaOrgN = 0.f;
+				float deltaWtrMM = 0.f, deltaNH4 = 0.f, deltaNO3 = 0.f, deltaOrgN = 0.f;
 				float deltaMinP = 0.f, deltaOrgP = 0.f;
 				map<int, ArealSourceLocations*> tmpLocMap = it->second->GetArealSrcLocsMap();
 				if (tmpLocMap.find(*fIDIter) == tmpLocMap.end())
@@ -122,8 +130,8 @@ int NPS_Management::Execute()
 				if (tmpMgtParams->GetWaterVolume() > 0.f) /// m3/'size'/day ==> mm
 					deltaWtrMM = tmpMgtParams->GetWaterVolume() * tmpSize * m_timestep / 86400.f / tmpNCells / m_cellArea * 1000.f;
 				float cvt = tmpSize * m_timestep / 86400.f / tmpNCells / m_cellArea * 10000.f; /// kg/'size'/day ==> kg/ha
-				if (tmpMgtParams->GetNH3() > 0.f)
-					deltaNH3 = cvt * tmpMgtParams->GetNH3();
+				if (tmpMgtParams->GetNH4() > 0.f)
+					deltaNH4 = cvt * tmpMgtParams->GetNH4();
 				if (tmpMgtParams->GetNO3() > 0.f)
 					deltaNO3 = cvt * tmpMgtParams->GetNO3();
 				if (tmpMgtParams->GetOrgN() > 0.f)
@@ -140,15 +148,20 @@ int NPS_Management::Execute()
 						m_soilStorage[*idxIter][0] += deltaWtrMM;
 					if (deltaNO3 > 0.f && m_sol_no3 != NULL)
 						m_sol_no3[*idxIter][0] += deltaNO3;
-					if (deltaNH3 > 0.f && m_sol_nh3 != NULL)
-						m_sol_nh3[*idxIter][0] += deltaNH3;
+					if (deltaNH4 > 0.f && m_sol_nh4 != NULL)
+						m_sol_nh4[*idxIter][0] += deltaNH4;
 					if (deltaMinP > 0.f && m_sol_solp != NULL)
 						m_sol_solp[*idxIter][0] += deltaMinP;
+					if (deltaOrgN > 0.f && m_sol_orgn != NULL)
+						m_sol_orgn[*idxIter][0] += deltaOrgN;
+					if (deltaOrgP > 0.f && m_sol_orgp != NULL)
+						m_sol_orgp[*idxIter][0] += deltaOrgP;
 				}
 			}
 		}
 	}
 	//cout<<"NPSMGT, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
+	//cout<<", new: "<<m_sol_solp[46364][0]<<endl;
     return true;
 }
 

@@ -1,9 +1,10 @@
 #! /usr/bin/env python
 # coding=utf-8
 # @Get soil texture property, based on WetSpa
-# Author: Junzhi Liu
-# Revised: Liang-Jun Zhu
+# @Author: Junzhi Liu
+# @Revised: Liang-Jun Zhu
 #
+
 
 def GetTexture(clay, silt, sand):
     # silt = 100 - sand - clay
@@ -32,52 +33,6 @@ def GetTexture(clay, silt, sand):
     else:
         return [1, 4, 0.02]  # sand / sha tu
 
-
-## Deprecated by LJ, 2016-5-21
-# def SoilTexture(workingDir):
-#     ## TODO: these should be defined elsewhere
-#     sandFile = workingDir + os.sep + "sand_1.tif"
-#     clayFile = workingDir + os.sep + "clay_1.tif"
-#
-#     sandRaster = ReadRaster(sandFile)
-#     clayRaster = ReadRaster(clayFile)
-#
-#     nCols = sandRaster.nCols
-#     nRows = sandRaster.nRows
-#     noDataValue = sandRaster.noDataValue
-#
-#     dataSand = sandRaster.data
-#     dataClay = clayRaster.data
-#
-#     st = zeros((nRows, nCols)) # soil texture code
-#     hg = zeros((nRows, nCols)) # hydrological group
-#     usleK_array = zeros((nRows, nCols)) # USLE K factor
-#     for i in range(nRows):
-#         for j in range(nCols):
-#             if abs(dataSand[i][j] - noDataValue) < UTIL_ZERO:
-#                 st[i][j] = DEFAULT_NODATA
-#                 hg[i][j] = DEFAULT_NODATA
-#                 usleK_array[i][j] = DEFAULT_NODATA
-#             else:
-#                 values = GetTexture(dataClay[i][j], 100 - dataClay[i][j]- dataSand[i][j],dataSand[i][j])
-#                 #values = GetTexture(dataClay[i][j]*100, dataSand[i][j]*100)
-#                 st[i][j] = values[0]
-#                 hg[i][j] = values[1]
-#                 usleK_array[i][j] = values[2]
-#
-#     textureFile = workingDir + os.sep + soilTexture
-#     WriteGTiffFile(textureFile, nRows, nCols, st, sandRaster.geotrans,\
-#                           sandRaster.srs, -9999, gdal.GDT_Float32)
-#     hgFile = workingDir + os.sep + hydroGroup
-#     WriteGTiffFile(hgFile, nRows, nCols, hg, sandRaster.geotrans,\
-#                           sandRaster.srs, -9999, gdal.GDT_Float32)
-#     kFile = workingDir + os.sep + usleK
-#     WriteGTiffFile(kFile, nRows, nCols, usleK_array, sandRaster.geotrans,\
-#                           sandRaster.srs, -9999, gdal.GDT_Float32)
-#
-#     print "Soil texture is generated."
-#     ## TextureIndex, HydroGroup, USLE_K factor
-#     return [textureFile, hgFile, kFile]
 
 if __name__ == "__main__":
     print GetTexture(60, 10, 30)

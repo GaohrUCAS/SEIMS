@@ -148,7 +148,7 @@ private:
 	/// impound trigger
 	float *m_impoundTrig;
     // output
-    /// the excess precipitation (mm) of the total nCells
+    /// the excess precipitation (mm) of the total nCells, which could be depressed or generated surface runoff
     float *m_pe;
     /// infiltration map of watershed (mm) of the total nCells
 	float *m_infil;

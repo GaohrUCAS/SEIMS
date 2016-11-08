@@ -211,17 +211,21 @@ int SUR_MR::Execute()
 		/// if m_infil > 0., m_soilStorage need to be updated here. By LJ, 2016-9-2
 		if (m_infil[i] > 0.f)
 		{
-			if (m_potVol != NULL && m_potVol[i] > UTIL_ZERO)
-			{
-				if (m_impoundTrig != NULL && FloatEqual(m_impoundTrig[i], 0.f))
-				{
-					m_potVol[i] += m_infil[i];
-					m_infil[i] = min(2.f, m_potVol[i]);
-					m_potVol[i] -= m_infil[i];
-				}
-				else
-					m_infil[i] += m_potVol[i];
-			}
+			//if (m_potVol != NULL && m_potVol[i] > UTIL_ZERO)
+			//{
+			//	if (m_impoundTrig != NULL && FloatEqual(m_impoundTrig[i], 0.f))
+			//	{
+			//		m_potVol[i] += m_infil[i];
+			//		/// when impounded, set the maximum infiltration to 2 mm
+			//		if (m_potVol[i] > 2.f)
+			//			m_infil[i] = 2.f;
+			//		else
+			//			m_infil[i] = 0.f;
+			//		m_potVol[i] -= m_infil[i];
+			//	}
+			//	//else /// release operation should be considered in IMP_SWAT module
+			//	//	m_infil[i] += m_potVol[i];
+			//}
 			m_soilStorage[i][0] += m_infil[i];
 		}
 		//if (i == 200)

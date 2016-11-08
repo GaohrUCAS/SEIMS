@@ -9,15 +9,6 @@
  *        2. Change m_wshd_rno3 to store nitrate from rainfall of current day
  *        3. Remove output of m_sol_no3, which is redundant and unnecessary
  */
-/** \defgroup ATMDEP
- * \ingroup Nutrient
- * \brief Calculate the atmospheric deposition of nitrogen, include nitrate and ammonia.
- */
-/*!
- * \ingroup ATMDEP
- * \author Huiran Gao
- * \date May 2016
- */
 #pragma once
 #include <string>
 #include <ctime>
@@ -27,6 +18,14 @@
 
 using namespace std;
 
+/** \defgroup ATMDEP
+ * \ingroup Nutrient
+ * \brief Calculate the atmospheric deposition of nitrogen, include nitrate and ammonia.
+ */
+/*!
+ * \class AtmosphericDeposition
+ * \ingroup ATMDEP
+ */
 class AtmosphericDeposition : public SimulationModule
 {
 public:
@@ -83,14 +82,14 @@ private:
     //float **m_sol_z;
 
     ///amount of ammonium in layer (kg/ha)
-    float **m_sol_nh3;
+    float **m_sol_nh4;
 	/// amount of nitrate in layer (kg/ha)
     float **m_sol_no3;
 
     /// temporaries
 
     /// nitrate added by rainfall (kg/ha)
-    float m_addrnh3;
+    float m_addrnh4;
     /// ammonium added by rainfall (kg/ha)
     float m_addrno3;
     

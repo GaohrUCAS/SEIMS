@@ -18,7 +18,7 @@ clsReach::clsReach(const bson_t *&bsonTable)
     /// reset default values
     Reset();
     if (bson_iter_init_find(&iterator, bsonTable, REACH_SUBBASIN))
-        this->Subbasin = GetIntFromBSONITER(&iterator);
+        this->SubbasinID = GetIntFromBSONITER(&iterator);
     if (bson_iter_init_find(&iterator, bsonTable, REACH_DOWNSTREAM))
         this->DownStream = GetIntFromBSONITER(&iterator);
     if (bson_iter_init_find(&iterator, bsonTable, REACH_UPDOWN_ORDER))
@@ -27,6 +27,8 @@ clsReach::clsReach(const bson_t *&bsonTable)
         this->DownUpOrder = GetIntFromBSONITER(&iterator);
     if (bson_iter_init_find(&iterator, bsonTable, REACH_WIDTH))
         this->Width = GetFloatFromBSONITER(&iterator);
+	if (bson_iter_init_find(&iterator, bsonTable, REACH_SIDESLP))
+		this->SideSlope = GetFloatFromBSONITER(&iterator);
     if (bson_iter_init_find(&iterator, bsonTable, REACH_LENGTH))
         this->Length = GetFloatFromBSONITER(&iterator);
     if (bson_iter_init_find(&iterator, bsonTable, REACH_DEPTH))
@@ -88,8 +90,8 @@ clsReach::clsReach(const bson_t *&bsonTable)
 		this->no3 = GetFloatFromBSONITER(&iterator);
 	if (bson_iter_init_find(&iterator, bsonTable, REACH_NO2))
 		this->no2 = GetFloatFromBSONITER(&iterator);
-	if (bson_iter_init_find(&iterator, bsonTable, REACH_NH3))
-		this->nh3 = GetFloatFromBSONITER(&iterator);
+	if (bson_iter_init_find(&iterator, bsonTable, REACH_NH4))
+		this->nh4 = GetFloatFromBSONITER(&iterator);
 	if (bson_iter_init_find(&iterator, bsonTable, REACH_ORGN))
 		this->orgn = GetFloatFromBSONITER(&iterator);
 	if (bson_iter_init_find(&iterator, bsonTable, REACH_ORGP))
@@ -118,10 +120,11 @@ void clsReach::Reset(void)
     Manning = NODATA_VALUE;
     NumCells = -1;
     Slope = NODATA_VALUE;
-    Subbasin = -1;
+    SubbasinID = -1;
     UpDownOrder = -1;
     V0 = NODATA_VALUE;
     Width = NODATA_VALUE;
+	SideSlope = 2.f;
     bc1 = 0.55f;
     bc2 = 1.1f;
     bc3 = 0.21f;

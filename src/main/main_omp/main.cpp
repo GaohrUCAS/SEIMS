@@ -112,8 +112,6 @@ int main(int argc, const char *argv[])
     }
 #ifdef USE_MONGODB
     MainMongoDB(modelPath, mongodbIP, port, scenarioID, numThread, layeringMethod);
-//#else
-//	testMainSQLite(modelPath,scenarioID, numThread, layeringMethod); /// TODO Remove SQLite thoroughly. LJ
 #endif
 
 #endif

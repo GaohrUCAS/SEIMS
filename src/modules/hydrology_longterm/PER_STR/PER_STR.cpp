@@ -69,7 +69,7 @@ int PER_STR::Execute()
 				excessWater -= m_perc[i][j];
 				m_soilStorage[i][j] = max(UTIL_ZERO, m_soilStorage[i][j]);
 				// redistribute soil water if above field capacity (high water table), rewrite from sat_excess.f of SWAT
-				float qlyr = m_soilStorage[i][j];
+				//float qlyr = m_soilStorage[i][j];
 				if (j < (int)m_soilLayers[i] - 1)
 				{
 					m_soilStorage[i][j+1] += m_perc[i][j];

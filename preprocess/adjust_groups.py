@@ -4,6 +4,8 @@
 # This function is actived when forCluster is True.
 # Author: Junzhi Liu
 #
+
+
 def GetMaxWeight(groupWeightDic, groupDic):
     maxId = -1
     maxWeight = -1
@@ -21,8 +23,10 @@ def AdjustGroupResult(g, weightDic, groupList, nGroups):
     for subId in range(1, n + 1):
         groupId = groupList[subId - 1]
         groupDic.setdefault(groupId, []).append(subId)
-        groupWeightDic[groupId] = groupWeightDic.setdefault(groupId, 0) + weightDic[subId]
-    # get average weight for each group, which is the ideal aim of task scheduling
+        groupWeightDic[groupId] = groupWeightDic.setdefault(
+            groupId, 0) + weightDic[subId]
+    # get average weight for each group, which is the ideal aim of task
+    # scheduling
     aveWeight = 0
     for id in groupWeightDic:
         aveWeight += groupWeightDic[id]

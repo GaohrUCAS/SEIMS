@@ -3,64 +3,28 @@
 # Post process of TauDEM
 #   1. convert subbasin raster to polygon shapefile
 #   2. add width and default depth to reach.shp
-# Author: Junzhi Liu, 2012-4-12
-# Revised: Liang-Jun Zhu, 2016-7-7
+# @Author: Junzhi Liu, 2012-4-12
+# @Revised: Liang-Jun Zhu, 2016-7-7
 #
-import sys
-from numpy import zeros
+import platform
+from osgeo import ogr
+
+from chwidth import chwidth
 from config import *
 from util import *
-from chwidth import chwidth
 
-
-def GenerateSubbasinVector(dstdir, subbasinRaster, subbasinVector):
-    # subbasinVectorTmp = dstdir + os.sep + "subbasin_tmp.shp"
-    # RemoveShpFile(subbasinVectorTmp)
+def GenerateSubbasinVector(subbasinRaster, subbasinVector, layerName, fieldName):
     RemoveShpFile(subbasinVector)
     # raster to polygon vector
-    strCmd = '%s %s/gdal_polygonize.py -f "ESRI Shapefile" %s %s %s %s' % \
-             (sys.executable, PREPROC_SCRIPT_DIR, subbasinRaster, subbasinVector, "subbasin", FLD_SUBBASINID)
+    if platform.system() == 'Windows':
+        exepath = '"%s/Scripts/gdal_polygonize.py"' % sys.exec_prefix
+    else:
+        exepath = GetExecutableFullPath("gdal_polygonize.py")
+    strCmd = '%s -f "ESRI Shapefile" %s %s %s %s' % (exepath, subbasinRaster, subbasinVector, layerName, fieldName)
     print strCmd
-    os.system(strCmd)
-    # read polygon shape and generate another subbasin.shp.
-    # This is redunctant and should be deprecated. By LJ
-    # ds = ogr.Open(subbasinVectorTmp)
-    # layer = ds.GetLayer(0)
-    # layerDef = layer.GetLayerDefn()
-    # iDN = layerDef.GetFieldIndex(FLD_SUBBASINID)
-    #
-    # dnDic = {}
-    # layer.ResetReading()
-    # ft = layer.GetNextFeature()
-    # while ft is not None:
-    #     dn = ft.GetFieldAsInteger(iDN)
-    #     dnDic.setdefault(dn, []).append(ft)
-    #     ft = layer.GetNextFeature()
-    #
-    # drv = ogr.GetDriverByName("ESRI Shapefile")
-    # RemoveShpFile(subbasinVector)
-    # dsNew = drv.CreateDataSource(subbasinVector)
-    # lyrName = "subbasin"
-    # lyr = dsNew.CreateLayer(lyrName, layer.GetSpatialRef(), ogr.wkbPolygon)
-    # layerDefSubbasin = lyr.GetLayerDefn()
-    # iSubbasin = layerDefSubbasin.GetFieldIndex("Subbasin")
-    # if (iSubbasin < 0):
-    #     newField = ogr.FieldDefn("Subbasin", ogr.OFTInteger)
-    #     lyr.CreateField(newField)
-    # for k in dnDic.keys():
-    #     newFt = ogr.Feature(layerDefSubbasin)
-    #     geom = dnDic[k][0].GetGeometryRef()
-    #     if len(dnDic[k]) > 1:
-    #         geom = ogr.Geometry(ogr.wkbPolygon)
-    #         for ft in dnDic[k]:
-    #             geom.AddGeometry(ft.GetGeometryRef().GetGeometryRef(0))
-    #     newFt.SetGeometry(geom)
-    #     newFt.SetField("Subbasin", k)
-    #     lyr.CreateFeature(newFt)
-    #
-    # lyr.SyncToDisk()
-    # dsNew.Destroy()
-    # ds.Destroy()
+    # os.system(strCmd)
+    process = subprocess.Popen(strCmd, shell=True, stdout=subprocess.PIPE)
+    print process.stdout.readlines()
 
 
 def SerializeStreamNet(streamNetFile, outputReachFile):
@@ -74,9 +38,10 @@ def SerializeStreamNet(streamNetFile, outputReachFile):
     iLen = layerDef.GetFieldIndex(REACH_LENGTH)
 
     oldIdList = []
-    # there are some reaches with zero length. 
+    # there are some reaches with zero length.
     # this program will remove these zero-length reaches
-    # outputDic is used to store the downstream reaches of these zero-length reaches 
+    # outputDic is used to store the downstream reaches of these zero-length
+    # reaches
     outputDic = {}
     ft = layerReach.GetNextFeature()
     while ft is not None:
@@ -122,8 +87,6 @@ def SerializeStreamNet(streamNetFile, outputReachFile):
     dsReach.ExecuteSQL("REPACK reach")
     layerReach.SyncToDisk()
 
-    # add width field
-
     dsReach.Destroy()
     del dsReach
 
@@ -143,8 +106,8 @@ def SerializeSubbasin(subbasinFile, streamRasterFile, idMap,
     noDataValueStream = streamRaster.noDataValue
     # print noDataValueStream
 
-    outputSubbasin = zeros((nRows, nCols))
-    outputStream = zeros((nRows, nCols))
+    outputSubbasin = numpy.zeros((nRows, nCols))
+    outputStream = numpy.zeros((nRows, nCols))
     n = len(idMap)
     print "number of reaches: ", n
     for i in range(nRows):
@@ -152,7 +115,8 @@ def SerializeSubbasin(subbasinFile, streamRasterFile, idMap,
             if abs(data[i][j] - noDataValue) < UTIL_ZERO:
                 outputSubbasin[i][j] = noDataValue
             else:
-                # error if the outlet subbasin contains only one grid, i.e., there is no reach for this subbasin
+                # error if the outlet subbasin contains only one grid, i.e.,
+                # there is no reach for this subbasin
                 outputSubbasin[i][j] = idMap[int(data[i][j])]
             if dataStream[i][j] < UTIL_ZERO:
                 outputStream[i][j] = noDataValueStream
@@ -167,49 +131,15 @@ def SerializeSubbasin(subbasinFile, streamRasterFile, idMap,
 
 def ChangeFlowDir(flowDirFileTau, flowDirFileEsri):
     # flowDirFileTau is float
-    dirMap = {1.: 1., 2.: 128., 3.: 64., 4.: 32., 5.: 16., 6.: 8., 7.: 4., 8.: 2.}
+    dirMap = {1.: 1.,
+              2.: 128.,
+              3.: 64.,
+              4.: 32.,
+              5.: 16.,
+              6.: 8.,
+              7.: 4.,
+              8.: 2.}
     replaceByDict(flowDirFileTau, dirMap, flowDirFileEsri)
-    # dirMap = [1, 128, 64, 32, 16, 8, 4, 2]
-    # flowDirTau = ReadRaster(flowDirFileTau)
-    # nRows = flowDirTau.nRows
-    # nCols = flowDirTau.nCols
-    # noDataValue = flowDirTau.noDataValue
-    # dataTau = flowDirTau.data
-    #
-    # n = nRows * nCols
-    # dataTau.shape = n
-    # output = zeros(n)
-    # for i in range(n):
-    #     if abs(dataTau[i] - noDataValue) < UTIL_ZERO:
-    #         output[i] = noDataValue
-    #     else:
-    #         value = int(dataTau[i]) - 1
-    #         output[i] = dirMap[value]
-    # output.shape = (nRows, nCols)
-    # WriteGTiffFile(flowDirFileEsri, nRows, nCols, output,
-    #                flowDirTau.geotrans, flowDirTau.srs, noDataValue, gdal.GDT_Int32)
-
-
-# NO NEED, by lj
-# def ChangeSlope(slopeFile, outputFile):
-#     slopeTau = ReadRaster(slopeFile)
-#     # nRows = slopeTau.nRows
-#     # nCols = slopeTau.nCols
-#     # noDataValue = slopeTau.noDataValue
-#     data = slopeTau.data
-#     output = numpy.where(slopeTau.validZone, data * 100., data)
-#     # n = nRows * nCols
-#     # data.shape = n
-#     # output = zeros(n)
-#     #
-#     # for i in range(n):
-#     #     if abs(data[i] - noDataValue) < UTIL_ZERO:
-#     #         output[i] = noDataValue
-#     #     else:
-#     #         output[i] = 100 * data[i]
-#     # output.shape = (nRows, nCols)
-#
-#     WriteGTiffFileByMask(outputFile, output, slopeTau, gdal.GDT_Float32)
 
 
 def AddWidthToReach(reachFile, stramLinkFile, width):
@@ -218,7 +148,6 @@ def AddWidthToReach(reachFile, stramLinkFile, width):
     nCols = streamLink.nCols
     noDataValue = streamLink.noDataValue
     dataStream = streamLink.data
-    # dx = streamLink.dx
 
     chWidthDic = {}
     chNumDic = {}
@@ -291,7 +220,7 @@ def PostProcessTauDEM(dstdir):
     idMap = SerializeStreamNet(streamNetFile, outputReachFile)
     SerializeSubbasin(subbasinFile, streamRasterFile, idMap,
                       outputSubbasinFile, outputStreamLinkFile)
-    ## Change TauDEM code to ArcGIS. Now, it is deprecated, By LJ.
+    # Change TauDEM code to ArcGIS. Now, it is deprecated, By LJ.
     if(isTauDEM):
         shutil.copy(flowDirFileTau, outputFlowDirFile)
     else:
@@ -303,46 +232,12 @@ def PostProcessTauDEM(dstdir):
     AddWidthToReach(outputReachFile, outputStreamLinkFile, width)
 
     print "Generating subbasin vector..."
-    GenerateSubbasinVector(dstdir, outputSubbasinFile, subbasinVectorFile)
+    GenerateSubbasinVector(outputSubbasinFile, subbasinVectorFile, "subbasin", FLD_SUBBASINID)
 
     maskFile = dstdir + os.sep + mask_to_ext
     basinVector = dstdir + os.sep + basinVec
-    # basinVectorTmp = dstdir + os.sep + "basin_tmp.shp"
-    # RemoveShpFile(basinVectorTmp)
-    RemoveShpFile(basinVector)
-    strCmd = '%s %s/gdal_polygonize.py -f "ESRI Shapefile" %s %s %s %s' % \
-             (sys.executable, PREPROC_SCRIPT_DIR, maskFile, basinVector, "basin", FLD_BASINID)
-    os.system(strCmd)
-
-    # ds = ogr.Open(basinVectorTmp)
-    # layer = ds.GetLayer(0)
-    # layerDef = layer.GetLayerDefn()
-    #
-    #
-    # drv = ogr.GetDriverByName("ESRI Shapefile")
-    # RemoveShpFile(basinVector)
-    # dsNew = drv.CreateDataSource(basinVector)
-    # lyrName = "basin"
-    # lyr = dsNew.CreateLayer(lyrName, layer.GetSpatialRef(), ogr.wkbPolygon)
-    # newField = ogr.FieldDefn("Subbasin", ogr.OFTInteger)
-    # lyr.CreateField(newField)
-    #
-    # layerDefBasin = lyr.GetLayerDefn()
-    # newFt = ogr.Feature(layerDefBasin)
-    #
-    # geom = ogr.Geometry(ogr.wkbPolygon)
-    # ft = layer.GetNextFeature()
-    # while ft is not None:
-    #     geom.AddGeometry(ft.GetGeometryRef().GetGeometryRef(0))
-    #     ft = layer.GetNextFeature()
-    # newFt.SetGeometry(geom)
-    # newFt.SetField("Subbasin", 1)
-    # lyr.CreateFeature(newFt)
-    # lyr.SyncToDisk()
-    # dsNew.Destroy()
-    # ds.Destroy()
-
-    # os.system("rm -rf %s" % (tauDir,))
+    print "Generating basin vector..."
+    GenerateSubbasinVector(maskFile, basinVector, "basin", FLD_BASINID)
 
 
 if __name__ == '__main__':

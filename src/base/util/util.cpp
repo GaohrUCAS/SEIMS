@@ -174,19 +174,6 @@ void LocalTime(time_t date, struct tm *t)
 #endif
 }
 
-double Max(double *a, int n)
-{
-    double m = a[0];
-    for (int i = 1; i < n; i++)
-    {
-        if (a[i] > m)
-        {
-            m = a[i];
-        }
-    }
-    return m;
-}
-
 void Output1DArrayToTxtFile(int n, float *data, const char *filename)
 {
     ofstream ofs(filename);

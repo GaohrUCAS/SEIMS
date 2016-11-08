@@ -1,36 +1,40 @@
 #! /usr/bin/env python
 # coding=utf-8
-## @Utility functions
-# Author: Junzhi Liu
-# Revised: Liang-Jun Zhu
+# @Utility functions
+# @Author: Junzhi Liu
+# @Revised: Liang-Jun Zhu
 #
-import os
-import math
+import argparse
 import datetime
+import math
+import os
+import subprocess
+import shutil
+import socket
+import sys
 import time
 
-import sys
-from osgeo import gdal, osr, ogr
-from gdalconst import *
-import shutil
 import numpy
-import socket
-import argparse
+from gdalconst import *
+from osgeo import gdal, osr
 
 UTIL_ZERO = 1.e-6
 MINI_SLOPE = 0.0001
 DEFAULT_NODATA = -9999.
 SQ2 = math.sqrt(2.)
+# all possible file extensions of ArcGIS shapefile
 shp_ext_list = ['.shp', '.dbf', '.shx', '.prj', 'sbn', 'sbx', 'cpg']
 
 
 class C(object):
     pass
 
+
 def GetINIfile():
     # Get model configuration file name
     c = C()
-    parser = argparse.ArgumentParser(description="Read SEIMS Preprocessing configuration file.")
+    parser = argparse.ArgumentParser(
+        description="Read SEIMS Preprocessing configuration file.")
     parser.add_argument('-ini', help="Full path of configuration file")
     args = parser.parse_args(namespace=c)
     iniFile = args.ini
@@ -84,7 +88,7 @@ def GetDayNumber(year, month):
         return 28
 
 
-## Solar Radiation Calculation
+# Solar Radiation Calculation
 #  @param doy day of year
 #  @param n   sunshine duration
 #  @param lat latitude of sites
@@ -178,7 +182,8 @@ class Raster:
 
     def GetValueByRowCol(self, row, col):
         if row < 0 or row >= self.nRows or col < 0 or col >= self.nCols:
-            raise ValueError("The row or col must be >=0 and less than nRows or nCols!")
+            raise ValueError(
+                "The row or col must be >=0 and less than nRows or nCols!")
         else:
             value = self.data[int(round(row))][int(round(col))]
             if value == self.noDataValue:
@@ -238,7 +243,8 @@ def RemoveShpFile(shpFile):
             os.remove(filename)
 
 
-### TODO: This function can be simply replaced by date += datetime.timedelta(days=1). PLZ check and update. LJ
+# TODO: This function can be simply replaced by date +=
+# datetime.timedelta(days=1). PLZ check and update. LJ
 def NextDay(date):
     year = date.year
     mon = date.month
@@ -380,7 +386,8 @@ def WriteGTiffFileByMask(filename, data, mask, gdalType):
 
 def MaskRaster(cppDir, maskFile, inputFile, outputFile, outputAsc=False, noDataValue=DEFAULT_NODATA):
     id = os.path.basename(maskFile) + "_" + os.path.basename(inputFile)
-    configFile = "%s%smaskConfig_%s_%s.txt" % (cppDir, os.sep, id, str(time.time()))
+    configFile = "%s%smaskConfig_%s_%s.txt" % (
+        cppDir, os.sep, id, str(time.time()))
     fMask = open(configFile, 'w')
     fMask.write(maskFile + "\n1\n")
     fMask.write("%s\t%d\t%s\n" % (inputFile, noDataValue, outputFile))
@@ -438,7 +445,7 @@ def ReadDataItemsFromTxt(txtFile):
 
 
 def StripStr(str):
-    ### @Function: Remove space(' ') and indent('\t') at the begin and end of the string
+    # @Function: Remove space(' ') and indent('\t') at the begin and end of the string
     oldStr = ''
     newStr = str
     while oldStr != newStr:
@@ -449,7 +456,7 @@ def StripStr(str):
 
 
 def SplitStr(str, spliters=None):
-    ### @Function: Split string by spliter space(' ') and indent('\t') as default
+    # @Function: Split string by spliter space(' ') and indent('\t') as default
     # spliters = [' ', '\t']
     # spliters = []
     # if spliter is not None:
@@ -488,7 +495,8 @@ def replaceByDict(srcfile, vDict, dstfile):
     dstData = numpy.copy(srcData)
     for k, v in vDict.iteritems():
         dstData[srcData == k] = v
-    WriteGTiffFile(dstfile, srcR.nRows, srcR.nCols, dstData, srcR.geotrans, srcR.srs, srcR.noDataValue, GDT_Float32)
+    WriteGTiffFile(dstfile, srcR.nRows, srcR.nCols, dstData,
+                   srcR.geotrans, srcR.srs, srcR.noDataValue, GDT_Float32)
 
 
 def GetFileNameWithSuffixes(filePath, suffixes):
@@ -527,12 +535,33 @@ def currentPath():
 
 
 def LoadConfiguration(inifile):
-    strCmd = '%s %s/config.py -ini %s' % (sys.executable, currentPath(), inifile)
+    strCmd = '%s %s/config.py -ini %s' % (sys.executable,
+                                          currentPath(), inifile)
     # print strCmd
     os.system(strCmd)
 
+def GetExecutableFullPath(name):
+    '''
+    Not for Windows
+    get the full path of a given executable name
+    :return:
+    '''
+    findout = RunExternalCmd('which %s' % name)
+    if findout == [] or len(findout) == 0:
+        print "%s is not included in the env path" % name
+        exit(-1)
+    return findout[0].split('\n')[0]
 
-### TEST CODE
+def RunExternalCmd(cmdStr):
+    '''
+    Execute external command, and return the output lines list
+    :param cmdStr:
+    :return: output lines
+    '''
+    process = subprocess.Popen(cmdStr, shell = True, stdout = subprocess.PIPE)
+    return process.stdout.readlines()
+
+# TEST CODE
 if __name__ == "__main__":
     LoadConfiguration(GetINIfile())
     # p = r'E:\data\model_data\model_dianbu_10m_longterm\data_prepare\spatial'

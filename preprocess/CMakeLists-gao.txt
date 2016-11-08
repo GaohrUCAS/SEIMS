@@ -30,7 +30,7 @@ IF(WIN32)
 		set(MS_MPI_ARCH_DIR x86)
 	endif()
 	set(MPI_CXX_INCLUDE_PATH "${MS_MPI_PATH}/Include")
-	set(MPI_CXX_LIBRARIES "${MS_MPI_PATH}/Lib/x86/msmpi.lib")
+	set(MPI_CXX_LIBRARIES "${MS_MPI_PATH}/Lib/i386/msmpi.lib")
 	# Currently, because the GDAL is 32-bit, then only x86 MPI is supported. LJ
 	#set(MPI_CXX_LIBRARIES "${MS_MPI_PATH}/Lib/${MS_MPI_ARCH_DIR}/msmpi.lib")
 	set(MPI_C_INCLUDE_PATH "${MPI_CXX_INCLUDE_PATH}")

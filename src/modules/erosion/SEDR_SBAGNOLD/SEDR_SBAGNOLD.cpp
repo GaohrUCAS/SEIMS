@@ -13,7 +13,7 @@
 using namespace std;
 
 SEDR_SBAGNOLD::SEDR_SBAGNOLD(void) : m_dt(-1), m_nreach(-1), m_sedtoCh(NULL), m_Chs0(NODATA_VALUE), m_sedChi0(NODATA_VALUE),
-                           m_ptSub(NULL), m_chStorage(NULL), m_sedOut(NULL), m_VCD(-1),
+                           m_ptSub(NULL), m_chStorage(NULL),m_preChStorage(NULL), m_sedOut(NULL), m_VCD(-1),
                            m_reachDownStream(NULL), m_chOrder(NULL), m_chWidth(NULL), 
 						   m_chLen(NULL), m_chDepth(NULL), m_chVel(NULL), m_chCover(NULL), m_chErod(NULL), m_qchOut(NULL),
                            m_prf(NODATA_VALUE), m_spcon(NODATA_VALUE), m_spexp(NODATA_VALUE), m_vcrit(NODATA_VALUE),
@@ -223,7 +223,6 @@ bool SEDR_SBAGNOLD::CheckInputSize(const char *key, int n)
             throw ModelException(MID_SEDR_SBAGNOLD, "CheckInputSize", oss.str());
         }
     }
-
     return true;
 }
 
@@ -276,39 +275,41 @@ void SEDR_SBAGNOLD::SetValue(const char *key, float value)
         m_Chs0 = value;
     }
 	else if (StringMatch(sk, VAR_SED_CHI0)) m_sedChi0 = value;
-	else if (StringMatch(sk, VAR_VCD)) m_VCD = value;
+	else if (StringMatch(sk, VAR_VCD)) m_VCD = (int)value;
     else
         throw ModelException(MID_SEDR_SBAGNOLD, "SetValue", "Parameter " + sk + " does not exist.");
 }
 
-void SEDR_SBAGNOLD::Set1DData(const char *key, int n, float *value)
+void SEDR_SBAGNOLD::Set1DData(const char *key, int n, float *data)
 {
     string sk(key);
     //check the input data
     if (StringMatch(sk, VAR_SED_TO_CH))
     {
-        m_sedtoCh = value;   //for longterm model
+        m_sedtoCh = data;   //for longterm model
     }
     else if (StringMatch(sk, VAR_SUB_SEDTOCH))
     {
-        m_sedtoCh = value;   //for storm model
+        m_sedtoCh = data;   //for storm model
     }
     else if (StringMatch(sk, VAR_QRECH))
     {
-        m_qchOut = value;
+        m_qchOut = data;
     }
     else if (StringMatch(sk, VAR_CHST))
     {
-        m_chStorage = value;
+        m_chStorage = data;
     }
+	else if (StringMatch(sk, VAR_PRECHST))
+		m_preChStorage = data;
     else if (StringMatch(sk, VAR_CHWTDEPTH))
     {
-        m_chWTdepth = value;
+        m_chWTdepth = data;
     }
 	else if (StringMatch(sk, VAR_CHWTWIDTH))
-		m_chWTWidth = value;
-	else if (StringMatch(sk, VAR_CHWTDEPTH_DELTA))
-		m_chWTDepthDelta = value;
+		m_chWTWidth = data;
+	else if (StringMatch(sk, VAR_PRECHWTDEPTH))
+		m_preChWTDepth = data;
     else
         throw ModelException(MID_SEDR_SBAGNOLD, "Set1DData", "Parameter " + sk + " does not exist");
 }
@@ -427,10 +428,12 @@ void SEDR_SBAGNOLD::SedChannelRouting(int i)
 	/// add point source loadings
 	if (m_ptSub != NULL && m_ptSub[i] > 0.f)
 		allSediment += m_ptSub[i];
+	//if (i == 12) cout<<"\tall sed: "<<allSediment<<", sed up: "<<sedUp<<", sed to ch: "<<m_sedtoCh[i]<<", strg: "<<m_sedStorage[i]<<endl;
 
 	// initialize water in reach during time step
 	qOutV = m_qchOut[i] * m_dt; // m^3
-	allWater = m_chStorage[i] + qOutV;
+	//allWater = m_chStorage[i] + qOutV;
+	allWater = m_preChStorage[i];
 	if ((m_qchOut[i] < UTIL_ZERO && m_chWTdepth[i] < UTIL_ZERO) || allWater < 0.01f)
 	{
 		/// do not perform sediment routing when:
@@ -455,9 +458,9 @@ void SEDR_SBAGNOLD::SedChannelRouting(int i)
 	}
     // initialize reach peak runoff rate and calculate flow velocity
     float peakFlowRate = m_qchOut[i] * m_prf;
-    float crossarea = m_chStorage[i] / m_chLen[i]; // SWAT, eq. 7:1.2.3
+    float crossarea = allWater / m_chLen[i]; // SWAT, eq. 7:1.1.7
     float peakVelocity = 0.f;
-	if (m_chWTdepth[i] < 0.01f)
+	if (m_preChWTDepth[i] < 0.01f)
 		peakVelocity = 0.01f;
 	else
 		peakVelocity = peakFlowRate / crossarea;
@@ -479,6 +482,7 @@ void SEDR_SBAGNOLD::SedChannelRouting(int i)
     initCon = allSediment / allWater; // kg/m^3
     //max concentration
     maxCon = m_spcon * pow(peakVelocity, m_spexp) * 1000.f; // kg/m^3  
+	//if (i == 12) cout<<"iniCon: "<<initCon<<", maxCon: "<<maxCon<<endl;
     //initial concentration,mix sufficiently
     sedDeposition = allWater * (initCon - maxCon); // kg
     if (peakVelocity < m_vcrit)
@@ -544,17 +548,19 @@ void SEDR_SBAGNOLD::SedChannelRouting(int i)
 	m_rchDeg[i] = sedDegradation2;
 	m_rchDep[i] = sedDeposition;
 	m_flplainDep[i] = 0.f;
+	//if (i == 12) cout<<"\tallSediment2: "<<allSediment<<", sedDeg: "<<sedDegradation1<<", sedDeg2: "<<sedDegradation2<<
+	//	", sedDeposition: "<<sedDeposition<<", sed flow out: "<<m_sedOut[i]<<endl;
 }
 
 void SEDR_SBAGNOLD::doChannelDowncuttingAndWidening(int id)
 {
 	/// TODO, lj
-    float depdeg = m_chWTDepthDelta[id]; // depth of degradation/deposition from original
+    float depdeg = m_preChWTDepth[id] - m_chWTdepth[id]; // depth of degradation/deposition from original
     if (depdeg < m_chSlope[id] * m_chLen[id])
     {
-        float storage = m_chStorage[id];
-        float vout = m_qchOut[id] * m_dt;
-        if (storage + vout > 1.4e6f)
+        //float storage = m_chStorage[id];
+        //float vout = m_qchOut[id] * m_dt;
+        if (m_preChStorage[id] > 1.4e6f)
         {
 			/// downcutting depth, m
             float cutDepth = 358.6f * m_chWTdepth[id] * m_chSlope[id] * m_chErod[id];

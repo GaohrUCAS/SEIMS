@@ -15,6 +15,7 @@
 #include "MongoUtil.h"
 #include <ctime>
 #include <sstream>
+#include "clsRasterData.cpp"
 
 ModelMain::ModelMain(mongoc_client_t *conn, string dbName, string projectPath, SettingsInput *input,
                      ModuleFactory *factory, int subBasinID, int scenarioID, int numThread,
@@ -29,10 +30,11 @@ ModelMain::ModelMain(mongoc_client_t *conn, string dbName, string projectPath, S
     spatialData = mongoc_client_get_gridfs(m_conn, m_dbName.c_str(), DB_TAB_SPATIAL, err);
     if (err != NULL)
         throw ModelException("MainMongoDB", "ModelMain", "Failed to get GridFS: " + string(DB_TAB_SPATIAL) + ".\n");
-    m_outputGfs = mongoc_client_get_gridfs(m_conn, m_dbName.c_str(), DB_TAB_OUT_SPATIAL, err);
+	string outputScene = string(DB_TAB_OUT_SPATIAL) + ValueToString(m_scenarioID);
+    m_outputGfs = mongoc_client_get_gridfs(m_conn, m_dbName.c_str(), outputScene.c_str(), err);
     if (err != NULL)
         throw ModelException("MainMongoDB", "ModelMain",
-                             "Failed to create output GridFS: " + string(DB_TAB_OUT_SPATIAL) + ".\n");
+                             "Failed to create output GridFS: " + outputScene + ".\n");
 
     m_dtDaily = m_input->getDtDaily();
     m_dtHs = m_input->getDtHillslope();
@@ -254,7 +256,7 @@ void ModelMain::Output()
 {
 	//clock_t t1 = clock();
 	double t1 = TimeCounting();
-	string outputPath = m_projectPath + DB_TAB_OUT_SPATIAL;
+	string outputPath = m_projectPath + DB_TAB_OUT_SPATIAL + ValueToString(m_scenarioID);
 #ifndef linux
 	if (::GetFileAttributes(outputPath.c_str()) == INVALID_FILE_ATTRIBUTES)
 	{
@@ -288,7 +290,8 @@ void ModelMain::Output()
         for (itemIt = (*it)->m_PrintItems.begin(); itemIt < (*it)->m_PrintItems.end(); itemIt++)
         {
             PrintInfoItem *item = *itemIt;
-            item->Flush(m_projectPath, m_templateRasterData, (*it)->getOutputTimeSeriesHeader());
+            item->Flush(m_projectPath + DB_TAB_OUT_SPATIAL + ValueToString(m_scenarioID) + SEP, 
+				m_templateRasterData, (*it)->getOutputTimeSeriesHeader());
         }
     }
 	//clock_t t2 = clock();
@@ -307,7 +310,7 @@ void ModelMain::CheckOutput(mongoc_gridfs_t *gfs)
 #ifdef USE_MONGODB
 	// Read Mask raster data and add to m_rsMap in m_factory, by LJ.
     oss << m_subBasinID << "_" << GetUpper(NAME_MASK);
-    m_templateRasterData = new clsRasterData(gfs, oss.str().c_str());
+    m_templateRasterData = new clsRasterData<float>(gfs, oss.str().c_str());
 	m_factory->AddMaskRaster(oss.str(), m_templateRasterData);
 #endif
 }
@@ -504,8 +507,8 @@ void ModelMain::Output(time_t time)
     }
 }
 
-//void ModelMain::SetChannelFlowIn(float value)
-//{
-//	int index = m_channelModules[0];
-//	m_simulationModules[index]->SetValue(VAR_QUPREACH, value);
-//}
+void ModelMain::SetChannelFlowIn(float value)
+{
+	int index = m_channelModules[0];
+	m_simulationModules[index]->SetValue(VAR_QUPREACH, value);
+}

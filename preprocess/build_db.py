@@ -5,15 +5,18 @@
 # Revised: Liang-Jun Zhu
 #
 
-from config import *
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
-from import_bmp_scenario import ImportBMPTables
-from import_parameters import ImportParameters
-from import_parameters import ImportLookupTables, ImportModelConfiguration
-from generate_stream_input import GenerateReachTable
+from gridfs import *
+
+from config import *
 from find_sites import FindSites
-from weights_mongo import GenerateWeightInfo, GenerateWeightDependentParameters
+from gen_subbasins import ImportSubbasinStatistics
+from generate_stream_input import GenerateReachTable
+from import_bmp_scenario import ImportBMPTables
+from import_parameters import (ImportLookupTables, ImportModelConfiguration,
+                               ImportParameters)
+from weights_mongo import GenerateWeightDependentParameters, GenerateWeightInfo
 
 
 def BuildMongoDB():
@@ -37,13 +40,10 @@ def BuildMongoDB():
     f.flush()
     GenerateReachTable(WORKING_DIR, db, forCluster)
 
-    ## prepare meteorology data
-    subbasinFile = WORKING_DIR + os.sep + basinVec  # basin.shp
-    fldID = FLD_BASINID
-    subbasinRaster = WORKING_DIR + os.sep + mask_to_ext  # mask.tif
-    if forCluster:
-        subbasinFile = WORKING_DIR + os.sep + DIR_NAME_SUBBSN + os.sep + subbasinVec  # subbasin.shp
-        fldID = FLD_SUBBASINID
+    # prepare meteorology data
+    if not forCluster:
+        subbasinRaster = WORKING_DIR + os.sep + mask_to_ext  # mask.tif
+    else:
         subbasinRaster = WORKING_DIR + os.sep + subbasinOut  # subbasin.tif
 
     if stormMode:
@@ -55,11 +55,16 @@ def BuildMongoDB():
 
     f.write("20, Finding nearby stations for each sub-basin...\n")
     f.flush()
-    nSubbasins = FindSites(db, ClimateDBName, subbasinFile, fldID, meteoThiessenList, meteoTypeList, simuMode)
-    print "Number of sub-basins:%d" % nSubbasins
+    if not forCluster: #  OMP version
+        basinFile = WORKING_DIR + os.sep + basinVec
+        nSubbasins = FindSites(db, ClimateDBName, basinFile, FLD_BASINID, meteoThiessenList, meteoTypeList, simuMode)
+    subbasinFile = WORKING_DIR + os.sep + DIR_NAME_SUBBSN + os.sep + subbasinVec  #  MPI version
+    nSubbasins = FindSites(db, ClimateDBName, subbasinFile, FLD_SUBBASINID, meteoThiessenList, meteoTypeList, simuMode)
 
-    if not forCluster:
-        nSubbasins = 1
+    print "Meteorology sites table generated done. Number of sub-basins:%d" % nSubbasins
+
+    if not forCluster:  # changed by LJ, SubbasinID is 0 means the whole basin!
+        nSubbasins = 0
 
     # import raster data to MongoDB
     f.write("40, Importing raster to MongoDB...\n")
@@ -68,31 +73,37 @@ def BuildMongoDB():
     tifFolder = WORKING_DIR + os.sep + DIR_NAME_TIFFIMPORT
     if not os.path.exists(tifFolder):
         os.mkdir(tifFolder)
-    for i in range(1, nSubbasins + 1):
+    subbasinStartID = 1
+    if not forCluster:
+        subbasinStartID = 0
+    for i in range(subbasinStartID, nSubbasins + 1):
         subdir = tifFolder + os.sep + str(i)
         if not os.path.exists(subdir):
             os.mkdir(subdir)
-    strCmd = "%s/import_raster %s %s %s %s %s %d %s" % (CPP_PROGRAM_DIR, subbasinRaster,
-                                                        WORKING_DIR, SpatialDBName, DB_TAB_SPATIAL.upper(), HOSTNAME,
-                                                        PORT, tifFolder)
+    strCmd = '"%s/import_raster" %s %s %s %s %s %d %s' % (
+        CPP_PROGRAM_DIR, subbasinRaster, WORKING_DIR, SpatialDBName,
+        DB_TAB_SPATIAL.upper(), HOSTNAME, PORT, tifFolder)
     print strCmd
-    os.system(strCmd)
+    RunExternalCmd(strCmd)
+    # os.system(strCmd)
 
     print 'Generating weight data...'
     f.write("70, Generating weight data for interpolation of meteorology data...\n")
     f.flush()
-    for i in range(nSubbasins):
-        GenerateWeightInfo(conn, SpatialDBName, i + 1, stormMode)
-        GenerateWeightDependentParameters(conn, i + 1)  ##　added by Liangjun, 2016-6-17
+    for i in range(subbasinStartID, nSubbasins + 1):
+        GenerateWeightInfo(conn, SpatialDBName, i, stormMode)
+        # 　added by Liangjun, 2016-6-17
+        GenerateWeightDependentParameters(conn, i)
     if genIUH:
         f.write("80, Generating IUH (Instantaneous Unit Hydrograph)...\n")
         f.flush()
         dt = 24
         print 'Generating IUH (Instantaneous Unit Hydrograph)...'
-        strCmd = "%s/iuh %s %d %s %s %s %d" % (CPP_PROGRAM_DIR, HOSTNAME, PORT,
+        strCmd = '"%s/iuh" %s %d %s %s %s %d' % (CPP_PROGRAM_DIR, HOSTNAME, PORT,
                                                SpatialDBName, DB_TAB_SPATIAL.upper(), dt, nSubbasins)
         print strCmd
-        os.system(strCmd)
+        # os.system(strCmd)
+        RunExternalCmd(strCmd)
 
     f.write("90, Generating Grid layering...\n")
     f.flush()
@@ -100,20 +111,35 @@ def BuildMongoDB():
     if not os.path.exists(layeringDir):
         os.mkdir(layeringDir)
     print 'Generating Grid layering...'
-    strCmd = "%s/grid_layering %s %d %s %s %s %d" % (
+    strCmd = '"%s/grid_layering" %s %d %s %s %s %d' % (
         CPP_PROGRAM_DIR, HOSTNAME, PORT, layeringDir, SpatialDBName, DB_TAB_SPATIAL.upper(), nSubbasins)
     print strCmd
-    os.system(strCmd)
+    # os.system(strCmd)
+    RunExternalCmd(strCmd)
+    # Test if the grid layering data is imported successfully. Added by LJ, 2016-11-3
+    gridLayeringFiles = ['%d_FLOWOUT_INDEX_D8' % nSubbasins, '%d_FLOWIN_INDEX_D8' % nSubbasins]
+    spatial = GridFS(db, DB_TAB_SPATIAL.upper())
+    needReRun = False
+    while not needReRun:
+        needReRun = True
+        for gridlyr in gridLayeringFiles:
+            if not spatial.exists(filename=gridlyr):
+                needReRun = False
+                print "%s is not imported successfully, grid_layering will be rerun!" % gridlyr
+                RunExternalCmd(strCmd)
+                break
 
-    ## Import BMP scenario database to MongoDB
+    # Import BMP scenario database to MongoDB
     ImportBMPTables()
-
+    ImportLookupTables(TXT_DB_DIR + os.sep + sqliteFile, db)
+    ImportModelConfiguration(db)
+    ImportSubbasinStatistics()
     f.write("100,Finished!")
     f.close()
-    print 'Build DB: %s finished!' % (SpatialDBName)
+    print 'Build DB: %s finished!' % SpatialDBName
 
 
-## test code
+# test code
 if __name__ == "__main__":
     LoadConfiguration(GetINIfile())
     BuildMongoDB()

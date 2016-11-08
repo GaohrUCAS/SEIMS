@@ -87,7 +87,7 @@
 #define ORGANICN	"organicN"
 #define ORGANICP	"organicP"
 #define NO3			"NO3"
-#define NH3			"NH3"
+#define NH4			"NH4"
 #define NO2			"NO2"
 #define MINERALP	"mineralP"
 

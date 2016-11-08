@@ -51,13 +51,13 @@ int PER_PI::Execute()
 			maxSoilWater = m_sat[i][j];
 			fcSoilWater = m_fc[i][j];
 			
-			bool percAllowed = true;
-			if (j < (int)m_nSoilLayers[i] -1 ){
-				float nextSoilWater = 0.f;
-				nextSoilWater = m_soilStorage[i][j+1];
-				if (nextSoilWater >= m_fc[i][j+1])
-					percAllowed = false;
-			}
+			//bool percAllowed = true;
+			//if (j < (int)m_nSoilLayers[i] -1 ){
+			//	float nextSoilWater = 0.f;
+			//	nextSoilWater = m_soilStorage[i][j+1];
+			//	if (nextSoilWater >= m_fc[i][j+1])
+			//		percAllowed = false;
+			//}
 
             if (swater > fcSoilWater)
             {
@@ -69,7 +69,8 @@ int PER_PI::Execute()
                     k = m_ks[i][j];
                 else
                 {
-                    float dcIndex = 2.f / m_poreIndex[i][j] + 3.f; // pore disconnectedness index
+					/// Using Clapp and Hornberger (1978) equation to calculate unsaturated hydraulic conductivity.
+                    float dcIndex = 2.f * m_poreIndex[i][j] + 3.f; // pore disconnectedness index
 					k = m_ks[i][j] * pow(swater / maxSoilWater, dcIndex); // mm/h
                 }
 
@@ -151,7 +152,7 @@ void PER_PI::Set2DData(const char *key, int nrows, int ncols, float **data)
 	else if (StringMatch(sk, VAR_SOILTHICK)) m_soilThick = data;
 	else if (StringMatch(sk, VAR_SOL_AWC)) m_fc = data;
 	else if (StringMatch(sk, VAR_SOL_WPMM)) m_wp = data;
-    else if (StringMatch(sk, VAR_POREID)) m_poreIndex = data;
+    else if (StringMatch(sk, VAR_POREIDX)) m_poreIndex = data;
 	else if (StringMatch(sk, VAR_SOL_UL)) m_sat = data;
     else if (StringMatch(sk, VAR_SOL_ST)) m_soilStorage = data;
     else

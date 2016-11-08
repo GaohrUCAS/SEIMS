@@ -12,6 +12,7 @@
 #include "Measurement.h"
 #include "MongoUtil.h"
 #include <map>
+#include "text.h"
 
 /*!
  * \ingroup data

@@ -1,10 +1,12 @@
 /*!
  * \brief Calculates in-stream nutrient transformations with QUAL2E method.
+ *        watqual2.f of SWAT
  * \author Huiran Gao; Junzhi Liu
  * \date Jun 2016
  *
  * \revision LiangJun Zhu
  * \description 1. Add point source loadings nutrients from Scenario.
+ *              2. Add ammonian transported by surface runoff
  */
 
 #pragma once
@@ -20,18 +22,7 @@ using namespace std;
  * \ingroup Nutrient
  * \brief Calculates in-stream nutrient transformations with QUAL2E method.
  */
-/*
- *\breif Musking weight struct
- */
-struct MuskWeights
-{
-    float c1;
-    float c2;
-    float c3;
-    float c4;
-    float dt;
-    int n;  ///< number of division of the origin time step
-};
+
 /*!
  * \class NutrCH_QUAL2E
  * \ingroup NutrCH_QUAL2E
@@ -141,10 +132,12 @@ private:
 	float *m_qOutCh;
     /// reach storage (m3) at time t
     float *m_chStorage;
+	/// reach storage of previous timestep
+	float *m_preChStorage;
     /// channel water depth m
     float *m_chWTdepth;
-	/// channel water depth delta, m
-	float *m_chWTDepthDelta;
+	/// channel water depth of previous timestep, m
+	float *m_preChWTDepth;
     /// temperature of water in reach (deg C)
     float *m_chTemp;
 
@@ -172,8 +165,12 @@ private:
     float *m_latNO3ToCh;
     /// amount of nitrate transported with surface runoff
     float *m_surNO3ToCh;
+	/// amount of ammonian transported with surface runoff
+	float *m_surNH4ToCh;
     /// amount of soluble phosphorus in surface runoff
     float *m_surSolPToCh;
+    /// cod to reach in surface runoff (kg)
+    float *m_surCodToCh;
     /// nitrate loading to reach in groundwater
     float *m_gwNO3ToCh;
     /// soluble P loading to reach in groundwater
@@ -187,11 +184,9 @@ private:
     // amount of stable mineral phosphorus absorbed to sediment in surface runoff
     float *m_sedMinPSToCh;
     /// amount of ammonium transported with lateral flow
-    float *m_nh4ToCh;
+    //float *m_nh4ToCh;
     /// amount of nitrite transported with lateral flow
     float *m_no2ToCh;
-    /// cod to reach in surface runoff (kg)
-    float *m_codToCh;
 
 	/// point source loadings (kg) to channel of each timestep
 	/// nitrate

@@ -1,17 +1,17 @@
 #! /usr/bin/env python
 # coding=utf-8
 #
-# Author: Junzhi Liu, 2013-1-10
-# Revised: Liang-Jun Zhu, Huiran Gao, Fang Shen
-# Revised date: 2016-7-22
-# Note: 1. Names and units of soil physical parameter are referred to readsol.f, soil_par.f, and soil_phys.f in SWAT
-#       2. Data validation checking is also conducted here.
-#       3. Basic protocols: a. all names are Capitalized. b. output Geotiff names may be appended in text.py
+# @Author: Junzhi Liu, 2013-1-10
+# @Revised: Liang-Jun Zhu, Huiran Gao, Fang Shen
+# @Revised date: 2016-7-22
+# @Note: 1. Names and units of soil physical parameter are referred to readsol.f, soil_par.f, and soil_phys.f in SWAT
+#        2. Data validation checking is also conducted here.
+# 3. Basic protocols: a. all names are Capitalized. b. output Geotiff
+# names may be appended in text.py
 
 from soil_texture import *
 from text import *
 from util import *
-
 
 
 # SEQN              |None  : Unique identifier of soil
@@ -21,7 +21,7 @@ from util import *
 # SOILTHICK         |mm    : soil thickness for calculation convenient
 # OM                |%     : organic matter content (weight percent)
 # SOL_CBN           |%     : (sol_cbn) percent organic carbon in soil layer
-# SOL_N             |%     : (sol_n) used when using CSWAT (TODO)
+# SOL_N             |%     : (sol_n) used when using CSWAT = 1, i.e, C-FARM one carbon pool model
 # CLAY              |%     : (sol_clay) percent clay content in soil material,diameter < 0.002 mm
 # SILT              |%     : (sol_silt) percent silt content in soil material,diameter between 0.002 mm and 0.05 mm
 # SAND              |%     : (sol_sand) percent sand content in soil material,diameter between 0.05 mm and 2 mm
@@ -43,7 +43,7 @@ from util import *
 # SOL_AWC           |mm H2O: (sol_fc) amount of water available to plants in soil layer at field capacity (fc - wp)
 # SOL_SUMAWC        |mm H2O: (sol_sumfc) amount of water held in soil profile at field capacity
 # POROSITY          |None  : (sol_por) total porosity of soil layer expressed as a fraction of the total volume
-# POREINDEX         |None  : pore disconnectedness index
+# POREINDEX         |None  : pore size distribution index
 # SOL_AVPOR         |None  : (sol_avpor) average porosity for entire soil profile
 # SOL_UL            |mm H2O: (sol_ul) amount of water held in the soil layer at saturation (sat - wp water)
 # SOL_SUMUL         |mm H2O: (sol_sumul) amount of water held in soil profile at saturation
@@ -58,10 +58,11 @@ from util import *
 # DET_SMAGG         |None  : (det_sag) detached sediment size distribution, small aggregation fraction
 # DET_LGAGG         |None  : (det_lag) detached sediment size distribution, large aggregation fraction
 # CRDEP             |mm    : (crdep) maximum or potential crack volume
-# VOLCR             |mm    : (volcr) crack volume for soil layer, should be calculated in SEIMS, using moist_ini
+# VOLCR             |mm    : (volcr) crack volume for soil layer, should
+# be calculated in SEIMS, using moist_ini
 
 # SOL_NO3           |kg/ha : (sol_no3) concentration of nitrate in soil layers
-# SOL_NH3           |kg/ha : (sol_nh3) concentration of ammonium-N in soil layers
+# SOL_NH4           |kg/ha : (sol_nh4) concentration of ammonium-N in soil layers
 # SOL_ORGN          |kg/ha : (sol_orgn) organic N concentration in soil layers
 # SOL_ORGP          |kg/ha : (sol_orgp) organic P concentration in soil layers
 # SOL_SOLP          |kg/ha : (sol_solp) soluble P concentration in soil layers
@@ -118,7 +119,7 @@ class SoilProperty:
         self.ESCO = DEFAULT_NODATA
         # Here after are general soil chemical properties
         self.SOL_NO3 = []
-        self.SOL_NH3 = []
+        self.SOL_NH4 = []
         self.SOL_ORGN = []
         self.SOL_ORGP = []
         self.SOL_SOLP = []
@@ -137,7 +138,8 @@ class SoilProperty:
         # set a soil layer at dep_new and adjust all lower layers
         # a septic layer:0-10mm,accordig to swat layersplit.f
         if self.SOILLAYERS == DEFAULT_NODATA:
-            raise ValueError("Soil layers number must be provided, please check the input file!")
+            raise ValueError(
+                "Soil layers number must be provided, please check the input file!")
         dep_new = 10.
         if self.SOILDEPTH[0] - dep_new >= 10.:
             self.SOILLAYERS += 1
@@ -191,10 +193,10 @@ class SoilProperty:
                 self.SOL_NO3.insert(0, self.SOL_NO3[0])
             else:
                 self.SOL_NO3 = list(numpy.zeros(self.SOILLAYERS))
-            if self.SOL_NH3 != []:
-                self.SOL_NH3.insert(0, self.SOL_NH3[0])
+            if self.SOL_NH4 != []:
+                self.SOL_NH4.insert(0, self.SOL_NH4[0])
             else:
-                self.SOL_NH3 = list(numpy.zeros(self.SOILLAYERS))
+                self.SOL_NH4 = list(numpy.zeros(self.SOILLAYERS))
             if self.SOL_ORGN != []:
                 self.SOL_ORGN.insert(0, self.SOL_ORGN[0])
             else:
@@ -208,64 +210,77 @@ class SoilProperty:
             else:
                 self.SOL_ORGP = list(numpy.zeros(self.SOILLAYERS))
         if self.SOILDEPTH == [] or len(self.SOILDEPTH) != self.SOILLAYERS or DEFAULT_NODATA in self.SOILDEPTH:
-            raise IndexError("Soil depth must have a size equal to NLAYERS and should not include NODATA (-9999)!")
+            raise IndexError(
+                "Soil depth must have a size equal to NLAYERS and should not include NODATA (-9999)!")
         # Calculate soil thickness of each layer
         for l in range(self.SOILLAYERS):
             if l == 0:
                 self.SOILTHICK.append(self.SOILDEPTH[l])
             else:
-                self.SOILTHICK.append(self.SOILDEPTH[l] - self.SOILDEPTH[l - 1])
+                self.SOILTHICK.append(
+                    self.SOILDEPTH[l] - self.SOILDEPTH[l - 1])
         if self.SOL_ZMX == DEFAULT_NODATA or self.SOL_ZMX > self.SOILDEPTH[-1]:
             self.SOL_ZMX = self.SOILDEPTH[-1]
         if self.ANION_EXCL == DEFAULT_NODATA:
             self.ANION_EXCL = 0.5
         if self.OM == [] or len(self.OM) != self.SOILLAYERS:
-            raise IndexError("Soil organic matter must have a size equal to NLAYERS!")
+            raise IndexError(
+                "Soil organic matter must have a size equal to NLAYERS!")
         elif DEFAULT_NODATA in self.OM and self.OM.index(DEFAULT_NODATA) >= 2 and self.SOILLAYERS >= 3:
             for i in range(2, self.SOILLAYERS):
                 if self.OM[i] == DEFAULT_NODATA:
-                    self.OM[i] = self.OM[i - 1] * numpy.exp(-self.SOILTHICK[i])  # mm
+                    self.OM[i] = self.OM[i - 1] * \
+                        numpy.exp(-self.SOILTHICK[i])  # mm
         # Calculate sol_cbn = sol_om * 0.58
-        for i in range(self.SOILLAYERS):
-            if self.OM[i] * 0.58 < UTIL_ZERO:
-                self.SOL_CBN.append(0.10)
-            else:
-                self.SOL_CBN.append(self.OM[i] * 0.58)
+        if self.SOL_CBN == [] or len(self.SOL_CBN) != self.SOILLAYERS:
+            self.SOL_CBN = []
+            for i in range(self.SOILLAYERS):
+                if self.OM[i] * 0.58 < UTIL_ZERO:
+                    self.SOL_CBN.append(0.1)
+                else:
+                    self.SOL_CBN.append(self.OM[i] * 0.58)
         # Calculate sol_n = sol_cbn/11.
-        for i in range(self.SOILLAYERS):
-            if self.OM[i] * 0.58 < UTIL_ZERO:
-                self.SOL_N.append(0.10 / 11.0)
-            else:
-                self.SOL_N.append(self.OM[i] * 0.58 / 11.0)
+        if self.SOL_N == [] or len(self.SOL_N) != self.SOILLAYERS:
+            self.SOL_N = []
+            for i in range(self.SOILLAYERS):
+                self.SOL_N.append(self.SOL_CBN[i] / 11.)
         if self.CLAY == [] or len(self.CLAY) != self.SOILLAYERS or DEFAULT_NODATA in self.CLAY:
-            raise IndexError("Clay content must have a size equal to NLAYERS and should not include NODATA (-9999)!")
+            raise IndexError(
+                "Clay content must have a size equal to NLAYERS and should not include NODATA (-9999)!")
         if self.SILT == [] or len(self.SILT) != self.SOILLAYERS or DEFAULT_NODATA in self.SILT:
-            raise IndexError("Silt content must have a size equal to NLAYERS and should not include NODATA (-9999)!")
+            raise IndexError(
+                "Silt content must have a size equal to NLAYERS and should not include NODATA (-9999)!")
         if self.SAND == [] or len(self.SAND) != self.SOILLAYERS or DEFAULT_NODATA in self.SAND:
-            raise IndexError("Sand content must have a size equal to NLAYERS and should not include NODATA (-9999)!")
+            raise IndexError(
+                "Sand content must have a size equal to NLAYERS and should not include NODATA (-9999)!")
         if self.ROCK == [] or len(self.ROCK) != self.SOILLAYERS or DEFAULT_NODATA in self.ROCK:
-            raise IndexError("Rock content must have a size equal to NLAYERS and should not include NODATA (-9999)!")
+            raise IndexError(
+                "Rock content must have a size equal to NLAYERS and should not include NODATA (-9999)!")
 
         # temperory variables
         tmp_fc = []
         tmp_sat = []
         tmp_wp = []
         for i in range(self.SOILLAYERS):
-            s = self.SAND[i] * 0.01  ## % -> decimal
+            s = self.SAND[i] * 0.01  # % -> decimal
             c = self.CLAY[i] * 0.01
             om = self.OM[i]
-            wpt = -0.024 * s + 0.487 * c + 0.006 * om + 0.005 * s * om - 0.013 * c * om + 0.068 * s * c + 0.031
+            wpt = -0.024 * s + 0.487 * c + 0.006 * om + 0.005 * \
+                s * om - 0.013 * c * om + 0.068 * s * c + 0.031
             tmp_wp.append(1.14 * wpt - 0.02)
-            fct = -0.251 * s + 0.195 * c + 0.011 * om + 0.006 * s * om - 0.027 * c * om + 0.452 * s * c + 0.299
+            fct = -0.251 * s + 0.195 * c + 0.011 * om + 0.006 * \
+                s * om - 0.027 * c * om + 0.452 * s * c + 0.299
             fc = fct + 1.283 * fct * fct - 0.374 * fct - 0.015
-            s33t = 0.278 * s + 0.034 * c + 0.022 * om - 0.018 * s * om - 0.027 * c * om - 0.584 * s * c + 0.078
+            s33t = 0.278 * s + 0.034 * c + 0.022 * om - 0.018 * \
+                s * om - 0.027 * c * om - 0.584 * s * c + 0.078
             s33 = 1.636 * s33t - 0.107
             sat = fc + s33 - 0.097 * s + 0.043
             tmp_fc.append(fc)
             tmp_sat.append(sat)
 
         if self.WILTINGPOINT != [] and len(self.WILTINGPOINT) != self.SOILLAYERS:
-            raise IndexError("Wilting point must have a size equal to soil layers number!")
+            raise IndexError(
+                "Wilting point must have a size equal to soil layers number!")
         elif self.WILTINGPOINT == []:
             self.WILTINGPOINT = tmp_wp[:]
         elif DEFAULT_NODATA in self.WILTINGPOINT:
@@ -273,7 +288,8 @@ class SoilProperty:
                 if self.WILTINGPOINT[i] == DEFAULT_NODATA:
                     self.WILTINGPOINT[i] = tmp_wp[i]
         if self.DENSITY != [] and len(self.DENSITY) != self.SOILLAYERS:
-            raise IndexError("Bulk density must have a size equal to soil layers number!")
+            raise IndexError(
+                "Bulk density must have a size equal to soil layers number!")
         elif self.DENSITY == [] or DEFAULT_NODATA in self.DENSITY:
             tmp_bd = []
             for i in range(self.SOILLAYERS):
@@ -289,7 +305,8 @@ class SoilProperty:
             elif self.DENSITY == []:
                 self.DENSITY = tmp_bd[:]
         if self.FIELDCAP != [] and len(self.FIELDCAP) != self.SOILLAYERS:
-            raise IndexError("Field capacity must have a size equal to soil layers number!")
+            raise IndexError(
+                "Field capacity must have a size equal to soil layers number!")
         elif self.FIELDCAP == [] or DEFAULT_NODATA in self.FIELDCAP:
             tmp_fc_bdeffect = []
             for i in range(self.SOILLAYERS):
@@ -308,7 +325,8 @@ class SoilProperty:
             elif self.FIELDCAP == []:
                 self.FIELDCAP = tmp_fc_bdeffect[:]
         if self.AWC != [] and len(self.AWC) != self.SOILLAYERS:
-            raise IndexError("Available water capacity must have the size equal to soil layers number!")
+            raise IndexError(
+                "Available water capacity must have the size equal to soil layers number!")
         elif self.AWC == []:
             for i in range(self.SOILLAYERS):
                 self.AWC.append(self.FIELDCAP[i] - self.WILTINGPOINT[i])
@@ -318,24 +336,33 @@ class SoilProperty:
                     self.AWC[i] = self.FIELDCAP[i] - self.WILTINGPOINT[i]
 
         if self.POREINDEX != [] and len(self.POREINDEX) != self.SOILLAYERS:
-            raise IndexError("Pore disconnectedness index must have a size equal to soil layers number!")
+            raise IndexError(
+                "Pore disconnectedness index must have a size equal to soil layers number!")
         elif self.POREINDEX == []:
             for i in range(self.SOILLAYERS):
-                fc = self.FIELDCAP[i]
-                wp = self.WILTINGPOINT[i]
-                b = (math.log(1500.) - math.log(33.)) / (math.log(fc) - math.log(wp))
-                self.POREINDEX.append(1.0 / b)
+                # An fitted equation proposed by Cosby et al. (1984) is
+                # adopted. By LJ, 2016-9-22
+                b = 0.159 * self.CLAY[i] + 2.91
+                self.POREINDEX.append(b)
+                # previous version, currently deprecated by LJ
+                # fc = self.FIELDCAP[i]
+                # wp = self.WILTINGPOINT[i]
+                # b = (math.log(1500.) - math.log(33.)) / (math.log(fc) - math.log(wp))
+                # self.POREINDEX.append(1.0 / b)
         if self.POROSITY != [] and len(self.POROSITY) != self.SOILLAYERS:
-            raise IndexError("Soil Porosity must have a size equal to soil layers number!")
+            raise IndexError(
+                "Soil Porosity must have a size equal to soil layers number!")
         elif self.POROSITY == []:
             for i in range(self.SOILLAYERS):
-                self.POROSITY.append(1. - self.DENSITY[i] / 2.65)  ## from the theroy of swat
+                # from the theroy of swat
+                self.POROSITY.append(1. - self.DENSITY[i] / 2.65)
         elif DEFAULT_NODATA in self.POROSITY:
             for i in range(self.SOILLAYERS):
                 if self.POROSITY[i] == DEFAULT_NODATA:
                     self.POROSITY[i] = 1. - self.DENSITY[i] / 2.65
         if self.CONDUCTIVITY != [] and len(self.CONDUCTIVITY) != self.SOILLAYERS:
-            raise IndexError("Saturated conductivity must have a size equal to soil layers number!")
+            raise IndexError(
+                "Saturated conductivity must have a size equal to soil layers number!")
         elif self.CONDUCTIVITY == [] or DEFAULT_NODATA in self.CONDUCTIVITY:
             tmp_k = []
             for i in range(self.SOILLAYERS):
@@ -350,7 +377,8 @@ class SoilProperty:
                     if self.CONDUCTIVITY[i] == DEFAULT_NODATA:
                         self.CONDUCTIVITY[i] = tmp_k[i]
 
-        # calculate water content of soil at -1.5 MPa and -0.033 MPa (soil_phys.f)
+        # calculate water content of soil at -1.5 MPa and -0.033 MPa
+        # (soil_phys.f)
         if self.WILTINGPOINT == []:
             for i in range(self.SOILLAYERS):
                 tmpwp = 0.4 * self.CLAY[i] * self.DENSITY[i] / 100.
@@ -391,8 +419,10 @@ class SoilProperty:
             self.DET_SMAGG = 0.57
         else:
             self.DET_SMAGG = 0.28 * (cl - 0.25) + 0.5
-        self.DET_LGAGG = 1. - self.DET_SAND - self.DET_SILT - self.DET_CLAY - self.DET_SMAGG
-        # Error check, may happen for soils with more sand. The fraction wont add upto 1.0
+        self.DET_LGAGG = 1. - self.DET_SAND - \
+            self.DET_SILT - self.DET_CLAY - self.DET_SMAGG
+        # Error check, may happen for soils with more sand. The fraction wont
+        # add upto 1.0
         if self.DET_LGAGG < 0.:
             self.DET_SAND /= (1. - self.DET_LGAGG)
             self.DET_SILT /= (1. - self.DET_LGAGG)
@@ -407,16 +437,20 @@ class SoilProperty:
         for i in range(self.SOILLAYERS):
             pormm = self.POROSITY[i] * self.SOILTHICK[i]
             sumpor += pormm
-            self.SOL_UL.append((self.POROSITY[i] - self.WILTINGPOINT[i]) * self.SOILTHICK[i])
+            self.SOL_UL.append(
+                (self.POROSITY[i] - self.WILTINGPOINT[i]) * self.SOILTHICK[i])
             self.SOL_SUMUL += self.SOL_UL[i]
-            self.SOL_AWC.append((self.FIELDCAP[i] - self.WILTINGPOINT[i]) * self.SOILTHICK[i])
+            self.SOL_AWC.append(
+                (self.FIELDCAP[i] - self.WILTINGPOINT[i]) * self.SOILTHICK[i])
             self.SOL_SUMAWC += self.SOL_AWC[i]
-            self.SOL_HK.append((self.SOL_UL[i] - self.SOL_AWC[i]) / self.CONDUCTIVITY[i])
+            self.SOL_HK.append(
+                (self.SOL_UL[i] - self.SOL_AWC[i]) / self.CONDUCTIVITY[i])
             if self.SOL_HK[i] < 1.:
                 self.SOL_HK[i] = 1.
             self.SOL_WPMM.append(self.WILTINGPOINT[i] * self.SOILTHICK[i])
             self.SOL_SUMWP += self.SOL_WPMM[i]
-            self.CRDEP.append(self.SOL_CRK * 0.916 * math.exp(-0.0012 * self.SOILDEPTH[i]) * self.SOILTHICK[i])
+            self.CRDEP.append(
+                self.SOL_CRK * 0.916 * math.exp(-0.0012 * self.SOILDEPTH[i]) * self.SOILTHICK[i])
 
         self.SOL_AVPOR = sumpor / self.SOILDEPTH[i]
         self.SOL_AVBD = 2.65 * (1. - self.SOL_AVPOR)
@@ -426,56 +460,21 @@ class SoilProperty:
                                        0] - 0.049837 *
                                    self.POROSITY[0] * self.SAND[0] + 0.001608 * math.pow(self.POROSITY[0], 2) *
                                    math.pow(self.SAND[0], 2) + 0.001602 * math.pow(self.POROSITY[0], 2) * math.pow(
-                self.CLAY[0], 2) -
-                                   0.0000136 * math.pow(self.SAND[0], 2) * self.CLAY[0] - 0.003479 * math.pow(
-                self.CLAY[0], 2) *
-                                   self.POROSITY[0] - 0.000799 * math.pow(self.SAND[0], 2) * self.POROSITY[0])
-
-        # tmp_sol_up = []  ## according to swat soil_phys.f
-        # tmp_sol_wp = []
-        # tmp_dep = []
-        # xx = 0
-        # for i in range(self.SOILLAYERS):
-        #     dep = self.SOILDEPTH[i] - xx
-        #     xx = self.SOILDEPTH[i]
-        #     tmp_dep.append(dep)
-        # for i in range(self.SOILLAYERS):
-        #     sol_wp = 0.4 * self.CLAY[i] * 0.01 * self.DENSITY[i]
-        #     sol_por = 1. - self.DENSITY[i] / 2.65
-        #     sol_up = sol_wp + self.AWC[i]
-        #     if sol_por <= sol_up:
-        #         sol_up = sol_por - 0.05
-        #         sol_wp = sol_up - self.AWC[i]
-        #         if sol_wp <= 0:
-        #             sol_up = sol_por * 0.75
-        #             sol_wp = sol_por * 0.25
-        #     tmp_sol_up.append(sol_up)
-        #     tmp_sol_wp.append(sol_wp)
-        # if self.SOL_SUMUL == 0:
-        #     for i in range(self.SOILLAYERS):
-        #         self.SOL_SUMUL += (self.POROSITY[i] - tmp_sol_wp[i]) * tmp_dep[i]
-        # if self.SOL_SUMFC == 0:
-        #     for i in range(self.SOILLAYERS):
-        #         self.SOL_SUMFC += (tmp_sol_up[i] - tmp_sol_wp[i]) * tmp_dep[i]
-        # if self.SOL_SUMWP == 0:
-        #     for i in range(self.SOILLAYERS):
-        #         self.SOL_SUMWP += tmp_sol_wp[i] * tmp_dep[i]
-        # if self.SOL_SUMPOR == 0:
-        #     for i in range(self.SOILLAYERS):
-        #         self.SOL_SUMPOR += self.POROSITY[i] * tmp_dep[i]
-        # if self.SOL_AVPOR == DEFAULT_NODATA:
-        #     self.SOL_AVPOR = self.SOL_SUMPOR / self.SOILDEPTH[self.SOILLAYERS - 1]
-
+            self.CLAY[0], 2) -
+            0.0000136 * math.pow(self.SAND[0], 2) * self.CLAY[0] - 0.003479 * math.pow(
+            self.CLAY[0], 2) *
+            self.POROSITY[0] - 0.000799 * math.pow(self.SAND[0], 2) * self.POROSITY[0])
 
         if self.SOL_ALB == DEFAULT_NODATA:
             self.SOL_ALB = 0.2227 * math.exp(-1.8672 * self.SOL_CBN[0])
         if self.ESCO == DEFAULT_NODATA:
             self.ESCO = 0.95
         if self.USLE_K != [] and len(self.USLE_K) != self.SOILLAYERS:
-            raise IndexError("USLE K factor must have a size equal to NLAYERS!")
+            raise IndexError(
+                "USLE K factor must have a size equal to NLAYERS!")
         elif self.USLE_K == [] or DEFAULT_NODATA in self.USLE_K:
             tmp_usle_k = []
-            for i in range(self.SOILLAYERS):  ## According to Liu BY et al., (1999)
+            for i in range(self.SOILLAYERS):  # According to Liu BY et al., (1999)
                 sand = self.SAND[i]
                 silt = self.SILT[i]
                 clay = self.CLAY[i]
@@ -494,52 +493,57 @@ class SoilProperty:
                     if self.USLE_K[i] == DEFAULT_NODATA:
                         self.USLE_K[i] = tmp_usle_k[i]
         if self.SOIL_TEXTURE == DEFAULT_NODATA or self.HYDRO_GROUP == DEFAULT_NODATA:
-            st, hg, uslek = GetTexture(self.CLAY[0], self.SILT[0], self.SAND[0])
+            st, hg, uslek = GetTexture(
+                self.CLAY[0], self.SILT[0], self.SAND[0])
             self.SOIL_TEXTURE = st
             self.HYDRO_GROUP = hg
         # Unit conversion for general soil chemical properties
         wt1 = []
         for j in range(self.SOILLAYERS):
-            wt1.append(self.DENSITY[j] * self.SOILTHICK[j] * 10.)  ## g/kg => kg/ha
-        if self.SOL_NO3 != []:
+            # g/kg => kg/ha
+            wt1.append(self.DENSITY[j] * self.SOILTHICK[j] * 10.)
+        if self.SOL_NO3 != [] and len(self.SOL_NO3) == self.SOILLAYERS:
             for j in range(self.SOILLAYERS):
                 self.SOL_NO3[j] = self.SOL_NO3[j] * wt1[j]
-        if self.SOL_NH3 != []:
+        if self.SOL_NH4 != [] and len(self.SOL_NH4) == self.SOILLAYERS:
             for j in range(self.SOILLAYERS):
-                self.SOL_NH3[j] = self.SOL_NH3[j] * wt1[j]
-        if self.SOL_ORGN != []:
+                self.SOL_NH4[j] = self.SOL_NH4[j] * wt1[j]
+        if self.SOL_ORGN != [] and len(self.SOL_ORGN) == self.SOILLAYERS:
             for j in range(self.SOILLAYERS):
                 self.SOL_ORGN[j] = self.SOL_ORGN[j] * wt1[j]
-        if self.SOL_SOLP != []:
+        if self.SOL_SOLP != [] and len(self.SOL_SOLP) == self.SOILLAYERS:
             for j in range(self.SOILLAYERS):
                 self.SOL_SOLP[j] = self.SOL_SOLP[j] * wt1[j]
-        if self.SOL_ORGP != []:
+        if self.SOL_ORGP != [] and len(self.SOL_ORGP) == self.SOILLAYERS:
             for j in range(self.SOILLAYERS):
                 self.SOL_ORGP[j] = self.SOL_ORGP[j] * wt1[j]
 
 
-## Calculate soil properties from sand, clay and organic matter.
-## TODO, add reference.
+# Calculate soil properties from sand, clay and organic matter.
+# TODO, add reference.
 def GetProperties(s, c, om):
-    ## wilting point (SOL_WP)
-    wpt = -0.024 * s + 0.487 * c + 0.006 * om + 0.005 * s * om - 0.013 * c * om + 0.068 * s * c + 0.031
+    # wilting point (SOL_WP)
+    wpt = -0.024 * s + 0.487 * c + 0.006 * om + 0.005 * \
+        s * om - 0.013 * c * om + 0.068 * s * c + 0.031
     wp = 1.14 * wpt - 0.02
 
-    ## bulk density according to field capacity
-    fct = -0.251 * s + 0.195 * c + 0.011 * om + 0.006 * s * om - 0.027 * c * om + 0.452 * s * c + 0.299
+    # bulk density according to field capacity
+    fct = -0.251 * s + 0.195 * c + 0.011 * om + 0.006 * \
+        s * om - 0.027 * c * om + 0.452 * s * c + 0.299
     fc = fct + 1.283 * fct * fct - 0.374 * fct - 0.015
 
-    s33t = 0.278 * s + 0.034 * c + 0.022 * om - 0.018 * s * om - 0.027 * c * om - 0.584 * s * c + 0.078
+    s33t = 0.278 * s + 0.034 * c + 0.022 * om - 0.018 * \
+        s * om - 0.027 * c * om - 0.584 * s * c + 0.078
     s33 = 1.636 * s33t - 0.107
     sat = fc + s33 - 0.097 * s + 0.043
     pn = 2.65 * (1.0 - sat)
 
-    ## field capacity (SOL_FC) with density effects (df)
+    # field capacity (SOL_FC) with density effects (df)
     p_df = pn
-    sat_df = 1. - p_df / 2.65  ## porosity
+    sat_df = 1. - p_df / 2.65  # porosity
     fc_df = fc - 0.2 * (sat - sat_df)
 
-    ## available water capacity (SOL_AWC)
+    # available water capacity (SOL_AWC)
     awc = fc_df - wp
 
     # pore disconnectedness index
@@ -569,98 +573,3 @@ def GetValue(geoMask, geoMap, data, i, j):
     iMap = (yMap - geoMap[3]) / geoMap[5]
 
     return data[iMap][jMap]
-
-## Deprecated by LJ, 2016-5-21
-# def GenerateSoilAttributes(outputFolder, layerNum, sandFile=None, clayFile=None, orgFile=None):
-#     maskFile = outputFolder + os.sep + mask_to_ext
-# #    if sandFile is None:
-# #        sandFile = '%s/sand%d_albers.img' % (SPATIAL_DATA_DIR, layerNum)
-# #    if clayFile is None:
-# #        clayFile = '%s/clay%d_albers.img' % (SPATIAL_DATA_DIR, layerNum)
-#
-#     dataSom = None
-#     if orgFile is not None and os.path.exists(orgFile):
-#         dsSom = gdal.Open(orgFile)
-#         bandSom = dsSom.GetRasterBand(1)
-#         dataSom = bandSom.ReadAsArray()
-#
-#     print sandFile
-#     print clayFile
-#     dsSand = gdal.Open(sandFile)
-#     if dsSand is None:
-#         print "Open file:", sandFile, " failed.\n"
-#         return
-#     bandSand = dsSand.GetRasterBand(1)
-#     dataSand = bandSand.ReadAsArray()
-#     geoSand = dsSand.GetGeoTransform()
-#
-#     dsClay = gdal.Open(clayFile)
-#     if dsClay is None:
-#         print "Open file:", clayFile, " failed.\n"
-#         return
-#     bandClay = dsClay.GetRasterBand(1)
-#     dataClay = bandClay.ReadAsArray()
-#
-#     dsMask = gdal.Open(maskFile)
-#     bandMask = dsMask.GetRasterBand(1)
-#     dataMask = bandMask.ReadAsArray()
-#     xSizeMask = bandMask.XSize
-#     ySizeMask = bandMask.YSize
-#     geoMask = dsMask.GetGeoTransform()
-#     noDataValue = bandMask.GetNoDataValue()
-#     print noDataValue
-#
-#     srs = osr.SpatialReference()
-#     srs.ImportFromWkt(dsMask.GetProjection())
-#
-#     attrMapList = []
-#     n = 6
-#     for i in range(n):
-#         attrMapList.append(numpy.zeros((ySizeMask, xSizeMask)))
-#
-#     attrPool = {}
-#     lastKey = None
-#     for i in range(ySizeMask):
-#         #print "soil", i
-#         for j in range(xSizeMask):
-#             if abs(dataMask[i][j] - noDataValue) < UTIL_ZERO:
-#                 for iAttr in range(n):
-#                     attrMapList[iAttr][i][j] = DEFAULT_NODATA
-#                 continue
-#             s = GetValue(geoMask, geoSand, dataSand, i, j)
-#             c = GetValue(geoMask, geoSand, dataClay, i, j)
-#
-#             k = "%d_%d_%d" % (int(s*1000), int(c*1000), layerNum)
-#             #print s, c
-#
-#             if dataSom is not None:
-#                 om = dataSom[i][j]
-#             else:
-#                 om = defaultOrg  # om=2.5
-#                 if layerNum >= 1:
-#                     om = 1.0
-#
-#             if s < 0 or c < 0:
-#                 attrs = attrPool[lastKey]
-#                 k = lastKey
-#             elif k in attrPool.keys():
-#                 attrs = attrPool[k]
-#             else:
-#                 attrs = GetProperties(s * 0.01, c * 0.01, om)
-#                 print dataMask[i][j], s, c
-#                 #attrs = GetProperties(s, c, om)
-#                 attrPool[k] = attrs
-#             lastKey = k
-#
-#             for iAttr in range(n):
-#                 attrMapList[iAttr][i][j] = attrs[iAttr]
-#
-#     attrList = []
-#     ##layerStr = str(layerNum) if layerNum > 1 else ''
-#     for i in range(n):
-#         filename = outputFolder + os.sep + r"%s_%s.tif" % (SOIL_ATTR_LIST[i+2], str(layerNum))
-#         WriteGTiffFile(filename, ySizeMask, xSizeMask, attrMapList[i], \
-#                                    geoMask, srs, DEFAULT_NODATA, gdal.GDT_Float32)
-#         attrList.append(filename)
-#
-#     return attrList

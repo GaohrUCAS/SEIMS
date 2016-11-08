@@ -1,15 +1,17 @@
 #! /usr/bin/env python
 # coding=utf-8
-## Generation masked subbasin spatial data
+# Generation masked subbasin spatial data
 # Author: Junzhi Liu
 # Revised: Liang-Jun Zhu
 # Note: Improve calculation efficiency by numpy
 #
+import platform
+
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 
 from post_process_taudem import *
-
+from util import GetExecutableFullPath, RunExternalCmd
 
 def GetMaskFromRaster(rasterFile, dstdir):
     rasterR = ReadRaster(rasterFile)
@@ -21,22 +23,6 @@ def GetMaskFromRaster(rasterFile, dstdir):
     yMax = rasterR.yMax
     dx = rasterR.dx
     data = rasterR.data
-    #
-    # ds = gdal.Open(rasterFile)
-    # band = ds.GetRasterBand(1)
-    # data = band.ReadAsArray()
-    # xsize = band.XSize
-    # ysize = band.YSize
-    # noDataValue = band.GetNoDataValue()
-    # geotrans = ds.GetGeoTransform()
-    #
-    # srs = osr.SpatialReference()
-    # srs.ImportFromWkt(ds.GetProjection())
-    #
-    # xMin = geotrans[0]
-    # yMax = geotrans[3]
-    # dx = geotrans[1]
-    # print ysize, xsize
 
     iMin = ysize - 1
     iMax = 0
@@ -58,7 +44,7 @@ def GetMaskFromRaster(rasterFile, dstdir):
     yMaxMask = yMax - iMin * dx
     print "%dx%d -> %dx%d" % (xsize, ysize, xSizeMask, ySizeMask)
 
-    mask = zeros((ySizeMask, xSizeMask))
+    mask = numpy.zeros((ySizeMask, xSizeMask))
 
     for i in range(ySizeMask):
         for j in range(xSizeMask):
@@ -69,7 +55,8 @@ def GetMaskFromRaster(rasterFile, dstdir):
 
     outputFile = dstdir + os.sep + mask_to_ext
     maskGeotrans = [xMinMask, dx, 0, yMaxMask, 0, -dx]
-    WriteGTiffFile(outputFile, ySizeMask, xSizeMask, mask, maskGeotrans, srs, DEFAULT_NODATA, gdal.GDT_Int32)
+    WriteGTiffFile(outputFile, ySizeMask, xSizeMask, mask,
+                   maskGeotrans, srs, DEFAULT_NODATA, gdal.GDT_Int32)
     return outputFile, Raster(ySizeMask, xSizeMask, mask, DEFAULT_NODATA, maskGeotrans, srs)
 
 
@@ -106,14 +93,12 @@ def MaskDEMFiles(workingDir, exeDir=None):
         f.write(s)
     f.close()
 
-    s = "%s/mask_raster %s" % (exeDir, configFile)
-    os.system(s)
+    # s = '"%s/mask_raster" %s' % (exeDir, configFile)
+    # os.system(s)
+    RunExternalCmd('"%s/mask_raster" %s' % (exeDir, configFile))
 
 
 def GenerateSubbasins():
-    # f = open(WORKING_DIR + os.sep + "ProjConfig.txt")
-    # proj4Str = f.readlines()[2].strip()
-    # f.close()
     statusFile = WORKING_DIR + os.sep + FN_STATUS_GENSUBBSN
     fStatus = open(statusFile, 'w')
 
@@ -134,18 +119,25 @@ def GenerateSubbasins():
     def convert2GeoJson(jsonFile, src_srs, dst_srs, src_file):
         if os.path.exists(jsonFile):
             os.remove(jsonFile)
-        s = 'ogr2ogr -f GeoJSON -s_srs "%s" -t_srs %s %s %s' % \
-            (src_srs, dst_srs, jsonFile, src_file)
-        os.system(s)
+        if platform.system() == 'Windows':
+            exepath = '"%s/Lib/site-packages/osgeo/ogr2ogr"' % sys.exec_prefix
+        else:
+            exepath = GetExecutableFullPath("ogr2ogr")
+        # os.system(s)
+        s = '%s -f GeoJSON -s_srs "%s" -t_srs %s %s %s' % \
+            (exepath, src_srs, dst_srs, jsonFile, src_file)
+        RunExternalCmd(s)
 
     geoJson_dict = {GEOJSON_REACH: WORKING_DIR + os.sep + DIR_NAME_REACH + os.sep + reachesOut,
                     GEOJSON_SUBBSN: WORKING_DIR + os.sep + DIR_NAME_SUBBSN + os.sep + subbasinVec,
                     GEOJSON_OUTLET: WORKING_DIR + os.sep + DIR_NAME_TAUDEM + os.sep + modifiedOutlet}
     for jsonName in geoJson_dict.keys():
-        convert2GeoJson(jsonName, proj_srs, wgs84_srs, geoJson_dict.get(jsonName))
+        convert2GeoJson(jsonName, proj_srs, wgs84_srs,
+                        geoJson_dict.get(jsonName))
     fStatus.write("%d,%s\n" % (100, "Finished!"))
     fStatus.close()
     ImportSubbasinStatistics()
+
 
 def ImportSubbasinStatistics():
     '''
@@ -231,11 +223,12 @@ def ImportSubbasinStatistics():
     for stat in importStatsDict.keys():
         dic = {PARAM_FLD_NAME.upper(): stat, PARAM_FLD_DESC.upper(): stat, PARAM_FLD_UNIT.upper(): "NONE",
                PARAM_FLD_MODS.upper(): "ALL", PARAM_FLD_VALUE.upper(): importStatsDict[stat],
-               PARAM_FLD_IMPACT.upper():DEFAULT_NODATA , PARAM_FLD_CHANGE.upper():PARAM_CHANGE_NC ,
+               PARAM_FLD_IMPACT.upper(): DEFAULT_NODATA, PARAM_FLD_CHANGE.upper(): PARAM_CHANGE_NC,
                PARAM_FLD_MAX.upper(): DEFAULT_NODATA, PARAM_FLD_MIN.upper(): DEFAULT_NODATA,
                PARAM_FLD_USE.upper(): PARAM_USE_Y, Tag_DT_Type.upper(): "WATERSHED"}
         curfilter = {PARAM_FLD_NAME.upper(): dic[PARAM_FLD_NAME.upper()]}
-        db[DB_TAB_PARAMETERS.upper()].find_one_and_replace(curfilter, dic, upsert=True)
+        db[DB_TAB_PARAMETERS.upper()].find_one_and_replace(
+            curfilter, dic, upsert=True)
     db[DB_TAB_PARAMETERS.upper()].create_index(PARAM_FLD_NAME.upper())
 
     print "Subbasin statistics imported!"
@@ -244,4 +237,3 @@ def ImportSubbasinStatistics():
 if __name__ == "__main__":
     LoadConfiguration(GetINIfile())
     GenerateSubbasins()
-

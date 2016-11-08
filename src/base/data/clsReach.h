@@ -35,7 +35,7 @@ public:
     //! Reset the contents of the object to default values
     void Reset(void);
 
-    int GetSubbasinID() { return Subbasin; }
+    int GetSubbasinID() { return SubbasinID; }
 
     float GetArea() { return this->Area; }
 
@@ -62,6 +62,8 @@ public:
     float GetV0() { return this->V0; }
 
     float GetWidth() { return this->Width; }
+
+	float GetSideSlope() {return this->SideSlope;}
 
     float GetBc1() { return this->bc1; }
 
@@ -101,7 +103,7 @@ public:
 
 	float GetOrgN(){return this->orgn;}
 
-	float GetNH3(){return this->nh3;}
+	float GetNH4(){return this->nh4;}
 
 	float GetNO2(){return this->no2;}
 
@@ -136,13 +138,15 @@ private:
     //! Slope gradient
     float Slope;
     //! Subbasin ID
-    int Subbasin;
+    int SubbasinID;
     //! UP_DOWN stream order
     int UpDownOrder;
     //! V0
     float V0;
     //! Width
     float Width;
+	/// inverse of the channel side slope
+	float SideSlope;
     /// rate constant for biological oxidation of NH3 to NO2 in reach at 20 deg C
     float bc1;
     /// rate constant for biological oxidation of NO2 to NO3 in reach at 20 deg C
@@ -187,7 +191,7 @@ private:
 	/// Initial organic nitrogen concentration in the reach.	[mg /l]
 	float orgn;
 	/// Initial ammonia concentration in the reach.	[mg /l]
-	float nh3;
+	float nh4;
 	/// Initial nitrite concentration in the reach
 	float no2;
 	/// Initial nitrate concentration in the reach

@@ -6,9 +6,10 @@
 # Note: 1. Using ReadRaster function from util module.
 #       2. Using numpy.frompyfunc to replace native for loops
 #
-from util import *
-from config import *
 import sqlite3
+
+from config import *
+from util import *
 
 
 def GenerateCN2(dstdir, dbname):
@@ -35,37 +36,13 @@ def GenerateCN2(dstdir, dbname):
     xsize = maskR.nCols
     ysize = maskR.nRows
     noDataValue = maskR.noDataValue
-
-    # ds = gdal.Open(maskFile)
-    # band = ds.GetRasterBand(1)
-    # data = band.ReadAsArray()
-    # xsize = band.XSize
-    # ysize = band.YSize
-    # noDataValue = band.GetNoDataValue()
-    # if noDataValue is None:
-    #     noDataValue = 0
-    # geotransform = ds.GetGeoTransform()
-
-    # srs = osr.SpatialReference()
-    # srs.ImportFromWkt(ds.GetProjection())
-
     hgR = ReadRaster(hgFile)
     dataHg = hgR.data
-
-    # ds = gdal.Open(hgFile)
-    # band = ds.GetRasterBand(1)
-    # dataHg = band.ReadAsArray()
 
     luR = ReadRaster(landuseFile)
     dataLanduse = luR.data
 
-    # ds = gdal.Open(landuseFile)
-    # band = ds.GetRasterBand(1)
-    # dataLanduse = band.ReadAsArray()
-
     filename = dstdir + os.sep + CN2File
-
-    # data_prop = numpy.zeros((ysize, xsize))
 
     def calCN2(landuseID, hg):
         landuseID = int(landuseID)
@@ -86,7 +63,8 @@ def GenerateCN2(dstdir, dbname):
     #             hg = int(dataHg[i][j]) - 1
     #             data_prop[i][j] = cn2Map[landuseID][hg]
 
-    WriteGTiffFile(filename, ysize, xsize, data_prop, maskR.geotrans, maskR.srs, noDataValue, gdal.GDT_Float32)
+    WriteGTiffFile(filename, ysize, xsize, data_prop,
+                   maskR.geotrans, maskR.srs, noDataValue, gdal.GDT_Float32)
     print 'The CN2 file is generated!'
     return filename
 

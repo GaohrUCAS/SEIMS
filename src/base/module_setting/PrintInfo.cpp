@@ -8,7 +8,7 @@
  */
 #include "ModelException.h"
 #include "PrintInfo.h"
-
+#include "clsRasterData.cpp"
 
 //#ifndef linux
 ////#include "WinSock2i.h"
@@ -88,7 +88,7 @@ void PrintInfoItem::add1DTimeSeriesResult(time_t t, int n, float *data)
     TimeSeriesDataForSubbasinCount = n;
 }
 
-void PrintInfoItem::Flush(string projectPath, clsRasterData *templateRaster, string header)
+void PrintInfoItem::Flush(string projectPath, clsRasterData<float> *templateRaster, string header)
 {
 /// removed by lj
 //#ifndef linux
@@ -106,7 +106,8 @@ void PrintInfoItem::Flush(string projectPath, clsRasterData *templateRaster, str
 //    }
 //#endif
 	bool outToMongoDB = false; /// added by LJ. 
-	projectPath = projectPath + DB_TAB_OUT_SPATIAL + SEP;
+	// projectPath = projectPath + DB_TAB_OUT_SPATIAL + SEP;
+	projectPath = projectPath;
     /// Get filenames existed in GridFS, i.e., "OUTPUT.files"
     vector<string> outputExisted = GetGridFsFileNames(gfs);
 	/// Filename should appended by AggregateType to avoiding the same names. By LJ, 2016-7-12
@@ -188,14 +189,14 @@ void PrintInfoItem::Flush(string projectPath, clsRasterData *templateRaster, str
 			bson_error_t *err = NULL;
 			if (find(outputExisted.begin(), outputExisted.end(), Filename.c_str()) != outputExisted.end())
 				mongoc_gridfs_remove_by_filename(gfs, Filename.c_str(), err);
-			clsRasterData::outputToMongoDB(templateRaster, m_1DData, Filename, gfs);
+			clsRasterData<float>::outputToMongoDB(templateRaster, m_1DData, Filename, gfs);
 		}
        
         string ascii(ASCIIExtension);
         if (ascii.find(Suffix) != ascii.npos)
-            clsRasterData::outputASCFile(templateRaster, m_1DData, projectPath + Filename + ASCIIExtension);
+            clsRasterData<float>::outputASCFile(templateRaster, m_1DData, projectPath + Filename + ASCIIExtension);
         else
-            clsRasterData::outputGTiff(templateRaster, m_1DData, projectPath + Filename + GTiffExtension);
+            clsRasterData<float>::outputGTiff(templateRaster, m_1DData, projectPath + Filename + GTiffExtension);
         return;
     }
 
@@ -214,9 +215,9 @@ void PrintInfoItem::Flush(string projectPath, clsRasterData *templateRaster, str
             oss << projectPath << Filename << "_" << (j + 1);  // Filename_1.tif means layer 1
             string ascii(ASCIIExtension);
             if (ascii.find(Suffix) != ascii.npos)
-                clsRasterData::outputASCFile(templateRaster, tmpData, oss.str() + ASCIIExtension);
+                clsRasterData<float>::outputASCFile(templateRaster, tmpData, oss.str() + ASCIIExtension);
             else
-                clsRasterData::outputGTiff(templateRaster, tmpData, oss.str() + GTiffExtension);
+                clsRasterData<float>::outputGTiff(templateRaster, tmpData, oss.str() + GTiffExtension);
         }
         delete[] tmpData;
 		if (outToMongoDB)
@@ -224,7 +225,7 @@ void PrintInfoItem::Flush(string projectPath, clsRasterData *templateRaster, str
 			bson_error_t *err = NULL;
 			if (find(outputExisted.begin(), outputExisted.end(), Filename.c_str()) != outputExisted.end())
 				mongoc_gridfs_remove_by_filename(gfs, Filename.c_str(), err);
-			clsRasterData::outputToMongoDB(templateRaster, m_2DData, m_nLayers, Filename, gfs);
+			clsRasterData<float>::outputToMongoDB(templateRaster, m_2DData, m_nLayers, Filename, gfs);
 		}	
 		return;
     }

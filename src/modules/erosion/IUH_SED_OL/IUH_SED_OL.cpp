@@ -53,7 +53,7 @@ void IUH_SED_OL::initialOutputs()
             m_cellFlowCols = max(int(m_iuhCell[i][1] + 1), m_cellFlowCols);
         //get m_cellFlowCols, i.e. the maximum of second column of OL_IUH plus 1.
 
-		m_cellSed = new float *[m_nCells];
+		//m_cellSed = new float *[m_nCells];
 		Initialize2DArray(m_nCells, m_cellFlowCols, m_cellSed, 0.f);
 	}
 }
@@ -106,15 +106,13 @@ int IUH_SED_OL::Execute()
         }
         else if (subi >= m_nSubbasins + 1)
         {
-            ostringstream oss;
-            oss << subi;
-            throw ModelException(MID_IUH_SED_OL, "Execute", "The subbasin " + oss.str() + " is invalid.");
+            throw ModelException(MID_IUH_SED_OL, "Execute", "The subbasin " + ValueToString(subi) + " is invalid.");
         }
         m_sedtoCh[subi] += m_cellSed[i][0];
-
 		m_sedOL[i] = m_cellSed[i][0];
+		//if(i == 1852) cout << m_cellSed[i][0] << endl;
     }
-
+	//cout << m_sedtoCh[1] << endl;
     float tmp = 0.f;
 	#pragma omp parallel for reduction(+:tmp)
     for (int i = 1; i < m_nSubbasins + 1; i++)
@@ -197,12 +195,11 @@ void IUH_SED_OL::Get1DData(const char *key, int *n, float **data)
 		*n = m_nSubbasins + 1;
 		return;
 	}
-	else if (StringMatch(sk, VAR_SED_OL))
+	else if (StringMatch(sk, VAR_SEDYLD))
 	{
 		*data = m_sedOL;
 		*n = m_nCells;
 	}
-
     else
-        throw ModelException(MID_IUH_SED_OL, "Get1DData", "Result " + sk + " does not exist in current method.");
+        throw ModelException(MID_IUH_SED_OL, "Get1DData", "Result " + sk + " does not exist.");
 }

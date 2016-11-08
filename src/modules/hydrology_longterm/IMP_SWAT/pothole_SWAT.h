@@ -1,9 +1,13 @@
 /*!
-* \brief Simulates depressional areas that do not drain to the stream network (pothole) and impounded areas such as rice paddies
+ * \brief Simulates depressional areas that do not drain to the stream network (pothole) and impounded areas such as rice paddies
  * \author Liang-Jun Zhu
  * \date Sep 2016
  *           1. Source code of SWAT include: pothole.f
- * 
+ *           2. Add the simulation of Ammonia n transported with surface runoff, 2016-9-27
+ *           3. Add m_depEvapor and m_depStorage from DEP_LENSLEY module
+ *           4. Using a simple model (first-order kinetics equation) to simulate N transformation in impounded area.
+ * \data 2016-10-10
+ * \description: 1. Update all related variables after the simulation of pothole.
  */
 #pragma once
 
@@ -25,10 +29,16 @@ private:
 	float m_cellWidth;
 	/// cell area, ha
 	float m_cellArea;
+	/// timestep, sec
+	float m_timestep;
 	/// soil layers
 	float *m_soilLayers;
 	/// max soil layers
 	int m_nSoilLayers;
+	/// subbasin ID
+	float *m_subbasin;
+	/// subbasin number
+	int m_subbasinNum;
 	/**
     *	@brief Routing layers according to the flow direction
     *
@@ -58,19 +68,30 @@ private:
 	float m_potNo3Decay;
 	/// Soluble phosphorus decay rate in impounded water body
 	float m_potSolPDecay;
+
+	/// volatilization rate constant in impounded water body, /day
+	float m_kVolat;
+	/// nitrification rate constant in impounded water body, /day
+	float m_kNitri;
+	/// hydraulic conductivity of soil surface of pothole, mm/hr
+	float m_pot_k;
 	/// impounding trigger
 	float *m_impoundTrig;
 	/// surface area of impounded area, ha
 	float *m_potSurfaceArea;
 	/// net precipitation
-	float *m_netPrec;
+	//float *m_netPrec;
 	/// lai in the current day
 	float *m_LAIDay;
 	/// pet
 	float *m_pet;
-	/// surface runoff generated
+	/// evaporation from depression, mm
+	float *m_depEvapor;
+	/// depression storage, mm
+	float *m_depStorage;
+	/// surface runoff, mm
 	float *m_surfaceRunoff;
-	/// sediment caused by erosion
+	/// sediment yield transported on each cell, kg
 	float *m_sedYield;
 	//! sand yield
 	float *m_sandYield;
@@ -86,24 +107,30 @@ private:
 	float **m_soilStorage;
 	/// amount of water stored in soil profile on current day, sol_sw in SWAT
 	float *m_soilStorageProfile;
-	/// amount of nitrate transported with surface runoff
+	/// amount of nitrate transported with surface runoff, kg/ha
 	float *m_surqNo3;
-	/// amount of soluble phosphorus transported with surface runoff
+	/// amount of ammonian transported with surface runoff, kg/ha
+	float *m_surqNH4;
+	/// amount of soluble phosphorus transported with surface runoff, kg/ha
 	float *m_surqSolP;
-	/// 
+	/// , kg/ha
+	float *m_surqCOD;
+	/// , kg/ha
 	float *m_sedOrgN;
-	///
+	///, kg/ha
 	float *m_sedOrgP;
-	/// 
+	/// , kg/ha
 	float *m_sedActiveMinP;
-	/// 
+	/// , kg/ha
 	float *m_sedStableMinP;
 
 	/// no3 amount kg
 	float *m_potNo3;
+	/// nh4 amount kg
+	float *m_potNH4;
 	/// orgN amount kg
 	float *m_potOrgN;
-	/// soluble phosphorus loss rate    1/day
+	/// soluble phosphorus amount, kg
 	float *m_potSolP;
 	/// orgP amount kg
 	float *m_potOrgP;
@@ -128,7 +155,7 @@ private:
 	/// maximum volume mm
 	float *m_potVolMax;
 	/// lowest volume mm
-	float *m_potVolLow;
+	float *m_potVolMin;
 	/// seepage water of pothole, mm
 	float *m_potSeep;
 	/// evaporation, mm
@@ -149,6 +176,30 @@ private:
 	//float *m_potSagIn;
 	///// large aggregate
 	//float *m_potLagIn;
+
+	/* 
+	 * surface runoff, sediment, nutrient that into the channel
+	 */
+	/// surface runoff to channel, m^3/s
+	float *m_surfqToCh;
+	/// sediment transported to channel, kg
+	float *m_sedToCh;
+	/// amount of nitrate transported with surface runoff
+	float *m_surNO3ToCh;
+	/// amount of ammonian transported with surface runoff
+	float *m_surNH4ToCh;
+	/// amount of soluble phosphorus in surface runoff
+	float *m_surSolPToCh;
+	/// cod to reach in surface runoff (kg)
+	float *m_surCodToCh;
+	// amount of organic nitrogen in surface runoff
+	float *m_sedOrgNToCh;
+	// amount of organic phosphorus in surface runoff
+	float *m_sedOrgPToCh;
+	// amount of active mineral phosphorus absorbed to sediment in surface runoff
+	float *m_sedMinPAToCh;
+	// amount of stable mineral phosphorus absorbed to sediment in surface runoff
+	float *m_sedMinPSToCh;
 
 public:
     //! Constructor
