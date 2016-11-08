@@ -1,8 +1,4 @@
-import random
-import numpy
-import array
-from subprocess import *
-from config import *
+
 from pymongo import MongoClient
 
 # cmdStr = "%s %s %d %d %s %d %d" % (model_Exe, model_Workdir, threadsNum, layeringMethod, HOSTNAME, PORT, 1)
@@ -16,8 +12,8 @@ from pymongo import MongoClient
 # if process.returncode == 0:
 #     print "OK"
 
-# client = MongoClient(HOSTNAME, PORT)
-# db = client[BMPScenarioDBName]
-# collection = db.BMP_SCENARIOS
-# for i in range(7, 160):
-#     collection.remove({'ID': i})
+client = MongoClient('192.168.6.55', 27017)
+db = client['BMP_Scenario_dianbu2_30m_longterm']
+collection = db.BMP_SCENARIOS
+for i in range(7, 200):
+    collection.remove({'ID': i})

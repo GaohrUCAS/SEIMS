@@ -1,27 +1,52 @@
 # -*- coding: utf-8 -*-
 
-import os
-import numpy
+import ConfigParser
 from readTextInfo import *
 
-# MongoDB
-HOSTNAME = "192.168.6.55"
-PORT = 27017
-BMPScenarioDBName = "BMP_Scenario_dianbu2_30m_longterm"
+# Load model configuration from *.ini file
+cf = ConfigParser.ConfigParser()
+cf.read(GetINIfile())
+# 1. Text files directories
+MODEL_DIR = None
+if 'PATH' in cf.sections():
+    MODEL_DIR = cf.get('PATH', 'MODEL_DIR'.lower())
+    fieldFile = cf.get('PATH', 'fieldFile'.lower())
+    pointFile = cf.get('PATH', 'pointFile'.lower())
+    pointBMPsFile = cf.get('PATH', 'pointBMPsFile'.lower())
+else:
+    raise ValueError("[PATH] section MUST be existed in *.ini file.")
+if not isPathExists(MODEL_DIR):
+    raise IOError("Please Check Directories defined in [PATH]")
 
-# Files
-fieldFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\spatial\mgtfield_t100.txt'
-pointFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\management\point_source_distribution.txt'
-pointBMPsFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\management\point_source_management.txt'
+# 2. NSGA
+if 'NSGA' in cf.sections():
+    GenerationsNum = int(cf.get('NSGA', 'GenerationsNum'))
+    PopulationSize = int(cf.getint('NSGA', 'PopulationSize'))
+    CrossoverRate = float(cf.get('NSGA', 'CrossoverRate'))
+    MutateRate = float(cf.get('NSGA', 'MutateRate'))
+else:
+    raise ValueError("[MONGODB] section MUST be existed in *.ini file.")
 
-# SEIMS Model
-model_Exe = r'D:\SEIMS_model\SEIMS\Release\seims_omp'
-model_Workdir = r'D:\SEIMS_model\Model_data\model_dianbu2_30m_longterm'
-threadsNum = 8
-layeringMethod = 0
+# 3. MongoDB
+if 'MONGODB' in cf.sections():
+    HOSTNAME = cf.get('MONGODB', 'HOSTNAME')
+    PORT = int(cf.getint('MONGODB', 'PORT'))
+    BMPScenarioDBName = cf.get('MONGODB', 'BMPScenarioDBName'.lower())
+else:
+    raise ValueError("[MONGODB] section MUST be existed in *.ini file.")
+if not isIPValid(HOSTNAME):
+    raise ValueError("HOSTNAME illegal defined in [MONGODB]!")
 
-timeStart = "2014-01-01"
-timeEnd = "2014-12-31"
+# 3. SEIMS_Model
+if 'SEIMS_Model' in cf.sections():
+    model_Exe = cf.get('SEIMS_Model', 'model_Exe'.lower())
+    model_Workdir = cf.get('SEIMS_Model', 'model_Workdir'.lower())
+    threadsNum = int(cf.get('SEIMS_Model', 'threadsNum'))
+    layeringMethod = int(cf.get('SEIMS_Model', 'layeringMethod'))
+    timeStart = cf.get('SEIMS_Model', 'timeStart')
+    timeEnd = cf.get('SEIMS_Model', 'timeEnd')
+else:
+    raise ValueError("[SEIMS_Model] section MUST be existed in *.ini file.")
 
 # Scenario
 field_farm = getFieldInfo(fieldFile)[1]

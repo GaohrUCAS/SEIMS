@@ -23,6 +23,7 @@ from deap import creator
 from deap import tools
 from deap.benchmarks.tools import hypervolume
 from scenario import *
+from userdef import *
 
 creator.create("FitnessMin", base.Fitness, weights=(-1.0, -1.0))
 creator.create("Individual", array.array, typecode='d', fitness=creator.FitnessMin)
@@ -36,10 +37,10 @@ def iniPops():
 toolbox.register("attr_float", iniPops)
 toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.attr_float)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-toolbox.register("evaluate", benchmarks.calBenefitandCost)
+toolbox.register("evaluate", calBenefitandCost)
 # toolbox.register("evaluate", benchmarks.test)
 toolbox.register("mate", tools.cxOnePoint)
-toolbox.register("mutate", tools.mutModel, indpb=0.05)
+toolbox.register("mutate", mutModel, indpb=MutateRate)
 toolbox.register("select", tools.selNSGA2)
 
 def main(num_Gens, size_Pops, cx, seed=None):
@@ -96,9 +97,9 @@ def main(num_Gens, size_Pops, cx, seed=None):
         
 if __name__ == "__main__":
 
-    num_Gens = 5
-    size_Pops = 32
-    cx = 0.75
+    num_Gens = GenerationsNum
+    size_Pops = PopulationSize
+    cx = CrossoverRate
 
     print "### START TO SCENARIOS OPTIMIZING ###"
     startT = time.clock()
