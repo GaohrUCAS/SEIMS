@@ -2,6 +2,7 @@
 
 import ConfigParser
 from readTextInfo import *
+# from preprocess.util import *
 
 # Load model configuration from *.ini file
 cf = ConfigParser.ConfigParser()

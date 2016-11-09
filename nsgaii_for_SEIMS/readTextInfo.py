@@ -3,11 +3,13 @@
 # @Author Huiran GAO
 # @Date   2016-10-28
 
-import os, sys
+import os
 import random
-import numpy
-from preprocess.util import *
-
+from RelativeImportModules import *
+# import util module located in SEIMS/preprocess
+if __package__ is None:
+    __package__ = import_parents(level=2)
+from ..preprocess.util import *
 
 def delSpecialStr(line):
     '''
@@ -160,7 +162,6 @@ def selectBMPatRandom(arr):
     aLen = len(arr)
     n = random.randint(0, aLen - 1)
     return arr[n]
-
 
 def getPointConfig(scenario, bmps_point, point_source, start_index, end_index):
     '''
