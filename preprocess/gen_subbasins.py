@@ -42,7 +42,7 @@ def GetMaskFromRaster(rasterFile, dstdir):
     xSizeMask = jMax - jMin + 1
     xMinMask = xMin + jMin * dx
     yMaxMask = yMax - iMin * dx
-    print "%dx%d -> %dx%d" % (xsize, ysize, xSizeMask, ySizeMask)
+    print ("%dx%d -> %dx%d" % (xsize, ysize, xSizeMask, ySizeMask))
 
     mask = numpy.zeros((ySizeMask, xSizeMask))
 
@@ -81,7 +81,7 @@ def MaskDEMFiles(workingDir, exeDir=None):
 
     maskFile, mask = GetMaskFromRaster(subbasinTauFile, workingDir)
 
-    print "Mask files..."
+    print ("Mask files...")
     n = len(originalFiles)
     # write mask config file
     configFile = "%s%s%s" % (workingDir, os.sep, FN_STATUS_MASKRASTERS)
@@ -213,8 +213,8 @@ def ImportSubbasinStatistics():
     # import parameters to MongoDB
     try:
         conn = MongoClient(HOSTNAME, PORT)
-    except ConnectionFailure, e:
-        sys.stderr.write("Could not connect to MongoDB: %s" % e)
+    except ConnectionFailure:
+        sys.stderr.write("Could not connect to MongoDB: %s" % ConnectionFailure.message)
         sys.exit(1)
     db = conn[SpatialDBName]
     importStatsDict = {PARAM_NAME_OUTLETID: outletBsnID, PARAM_NAME_OUTLETROW: oRow, PARAM_NAME_OUTLETCOL: oCol,
@@ -227,11 +227,11 @@ def ImportSubbasinStatistics():
                PARAM_FLD_MAX.upper(): DEFAULT_NODATA, PARAM_FLD_MIN.upper(): DEFAULT_NODATA,
                PARAM_FLD_USE.upper(): PARAM_USE_Y, Tag_DT_Type.upper(): "WATERSHED"}
         curfilter = {PARAM_FLD_NAME.upper(): dic[PARAM_FLD_NAME.upper()]}
-        db[DB_TAB_PARAMETERS.upper()].find_one_and_replace(
-            curfilter, dic, upsert=True)
+        # print (dic, curfilter)
+        db[DB_TAB_PARAMETERS.upper()].find_one_and_replace(curfilter, dic, upsert=True)
     db[DB_TAB_PARAMETERS.upper()].create_index(PARAM_FLD_NAME.upper())
 
-    print "Subbasin statistics imported!"
+    print ("Subbasin statistics imported!")
 
 
 if __name__ == "__main__":
