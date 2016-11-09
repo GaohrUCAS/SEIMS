@@ -78,11 +78,11 @@ NSGA与简单的遗传算法的主要区别在于:该算法在选择算子执行
 
 `nsga2.py`是NSGA-II流程的实现代码；
 
-`solution.py`与`nsga2_example.py`是对象NSGA-II的实体化以及运行示例，相关过程如交叉、变异等，添加了限制条件，符合情景优化；
-
-`config.py`是配置文件，主要定义了本地相关文件路径，相关变量的内容、取值等；
+`config.py`读取配置文件，主要是本地相关文件路径，相关变量的内容、取值等；
 
 `readTextInfo.py`是读取地块划分、点源分布及相关BMPs信息等Txt文件的代码；
+
+`userdef.py`是用户自定义的函数，包括优化目标，交叉、变异等，相关过程如交叉、变异等，添加了限制条件，符合情景优化；
 
 `scenario.py`是情景与NSGA-II耦合的代码，将单个情景视为一个对象，具体设计实现如下表：
 
@@ -92,6 +92,8 @@ NSGA与简单的遗传算法的主要区别在于:该算法在选择算子执行
 |attributes|scenario的染色体编码，长度为1（农田视为一个整体）+牛场、猪场数目+污水处理点个数|
 |*_Num|各点、面类型基因片段的长度|
 |sce_list|染色体解码后的情景列表（单个情景的列表）|
+|cost_eco|实施该情景的费用|
+|benefit_env|治理效益|
 
 |方法|功能|
 |---|---|
@@ -99,6 +101,10 @@ NSGA与简单的遗传算法的主要区别在于:该算法在选择算子执行
 |create(self)|染色体编码，生成情景编码字符串|
 |decoding(self)|染色体解码，生成情景列表|
 |importoMongo(self)|将情景列表导入数据库（其实可以与decoding()合并）|
+|cost(self)|计算费用|
+|benefit(self)|调用SEIMS模型，计算环境效益|
 
-目前可以设定简单的优化目标运行，接下来需要完成**与SEIMS的耦合**，和**BMPs经济**的计算。
+运行方式：
+`python -m scoop -n 4 *\nsga2.py -ini *\nsgaii_dianbu_30m2_longterm_omp_gaohr_win.ini`
+
 

@@ -14,13 +14,13 @@
 #    License along with DEAP. If not, see <http://www.gnu.org/licenses/>.
 
 import array
-
+import scoop
 import matplotlib.pyplot as plt
-
 from deap import base
 from deap import benchmarks
 from deap import creator
 from deap import tools
+from scoop import futures
 from deap.benchmarks.tools import hypervolume
 from scenario import *
 from userdef import *
@@ -57,7 +57,16 @@ def main(num_Gens, size_Pops, cx, seed=None):
     pop = toolbox.population(n=size_Pops)
     # Evaluate the individuals with an invalid fitness
     invalid_ind = [ind for ind in pop if not ind.fitness.valid]
-    fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+
+    try:
+        # parallel
+        fitnesses = futures.map(toolbox.evaluate, invalid_ind)
+        # print "parallel-fitnesses: ",fitnesses
+    except ImportError or ImportWarning:
+        # serial
+        fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+        # print "serial-fitnesses: ",fitnesses
+
     for ind, fit in zip(invalid_ind, fitnesses):
         ind.fitness.values = fit
 
@@ -83,7 +92,17 @@ def main(num_Gens, size_Pops, cx, seed=None):
         
         # Evaluate the individuals with an invalid fitness
         invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-        fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+        try:
+            # parallel
+            fitnesses = futures.map(toolbox.evaluate, invalid_ind)
+            # print "parallel-fitnesses: ",fitnesses
+        except ImportError or ImportWarning:
+            # serial
+            fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+            # print "serial-fitnesses: ",fitnesses
+
+        # invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+        # fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
         for ind, fit in zip(invalid_ind, fitnesses):
             ind.fitness.values = fit
 
