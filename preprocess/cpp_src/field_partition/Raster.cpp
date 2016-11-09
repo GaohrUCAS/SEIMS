@@ -14,7 +14,7 @@
 #include <string>
 
 #include "Raster.h"
-#include "Util.h"
+#include "util.h"
 
 //gdal
 #include "gdal.h"
