@@ -4,7 +4,7 @@
 # @Date   2016-10-29
 
 import os, sys
-import random
+import random, time
 from pymongo import MongoClient
 from subprocess import Popen
 from subprocess import PIPE
@@ -125,7 +125,7 @@ class Scenario:
             if line[0] != "" and len(line[0]) == 20:
                 lineArr = line[0].split(' ')[0].split('-')
                 if int(lineArr[2]) == 1:
-                    sys.stdout.write(str(lineArr[1]) + " ")
+                    sys.stdout.write(str(lineArr[0]) + "-" + str(lineArr[1]) + " ")
             continue
         process.wait()
         if process.returncode == 0:
@@ -141,16 +141,3 @@ class Scenario:
         print "benefit_env: ", self.benefit_env
         endT = time.clock()
         print "SEIMS running time: %.2fs" % (endT - startT)
-
-if __name__ == "__main__":
-    Sce = Scenario()
-    Sce.getIdfromMongo()
-    Sce.create()
-    Sce.decoding()
-    # Sce.importoMongo(HOSTNAME, PORT, BMPScenarioDBName)
-    Sce.cost()
-    # Sce.benefit()
-    print "id: ", Sce.id
-    print "attributes: ", Sce.sce_list
-    print "cost_eco: ", Sce.cost_eco
-    print "benefit_env: ", Sce.benefit_env
