@@ -5,4 +5,4 @@
 @author: Huiran Gao
 @date: 2016-10-12
 '''
-__all__ = ["nsga2"]
+__all__ = ["nsga2_deap"]
