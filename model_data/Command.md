@@ -82,7 +82,7 @@ python G:\code_zhulj\SEIMS\preprocess\parameters_extraction.py -ini G:\code_zhul
 + The released version is located in /home/zhulj/SEIMS/seims_omp_rel_x86-XXXXXX, e.g., /home/zhulj/SEIMS/seims_omp_rel_x86-201611/seims_omp
   + omp or mpi is the parallel version
   + x86 or x64 is the compiled version (currently, only x86 is provided)
-  
+  + python /home/zhulj/SEIMS/seims_omp_rel_x86-201611/preprocess/main.py -ini /home/zhulj/SEIMS/models/dianbu/dianbu2_30m_longterm_omp_dgpm.ini
 + Commands
   + /home/zhulj/SEIMS/seims_omp_rel_x86-201611/seims_omp /home/zhulj/SEIMS/models/dianbu/model_dianbu_30m_longterm 8 0 127.0.0.1 27017 0
   
