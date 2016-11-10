@@ -9,8 +9,14 @@ from hydroPlot import *
 if __name__ == "__main__":
     LoadConfiguration(GetINIfile())
 
-    ClimateDB = MongoClient(host=HOSTNAME, port=PORT)[ClimateDBName]
-    SpatialDB = MongoClient(host=HOSTNAME, port=PORT)[SpatialDBName]
+    try:
+        conn = MongoClient(host=HOSTNAME, port=PORT)
+    except ConnectionFailure:
+        sys.stderr.write("Could not connect to MongoDB: %s" % ConnectionFailure.message)
+        sys.exit(1)
+
+    ClimateDB = conn[ClimateDBName]
+    SpatialDB = conn[SpatialDBName]
     # Date Array
     '''
     TODO:
