@@ -26,7 +26,7 @@ def ReadCropAttrs(cropFile):
               for item in re.split('\t|\n', lines[0]) if item is not '']
     n = len(fields)
 
-    for i in xrange(n):
+    for i in range(n):
         attrDic[fields[i]] = {}
 
     for line in lines[2:]:
@@ -34,11 +34,11 @@ def ReadCropAttrs(cropFile):
                  for item in re.split('\t', line) if item is not '']
         id = int(items[0])
 
-        for i in xrange(n):
+        for i in range(n):
             dic = attrDic[fields[i]]
             try:
                 dic[id] = float(items[i])
-            except:
+            except ValueError:
                 dic[id] = items[i]
 
     return attrDic
@@ -59,17 +59,15 @@ def GenerateLandcoverInitialParameters(landuseFile, dstdir):
         for i in range(len(item)):
             if i != LUID:
                 if fieldNames[i].upper() not in replaceDicts.keys():
-                    replaceDicts[fieldNames[i].upper()] = {
-                        float(item[LUID]): float(item[i])}
+                    replaceDicts[fieldNames[i].upper()] = {float(item[LUID]): float(item[i])}
                 else:
-                    replaceDicts[fieldNames[i].upper()][float(
-                        item[LUID])] = float(item[i])
+                    replaceDicts[fieldNames[i].upper()][float(item[LUID])] = float(item[i])
     # print replaceDicts
 
     # Generate GTIFF
     for item in replaceDicts.keys():
         filename = WORKING_DIR + os.sep + item + '.tif'
-        print filename
+        print (filename)
         replaceByDict(landuseFile, replaceDicts[item], filename)
     return replaceDicts['LANDCOVER'].values()
 
@@ -100,12 +98,10 @@ def ReclassCrop(landuseFile, dstdir):
     # Generate GTIFF
     for i in range(len(dstCropTifs)):
         # print dstCropTifs[i]
-        replaceByDict(dstdir + os.sep + cropMFile,
-                      replaceDicts[i], dstCropTifs[i])
+        replaceByDict(dstdir + os.sep + cropMFile, replaceDicts[i], dstCropTifs[i])
 
 
 if __name__ == "__main__":
     LoadConfiguration(GetINIfile())
     # ReclassCrop(WORKING_DIR + os.sep + landuseMFile, WORKING_DIR)
-    GenerateLandcoverInitialParameters(
-        WORKING_DIR + os.sep + landuseMFile, WORKING_DIR)
+    GenerateLandcoverInitialParameters(WORKING_DIR + os.sep + landuseMFile, WORKING_DIR)

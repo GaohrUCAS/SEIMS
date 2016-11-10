@@ -20,8 +20,19 @@
 #include <functional>
 
 #ifndef linux
+#include <WinSock2.h>
 #include <Windows.h>
 #include <direct.h>
+
+#else
+#include <dirent.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <stdio.h>
+#include <dlfcn.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #endif
 
 using namespace std;
@@ -31,27 +42,53 @@ int FindFiles(const char *lpPath, const char *expression, vector<string>& vecFil
 {
 #ifndef linux
 	char szFind[MAX_PATH];
-	strcpy_s(szFind,lpPath);
-	strcat_s(szFind,"\\");
-	strcat_s(szFind, expression);
+	stringcpy(szFind, lpPath);
+	stringcat(szFind, "\\");
+	stringcat(szFind, expression);
 
 	WIN32_FIND_DATA findFileData;
-	HANDLE hFind=::FindFirstFile(szFind, &findFileData);
-	if(INVALID_HANDLE_VALUE == hFind) 
+	HANDLE hFind = ::FindFirstFile(szFind, &findFileData);
+	if (INVALID_HANDLE_VALUE == hFind)
 		return -1;
 	do
 	{
-		if(findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			continue;
 
 		char fullpath[MAX_PATH];
-		strcpy_s(fullpath,lpPath);
-		strcat_s(fullpath,"\\");
-		strcat_s(fullpath, findFileData.cFileName);
+		stringcpy(fullpath, lpPath);
+		stringcat(fullpath, "\\");
+		stringcat(fullpath, findFileData.cFileName);
 
 		vecFiles.push_back(fullpath);
 
-	}while (::FindNextFile(hFind, &findFileData));
+	} while (::FindNextFile(hFind, &findFileData));
+#else
+	struct dirent *ptr;
+	DIR *dir;
+	dir = opendir(lpPath);
+	//cout<<"Find existed files ..."<<endl;
+	while((ptr=readdir(dir)) != NULL)
+	{
+		if(ptr->d_name[0] == '.')
+			continue;
+
+		string filename(ptr->d_name);
+		//cout << filename<<endl;
+		int n = filename.length();
+		string ext = filename.substr(n-4, 4);
+		//cout << ext << "\t" << expression << endl;
+		if(StringMatch(ext, expression) || StringMatch(expression, ".*") 
+			|| StringMatch(expression, "*.*"))
+		{
+			ostringstream oss;
+			oss << lpPath << "/" <<  filename;
+			//cout<<oss.str()<<endl;
+			vecFiles.push_back(oss.str());
+		}
+	}
+	closedir(dir);
+
 #endif
 
 	return 0;

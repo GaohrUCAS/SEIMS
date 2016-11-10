@@ -30,10 +30,10 @@ if __name__ == "__main__":
     SitesMList, SitesPList = ImportHydroClimateSitesInfo()
     ImportDailyMeteoData(SitesMList)
     ImportDailyPrecData(SitesPList)
-    # Measurement Data, such as discharge, sediment yield.
-    ImportMeasurementData()
     # Spatial Data derived from DEM
     SubbasinDelineation()
+    # Measurement Data, such as discharge, sediment yield.
+    ImportMeasurementData()
     # Extract parameters from landuse, soil properties etc.
     ExtractParameters()
     # Import to MongoDB database

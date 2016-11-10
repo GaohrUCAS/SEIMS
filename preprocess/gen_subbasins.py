@@ -170,8 +170,8 @@ def ImportSubbasinStatistics():
     nrows = streamlinkD.nRows
     ncols = streamlinkD.nCols
     streamlinkData = streamlinkD.data
-    maxSubbasinID = streamlinkD.GetMax()
-    minSubbasinID = streamlinkD.GetMin()
+    maxSubbasinID = int(streamlinkD.GetMax())
+    minSubbasinID = int(streamlinkD.GetMin())
     subbasinNum = numpy.unique(streamlinkData).size - 1
     # print maxSubbasinID, minSubbasinID, subbasinNum
     flowdirD = ReadRaster(flowdirR)
@@ -209,7 +209,7 @@ def ImportSubbasinStatistics():
         return r, c
 
     oRow, oCol = findOutletIndex(iRow, iCol)
-    outletBsnID = streamlinkData[oRow][oCol]
+    outletBsnID = int(streamlinkData[oRow][oCol])
     # import parameters to MongoDB
     try:
         conn = MongoClient(HOSTNAME, PORT)
