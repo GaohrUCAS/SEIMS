@@ -288,7 +288,7 @@ basinVec = "basin.shp"
 chwidthName = "chwidth.tif"
 
 landuseMFile = "landuse.tif"
-cropMFile = "landcover.tif"  # added by LJ.
+cropMFile = "LANDCOVER.tif"  # added by LJ.
 soiltypeMFile = "soiltype.tif"
 mgtFieldMFile = "mgt_fields.tif"
 

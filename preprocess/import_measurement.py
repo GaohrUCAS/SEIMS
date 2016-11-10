@@ -13,7 +13,8 @@ from config import *
 def matchSubbasin(siteDict):
     '''
     Match the ID of subbasin
-        1. Read the coordinates of each subbasin's outlet, and the outlet ID of the whole basin (not finished yet)
+        1. Read the coordinates of each subbasin's outlet, and
+           the outlet ID of the whole basin (not finished yet)
         2. If the isOutlet field equals to
            2.1 - 0, then return the subbasinID of the site's location
            2.2 - 1, then return the outlet ID of the whole basiin
@@ -95,10 +96,15 @@ def ImportData(db, ObsTxtsList, sitesInfoTxtsList):
                 matched, curSubbasinID = matchSubbasin(siteDic)
                 if not matched:
                     break
-                siteDic[Tag_ST_SubbasinID.upper()] = curSubbasinID
+                curSubbasinIDStr = ''
+                for id in curSubbasinID:
+                    if id is not None:
+                        curSubbasinIDStr += str(id) + ','
+                curSubbasinIDStr = curSubbasinIDStr[:-1]
+                siteDic[Tag_ST_SubbasinID.upper()] = curSubbasinIDStr
                 curfilter = {Tag_ST_StationID.upper(): siteDic[Tag_ST_StationID.upper()],
-                             Tag_ST_Type.upper(): siteDic[Tag_ST_Type.upper()],
-                             Tag_ST_SubbasinID.upper(): curSubbasinID}
+                             Tag_ST_Type.upper(): siteDic[Tag_ST_Type.upper()]}
+                # print (curfilter)
                 db[Tag_ClimateDB_Sites.upper()].find_one_and_replace(curfilter, siteDic, upsert=True)
 
                 varDic = {}
@@ -227,9 +233,9 @@ def ImportMeasurementData():
         return False
     try:
         connMongo = MongoClient(HOSTNAME, PORT)
-        print "Import Site Measurement Data... "
-    except ConnectionFailure, e:
-        sys.stderr.write("Could not connect to MongoDB: %s" % e)
+        print ("Import Site Measurement Data... ")
+    except ConnectionFailure:
+        sys.stderr.write("Could not connect to MongoDB: %s" % ConnectionFailure.message)
         sys.exit(1)
     db = connMongo[ClimateDBName]
     cList = db.collection_names()

@@ -279,8 +279,11 @@ void ModelMain::Output()
 	{
 		vector<string> existedFiles;
 		FindFiles(outputPath.c_str(),".*",existedFiles);
-		for(vector<string>::iterator it = existedFiles.begin(); it != existedFiles.end(); it++)
+		//cout<<existedFiles.size()<<endl;
+		for(vector<string>::iterator it = existedFiles.begin(); it != existedFiles.end(); it++){
+			//cout<<*it<<endl;
 			remove((*it).c_str());
+		}
 	}
 #endif
     vector<PrintInfo *>::iterator it;

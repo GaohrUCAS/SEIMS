@@ -115,7 +115,7 @@ class Scenario:
             self.cost_eco += bmps_sewage_cost[int(self.attributes[i4])]
 
     def benefit(self):
-        print "Scenario ID: ", self.id
+        print ("Scenario ID: ", self.id)
         startT = time.clock()
         cmdStr = "%s %s %d %d %s %d %d" % (model_Exe, model_Workdir, threadsNum, layeringMethod, HOSTNAME, PORT, self.id)
         # print cmdStr
@@ -137,7 +137,7 @@ class Scenario:
                 simData = ReadSimfromTxt(timeStart, timeEnd, dataDir, polluteList[pp], subbasinID=0)
                 self.benefit_env += sum(simData) / polluteWt[pp]
         # print self.benefit_env
-        print "\ncost_eco: ", self.cost_eco
-        print "benefit_env: ", self.benefit_env
+        print ("\ncost_eco: ", self.cost_eco)
+        print ("benefit_env: ", self.benefit_env)
         endT = time.clock()
-        print "SEIMS running time: %.2fs" % (endT - startT)
+        print ("SEIMS running time: %.2fs" % (endT - startT))

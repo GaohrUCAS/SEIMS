@@ -1,6 +1,6 @@
 #pragma once
 #include "CellOrdering.h"
-#include "Util.h"
+#include "util.h"
 #include <iostream>
 #include <set>
 #include <fstream>

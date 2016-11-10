@@ -1,26 +1,9 @@
-#    This file is part of DEAP.
-#
-#    DEAP is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Lesser General Public License as
-#    published by the Free Software Foundation, either version 3 of
-#    the License, or (at your option) any later version.
-#
-#    DEAP is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-#    GNU Lesser General Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser General Public
-#    License along with DEAP. If not, see <http://www.gnu.org/licenses/>.
-
 import array
-import scoop
 import matplotlib.pyplot as plt
 from deap import base
 from deap import benchmarks
 from deap import creator
 from deap import tools
-from scoop import futures
 from deap.benchmarks.tools import hypervolume
 from scenario import *
 from userdef import *
@@ -59,7 +42,8 @@ def main(num_Gens, size_Pops, cx, seed=None):
     invalid_ind = [ind for ind in pop if not ind.fitness.valid]
 
     try:
-        # parallel
+        # parallel on multiprocesor or clusters using SCOOP
+        from scoop import futures
         fitnesses = futures.map(toolbox.evaluate, invalid_ind)
         # print "parallel-fitnesses: ",fitnesses
     except ImportError or ImportWarning:
@@ -79,7 +63,7 @@ def main(num_Gens, size_Pops, cx, seed=None):
 
     # Begin the generational process
     for gen in range(1, num_Gens):
-        print "###### Iteration: %d ######" % gen
+        print ("###### Iteration: %d ######" % gen)
         # Vary the population
         offspring = tools.selTournamentDCD(pop, len(pop))
         offspring = [toolbox.clone(ind) for ind in offspring]
@@ -93,7 +77,8 @@ def main(num_Gens, size_Pops, cx, seed=None):
         # Evaluate the individuals with an invalid fitness
         invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
         try:
-            # parallel
+            # parallel on multiprocesor or clusters using SCOOP
+            from scoop import futures
             fitnesses = futures.map(toolbox.evaluate, invalid_ind)
             # print "parallel-fitnesses: ",fitnesses
         except ImportError or ImportWarning:
@@ -111,7 +96,7 @@ def main(num_Gens, size_Pops, cx, seed=None):
         record = stats.compile(pop)
         logbook.record(gen=gen, evals=len(invalid_ind), **record)
         #print(logbook.stream)
-    print("Final population hypervolume is %f" % hypervolume(pop, [11.0, 11.0]))
+    print ("Final population hypervolume is %f" % hypervolume(pop, [11.0, 11.0]))
     return pop, logbook
         
 if __name__ == "__main__":
@@ -120,24 +105,26 @@ if __name__ == "__main__":
     size_Pops = PopulationSize
     cx = CrossoverRate
 
-    print "### START TO SCENARIOS OPTIMIZING ###"
+    print ("### START TO SCENARIOS OPTIMIZING ###")
     startT = time.clock()
     pop, stats = main(num_Gens, size_Pops, cx)
 
     pop.sort(key=lambda x: x.fitness.values)
     print (stats)
     for indi in pop:
-        print indi
+        print (indi)
 
     endT = time.clock()
-    print "Running time: %.2fs" % (endT - startT)
+    print ("Running time: %.2fs" % (endT - startT))
 
     front = numpy.array([ind.fitness.values for ind in pop])
-   # Plot
-    plt.title("Scenarios Optimizing\n", color="#aa0903")
+    # Plot
+    plt.title("Pareto frontier of Scenarios Optimization\n", color="#aa0903")
     plt.xlabel("cost(Yuan)")
     plt.ylabel("contaminants(t)")
-    plt.scatter(front[:,0], front[:,1], c="b")
+    plt.scatter(front[:, 0], front[:, 1], c="b")
     plt.title("\nPopulation: %d, Generation: %d" % (size_Pops, num_Gens), color="green", fontsize=9, loc='right')
-    plt.savefig("result_Scatter.png")
-    plt.show()
+    pngFullpath = model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Pareto_Gen_" \
+                  + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + ".png"
+    plt.savefig(pngFullpath)
+    # plt.show()

@@ -7,7 +7,7 @@
 
 //gdal
 #include "gdal.h"
-#include "Util.h"
+#include "util.h"
 #include "time.h"
 
 #include "Raster.cpp"
@@ -16,7 +16,7 @@
 using namespace std;
 
 map<int, int> dirToIndexMap;
-#define COMMAND
+
 /// Check if the required raster files existed in the directory
 bool checkInputRasterName(string &dir, map<string, string>&rstFilePaths);
 /// Find outlet location according to flow direction, stream link, and DEM. Updated by LJ.
@@ -33,12 +33,13 @@ int main(int argc, const char* argv[])
 	cout<<"                    Compile date: 2016-6-20                      "<<endl;
 	cout<<"                        Author: Hui Wu                                   "<<endl;
 	cout<<"                     Revised: Liang-Jun Zhu                       "<<endl;
-#ifdef COMMAND
+
 	string Dir = "";  
 	int Threshod = -1;
 	FlowDirectionMethod flowDirMtd;
 	map<string,string> rstFilePaths;
 	clock_t start, finish;
+	double duration = 0.;
 	start = clock();
 	if (argc < 2)
 	{
@@ -76,18 +77,8 @@ int main(int argc, const char* argv[])
 	else 
 		goto errexit;
 	finish = clock();
-#else
-	string Dir = "E:/data/Dianbu/patch_partition/basin2/";
-	FlowDirectionMethod flowDirMtd = (FlowDirectionMethod)0;
-	//string Dir = "E:/data/Dianbu/patch_partition/xigou/";
-	//FlowDirectionMethod flowDirMtd = (FlowDirectionMethod)1;
-	int Threshod = 100;
-	clock_t start, finish;
-	start = clock();
-	DoFieldsPartition(Dir, flowDirMtd, Threshod);
-	finish = clock();
-#endif
-	double duration = (double)(finish - start) / CLOCKS_PER_SEC;
+
+	duration = (double)(finish - start) / CLOCKS_PER_SEC;
 	cout << "Finished! Time-consuming (sec): "<< duration << endl;
 	//system("pause");
 	return 0;
