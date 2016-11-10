@@ -83,8 +83,13 @@ python G:\code_zhulj\SEIMS\preprocess\parameters_extraction.py -ini G:\code_zhul
   + omp or mpi is the parallel version
   + x86 or x64 is the compiled version (currently, only x86 is provided)
   + python /home/zhulj/SEIMS/seims_omp_rel_x86-201611/preprocess/main.py -ini /home/zhulj/SEIMS/models/dianbu/dianbu2_30m_longterm_omp_dgpm.ini
+  + python /home/zhulj/SEIMS/seims_omp_rel_x86-201611/preprocess/gen_subbasins.py -ini /home/zhulj/SEIMS/models/dianbu/dianbu2_30m_longterm_omp_dgpm.ini
 + Commands
-  + /home/zhulj/SEIMS/seims_omp_rel_x86-201611/seims_omp /home/zhulj/SEIMS/models/dianbu/model_dianbu_30m_longterm 8 0 127.0.0.1 27017 0
+  + /home/zhulj/SEIMS/seims_omp_rel_x86-201611/seims_omp /home/zhulj/SEIMS/models/dianbu/model_dianbu2_30m_longterm 8 0 192.168.6.55 27017 0
+  + python /home/zhulj/SEIMS/seims_omp_rel_x86-201611/postprocess/hydroPlot_main.py -ini /home/zhulj/SEIMS/models/dianbu/post_dianbu_30m_longterm_omp_dgpm.ini
++ Postprocess
+  
+
   
 + 192.168.6.57
   + python G:\code_zhulj\SEIMS\preprocess\import_parameters.py -ini G:\code_zhulj\SEIMS\preprocess\dianbu2_30m_longterm_omp_zhulj_winserver.ini
@@ -97,4 +102,5 @@ python G:\code_zhulj\SEIMS\preprocess\parameters_extraction.py -ini G:\code_zhul
   + python -m scoop -n 4 D:\GaohrWS\GithubPrj\SEIMS\nsgaii_for_SEIMS\nsga2.py -ini D:\GaohrWS\GithubPrj\SEIMS\nsgaii_for_SEIMS\nsgaii_dianbu_30m2_longterm_omp_gaohr_win.ini
 
 
-
+  + python C:\z_code\Hydro\SEIMS\scenario_analysis\nsga2.py -ini C:\z_code\Hydro\SEIMS\scenario_analysis\nsgaii_dianbu2_30m_longterm_omp_zhulj_win.ini
+  + python -m scoop -n 4 C:\z_code\Hydro\SEIMS\scenario_analysis\nsga2.py -ini C:\z_code\Hydro\SEIMS\scenario_analysis\nsgaii_dianbu2_30m_longterm_omp_zhulj_win.ini
