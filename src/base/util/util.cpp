@@ -58,6 +58,7 @@ int FindFiles(const char *lpPath, const char *expression, vector<string> &vecFil
 	struct dirent *ptr;
 	DIR *dir;
 	dir = opendir(lpPath);
+	//cout<<"Find existed files ..."<<endl;
 	while((ptr=readdir(dir)) != NULL)
 	{
 		if(ptr->d_name[0] == '.')
@@ -68,7 +69,8 @@ int FindFiles(const char *lpPath, const char *expression, vector<string> &vecFil
 		int n = filename.length();
 		string ext = filename.substr(n-4, 4);
 		//cout << ext << "\t" << expression << endl;
-		if(StringMatch(ext, expression))
+		if(StringMatch(ext, expression) || StringMatch(expression, ".*") 
+			|| StringMatch(expression, "*.*"))
 		{
 			ostringstream oss;
 			oss << lpPath << "/" <<  filename;
