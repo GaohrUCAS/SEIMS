@@ -54,7 +54,7 @@ def getFieldInfo(fieldFile):
             farmFields.append(int(fieldInfo[0]))
             farmLU.append(int(fieldInfo[3]))
     # print farmFields
-    return (fieldsNum, farmFields, farmLU)
+    return fieldsNum, farmFields, farmLU
 
 
 def getPointSource(pointFile):
@@ -87,7 +87,7 @@ def getPointSource(pointFile):
             point_pig.append(pointInfo[1])
         else:
             point_sewage.append(pointInfo[1])
-    return (point_cattle, point_pig, point_sewage)
+    return point_cattle, point_pig, point_sewage
 
 
 def getBMPsInfo(pointBMPsFile):
@@ -151,7 +151,7 @@ def getBMPsInfo(pointBMPsFile):
 
     # print BMPs_farm, '\n', BMPs_cattle, '\n', BMPs_pig, '\n', BMPs_sewage, '\n', \
     #         BMPs_cattle_cost, '\n', BMPs_pig_cost, '\n', BMPs_sewage_cost
-    return (BMPs_farm, BMPs_cattle, BMPs_pig, BMPs_sewage, BMPs_cattle_cost, BMPs_pig_cost, BMPs_sewage_cost)
+    return BMPs_farm, BMPs_cattle, BMPs_pig, BMPs_sewage, BMPs_cattle_cost, BMPs_pig_cost, BMPs_sewage_cost
 
 
 def selectBMPatRandom(arr):
@@ -244,4 +244,4 @@ def ReadSimfromTxt(timeStart, timeEnd, dataDir, sim, subbasinID=0):
 
 if __name__ == "__main__":
     pointBMPsFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\management\point_source_management.txt'
-    print getBMPsInfo(pointBMPsFile)[4]
+    print (getBMPsInfo(pointBMPsFile)[4])
