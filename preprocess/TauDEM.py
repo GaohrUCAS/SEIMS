@@ -27,7 +27,7 @@ def MPIHeader(mpiexeDir, inputProc, hostfile=None):
 
 def abortRun(lines):
     for line in lines:
-        if "ERROR" in line.upper():
+        if "ERROR" in line.upper() or 'BAD TERMINATION' in line.upper():
             return False
     return True
 
@@ -39,13 +39,13 @@ def Fill(np, workingDir, dem, filledDem, mpiexeDir=None, exeDir=None):
     else:
         exe = "pitremove"
     strCmd = strCmd + " %d %s -z %s -fel %s" % (np, exe, dem, filledDem)
-    print strCmd
+    print (strCmd)
     process = subprocess.Popen(strCmd, shell=True, stdout=subprocess.PIPE)
     runMsg = process.stdout.readlines()
     if abortRun(runMsg):
         return runMsg
     else:
-        print runMsg
+        print (runMsg)
         raise RuntimeError("Error occurs when running external program, please check!")
 
 

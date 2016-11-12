@@ -14,6 +14,11 @@ from scenario import *
 
 def calBenefitandCost(individual):
     Sce = Scenario()
+
+    random.seed()
+    ms = float(random.randint(0, 1000))
+    time.sleep(ms / 1000.)
+
     Sce.getIdfromMongo()
     Sce.attributes = individual
     Sce.decoding()

@@ -17,3 +17,6 @@ db = client['BMP_Scenario_dianbu2_30m_longterm']
 collection = db.BMP_SCENARIOS
 for i in range(7, 200):
     collection.remove({'ID': i})
+
+# a = range(16)
+# print a
