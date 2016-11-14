@@ -15,7 +15,7 @@ from pymongo import MongoClient
 client = MongoClient('192.168.6.55', 27017)
 db = client['BMP_Scenario_dianbu2_30m_longterm']
 collection = db.BMP_SCENARIOS
-for i in range(7, 200):
+for i in range(7, 50):
     collection.remove({'ID': i})
 
 # a = range(16)

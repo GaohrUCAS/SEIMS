@@ -49,6 +49,35 @@ if 'SEIMS_Model' in cf.sections():
 else:
     raise ValueError("[SEIMS_Model] section MUST be existed in *.ini file.")
 
+# 4. BMPs
+bmps_farm = []
+bmps_cattle = []
+bmps_pig = []
+bmps_sewage = []
+bmps_farm_cost = []
+bmps_cattle_cost = []
+bmps_pig_cost = []
+bmps_sewage_cost = []
+if 'BMPs' in cf.sections():
+    bmps_farm_STR = cf.get('BMPs', 'bmps_farm'.lower())
+    bmps_cattle_STR = cf.get('BMPs', 'bmps_cattle'.lower())
+    bmps_pig_STR = cf.get('BMPs', 'bmps_pig'.lower())
+    bmps_sewage_STR = cf.get('BMPs', 'bmps_sewage'.lower())
+    bmps_farm_cost_STR = cf.get('BMPs', 'bmps_farm_cost'.lower())
+    bmps_cattle_cost_STR = cf.get('BMPs', 'bmps_cattle_cost'.lower())
+    bmps_pig_cost_STR = cf.get('BMPs', 'bmps_pig_cost'.lower())
+    bmps_sewage_cost_STR = cf.get('BMPs', 'bmps_sewage_cost'.lower())
+    bmps_farm = StrtoIntArr(SplitStr(StripStr(bmps_farm_STR)))
+    bmps_cattle = StrtoIntArr(SplitStr(StripStr(bmps_cattle_STR)))
+    bmps_pig = StrtoIntArr(SplitStr(StripStr(bmps_pig_STR)))
+    bmps_sewage = StrtoIntArr(SplitStr(StripStr(bmps_sewage_STR)))
+    bmps_farm_cost = StrtoFltArr(SplitStr(StripStr(bmps_farm_cost_STR)))
+    bmps_cattle_cost = StrtoFltArr(SplitStr(StripStr(bmps_cattle_cost_STR)))
+    bmps_pig_cost = StrtoFltArr(SplitStr(StripStr(bmps_pig_cost_STR)))
+    bmps_sewage_cost = StrtoFltArr(SplitStr(StripStr(bmps_sewage_cost_STR)))
+else:
+    raise ValueError("[BMPs] section MUST be existed in *.ini file.")
+
 # Scenario
 field_farm = getFieldInfo(fieldFile)[1]
 field_lu = getFieldInfo(fieldFile)[2]
@@ -58,16 +87,6 @@ point_sewage = getPointSource(pointFile)[2]
 
 # farm_Num = len(getFieldInfo(fieldFile)[1])
 farm_Num = 1
-point_cattle_Num = len(getPointSource(pointFile)[0])
-point_pig_Num = len(getPointSource(pointFile)[1])
-point_sewage_Num = len(getPointSource(pointFile)[2])
-
-bmps_farm = getBMPsInfo(pointBMPsFile)[0]
-bmps_cattle = numpy.sort(getBMPsInfo(pointBMPsFile)[1])
-bmps_pig = numpy.sort(getBMPsInfo(pointBMPsFile)[2])
-bmps_sewage = numpy.sort(getBMPsInfo(pointBMPsFile)[3])
-
-bmps_farm_cost = [208., 166.]
-bmps_cattle_cost = getBMPsInfo(pointBMPsFile)[4]
-bmps_pig_cost = getBMPsInfo(pointBMPsFile)[5]
-bmps_sewage_cost = getBMPsInfo(pointBMPsFile)[6]
+point_cattle_Num = len(point_cattle)
+point_pig_Num = len(point_pig)
+point_sewage_Num = len(point_sewage)
