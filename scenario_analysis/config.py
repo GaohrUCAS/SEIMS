@@ -12,6 +12,7 @@ cf = ConfigParser.ConfigParser()
 cf.read(GetINIfile())
 # 1. Text files directories
 MODEL_DIR = None
+# print cf.sections()
 if 'PATH' in cf.sections():
     MODEL_DIR = cf.get('PATH', 'MODEL_DIR'.lower())
     fieldFile = cf.get('PATH', 'fieldFile'.lower())
