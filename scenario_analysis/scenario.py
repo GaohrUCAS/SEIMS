@@ -137,7 +137,7 @@ class Scenario:
                 simData = ReadSimfromTxt(timeStart, timeEnd, dataDir, polluteList[pp], subbasinID=0)
                 self.benefit_env += sum(simData) / polluteWt[pp]
         # print self.benefit_env
-        print ("\ncost_eco: ", self.cost_eco)
+        print ("cost_eco: ", self.cost_eco)
         print ("benefit_env: ", self.benefit_env)
         endT = time.clock()
         print ("SEIMS running time: %.2fs" % (endT - startT))
