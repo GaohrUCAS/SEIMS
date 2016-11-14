@@ -200,7 +200,11 @@ int NutrientinGroundwater::Execute()
 {
     CheckInputData();
 	initialOutputs();
-	//cout<<"NutrGW, pre: "<<m_sol_solp[46364][0];
+	//int cellid = 18605;
+	//cout<<"NutrGW, pre solno3: ";
+	//for (int j = 0; j < (int)m_soilLayers[cellid]; j++)
+	//	cout<<j<<", "<<m_sol_no3[cellid][j]<<", ";
+	//cout<<endl;
 	for(vector<int>::iterator iter=m_subbasinIDs.begin(); iter != m_subbasinIDs.end(); iter++)
     {
 		int id = *iter;
@@ -233,6 +237,10 @@ int NutrientinGroundwater::Execute()
 		for (int i = 0; i < nCells; i++)
 		{
 			index = cells[i];
+			//if (index == cellid)
+			//	cout<<"revap: "<<revap<<", gwNo3: "<<m_gwNO3[id]<<", gwStorg: "<<
+			//	tmpGwStorage<<", percoNo3Gw: "<<m_perco_no3_gw[id]<<
+			//	", gwNo3Con: "<<m_gwno3Con[id]<<", no3ToSoil: "<<no3ToSoil<<endl;
 			m_sol_no3[index][(int)m_soilLayers[index] - 1] += no3ToSoil;
 			m_sol_solp[index][(int)m_soilLayers[index] - 1] += solpToSoil;
 		}
@@ -245,9 +253,10 @@ int NutrientinGroundwater::Execute()
 		//m_gwSolCon[id] += (m_perco_solp_gw[id] - m_solpGwToCh[id]) * 1000.f / gwVol;
 		//cout<<"subID: "<<id<<", percoNo3: "<<m_perco_no3_gw[id]<<", gwStorage: "<<m_gwStor[id]<<", new gwno3Con: "<<m_gwno3Con[id] << ", ";
     }
+	//cout<<"NutrGW, after solno3: ";
+	//for (int j = 0; j < (int)m_soilLayers[cellid]; j++)
+	//	cout<<j<<", "<<m_sol_no3[cellid][j]<<", ";
 	//cout<<endl;
-	//cout<<"NUTRGW, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
-	//cout<<", new: "<<m_sol_solp[46364][0]<<endl;
     return 0;
 }
 

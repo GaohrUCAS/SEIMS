@@ -225,7 +225,7 @@ private:
     /// water uptake normalization parameter, NOT ALLOWED TO MODIFIED BY USERS
     float uobw;
     /// current rooting depth
-    float m_soilRD;
+    float* m_soilRD;
 
     /**  set output variables  **/
 
