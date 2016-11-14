@@ -99,7 +99,6 @@ bool NPS_Management::CheckInputData()
 int NPS_Management::Execute()
 {
 	CheckInputData();
-	//cout<<"NPSMGT, pre: "<<m_sol_solp[46364][0];
 	if (m_cellArea < 0.f) m_cellArea = m_cellWidth * m_cellWidth;
 	for (map<int, BMPArealSrcFactory*>::iterator it = m_arealSrcFactory.begin(); it != m_arealSrcFactory.end(); it++)
 	{

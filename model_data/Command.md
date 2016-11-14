@@ -85,11 +85,13 @@ python G:\code_zhulj\SEIMS\preprocess\parameters_extraction.py -ini G:\code_zhul
   + python /home/zhulj/SEIMS/seims_omp_rel_x86-201611/preprocess/main.py -ini /home/zhulj/SEIMS/models/dianbu/dianbu2_30m_longterm_omp_dgpm.ini
   + python /home/zhulj/SEIMS/seims_omp_rel_x86-201611/preprocess/gen_subbasins.py -ini /home/zhulj/SEIMS/models/dianbu/dianbu2_30m_longterm_omp_dgpm.ini
 + Commands
+  + /home/zhulj/SEIMS/seims_omp/seims_omp /home/zhulj/SEIMS/models/dianbu/model_dianbu2_30m_longterm 6 0 192.168.6.55 27017 0
   + /home/zhulj/SEIMS/seims_omp_rel_x86-201611/seims_omp /home/zhulj/SEIMS/models/dianbu/model_dianbu2_30m_longterm 8 0 192.168.6.55 27017 0
-  + python /home/zhulj/SEIMS/seims_omp_rel_x86-201611/postprocess/hydroPlot_main.py -ini /home/zhulj/SEIMS/models/dianbu/post_dianbu_30m_longterm_omp_dgpm.ini
 + Postprocess
+  + python /home/zhulj/SEIMS/seims_omp_rel_x86-201611/postprocess/hydroPlot_main.py -ini /home/zhulj/SEIMS/models/dianbu/post_dianbu_30m_longterm_omp_dgpm.ini
   
-
++ Scenario analysis
+  + python -m scoop --hostfile /home/zhulj/SEIMS/models/dianbu/dgpm_hosts_SCOOP -n 8 /home/zhulj/SEIMS/seims_omp_rel_x86-201611/scenario_analysis/nsga2.py -ini /home/zhulj/SEIMS/models/dianbu/nsgaii_dianbu2_30m_longterm_omp_dgpm.ini
   
 + 192.168.6.57
   + python G:\code_zhulj\SEIMS\preprocess\import_parameters.py -ini G:\code_zhulj\SEIMS\preprocess\dianbu2_30m_longterm_omp_zhulj_winserver.ini

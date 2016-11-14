@@ -97,6 +97,7 @@ void NutrientMovementViaWater::SumBySubbasin()
 		m_sur_codToCh[0] += m_sur_codToCh[i];
 		m_latno3ToCh[0] += m_latno3ToCh[i];
 		m_perco_n_gw[0] += m_perco_n_gw[i];
+		//cout<<"subID: "<<i<<", m_perco_n_gw: "<<m_perco_n_gw[i]<<endl;
 		m_perco_p_gw[0] += m_perco_p_gw[i];
 	}
 }
@@ -360,31 +361,30 @@ void NutrientMovementViaWater::initialOutputs()
 int NutrientMovementViaWater::Execute()
 {
     CheckInputData();
-	//cout<<"NutrMV, pre: "<<m_sol_solp[46364][0];
+	//int cellid = 18605;
+	//cout<<"NutrMV, pre solno3: ";
+	//for (int j = 0; j < (int)m_nSoilLayers[cellid]; j++)
+	//	cout<<j<<", "<<m_sol_no3[cellid][j]<<", ";
+	//cout<<endl;
 	if (m_CbnModel == 2) /// check input data
 	{
 		if (m_sedc_d == NULL) throw ModelException(MID_NUTRMV, "CheckInputData", "The amount of C lost with sediment must not be NULL.");
 	}
     initialOutputs();
     // compute nitrate movement leaching
-	//cout<<"NUTRMV-exec, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
+	//cout<<"NUTRMV-exec, sol_no3[0]: "<<m_sol_no3[cellid][0]<<", "<<"surqno3: "<<m_surqno3[5878]<<endl;
     NitrateLoss();
-	//cout<<"NUTRMV-loss, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
+	//cout<<"NUTRMV-loss, sol_no3[0]: "<<m_sol_no3[cellid][0]<<", "<<"surqno3: "<<m_surqno3[cellid]<<endl;
     // compute phosphorus movement
     PhosphorusLoss();
 	// compute chl-a, CBOD and dissolved oxygen loadings
 	SubbasinWaterQuality();
 	// sum by sub-basin
 	SumBySubbasin();
-	//for (int i = 1; i <= m_nSubbasins; i++){
-	//	cout<<"surNo3ToCh: "<<m_sur_no3ToCh[i]<<", ";
-	//}
+	//cout<<"NutrMV, after solno3: ";
+	//for (int j = 0; j < (int)m_nSoilLayers[cellid]; j++)
+	//	cout<<j<<", "<<m_sol_no3[cellid][j]<<", ";
 	//cout<<endl;
-	//for (int i = 1; i <= m_nSubbasins; i++){
-	//	cout<<"percoNToCh: "<<m_perco_n_gw[i]<<", ";
-	//}
-	//cout<<endl;
-	//cout<<", new: "<<m_sol_solp[46364][0]<<endl;
     return 0;
 }
 
@@ -407,6 +407,7 @@ void NutrientMovementViaWater::NitrateLoss()
 			for (int k = 0; k < (int)m_nSoilLayers[i]; k++)
 			{
 				// add nitrate leached from layer above (kg/ha)
+				//float tmpSolNo3 = m_sol_no3[i][k];
 				m_sol_no3[i][k] = m_sol_no3[i][k] + percnlyr;
 				//percnlyr = 0.f;
 				if (m_sol_no3[i][k] < 1.e-6f) 
@@ -428,6 +429,9 @@ void NutrientMovementViaWater::NitrateLoss()
 				// Calculate the concentration of nitrate in the mobile water (con),
 				// equation 4:2.1.2, 4:2.1.3 and 4:2.1.4 in SWAT Theory 2009, p269
 				mw = m_sol_perco[i][k] + sro + m_flat[i][k] + 1.e-10f;
+				//if (i == 918)
+				//	cout<<"sol_perco, k: "<<k<<", "<<m_sol_perco[i][k]<<", flat: "
+				//	<<m_flat[i][k]<<endl;
 				float satportion = ((1.f - m_anion_excl[i]) * m_sol_wsatur[i][k]);
 				//if (mw > satportion) mw = satportion;
 				ww = -mw / satportion;
@@ -435,9 +439,12 @@ void NutrientMovementViaWater::NitrateLoss()
 				if (mw > 1.e-10f)
 					con = max(vno3 / mw, 0.f); // kg/ha/mm = 100 mg/L
 				//if (con > 0.1) con = 0.1;
-				//if (i == 46364)
+				//if (con != con)
 				//{
-				//	cout<<"perco water: "<<m_sol_perco[i][k]<<", satportion: "<<satportion<<", mv: "<<mw<<", ww: "<<ww<<", vno3: "<<vno3<<",con(100 mg/L): "<<con<<endl;
+				//	cout<<"cellid: "<<i<<", layer: "<<k<<", perco water: "<<m_sol_perco[i][k]<<", satportion: "<<satportion<<
+				//		", mv: "<<mw<<", ww: "<<ww<<", vno3: "<<vno3<<", con(100 mg/L): "<<con
+				//		<<", pre sol no3: "<<tmpSolNo3<<", sol no3: "<<m_sol_no3[i][k]<<endl;
+				//	//throw ModelException(MID_NUTRMV, "NitrateLoss", "NAN occurs of Soil NO3, please check!");
 				//}
 
 				// calculate nitrate in surface runoff
@@ -484,7 +491,7 @@ void NutrientMovementViaWater::NitrateLoss()
 				//if(i == 0 && k == 0) cout << percnlyr << ", \n";
 			}
 			// calculate nitrate leaching from soil profile
-			m_perco_n[i] = 0;
+			m_perco_n[i] = 0.f;
 			m_perco_n[i] = percnlyr; // percolation of the last soil layer, kg/ha
 			/// debugging code
 			//if (i == 46364){

@@ -481,8 +481,20 @@ void Nutrient_Transformation::initialOutputs()
 int Nutrient_Transformation::Execute()
 {
     CheckInputData();
-    initialOutputs();
-	//cout<<"Nutr_TF, pre: "<<m_sol_solp[46364][0];
+	initialOutputs();
+	//int cellid = 3406;
+	//cout<<"NutrTF, pre solno3: ";
+	//for (int i = 0; i < m_nCells; i++)
+	//{
+	//	for (int j = 0; j < (int)m_nSoilLayers[i]; j++){
+	//		if (m_sol_no3[i][j] != m_sol_no3[i][j])
+	//			cout<<"cellid: "<<i<<"lyr: "<<j<<", "<<m_sol_no3[i][j]<<endl;
+	//	}
+	//}
+	//for (int j = 0; j < (int)m_nSoilLayers[cellid]; j++)
+	//	cout<<j<<", "<<m_sol_no3[cellid][j]<<", ";
+	//cout<<endl;
+	//cout<<"NUTR_TF, cell id: "<<cellid<<", sol_no3[0]: "<<m_sol_no3[cellid][0]<<endl;
 #pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
     {
@@ -495,13 +507,31 @@ int Nutrient_Transformation::Execute()
 			Mineralization_CENTURYModel(i);
 		else /// throw exception if Carbon method invalid
 			throw ModelException(MID_NUTR_TF, "ComputeCNPCycling", "Carbon modeling method must be 0, 1, or 2.");
-        //Calculate daily mineralization (NH3 to NO3) and volatilization of NH3
+		//if (i == cellid){
+		//	cout<<"NutrTF, after mineralization solno3: ";
+		//	for (int j = 0; j < (int)m_nSoilLayers[cellid]; j++)
+		//		cout<<j<<", "<<m_sol_no3[cellid][j]<<", ";
+		//	cout<<endl;
+		//}
+		//Calculate daily mineralization (NH3 to NO3) and volatilization of NH3
         Volatilization(i);
+		//if (i == cellid){
+		//	cout<<"NutrTF, after Volatilization solno3: ";
+		//	for (int j = 0; j < (int)m_nSoilLayers[cellid]; j++)
+		//		cout<<j<<", "<<m_sol_no3[cellid][j]<<", ";
+		//	cout<<endl;
+		//}
         //Calculate P flux between the labile, active mineral and stable mineral P pools
         CalculatePflux(i);
-    }
-	//cout<<"minRL, cell id 5878, sol_no3[0]: "<<m_sol_no3[5878][0]<<endl;
-	//cout<<", new: "<<m_sol_solp[46364][0]<<endl;
+	}
+	//cout<<"NUTR_TF after, ";
+	//for (int i = 0; i < m_nCells; i++)
+	//{
+	//	for (int j = 0; j < (int)m_nSoilLayers[i]; j++){
+	//		if (m_sol_no3[i][j] != m_sol_no3[i][j])
+	//			cout<<"cellid: "<<i<<"lyr: "<<j<<", "<<m_sol_no3[i][j]<<endl;
+	//	}
+	//}
     return 0;
 }
 
@@ -665,7 +695,11 @@ void Nutrient_Transformation::Mineralization_StaticCarbonMethod(int i)
 
                 m_sol_fop[i][k] = m_sol_fop[i][k] - rmp;
                 m_sol_fon[i][k] = max(1.e-6f, m_sol_fon[i][k]) - rmn1;;
-                //Calculate no3, aorgn, solp, orgp, equation 3:1.2.9 in SWAT Theory 2009, p190
+                //debug
+				//if (rmn1 != rmn1)
+				//	cout<<"cellid: "<<i<<", lyr: "<<k<<", m_rsdco_pl: "<<
+				//	m_rsdco_pl[i]<<", ca: "<<ca<<", csf: "<<csf<<endl;
+				//Calculate no3, aorgn, solp, orgp, equation 3:1.2.9 in SWAT Theory 2009, p190
                 m_sol_no3[i][k] = m_sol_no3[i][k] + 0.8f * rmn1;
                 m_sol_aorgn[i][k] = m_sol_aorgn[i][k] + 0.2f * rmn1;
                 m_sol_solp[i][k] = m_sol_solp[i][k] + 0.8f * rmp;
@@ -786,15 +820,19 @@ void Nutrient_Transformation::Volatilization(int i)
                 if (rnit < 0)rnit = 0.f;
                 m_sol_nh4[i][k] = max(1e-6f, m_sol_nh4[i][k] - rnit);
             }
-            if (m_sol_nh4[i][k] < 0)
+            if (m_sol_nh4[i][k] < 0.f)
             {
                 rnit = rnit + m_sol_nh4[i][k];
                 m_sol_nh4[i][k] = 0.f;
             }
+			//debug
+			//if (rnit != rnit)
+			//	cout<<"cellid: "<<i<<", lyr: "<<k<<", akn: "<<akn<<", nvtf:"<<
+			//	nvtf<<", swf: "<<swf<<", dpf: "<<dpf<<", cecf: "<<cecf<<endl;
             m_sol_no3[i][k] = m_sol_no3[i][k] + rnit;
             //calculate ammonia volatilization
             m_sol_nh4[i][k] = max(1e-6f, m_sol_nh4[i][k] - rvol);
-            if (m_sol_nh4[i][k] < 0)
+            if (m_sol_nh4[i][k] < 0.f)
             {
                 rvol = rvol + m_sol_nh4[i][k];
                 m_sol_nh4[i][k] = 0.f;
