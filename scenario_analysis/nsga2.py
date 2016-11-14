@@ -21,19 +21,8 @@ def iniPops():
     bmpSce = Scenario()
     bmpSce.create()
     return bmpSce.attributes
-#
-# toolbox.register("attr_float", iniPops)
-# toolbox.register("individual", tools.initIterate, creator.Individuals, toolbox.attr_float)
-# toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-# toolbox.register("evaluate", calBenefitandCost)
-# toolbox.register("mate", tools.cxOnePoint)
-# toolbox.register("mutate", mutModel, indpb=MutateRate)
-# toolbox.register("select", tools.selNSGA2)
 
 def main(num_Gens, size_Pops, cx, seed=None):
-    # creator.create("FitnessMin", base.Fitness, weights=(-1.0, -1.0))
-    # creator.create("Individuals", array.array, typecode='d', fitness=creator.FitnessMin)
-    # toolbox = base.Toolbox()
 
     toolbox.register("attr_float", iniPops)
     toolbox.register("individual", tools.initIterate, creator.Individuals, toolbox.attr_float)
