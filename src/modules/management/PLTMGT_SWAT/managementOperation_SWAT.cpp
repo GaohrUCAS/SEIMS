@@ -712,8 +712,7 @@ void MGTOpt_SWAT::ExecutePlantOperation(int i, int &factoryID, int nOp)
         m_LAIDay[i] = curOperation->LAIInit();
         m_biomass[i] = curOperation->BIOInit();
     }
-
-    /// compare maximum rooting depth in soil to maximum rooting depth of plant
+	/// compare maximum rooting depth in soil to maximum rooting depth of plant
     m_soilZMX[i] = m_soilDepth[i][(int) m_nSoilLayers[i] - 1];
     /// if the land cover does existed, throw an exception.
     if (m_landuseLookupMap.find(int(m_landCover[i])) == m_landuseLookupMap.end())
@@ -722,7 +721,8 @@ void MGTOpt_SWAT::ExecutePlantOperation(int i, int &factoryID, int nOp)
                              " does not existed in Landuse lookup table, please check and retry!");
     float pltRootDepth = m_landuseLookupMap[(int) m_landCover[i]][LANDUSE_PARAM_ROOT_DEPTH_IDX];
     m_soilZMX[i] = min(m_soilZMX[i], pltRootDepth);
-
+	//if (i == 5878)
+	//	cout<<"new plant: "<<newPlantID<<", IDC: "<<m_landCoverCls[5878]<<", tbase: "<<m_tBase[5878]<<", solZMX: "<<m_soilZMX[5878]<<endl;
     /// reset curve number if necessary
     if (curOperation->CNOP() > 0.f)   /// curno.f
     {
@@ -1864,6 +1864,8 @@ int MGTOpt_SWAT::Execute()
     initialOutputs(); /// all possible outputs will be initialized to avoid NULL pointer problems.
 	/// initialize arrays at the beginning of the current day, derived from sim_initday.f of SWAT
 	//cout<<"PLTMGT_SWAT, pre: "<<m_soilSolP[46364][0];
+	//int cellid = 918;
+	//cout<<"PLTMGT_SWAT, cell id: "<<cellid<<", sol_no3[0]: "<<m_soilNO3[cellid][0]<<endl;
 #pragma omp parallel for
 	for (int i = 0; i < m_nCells; i++)
 	{
@@ -1898,7 +1900,8 @@ int MGTOpt_SWAT::Execute()
 				//if (i == 8144){
 				//	ofstream fs;
 				//	utils util;
-				//	string filename = "D:\\pltMgt.txt";
+				//	//string filename = "D:\\pltMgt.txt";
+				//	string filename = "pltMgt.txt";
 				//	fs.open(filename.c_str(), ios::out|ios::app);
 				//	if (fs.is_open())
 				//	{
@@ -1908,8 +1911,8 @@ int MGTOpt_SWAT::Execute()
 				//}
             }
         }
-    }
-	//cout<<"PLTMGT_SWAT, cell id 5878, sol_no3[0]: "<<m_soilNO3[5878][0]<<endl;
+	}
+	//cout<<"PLTMGT_SWAT, cell id: "<<cellid<<", sol_no3[0]: "<<m_soilNO3[cellid][0]<<endl;
 	//cout<<", new: "<<m_soilSolP[46364][0]<<endl;
     return 0;
 }

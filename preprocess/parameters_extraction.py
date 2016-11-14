@@ -144,7 +144,7 @@ def soil_parameters2(dstdir, maskFile, soilSEQNTif, soilSEQNTxt):
 
     # Generate GTIFF
     for i in range(len(dstSoilTifs)):
-        print dstSoilTifs[i]
+        print (dstSoilTifs[i])
         replaceByDict(soiltypeFile, replaceDicts[i], dstSoilTifs[i])
 
 
@@ -174,7 +174,7 @@ def landuse_parameters(dstdir, maskFile, inputLanduse, landuseFile, sqliteFile, 
     fReclassLu.write("%d\n" % (n))
     fReclassLu.write("\n".join(landuseAttrList))
     fReclassLu.close()
-    s = '"%s/reclassify" %s %s/cpp_src/reclassify/neigh.nbr' % (
+    s = '"%s/reclassify" %s %s/neigh.nbr' % (
         CPP_PROGRAM_DIR, reclassLuFile, PREPROC_SCRIPT_DIR)
     # MPI version is problematic, do not know why, By LJ
     # s = "mpiexec -n %d %s/reclassify %s %s/cpp_src/reclassify/neigh.nbr" % (
@@ -194,7 +194,7 @@ def ExtractParameters():
     f = open(statusFile, 'w')
     # generate landuse and soil properties lookup tables
     status = "Generating landuse and soil properties lookup tables..."
-    print "[Output] %s, %s" % (WORKING_DIR, status)
+    print ("[Output] %s, %s" % (WORKING_DIR, status))
     f.write("%d,%s\n" % (10, status))
     f.flush()
     str_sql = 'select landuse_id, ' + \
@@ -208,7 +208,7 @@ def ExtractParameters():
 
     # landuse parameters
     status = "Generating landuse attributes..."
-    print "[Output] %s, %s" % (WORKING_DIR, status)
+    print ("[Output] %s, %s" % (WORKING_DIR, status))
     f.write("%d,%s\n" % (20, status))
     f.flush()
     landuse_parameters(WORKING_DIR, maskFile, landuseOriginFile, landuseFile, TXT_DB_DIR + os.sep + sqliteFile,
@@ -216,7 +216,7 @@ def ExtractParameters():
 
     # soil physical and chemical parameters
     status = "Calculating inital soil physical and chemical parameters..."
-    print "[Output] %s, %s" % (WORKING_DIR, status)
+    print ("[Output] %s, %s" % (WORKING_DIR, status))
     f.write("%d,%s\n" % (30, status))
     f.flush()
     soil_parameters2(WORKING_DIR, maskFile, soilSEQNFile, soilSEQNText)
@@ -225,14 +225,14 @@ def ExtractParameters():
 
     # parameters derived from DEM
     status = "Calculating inital soil moisture..."
-    print "[Output] %s, %s" % (WORKING_DIR, status)
+    print ("[Output] %s, %s" % (WORKING_DIR, status))
     f.write("%d,%s\n" % (40, status))
     f.flush()
     InitMoisture(WORKING_DIR)
 
     if genCrop:
         status = "Generating crop/landcover attributes..."
-        print "[Output] %s, %s" % (WORKING_DIR, status)
+        print ("[Output] %s, %s" % (WORKING_DIR, status))
         f.write("%d,%s\n" % (50, status))
         f.flush()
 
@@ -253,21 +253,21 @@ def ExtractParameters():
         ReclassCrop(landuseFile, WORKING_DIR)
 
     status = "Calculating depression storage..."
-    print "[Output] %s, %s" % (WORKING_DIR, status)
+    print ("[Output] %s, %s" % (WORKING_DIR, status))
     f.write("%d,%s\n" % (70, status))
     f.flush()
     DepressionCap(WORKING_DIR, TXT_DB_DIR + os.sep + sqliteFile)
 
     if genCN:
         status = "Calculating CN numbers..."
-        print "[Output] %s, %s" % (WORKING_DIR, status)
+        print ("[Output] %s, %s" % (WORKING_DIR, status))
         f.write("%d,%s\n" % (80, status))
         f.flush()
         GenerateCN2(WORKING_DIR, TXT_DB_DIR + os.sep + sqliteFile)
 
     if genIUH:
         status = "Calculating IUH parameters..."
-        print "[Output] %s, %s" % (WORKING_DIR, status)
+        print ("[Output] %s, %s" % (WORKING_DIR, status))
         f.write("%d,%s\n" % (85, status))
         f.flush()
         GenerateRadius(WORKING_DIR, "T2")
@@ -277,7 +277,7 @@ def ExtractParameters():
 
     if genRunoffCoef:
         status = "Calculating runoff coefficient..."
-        print "[Output] %s, %s" % (WORKING_DIR, status)
+        print ("[Output] %s, %s" % (WORKING_DIR, status))
         f.write("%d,%s\n" % (90, status))
         f.flush()
         RunoffCoefficent(WORKING_DIR, TXT_DB_DIR + os.sep + sqliteFile)

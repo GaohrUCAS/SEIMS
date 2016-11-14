@@ -27,10 +27,9 @@ def ImportBMPTables():
     # connect to MongoDB
     try:
         conn = MongoClient(HOSTNAME, PORT)
-        print "Import BMP Scenario Data... "
-    except ConnectionFailure, e:
-        sys.stderr.write("Could not connect to MongoDB: %s" % e)
-        sys.exit(1)
+        print ("Import BMP Scenario Data... ")
+    except ConnectionFailure:
+        raise IOError("Could not connect to MongoDB: %s" % ConnectionFailure.message)
     db = conn[BMPScenarioDBName]
     # create if collection not existed
     cList = db.collection_names()

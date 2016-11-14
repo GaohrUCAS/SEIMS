@@ -2,13 +2,17 @@
 
 import ConfigParser
 from readTextInfo import *
-# from preprocess.util import *
+# import util module located in SEIMS/preprocess
+if __package__ is None:
+    __package__ = import_parents(level = 2)
+from ..preprocess.util import *
 
 # Load model configuration from *.ini file
 cf = ConfigParser.ConfigParser()
 cf.read(GetINIfile())
 # 1. Text files directories
 MODEL_DIR = None
+# print cf.sections()
 if 'PATH' in cf.sections():
     MODEL_DIR = cf.get('PATH', 'MODEL_DIR'.lower())
     fieldFile = cf.get('PATH', 'fieldFile'.lower())
@@ -19,14 +23,14 @@ else:
 if not isPathExists(MODEL_DIR):
     raise IOError("Please Check Directories defined in [PATH]")
 
-# 2. NSGA
-if 'NSGA' in cf.sections():
-    GenerationsNum = int(cf.get('NSGA', 'GenerationsNum'))
-    PopulationSize = int(cf.getint('NSGA', 'PopulationSize'))
-    CrossoverRate = float(cf.get('NSGA', 'CrossoverRate'))
-    MutateRate = float(cf.get('NSGA', 'MutateRate'))
+# 2. NSGA-II
+if 'NSGAII' in cf.sections():
+    GenerationsNum = int(cf.get('NSGAII', 'GenerationsNum'))
+    PopulationSize = int(cf.getint('NSGAII', 'PopulationSize'))
+    CrossoverRate = float(cf.get('NSGAII', 'CrossoverRate'))
+    MutateRate = float(cf.get('NSGAII', 'MutateRate'))
 else:
-    raise ValueError("[MONGODB] section MUST be existed in *.ini file.")
+    raise ValueError("[NSGAII] section MUST be existed in *.ini file.")
 
 # 3. MongoDB
 if 'MONGODB' in cf.sections():

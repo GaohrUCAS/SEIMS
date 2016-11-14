@@ -63,7 +63,7 @@ def isNumericValue(x):
         return False
     except ValueError:
         return False
-    except Exception, e:
+    except 'Exception':
         return False
     else:
         return True
@@ -102,17 +102,17 @@ def doy(dt):
 
 # earth-sun distance
 def dr(doy):
-    return 1 + 0.033 * math.cos(2 * math.pi * doy / 365)
+    return 1. + 0.033 * math.cos(2. * math.pi * doy / 365.)
 
 
 # declination
 def dec(doy):
-    return 0.409 * math.sin(2 * math.pi * doy / 365 - 1.39)
+    return 0.409 * math.sin(2. * math.pi * doy / 365. - 1.39)
 
 
 # sunset hour angle
 def ws(lat, dec):
-    x = 1 - math.pow(math.tan(lat), 2) * math.pow(math.tan(dec), 2)
+    x = 1. - math.pow(math.tan(lat), 2.) * math.pow(math.tan(dec), 2.)
     if x < 0:
         x = 0.00001
     # print x
@@ -127,9 +127,9 @@ def Rs(doy, n, lat):
     b = 0.5
     d = dec(doy)
     w = ws(lat, d)
-    N = 24 * w / math.pi
+    N = 24. * w / math.pi
     # Extraterrestrial radiation for daily periods
-    ra = (24 * 60 * 0.082 * dr(doy) / math.pi) * (
+    ra = (24. * 60. * 0.082 * dr(doy) / math.pi) * (
         w * math.sin(lat) * math.sin(d) + math.cos(lat) * math.cos(d) * math.sin(w))
     return (a + b * n / N) * ra
 
@@ -314,21 +314,56 @@ def GetNumberList(s):
 
 
 def NashCoef(qObs, qSimu):
+    '''
+    Calculate Nash coefficient
+    :param qObs:
+    :param qSimu:
+    :return: NSE, numeric value
+    '''
+    if len(qObs) != len(qSimu):
+        raise ValueError("The size of observed and simulated values must be the same for NSE calculation!")
     n = len(qObs)
     ave = sum(qObs) / n
-    a1 = 0
-    a2 = 0
+    a1 = 0.
+    a2 = 0.
     for i in range(n):
-        a1 = a1 + pow(qObs[i] - qSimu[i], 2)
-        a2 = a2 + pow(qObs[i] - ave, 2)
-    return 1 - a1 / a2
+        a1 += pow(float(qObs[i]) - float(qSimu[i]), 2.)
+        a2 += pow(float(qObs[i]) - ave, 2.)
+    if a2 == 0.:
+        return 1.
+    return 1. - a1 / a2
+
+def RSquare(qObs, qSimu):
+    '''
+    Calculate R-square
+    :param qObs:
+    :param qSimu:
+    :return: R-square numeric value
+    '''
+    if len(qObs) != len(qSimu):
+        raise ValueError("The size of observed and simulated values must be the same for R-square calculation!")
+    n = len(qObs)
+    obsAvg = sum(qObs) / n
+    predAvg = sum(qSimu) / n
+    obsMinusAvgSq = 0.
+    predMinusAvgSq = 0.
+    obsPredMinusAvgs = 0.
+    for i in range(n):
+        obsMinusAvgSq += pow((qObs[i] - obsAvg), 2.)
+        predMinusAvgSq += pow((qSimu[i] - predAvg), 2.)
+        obsPredMinusAvgs += (qObs[i] - obsAvg) * (qSimu[i] - predAvg)
+    # Calculate R-square
+    yy = (pow(obsMinusAvgSq, 0.5) * pow(predMinusAvgSq, 0.5))
+    if yy == 0.:
+        return 1.
+    return pow((obsPredMinusAvgs / yy), 2.)
 
 
 def RMSE(list1, list2):
     n = len(list1)
-    s = 0
+    s = 0.
     for i in range(n):
-        s = s + pow(list1[i] - list2[i], 2)
+        s += pow(list1[i] - list2[i], 2.)
     return math.sqrt(s / n)
 
 
@@ -548,7 +583,7 @@ def GetExecutableFullPath(name):
     '''
     findout = RunExternalCmd('which %s' % name)
     if findout == [] or len(findout) == 0:
-        print "%s is not included in the env path" % name
+        print ("%s is not included in the env path" % name)
         exit(-1)
     return findout[0].split('\n')[0]
 
@@ -581,4 +616,4 @@ if __name__ == "__main__":
     # print "Value at (x, y): %f" % R.GetValueByXY(39542419.65, 3543174.289)
     datafile = r'G:\code_zhulj\SEIMS\model_data\dianbu\data_prepare\climate\Sites_P.txt'
     data = ReadDataItemsFromTxt(datafile)
-    print data
+    print (data)

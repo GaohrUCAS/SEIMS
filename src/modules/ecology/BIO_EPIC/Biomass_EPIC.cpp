@@ -14,7 +14,7 @@ using namespace std;
 Biomass_EPIC::Biomass_EPIC(void) : m_nCells(-1), m_nClimDataYrs(-1), m_co2(NODATA_VALUE), m_tMean(NULL), m_tMin(NULL),
                                    m_SR(NULL), m_dayLenMin(NULL), m_dormHr(NULL),
                                    m_soilLayers(-1), m_NUpDis(NODATA_VALUE), m_PUpDis(NODATA_VALUE), m_NFixCoef(NODATA_VALUE),
-                                   m_NFixMax(NODATA_VALUE), m_soilRD(NODATA_VALUE), m_tMeanAnn(NULL),
+                                   m_NFixMax(NODATA_VALUE), m_soilRD(NULL), m_tMeanAnn(NULL),
                                    m_nSoilLayers(NULL), m_soilZMX(NULL), m_soilALB(NULL), m_soilDepth(NULL),
                                    m_soilAWC(NULL), m_totSoilAWC(NULL), m_totSoilSat(NULL),
                                    m_soilStorage(NULL), m_soilStorageProfile(NULL), m_sol_rsdin(NULL), m_sol_cov(NULL),m_sol_rsd(NULL),
@@ -419,11 +419,8 @@ void Biomass_EPIC::initialOutputs()
 		Initialize1DArray(m_nCells, m_oLAI, 0.f);
     if (m_lastSoilRootDepth == NULL)
 		Initialize1DArray(m_nCells, m_lastSoilRootDepth, 10.f);
-    //{
-    //    m_lastSoilRootDepth = new float[m_nCells];
-    //    for (int i = 0; i < m_nCells; i++)
-    //        m_lastSoilRootDepth[i] = 10.f;  /// TODO, check it out
-    //}
+	if (m_soilRD == NULL)
+		Initialize1DArray(m_nCells, m_soilRD, 10.f);
 	if(m_plantEPDay == NULL)
 		Initialize1DArray(m_nCells, m_plantEPDay, 0.f);
 	if (m_frRoot == NULL)
@@ -474,22 +471,28 @@ void Biomass_EPIC::DistributePlantET(int i)
     /// where the reduction is caused by low water content
     float reduc = 0.f;
     /// water uptake by plants in each soil layer
-    //float *wuse = new float[(int) m_nSoilLayers[i]];
+	/*
+	 * Initialize1DArray should not be used inside a OMP codeblock
+	 * In VS this would be fine, but in linux, may be problematic.*/
 	float *wuse(NULL);
 	Initialize1DArray((int) m_nSoilLayers[i], wuse, 0.f);
+
+	//float *wuse = new float[(int) m_nSoilLayers[i]];
+	//for (int j = 0; j < (int) m_nSoilLayers[i]; j++)
+	//	wuse[j] = 0.f;
     /// water uptake by plants from all layers
     float xx = 0.f;
     int ir = -1;
     int idc = int(m_landCoverCls[i]);
     if (idc == 1 || idc == 2 || idc == 4 || idc == 5)
     {
-        m_soilRD = 2.5f * m_frPHUacc[i] * m_soilZMX[i];
-        if (m_soilRD > m_soilZMX[i]) m_soilRD = m_soilZMX[i];
-        if (m_soilRD < 10.f) m_soilRD = 10.f;   /// minimum root depth is 10mm
+        m_soilRD[i] = 2.5f * m_frPHUacc[i] * m_soilZMX[i];
+        if (m_soilRD[i] > m_soilZMX[i]) m_soilRD[i] = m_soilZMX[i];
+        if (m_soilRD[i] < 10.f) m_soilRD[i] = 10.f;   /// minimum root depth is 10mm
     }
     else
-        m_soilRD = m_soilZMX[i];
-    m_lastSoilRootDepth[i] = m_soilRD;
+        m_soilRD[i] = m_soilZMX[i];
+    m_lastSoilRootDepth[i] = m_soilRD[i];
     if (m_ppt[i] <= 0.01f)
         m_frStrsWa[i] = 1.f;
     else
@@ -498,8 +501,6 @@ void Biomass_EPIC::DistributePlantET(int i)
         gx = 0.f;
         ir = 0;
         sump = 0.f;
-        //for (int j = 0; j < (int) m_nSoilLayers[i]; j++)
-        //    wuse[j] = 0.f;
         xx = 0.f;
 		// update soil storage profile just in case
 		m_soilStorageProfile[i] = 0.f;
@@ -519,18 +520,18 @@ void Biomass_EPIC::DistributePlantET(int i)
 		for (int j = 0; j < (int) m_nSoilLayers[i]; j++)
 		{
 			if (ir > 0) break;
-			if (m_soilRD <= m_soilDepth[i][j])
+			if (m_soilRD[i] <= m_soilDepth[i][j])
 			{
-				gx = m_soilRD;
+				gx = m_soilRD[i];
 				ir = j;
 			}
 			else
 				gx = m_soilDepth[i][j];
 			sum = 0.f;
-			if (m_soilRD <= 0.01f)
+			if (m_soilRD[i] <= 0.01f)
 				sum = m_ppt[i] / uobw;
 			else
-				sum = m_ppt[i] * (1.f - exp(-ubw * gx / m_soilRD)) / uobw;
+				sum = m_ppt[i] * (1.f - exp(-ubw * gx / m_soilRD[i])) / uobw;
 			wuse[j] = sum - sump + 1.f * m_epco[i];
 			wuse[j] = sum - sump + (sump - xx) * m_epco[i];
 			sump = sum;
@@ -555,6 +556,8 @@ void Biomass_EPIC::DistributePlantET(int i)
 		m_plantEPDay[i] = xx;
 	}
 	Release1DArray(wuse);
+	//delete[] wuse;
+	//wuse = NULL;
 }
 
 void Biomass_EPIC::CalTempStress(int i)
@@ -566,7 +569,7 @@ void Biomass_EPIC::CalTempStress(int i)
     else if (m_tMean[i] > m_tOpt[i])
         tgx = 2.f * m_tOpt[i] - m_tBase[i] - m_tMean[i];
     rto = (m_tOpt[i] - m_tBase[i]) / pow((tgx + UTIL_ZERO), 2.f);
-    if (rto <= 200.f && tgx > 0)
+    if (rto <= 200.f && tgx > 0.f)
         m_frStrsTmp[i] = exp(-0.1054f * rto);
     else
         m_frStrsTmp[i] = 0.f;
@@ -723,7 +726,7 @@ void Biomass_EPIC::PlantNitrogenUptake(int i)
     float uobn = PGCommon::getNormalization(m_NUpDis);
     float n_reduc = 300.f; /// nitrogen uptake reduction factor (not currently used; defaulted 300.)
     float tno3 = 0.f;
-    for (int l = 0; l < m_nSoilLayers[i]; l++)
+    for (int l = 0; l < (int) m_nSoilLayers[i]; l++)
         tno3 += m_soilNO3[i][l];
     tno3 /= n_reduc;
     // float up_reduc = tno3 / (tno3 + exp(1.56f - 4.5f * tno3)); /// However, up_reduc is not used hereafter.
@@ -740,22 +743,28 @@ void Biomass_EPIC::PlantNitrogenUptake(int i)
     int ir = 0;
     if (m_NO3Defic[i] < UTIL_ZERO)
 		return;
-    for (int l = 0; l < m_nSoilLayers[i]; l++)
+    for (int l = 0; l < (int)m_nSoilLayers[i]; l++)
     {
 		if (ir > 0)
 			break;
         float gx = 0.f;
-        if (m_soilRD <= m_soilDepth[i][l])
+        if (m_soilRD[i] <= m_soilDepth[i][l])
         {
-            gx = m_soilRD;
+            gx = m_soilRD[i];
             ir = 1;
         }
         else
             gx = m_soilDepth[i][l];
         float unmx = 0.f;
         float uno3l = 0.f; /// plant nitrogen demand (kg/ha)
-        unmx = m_NO3Defic[i] * (1.f - exp(-m_NUpDis * gx / m_soilRD)) / uobn;
+        unmx = m_NO3Defic[i] * (1.f - exp(-m_NUpDis * gx / m_soilRD[i])) / uobn;
         uno3l = min(unmx - m_plantUpTkN[i], m_soilNO3[i][l]);
+		//if (uno3l != uno3l)
+		//	cout<<"cellid: "<<i<<", lyr: "<<l<<",m_NO3Defic: "<<m_NO3Defic[i]<<
+		//	", UpDis: "<<m_NUpDis<<", gx: "<<gx<<", msoilrd:"<<m_soilRD[i]<<
+		//	", uobn:"<<uobn<<", plantUpTkN: "<<m_plantUpTkN[i]<<
+		//	", soilNo3: "<<m_soilNO3[i][l]<<", unmx: "<<unmx<<
+		//	", uno3l: "<<uno3l<<endl;
         m_plantUpTkN[i] += uno3l;
         m_soilNO3[i][l] -= uno3l;
     }
@@ -846,14 +855,14 @@ void Biomass_EPIC::PlantPhosphorusUptake(int i)
     for (int l = 0; l < m_nSoilLayers[i]; l++)
     {
         if (ir > 0) break;
-        if (m_soilRD <= m_soilDepth[i][l])
+        if (m_soilRD[i] <= m_soilDepth[i][l])
         {
-            gx = m_soilRD;
+            gx = m_soilRD[i];
             ir = 1;
         }
         else
             gx = m_soilDepth[i][l];
-        upmx = uapd * (1.f - exp(-m_PUpDis * gx / m_soilRD)) / uobp;
+        upmx = uapd * (1.f - exp(-m_PUpDis * gx / m_soilRD[i])) / uobp;
         uapl = min(upmx - m_plantUpTkP[i], m_soilPsol[i][l]);
         m_plantUpTkP[i] += uapl;
         m_soilPsol[i][l] -= uapl;
@@ -873,7 +882,16 @@ void Biomass_EPIC::CheckDormantStatus(int i)
 int Biomass_EPIC::Execute()
 {
     CheckInputData();
-    initialOutputs();
+	initialOutputs();
+	//cout<<"BIOEPIC, pre solno3: ";
+	//for (int i = 0; i < m_nCells; i++)
+	//{
+	//	for (int j = 0; j < (int)m_nSoilLayers[i]; j++){
+	//		if (m_soilNO3[i][j] != m_soilNO3[i][j])
+	//			cout<<"cellid: "<<i<<"lyr: "<<j<<", "<<m_soilNO3[i][j]<<endl;
+	//	}
+	//}
+	//cout<<endl;
 #pragma omp parallel for
     for (int i = 0; i < m_nCells; i++)
     {
@@ -898,8 +916,16 @@ int Biomass_EPIC::Execute()
                 AdjustPlantGrowth(i);              /// plantmod.f
             CheckDormantStatus(i);                 /// dormant.f
         }
-    }
-	//cout<<"BIO_EPIC, cell id 5878, sol_no3[0]: "<<m_soilNO3[5878][0]<<endl;
+	}
+	//cout<<"BIOEPIC, after solno3: ";
+	//for (int i = 0; i < m_nCells; i++)
+	//{
+	//	for (int j = 0; j < (int)m_nSoilLayers[i]; j++){
+	//		if (m_soilNO3[i][j] != m_soilNO3[i][j])
+	//			cout<<"cellid: "<<i<<"lyr: "<<j<<", "<<m_soilNO3[i][j]<<endl;
+	//	}
+	//}
+	//cout<<endl;
     return 0;
 }
 
@@ -944,6 +970,5 @@ void Biomass_EPIC::Get2DData(const char *key, int *nRows, int *nCols, float ***d
 	*nCols = m_soilLayers;
 	if (StringMatch(sk, VAR_SOL_RSD)) *data = m_sol_rsd;
 	else
-		throw ModelException(MID_BIO_EPIC, "Get2DData", "Result " + sk +
-		" does not exist in current module. Please contact the module developer.");
+		throw ModelException(MID_BIO_EPIC, "Get2DData", "Result " + sk + " does not exist.");
 }

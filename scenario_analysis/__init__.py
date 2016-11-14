@@ -1,5 +1,5 @@
 '''
-    This file is part of python modules of SEIMS.
+    This file is part of scenario_analysis of SEIMS.
 
     SEIMS is distributed for Research and/or Education only,
     any commercial purpose will be FORBIDDEN.
@@ -10,6 +10,7 @@
     See the GNU General Public License for more details.
 '''
 __author__ = "SEIMS Team"
-__version__ = "2.0"
-__revision__ = "2.0.0"
-__all__=["preprocess", "postprocess", "scenario_analysis"]
+__description__="Implementation of the Scenario Analysis by NSGA-II algorithm of DEAP"
+__contributors__="Huiran Gao"
+__version__ = "1.0"
+__revision__ = "1.0.0"

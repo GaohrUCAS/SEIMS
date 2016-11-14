@@ -25,8 +25,8 @@ def BuildMongoDB():
     # build mongodb database
     try:
         conn = MongoClient(host=HOSTNAME, port=PORT)
-    except ConnectionFailure, e:
-        sys.stderr.write("Could not connect to MongoDB: %s" % e)
+    except ConnectionFailure:
+        sys.stderr.write("Could not connect to MongoDB: %s" % ConnectionFailure.message)
         sys.exit(1)
 
     db = conn[SpatialDBName]

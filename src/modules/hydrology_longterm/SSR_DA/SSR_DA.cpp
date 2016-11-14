@@ -4,7 +4,7 @@
 #include "MetadataInfo.h"
 #include "ModelException.h"
 #include "util.h"
-#include <omp.h >
+#include <omp.h>
 #include <stdlib.h>
 
 #include <map>

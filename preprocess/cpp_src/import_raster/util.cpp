@@ -71,7 +71,7 @@ int FindFiles(const char *lpPath, const char *expression, vector<string> &vecFil
 
     } while (::FindNextFile(hFind, &findFileData));
 #else
-    char ch,infile[1024],outfile[1024];
+    //char ch,infile[1024],outfile[1024];
     struct dirent *ptr;
     DIR *dir;
     dir = opendir(lpPath);
@@ -85,7 +85,8 @@ int FindFiles(const char *lpPath, const char *expression, vector<string> &vecFil
         int n = filename.length();
         string ext = filename.substr(n-4, 4);
         //cout << ext << "\t" << expression << endl;
-        if(StringMatch(ext, expression))
+		if(StringMatch(ext, expression) || StringMatch(expression, ".*") 
+			|| StringMatch(expression, "*.*"))
         {
             ostringstream oss;
             oss << lpPath << "/" <<  filename;

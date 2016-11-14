@@ -624,6 +624,7 @@ int NutrCH_QUAL2E::Execute()
 
 void NutrCH_QUAL2E::AddInputNutrient(int i)
 {
+	//cout<<"subID: "<<i<<", initial nh4: "<<m_chNH4[i]<<", ";
 	//cout<<"subID: "<<i<<", initial cod: "<<m_chCOD[i]<<", ";
 	/// nutrient amount from upstream routing will be accumulated to current storage
 	for (size_t j = 0; j < m_reachUpStream[i].size(); ++j)
@@ -641,6 +642,7 @@ void NutrCH_QUAL2E::AddInputNutrient(int i)
 		m_chChlora[i] += m_chOutChlora[upReachId];
 		m_chAlgae[i]  += m_chOutAlgae[upReachId];
 	}
+	//cout<<", added upstream, nh4: "<<m_chNH4[i]<<endl;
 	//cout<<", added upstream, cod: "<<m_chCOD[i]<<", ";
 	/// absorbed organic N, P from overland sediment routing
 	m_chOrgN[i] += m_sedOrgNToCh[i];
