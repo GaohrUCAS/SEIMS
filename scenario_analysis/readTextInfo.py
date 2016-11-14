@@ -241,7 +241,60 @@ def ReadSimfromTxt(timeStart, timeEnd, dataDir, sim, subbasinID=0):
     else:
         raise IOError("%s is not exist" % simData)
 
+# String Array to float/int Array
+def StrtoFltArr(arr):
+    newArr = []
+    for i in range(len(arr)):
+        newArr.append(float(arr[i]))
+    return newArr
 
-if __name__ == "__main__":
-    pointBMPsFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\management\point_source_management.txt'
-    print (getBMPsInfo(pointBMPsFile)[4])
+def StrtoIntArr(arr):
+    newArr = []
+    for i in range(len(arr)):
+        newArr.append(int(arr[i]))
+    return newArr
+
+
+# if __name__ == "__main__":
+#     fieldFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\spatial\mgtfield_t100.txt'
+#     pointFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\management\point_source_distribution.txt'
+#     pointBMPsFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\management\point_source_management.txt'
+#     # Scenario
+#     field_farm = getFieldInfo(fieldFile)[1]
+#     field_lu = getFieldInfo(fieldFile)[2]
+#     point_cattle = getPointSource(pointFile)[0]
+#     point_pig = getPointSource(pointFile)[1]
+#     point_sewage = getPointSource(pointFile)[2]
+#
+#     # farm_Num = len(getFieldInfo(fieldFile)[1])
+#     farm_Num = 1
+#     point_cattle_Num = len(point_cattle)
+#     point_pig_Num = len(point_pig)
+#     point_sewage_Num = len(point_sewage)
+#
+#     bmps_farm = getBMPsInfo(pointBMPsFile)[0]
+#     bmps_cattle = numpy.sort(getBMPsInfo(pointBMPsFile)[1])
+#     bmps_pig = numpy.sort(getBMPsInfo(pointBMPsFile)[2])
+#     bmps_sewage = numpy.sort(getBMPsInfo(pointBMPsFile)[3])
+#
+#     bmps_farm_cost = [208., 166.]
+#     bmps_cattle_cost = getBMPsInfo(pointBMPsFile)[4]
+#     bmps_pig_cost = getBMPsInfo(pointBMPsFile)[5]
+#     bmps_sewage_cost = getBMPsInfo(pointBMPsFile)[6]
+#
+#     print 'field_farm ', field_farm
+#     print 'field_lu ', field_lu
+#     print 'point_cattle ', point_cattle
+#     print 'point_pig ', point_pig
+#     print 'point_sewage ', point_sewage
+#
+#     print 'bmps_farm ', bmps_farm
+#     print 'bmps_cattle ', bmps_cattle
+#     print 'bmps_pig ', bmps_pig
+#     print 'bmps_sewage ', bmps_sewage
+#
+#     print 'bmps_farm_cost ', bmps_farm_cost
+#     print 'bmps_cattle_cost ', bmps_cattle_cost
+#     print 'bmps_pig_cost ', bmps_pig_cost
+#     print 'bmps_sewage_cost ', bmps_sewage_cost
+

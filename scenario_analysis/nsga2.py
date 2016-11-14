@@ -1,4 +1,9 @@
+import os
 import array
+import matplotlib
+if os.name != 'nt':
+    # Force matplotlib to not use any Xwindows backend.
+    matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from deap import base
 from deap import benchmarks
@@ -9,24 +14,35 @@ from scenario import *
 from userdef import *
 
 creator.create("FitnessMin", base.Fitness, weights=(-1.0, -1.0))
-creator.create("Individual", array.array, typecode='d', fitness=creator.FitnessMin)
+creator.create("Individuals", array.array, typecode='d', fitness=creator.FitnessMin)
 toolbox = base.Toolbox()
-
+#
 def iniPops():
     bmpSce = Scenario()
     bmpSce.create()
     return bmpSce.attributes
-
-toolbox.register("attr_float", iniPops)
-toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.attr_float)
-toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-toolbox.register("evaluate", calBenefitandCost)
-# toolbox.register("evaluate", benchmarks.test)
-toolbox.register("mate", tools.cxOnePoint)
-toolbox.register("mutate", mutModel, indpb=MutateRate)
-toolbox.register("select", tools.selNSGA2)
+#
+# toolbox.register("attr_float", iniPops)
+# toolbox.register("individual", tools.initIterate, creator.Individuals, toolbox.attr_float)
+# toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+# toolbox.register("evaluate", calBenefitandCost)
+# toolbox.register("mate", tools.cxOnePoint)
+# toolbox.register("mutate", mutModel, indpb=MutateRate)
+# toolbox.register("select", tools.selNSGA2)
 
 def main(num_Gens, size_Pops, cx, seed=None):
+    # creator.create("FitnessMin", base.Fitness, weights=(-1.0, -1.0))
+    # creator.create("Individuals", array.array, typecode='d', fitness=creator.FitnessMin)
+    # toolbox = base.Toolbox()
+
+    toolbox.register("attr_float", iniPops)
+    toolbox.register("individual", tools.initIterate, creator.Individuals, toolbox.attr_float)
+    toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+    toolbox.register("evaluate", calBenefitandCost)
+    toolbox.register("mate", tools.cxOnePoint)
+    toolbox.register("mutate", mutModel, indpb=MutateRate)
+    toolbox.register("select", tools.selNSGA2)
+
     random.seed(seed)
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     stats.register("min", numpy.min, axis=0)
@@ -124,7 +140,10 @@ if __name__ == "__main__":
     plt.ylabel("contaminants(t)")
     plt.scatter(front[:, 0], front[:, 1], c="b")
     plt.title("\nPopulation: %d, Generation: %d" % (size_Pops, num_Gens), color="green", fontsize=9, loc='right')
-    pngFullpath = model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Pareto_Gen_" \
+    imgPath = model_Workdir + os.sep + "NSGAII_OUTPUT"
+    if not isPathExists(imgPath):
+        os.makedirs(imgPath)
+    pngFullpath = imgPath + os.sep + "Pareto_Gen_" \
                   + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + ".png"
     plt.savefig(pngFullpath)
     # plt.show()
