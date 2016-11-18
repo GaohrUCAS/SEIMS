@@ -94,3 +94,7 @@ farm_Num = 1
 point_cattle_Num = len(point_cattle)
 point_pig_Num = len(point_pig)
 point_sewage_Num = len(point_sewage)
+
+# farm size
+point_cattle_size = getPointSource(pointFile)[3]
+point_pig_size = getPointSource(pointFile)[4]
