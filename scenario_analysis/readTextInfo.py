@@ -67,6 +67,8 @@ def getPointSource(pointFile):
     point_cattle = []
     point_pig = []
     point_sewage = []
+    point_cattle_size = []
+    point_pig_size = []
     if os.path.isfile(pointFile):
         pointfile_object = open(pointFile, "r")
         try:
@@ -83,11 +85,13 @@ def getPointSource(pointFile):
         pointInfo = pointTextArr[i].split('\t')
         if int(pointInfo[0]) == 10000:
             point_cattle.append(pointInfo[1])
+            point_cattle_size.append(int(pointInfo[7]))
         elif int(pointInfo[0]) == 20000:
             point_pig.append(pointInfo[1])
+            point_pig_size.append(int(pointInfo[7]))
         else:
             point_sewage.append(pointInfo[1])
-    return point_cattle, point_pig, point_sewage
+    return point_cattle, point_pig, point_sewage, point_cattle_size, point_pig_size
 
 
 def getBMPsInfo(pointBMPsFile):

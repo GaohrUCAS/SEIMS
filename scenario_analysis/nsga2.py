@@ -5,6 +5,7 @@ if os.name != 'nt':
     # Force matplotlib to not use any Xwindows backend.
     matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import scoop
 from deap import base
 from deap import benchmarks
 from deap import creator
@@ -22,15 +23,24 @@ def iniPops():
     bmpSce.create()
     return bmpSce.attributes
 
+toolbox.register("attr_float", iniPops)
+toolbox.register("individual", tools.initIterate, creator.Individuals, toolbox.attr_float)
+toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+toolbox.register("evaluate", calBenefitandCost)
+toolbox.register("mate", tools.cxOnePoint)
+toolbox.register("mutate", mutModel, indpb=MutateRate)
+toolbox.register("select", tools.selNSGA2)
+
+
 def main(num_Gens, size_Pops, cx, seed=None):
 
-    toolbox.register("attr_float", iniPops)
-    toolbox.register("individual", tools.initIterate, creator.Individuals, toolbox.attr_float)
-    toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-    toolbox.register("evaluate", calBenefitandCost)
-    toolbox.register("mate", tools.cxOnePoint)
-    toolbox.register("mutate", mutModel, indpb=MutateRate)
-    toolbox.register("select", tools.selNSGA2)
+    # toolbox.register("attr_float", iniPops)
+    # toolbox.register("individual", tools.initIterate, creator.Individuals, toolbox.attr_float)
+    # toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+    # toolbox.register("evaluate", calBenefitandCost)
+    # toolbox.register("mate", tools.cxOnePoint)
+    # toolbox.register("mutate", mutModel, indpb=MutateRate)
+    # toolbox.register("select", tools.selNSGA2)
 
     random.seed(seed)
     stats = tools.Statistics(lambda ind: ind.fitness.values)
@@ -110,8 +120,8 @@ if __name__ == "__main__":
     size_Pops = PopulationSize
     cx = CrossoverRate
 
-    print ("### START TO SCENARIOS OPTIMIZING ###")
-    startT = time.clock()
+    scoop.logger.warn("### START TO SCENARIOS OPTIMIZING ###")
+    startT = time.time()
     pop, stats = main(num_Gens, size_Pops, cx)
 
     pop.sort(key=lambda x: x.fitness.values)
@@ -119,8 +129,8 @@ if __name__ == "__main__":
     for indi in pop:
         print (indi)
 
-    endT = time.clock()
-    print ("Running time: %.2fs" % (endT - startT))
+    endT = time.time()
+    scoop.logger.warn("Running time: %.2fs" % (endT - startT))
 
     front = numpy.array([ind.fitness.values for ind in pop])
     # Plot
