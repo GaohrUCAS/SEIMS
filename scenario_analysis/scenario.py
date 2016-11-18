@@ -139,6 +139,7 @@ class Scenario:
                 simData = ReadSimfromTxt(timeStart, timeEnd, dataDir, polluteList[pp], subbasinID=0)
                 self.benefit_env += sum(simData) / polluteWt[pp]
         # print self.benefit_env
+
         scoop.logger.warn("\ncost_eco: " + str(self.cost_eco))
         scoop.logger.warn("benefit_env: " + str(self.benefit_env))
         endT = time.time()

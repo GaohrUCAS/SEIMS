@@ -100,8 +100,8 @@ python G:\code_zhulj\SEIMS\preprocess\parameters_extraction.py -ini G:\code_zhul
   + D:\GaohrWS\GithubPrj\SEIMS\postprocess>python hydroPlot_main.py -ini post_dianbu_30m_longterm_omp_gaohr_win.ini
 
 + NSGA-II
-  + python D:\GaohrWS\GithubPrj\SEIMS\nsgaii_for_SEIMS\nsga2_deap\nsga2.py -ini D:\GaohrWS\GithubPrj\SEIMS\nsgaii_for_SEIMS\nsga2_deap\nsgaii_dianbu_30m2_longterm_omp_gaohr_win.ini
-  + python -m scoop -n 4 D:\GaohrWS\GithubPrj\SEIMS\nsgaii_for_SEIMS\nsga2.py -ini D:\GaohrWS\GithubPrj\SEIMS\nsgaii_for_SEIMS\nsgaii_dianbu_30m2_longterm_omp_gaohr_win.ini
+  + python D:\GaohrWS\GithubPrj\SEIMS\nsgaii_for_SEIMS\nsga2_deap\nsga2.py -ini D:\GaohrWS\GithubPrj\SEIMS\nsgaii_for_SEIMS\nsga2_deap\nsgaii_dianbu2_30m_longterm_omp_gaohr_win.ini
+  + python -m scoop -n 4 D:\GaohrWS\GithubPrj\SEIMS\nsgaii_for_SEIMS\nsga2.py -ini D:\GaohrWS\GithubPrj\SEIMS\nsgaii_for_SEIMS\nsgaii_dianbu2_30m_longterm_omp_gaohr_win.ini
 
 
   + python C:\z_code\Hydro\SEIMS\scenario_analysis\nsga2.py -ini C:\z_code\Hydro\SEIMS\scenario_analysis\nsgaii_dianbu2_30m_longterm_omp_zhulj_win.ini
