@@ -117,7 +117,7 @@ class Scenario:
             self.cost_eco += bmps_sewage_cost[int(self.attributes[i4])]
 
     def benefit(self):
-        scoop.logger.warn("Scenario ID: " + str(self.id))
+        printInfo("Scenario ID: " + str(self.id))
         startT = time.time()
         cmdStr = "%s %s %d %d %s %d %d" % (model_Exe, model_Workdir, threadsNum, layeringMethod, HOSTNAME, PORT, self.id)
         # print cmdStr
@@ -130,6 +130,7 @@ class Scenario:
                     sys.stdout.write(str(lineArr[0]) + "-" + str(lineArr[1]) + " ")
             continue
         process.wait()
+        time.sleep(1)
         if process.returncode == 0:
         # if True:
             dataDir = model_Workdir + os.sep + "OUTPUT" + str(self.id)
@@ -140,7 +141,7 @@ class Scenario:
                 self.benefit_env += sum(simData) / polluteWt[pp]
         # print self.benefit_env
 
-        scoop.logger.warn("\ncost_eco: " + str(self.cost_eco))
-        scoop.logger.warn("benefit_env: " + str(self.benefit_env))
+        printInfo("\ncost_eco: " + str(self.cost_eco))
+        printInfo("benefit_env: " + str(self.benefit_env))
         endT = time.time()
-        scoop.logger.warn("SEIMS running time: %.2fs" % (endT - startT))
+        printInfo("SEIMS running time: %.2fs" % (endT - startT))

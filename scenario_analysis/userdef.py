@@ -16,7 +16,7 @@ def calBenefitandCost(individual):
     Sce = Scenario()
 
     random.seed()
-    ms = float(random.randint(0, 1000))
+    ms = float(random.randint(0, 3000))
     time.sleep(ms / 1000.)
 
     Sce.getIdfromMongo()
