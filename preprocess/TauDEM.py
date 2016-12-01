@@ -19,7 +19,7 @@ def MPIHeader(mpiexeDir, inputProc, hostfile=None):
         cmd = '"' + mpiexeDir + os.sep + 'mpiexec"'
     else:
         cmd = '"mpiexec"'
-    if inputProc > 8 and hostfile is not None:
+    if inputProc > 4 and hostfile is not None:
         cmd = cmd + ' -f ' + hostfile + ' -n '
     else:
         cmd += ' -n '
