@@ -6,6 +6,7 @@ if os.name != 'nt':
     matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import scoop
+import platform
 from deap import base
 from deap import benchmarks
 from deap import creator
@@ -78,7 +79,7 @@ def main(num_Gens, size_Pops, cx, seed=None):
 
     # Begin the generational process
     for gen in range(1, num_Gens):
-        print ("###### Iteration: %d ######" % gen)
+        printInfo("###### Iteration: %d ######" % gen)
         # Vary the population
         offspring = tools.selTournamentDCD(pop, len(pop))
         offspring = [toolbox.clone(ind) for ind in offspring]
@@ -95,11 +96,9 @@ def main(num_Gens, size_Pops, cx, seed=None):
             # parallel on multiprocesor or clusters using SCOOP
             from scoop import futures
             fitnesses = futures.map(toolbox.evaluate, invalid_ind)
-            # print "parallel-fitnesses: ",fitnesses
         except ImportError or ImportWarning:
             # serial
             fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-            # print "serial-fitnesses: ",fitnesses
 
         # invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
         # fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
@@ -110,39 +109,65 @@ def main(num_Gens, size_Pops, cx, seed=None):
         pop = toolbox.select(pop + offspring, size_Pops)
         record = stats.compile(pop)
         logbook.record(gen=gen, evals=len(invalid_ind), **record)
-        #print(logbook.stream)
-    print ("Final population hypervolume is %f" % hypervolume(pop, [11.0, 11.0]))
+        # print "\nlogbook.stream: ", logbook.stream
+
+        if gen % 1 == 0:
+            # Create plot
+            createPlot(pop, model_Workdir, num_Gens, size_Pops, gen)
+            # save in file
+            outputStr = "=== Generation_%d ===" % gen + os.linesep
+            outputStr += str(logbook) + os.linesep
+            for indi in pop:
+                outputStr += str(indi) + os.linesep
+            outfile = file(model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" \
+                        + str(GenerationsNum) + "_Pop_" + str(PopulationSize)+ os.sep + "Gen_" \
+                        + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + "resultLog.txt", 'a')
+            outfile.write(outputStr)
+            outfile.close()
+
+    printInfo("Final population hypervolume is %f" % hypervolume(pop, [11.0, 11.0]))
     return pop, logbook
         
 if __name__ == "__main__":
-
     num_Gens = GenerationsNum
     size_Pops = PopulationSize
     cx = CrossoverRate
+    if size_Pops % 4 != 0:
+        raise "'size_Pops' must be a multiple of 4."
 
-    scoop.logger.warn("### START TO SCENARIOS OPTIMIZING ###")
+    # Create result forld and file
+    resultForld = model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" + str(GenerationsNum) \
+                + "_Pop_" + str(PopulationSize)
+    createForld(resultForld)
+    logText = resultForld + os.sep + "Gen_" + str(GenerationsNum) + "_Pop_" \
+              + str(PopulationSize) + "resultLog.txt"
+    if os.path.isfile(logText):
+        # If exit, then delete it
+        os.remove(logText)
+
+    # Run NSGA-II
+    printInfo("### START TO SCENARIOS OPTIMIZING ###")
     startT = time.time()
     pop, stats = main(num_Gens, size_Pops, cx)
-
     pop.sort(key=lambda x: x.fitness.values)
-    print (stats)
-    for indi in pop:
-        print (indi)
-
+    printInfo(stats)
     endT = time.time()
-    scoop.logger.warn("Running time: %.2fs" % (endT - startT))
 
-    front = numpy.array([ind.fitness.values for ind in pop])
-    # Plot
-    plt.title("Pareto frontier of Scenarios Optimization\n", color="#aa0903")
-    plt.xlabel("cost(Yuan)")
-    plt.ylabel("contaminants(t)")
-    plt.scatter(front[:, 0], front[:, 1], c="b")
-    plt.title("\nPopulation: %d, Generation: %d" % (size_Pops, num_Gens), color="green", fontsize=9, loc='right')
-    imgPath = model_Workdir + os.sep + "NSGAII_OUTPUT"
-    if not isPathExists(imgPath):
-        os.makedirs(imgPath)
-    pngFullpath = imgPath + os.sep + "Pareto_Gen_" \
-                  + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + ".png"
-    plt.savefig(pngFullpath)
-    # plt.show()
+    # Create plot
+    createPlot(pop, model_Workdir, num_Gens, size_Pops, num_Gens)
+
+    outputStr = "=== The best ===" + os.linesep
+    outputStr += str(stats) + os.linesep
+    for indi in pop:
+        printInfo(indi)
+        outputStr += str(indi) + os.linesep
+
+    printInfo("Running time: %.2fs" % (endT - startT))
+    outputStr += "Running time: %.2fs" % (endT - startT) + os.linesep
+    # save as file
+    outfile = file(model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" \
+                  + str(GenerationsNum) + "_Pop_" + str(PopulationSize)+ os.sep + "Gen_" \
+                  + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + "resultLog.txt", 'a')
+    outfile.write(outputStr)
+    outfile.close()
+

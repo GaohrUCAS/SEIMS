@@ -5,6 +5,9 @@
 
 import os
 import random
+import platform
+import scoop
+import matplotlib.pyplot as plt
 from RelativeImportModules import *
 # import util module located in SEIMS/preprocess
 if __package__ is None:
@@ -216,6 +219,8 @@ def ReadSimfromTxt(timeStart, timeEnd, dataDir, sim, subbasinID=0):
     TIME_End = datetime.datetime.strptime(timeEnd, "%Y-%m-%d")
     ## Read simulation txt
     simData = "%s/%d_%s.txt" % (dataDir, subbasinID, sim)
+    while not os.path.isfile(simData):
+        time.sleep(1)
     # whether the text file existed?
     if not os.path.isfile(simData):
         raise IOError("%s is not existed, please check the configuration!" % simData)
@@ -258,6 +263,32 @@ def StrtoIntArr(arr):
         newArr.append(int(arr[i]))
     return newArr
 
+def printInfo(Str):
+    if platform.system() is "Windows":
+        print Str
+    else:
+        scoop.logger.warn(Str)
+
+def createForld(forldPath):
+    ## Create forld
+    if not isPathExists(forldPath):
+        os.makedirs(forldPath)
+
+def createPlot(pop, model_Workdir, num_Gens, size_Pops, GenID):
+    front = numpy.array([ind.fitness.values for ind in pop])
+    # Plot
+    plt.title("Pareto frontier of Scenarios Optimization\n", color="#aa0903")
+    plt.xlabel("cost(Yuan)")
+    plt.ylabel("contaminants(t)")
+    plt.scatter(front[:, 0], front[:, 1], c="r", alpha=0.8, s=12)
+    plt.title("\nPopulation: %d, Generation: %d" % (size_Pops, GenID), color="green", fontsize=9, loc='right')
+    imgPath = model_Workdir + os.sep + "NSGAII_OUTPUT"
+    createForld(imgPath)
+    pngFullpath = imgPath + os.sep + "Gen_" \
+                  + str(num_Gens) + "_Pop_" + str(size_Pops)+ os.sep + "Pareto_Gen_" \
+                  + str(GenID) + "_Pop_" + str(size_Pops) + ".png"
+    plt.savefig(pngFullpath)
+    # plt.show()
 
 # if __name__ == "__main__":
 #     fieldFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\spatial\mgtfield_t100.txt'
