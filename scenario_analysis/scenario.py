@@ -26,6 +26,10 @@ class Scenario:
         self.benefit_env = 0.
 
     def getIdfromMongo(self):
+        '''
+        set new scenario id according to the existing
+         scenario ids, i.e., the max id + 1
+        '''
         client = MongoClient(HOSTNAME, PORT)
         db = client[BMPScenarioDBName]
         collection = db.BMP_SCENARIOS
@@ -34,6 +38,13 @@ class Scenario:
             idsList.append(int(s['ID']))
         idList = list(set(idsList))
         self.id = idList[-1] + 1
+
+    def setId(self, id):
+        '''
+        set new scenario id by given number
+        :param id:
+        '''
+        self.id = id
 
     def create(self):
         # Create a scenario numeric string
