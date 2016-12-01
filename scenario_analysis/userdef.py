@@ -6,20 +6,26 @@ User defined tools
 # @Author Huiran GAO
 # @Date   2016-11-08
 
-
+import uuid
 from math import *
 from scenario import *
 
 # Model
+def __uniqueid__():
+    id = int(str(uuid.uuid4().fields[-1])[:8])
+    while True:
+        yield id
+        id += 1
 
 def calBenefitandCost(individual):
     Sce = Scenario()
 
-    random.seed()
-    ms = float(random.randint(0, 3000))
-    time.sleep(ms / 1000.)
+    # random.seed()
+    # ms = float(random.randint(0, 1000))
+    # time.sleep(ms / 1000.)
 
-    Sce.getIdfromMongo()
+    #Sce.getIdfromMongo()
+    Sce.setId(__uniqueid__().next())
     Sce.attributes = individual
     Sce.decoding()
     Sce.importoMongo(HOSTNAME, PORT, BMPScenarioDBName)

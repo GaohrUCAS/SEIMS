@@ -26,6 +26,10 @@ class Scenario:
         self.benefit_env = 0.
 
     def getIdfromMongo(self):
+        '''
+        set new scenario id according to the existing
+         scenario ids, i.e., the max id + 1
+        '''
         client = MongoClient(HOSTNAME, PORT)
         db = client[BMPScenarioDBName]
         collection = db.BMP_SCENARIOS
@@ -34,6 +38,13 @@ class Scenario:
             idsList.append(int(s['ID']))
         idList = list(set(idsList))
         self.id = idList[-1] + 1
+
+    def setId(self, id):
+        '''
+        set new scenario id by given number
+        :param id:
+        '''
+        self.id = id
 
     def create(self):
         # Create a scenario numeric string
@@ -49,9 +60,9 @@ class Scenario:
     def decoding(self):
         # scenario section
         if len(self.attributes) == 0:
-            raise Exception("<attributes> cannot be Null!")
+            raise Exception("'attributes' cannot be Null!")
         if self.id is None:
-            raise Exception("<id> cannot be None!")
+            raise Exception("'id' cannot be None!")
         field_index = self.field_Num
         point_cattle_index = self.point_cattle_Num + field_index
         point_pig_index = self.point_pig_Num + point_cattle_index
@@ -102,7 +113,7 @@ class Scenario:
 
     def cost(self):
         if len(self.attributes) == 0:
-            raise Exception("<attributes> cannot be Null!")
+            raise Exception("'attributes' cannot be Null!")
         field_index = self.field_Num
         point_cattle_index = self.point_cattle_Num + field_index
         point_pig_index = self.point_pig_Num + point_cattle_index
