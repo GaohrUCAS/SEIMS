@@ -119,11 +119,11 @@ def main(num_Gens, size_Pops, cx, seed=None):
             outputStr += str(logbook) + os.linesep
             for indi in pop:
                 outputStr += str(indi) + os.linesep
-            outfile = file(model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" \
-                        + str(GenerationsNum) + "_Pop_" + str(PopulationSize)+ os.sep + "Gen_" \
-                        + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + "resultLog.txt", 'a')
-            outfile.write(outputStr)
-            outfile.close()
+
+            outfilename = model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" \
+                           + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + os.sep + "Gen_" \
+                           + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + "resultLog.txt"
+            WriteLog(outfilename, outputStr, MODE='append')
 
     printInfo("Final population hypervolume is %f" % hypervolume(pop, [11.0, 11.0]))
     return pop, logbook
@@ -133,13 +133,13 @@ if __name__ == "__main__":
     size_Pops = PopulationSize
     cx = CrossoverRate
     if size_Pops % 4 != 0:
-        raise "'size_Pops' must be a multiple of 4."
+        raise ValueError("'size_Pops' must be a multiple of 4.")
 
     # Create result forld and file
-    resultForld = model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" + str(GenerationsNum) \
-                + "_Pop_" + str(PopulationSize)
-    createForld(resultForld)
-    logText = resultForld + os.sep + "Gen_" + str(GenerationsNum) + "_Pop_" \
+    resultfold = model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" + str(GenerationsNum) \
+                 + "_Pop_" + str(PopulationSize)
+    createForld(resultfold)
+    logText = resultfold + os.sep + "Gen_" + str(GenerationsNum) + "_Pop_" \
               + str(PopulationSize) + "resultLog.txt"
     if os.path.isfile(logText):
         # If exit, then delete it
@@ -165,9 +165,13 @@ if __name__ == "__main__":
     printInfo("Running time: %.2fs" % (endT - startT))
     outputStr += "Running time: %.2fs" % (endT - startT) + os.linesep
     # save as file
-    outfile = file(model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" \
+    outfilename = model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" \
                   + str(GenerationsNum) + "_Pop_" + str(PopulationSize)+ os.sep + "Gen_" \
-                  + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + "resultLog.txt", 'a')
-    outfile.write(outputStr)
-    outfile.close()
+                  + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + "resultLog.txt"
+    WriteLog(outfilename, outputStr, MODE = 'append')
+    # outfile = file(model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" \
+    #               + str(GenerationsNum) + "_Pop_" + str(PopulationSize)+ os.sep + "Gen_" \
+    #               + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + "resultLog.txt", 'a')
+    # outfile.write(outputStr)
+    # outfile.close()
 

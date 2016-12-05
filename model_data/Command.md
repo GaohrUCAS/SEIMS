@@ -20,7 +20,7 @@
 
 ### Run SEIMS model
 
-+ `D:\Compile\SEIMS_OMP\Release\seims_omp C:\z_code\Hydro\SEIMS\model_data\dianbu\model_dianbu_30m_longterm 6 0 127.0.0.1 27017 4`
++ `D:\Compile\SEIMS_OMP\Release\seims_omp C:\z_code\Hydro\SEIMS\model_data\dianbu\model_dianbu2_30m_longterm 6 0 192.168.6.55 27017 24217612`
 
 + `D:\Compile\SEIMS_OMP\Release\seims_omp C:\z_code\Hydro\SEIMS\model_data\dianbu\model_dianbu2_30m_longterm 6 0 192.168.6.55 27017 1`
 
@@ -106,3 +106,6 @@ python G:\code_zhulj\SEIMS\preprocess\parameters_extraction.py -ini G:\code_zhul
 
   + python C:\z_code\Hydro\SEIMS\scenario_analysis\nsga2.py -ini C:\z_code\Hydro\SEIMS\scenario_analysis\nsgaii_dianbu2_30m_longterm_omp_zhulj_win.ini
   + python -m scoop -n 4 C:\z_code\Hydro\SEIMS\scenario_analysis\nsga2.py -ini C:\z_code\Hydro\SEIMS\scenario_analysis\nsgaii_dianbu2_30m_longterm_omp_zhulj_win.ini
+  
+  
++ permission denied: chmod 
