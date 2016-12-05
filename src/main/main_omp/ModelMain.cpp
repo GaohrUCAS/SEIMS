@@ -20,7 +20,7 @@
 ModelMain::ModelMain(mongoc_client_t *conn, string dbName, string projectPath, SettingsInput *input,
                      ModuleFactory *factory, int subBasinID, int scenarioID, int numThread,
                      LayeringMethod layeringMethod)
-        : m_conn(conn), m_dbName(dbName), m_projectPath(projectPath), m_input(input), m_factory(factory),
+        : m_conn(conn), m_dbName(dbName), m_outputGfs(NULL), m_projectPath(projectPath), m_input(input), m_factory(factory),
           m_subBasinID(subBasinID), m_scenarioID(scenarioID), m_threadNum(numThread), m_layeringMethod(layeringMethod),
           m_templateRasterData(NULL), m_readFileTime(0.f), m_firstRunChannel(true), m_firstRunOverland(true),
           m_initialized(false), m_output(NULL)
