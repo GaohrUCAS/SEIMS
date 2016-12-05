@@ -1086,7 +1086,7 @@ int clsRasterData<T>::ReadFromMongoDB(mongoc_gridfs_t *gfs, const char *remoteFi
     /// Is 1D or 2D raster?
     vector<int> positionRows;
     vector<int> positionCols;
-    T nodataFloat = m_headers[HEADER_RS_NODATA];
+    T nodataFloat = (T)m_headers[HEADER_RS_NODATA];
     if (m_nLyrs == 1)
     {
         m_is2DRaster = false;

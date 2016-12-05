@@ -90,30 +90,21 @@ void PrintInfoItem::add1DTimeSeriesResult(time_t t, int n, float *data)
 
 void PrintInfoItem::Flush(string projectPath, clsRasterData<float> *templateRaster, string header)
 {
-/// removed by lj
-//#ifndef linux
-//    projectPath = projectPath + DB_TAB_OUT_SPATIAL + SEP;
-//    if (::GetFileAttributes(projectPath.c_str()) == INVALID_FILE_ATTRIBUTES)
-//    {
-//        LPSECURITY_ATTRIBUTES att = NULL;
-//        ::CreateDirectory(projectPath.c_str(), att);
-//    }
-//#else
-//    projectPath = projectPath + DB_TAB_OUT_SPATIAL + SEP;
-//    if(access(projectPath.c_str(), F_OK) != 0)
-//    {
-//        mkdir(projectPath.c_str(), 0777);
-//    }
-//#endif
 	bool outToMongoDB = false; /// added by LJ. 
-	// projectPath = projectPath + DB_TAB_OUT_SPATIAL + SEP;
 	projectPath = projectPath;
     /// Get filenames existed in GridFS, i.e., "OUTPUT.files"
-    vector<string> outputExisted = GetGridFsFileNames(gfs);
+    //vector<string> outputExisted = GetGridFsFileNames(gfs);// No need to obtain the existing GridFS names.
 	/// Filename should appended by AggregateType to avoiding the same names. By LJ, 2016-7-12
 	if(!StringMatch(AggType,""))
 		Filename = Filename + "_" + AggType;
     StatusMessage(("Creating output file " + Filename + "...").c_str());
+	if (!outToMongoDB)
+	{
+		bson_error_t *err = NULL;
+		/// delete the chunks
+		mongoc_collection_t *chunk = mongoc_gridfs_get_chunks(gfs);
+		mongoc_collection_drop(chunk, err);
+	}
     // Don't forget add appropriate suffix to Filename... ZhuLJ, 2015/6/16
     if (m_AggregationType == AT_SpecificCells)
     {
@@ -187,8 +178,7 @@ void PrintInfoItem::Flush(string projectPath, clsRasterData<float> *templateRast
 		if (outToMongoDB)
 		{
 			bson_error_t *err = NULL;
-			if (find(outputExisted.begin(), outputExisted.end(), Filename.c_str()) != outputExisted.end())
-				mongoc_gridfs_remove_by_filename(gfs, Filename.c_str(), err);
+			mongoc_gridfs_remove_by_filename(gfs, Filename.c_str(), err);
 			clsRasterData<float>::outputToMongoDB(templateRaster, m_1DData, Filename, gfs);
 		}
        
@@ -223,8 +213,7 @@ void PrintInfoItem::Flush(string projectPath, clsRasterData<float> *templateRast
 		if (outToMongoDB)
 		{
 			bson_error_t *err = NULL;
-			if (find(outputExisted.begin(), outputExisted.end(), Filename.c_str()) != outputExisted.end())
-				mongoc_gridfs_remove_by_filename(gfs, Filename.c_str(), err);
+			mongoc_gridfs_remove_by_filename(gfs, Filename.c_str(), err);
 			clsRasterData<float>::outputToMongoDB(templateRaster, m_2DData, m_nLayers, Filename, gfs);
 		}	
 		return;
