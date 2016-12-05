@@ -72,7 +72,7 @@ def main(num_Gens, size_Pops, cx, seed=None):
 
     # This is just to assign the crowding distance to the individuals
     # no actual selection is done
-    pop = toolbox.select(pop, len(pop))
+    pop = toolbox.select(pop, int(len(pop) * SelectRate))
     record = stats.compile(pop)
     logbook.record(gen=0, evals=len(invalid_ind), **record)
     print(logbook.stream)
@@ -81,7 +81,7 @@ def main(num_Gens, size_Pops, cx, seed=None):
     for gen in range(1, num_Gens):
         printInfo("###### Iteration: %d ######" % gen)
         # Vary the population
-        offspring = tools.selTournamentDCD(pop, len(pop))
+        offspring = tools.selTournamentDCD(pop, int(len(pop) * SelectRate))
         offspring = [toolbox.clone(ind) for ind in offspring]
         for ind1, ind2 in zip(offspring[::2], offspring[1::2]):
             if random.random() <= cx:
@@ -115,10 +115,12 @@ def main(num_Gens, size_Pops, cx, seed=None):
             # Create plot
             createPlot(pop, model_Workdir, num_Gens, size_Pops, gen)
             # save in file
-            outputStr = "=== Generation_%d ===" % gen + os.linesep
-            outputStr += str(logbook) + os.linesep
+            outputStr = "### Generation number: %d, Population size: %d ###" % (num_Gens, size_Pops) + os.linesep
+            outputStr += "### Generation_%d ###" % gen + os.linesep
+            outputStr += "cost\tbenefit\tscenario" + os.linesep
             for indi in pop:
-                outputStr += str(indi) + os.linesep
+                outputStr += str(indi.fitness.values[0]) + "\t" + str(indi.fitness.values[1]) + "\t" +\
+                             str(numpy.array(indi)) + os.linesep
             outfile = file(model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" \
                         + str(GenerationsNum) + "_Pop_" + str(PopulationSize)+ os.sep + "Gen_" \
                         + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + "resultLog.txt", 'a')
@@ -140,10 +142,13 @@ if __name__ == "__main__":
                 + "_Pop_" + str(PopulationSize)
     createForld(resultForld)
     logText = resultForld + os.sep + "Gen_" + str(GenerationsNum) + "_Pop_" \
-              + str(PopulationSize) + "resultLog.txt"
+              + str(PopulationSize) + "_resultLog.txt"
+    scenarios_info = model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "scenarios_info.txt"
     if os.path.isfile(logText):
         # If exit, then delete it
         os.remove(logText)
+    if os.path.isfile(scenarios_info):
+        os.remove(scenarios_info)
 
     # Run NSGA-II
     printInfo("### START TO SCENARIOS OPTIMIZING ###")
@@ -156,18 +161,21 @@ if __name__ == "__main__":
     # Create plot
     createPlot(pop, model_Workdir, num_Gens, size_Pops, num_Gens)
 
-    outputStr = "=== The best ===" + os.linesep
-    outputStr += str(stats) + os.linesep
+    outputStr = "### The best ###" + os.linesep
+    outputStr += "cost\tbenefit\tscenario" + os.linesep
+
+    # front = numpy.array([ind.fitness.values for ind in pop])
+    # printInfo(front)
+
     for indi in pop:
         printInfo(indi)
-        outputStr += str(indi) + os.linesep
+        outputStr += str(indi.fitness.values[0]) + "\t" + str(indi.fitness.values[1]) + "\t" \
+                     + str(numpy.array(indi)) + os.linesep
 
     printInfo("Running time: %.2fs" % (endT - startT))
     outputStr += "Running time: %.2fs" % (endT - startT) + os.linesep
     # save as file
-    outfile = file(model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" \
-                  + str(GenerationsNum) + "_Pop_" + str(PopulationSize)+ os.sep + "Gen_" \
-                  + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + "resultLog.txt", 'a')
+    outfile = file(logText, 'a')
     outfile.write(outputStr)
     outfile.close()
 

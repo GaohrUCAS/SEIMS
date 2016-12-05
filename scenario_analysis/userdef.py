@@ -12,7 +12,7 @@ from scenario import *
 
 # Model
 def __uniqueid__():
-    id = int(str(uuid.uuid4().fields[-1])[:8])
+    id = int(str(uuid.uuid4().fields[-1])[:3])
     while True:
         yield id
         id += 1
@@ -29,8 +29,11 @@ def calBenefitandCost(individual):
     Sce.attributes = individual
     Sce.decoding()
     Sce.importoMongo(HOSTNAME, PORT, BMPScenarioDBName)
+    # Calculate benefit and cost
     Sce.cost()
     Sce.benefit()
+    # Save scenarios information in file
+    Sce.saveInfo(scenariosInfo)
     f1 = Sce.cost_eco
     f2 = Sce.benefit_env
     return f1, f2

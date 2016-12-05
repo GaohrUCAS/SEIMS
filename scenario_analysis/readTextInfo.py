@@ -277,6 +277,7 @@ def createForld(forldPath):
 def createPlot(pop, model_Workdir, num_Gens, size_Pops, GenID):
     front = numpy.array([ind.fitness.values for ind in pop])
     # Plot
+    plt.figure(GenID)
     plt.title("Pareto frontier of Scenarios Optimization\n", color="#aa0903")
     plt.xlabel("cost(Yuan)")
     plt.ylabel("contaminants(t)")

@@ -108,7 +108,6 @@ class Scenario:
                     conf[keyarray[i]] = float(li_list[i])
                 else:
                     conf[keyarray[i]] = str(li_list[i]).upper()
-                # conf[keyarray[i]] = li_list[i]
             collection.insert(conf)
 
     def cost(self):
@@ -151,8 +150,15 @@ class Scenario:
                 simData = ReadSimfromTxt(timeStart, timeEnd, dataDir, polluteList[pp], subbasinID=0)
                 self.benefit_env += sum(simData) / polluteWt[pp]
         # print self.benefit_env
-
-        printInfo("\ncost_eco: " + str(self.cost_eco))
+        printInfo("cost_eco: " + str(self.cost_eco))
         printInfo("benefit_env: " + str(self.benefit_env))
         endT = time.time()
         printInfo("SEIMS running time: %.2fs" % (endT - startT))
+
+    def saveInfo(self, txtfile):
+        outfile = file(txtfile, 'a')
+        infoStr = str(self.id) + "\t" + str(self.cost_eco) + "\t" + str(self.benefit_env) \
+                  + "\t" + str(numpy.array(self.attributes)) + os.linesep
+        outfile.write(infoStr)
+        outfile.close()
+
