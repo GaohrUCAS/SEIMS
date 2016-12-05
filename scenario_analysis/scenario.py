@@ -4,7 +4,9 @@
 # @Date   2016-10-29
 
 import os, sys
-import random, time
+import random
+import time
+import scoop
 from pymongo import MongoClient
 from subprocess import Popen
 from subprocess import PIPE
@@ -58,9 +60,9 @@ class Scenario:
     def decoding(self):
         # scenario section
         if len(self.attributes) == 0:
-            raise Exception("<attributes> cannot be Null!")
+            raise Exception("'attributes' cannot be Null!")
         if self.id is None:
-            raise Exception("<id> cannot be None!")
+            raise Exception("'id' cannot be None!")
         field_index = self.field_Num
         point_cattle_index = self.point_cattle_Num + field_index
         point_pig_index = self.point_pig_Num + point_cattle_index
@@ -111,7 +113,7 @@ class Scenario:
 
     def cost(self):
         if len(self.attributes) == 0:
-            raise Exception("<attributes> cannot be Null!")
+            raise Exception("'attributes' cannot be Null!")
         field_index = self.field_Num
         point_cattle_index = self.point_cattle_Num + field_index
         point_pig_index = self.point_pig_Num + point_cattle_index
@@ -119,15 +121,15 @@ class Scenario:
         for i1 in range(0, field_index):
             self.cost_eco += bmps_farm_cost[int(self.attributes[i1])]
         for i2 in range(field_index, point_cattle_index):
-            self.cost_eco += bmps_cattle_cost[int(self.attributes[i2])]
+            self.cost_eco += bmps_cattle_cost[int(self.attributes[i2])] * point_cattle_size[i2 - field_index]
         for i3 in range(point_cattle_index, point_pig_index):
-            self.cost_eco += bmps_pig_cost[int(self.attributes[i3])]
+            self.cost_eco += bmps_pig_cost[int(self.attributes[i3])] * point_pig_size[i3 - point_cattle_index]
         for i4 in range(point_pig_index, point_sewage_index):
             self.cost_eco += bmps_sewage_cost[int(self.attributes[i4])]
 
     def benefit(self):
-        print ("Scenario ID: ", self.id)
-        startT = time.clock()
+        printInfo("Scenario ID: " + str(self.id))
+        startT = time.time()
         cmdStr = "%s %s %d %d %s %d %d" % (model_Exe, model_Workdir, threadsNum, layeringMethod, HOSTNAME, PORT, self.id)
         # print cmdStr
         process = Popen(cmdStr, shell=True, stdout=PIPE)
@@ -139,6 +141,7 @@ class Scenario:
                     sys.stdout.write(str(lineArr[0]) + "-" + str(lineArr[1]) + " ")
             continue
         process.wait()
+        time.sleep(1)
         if process.returncode == 0:
         # if True:
             dataDir = model_Workdir + os.sep + "OUTPUT" + str(self.id)
@@ -148,7 +151,8 @@ class Scenario:
                 simData = ReadSimfromTxt(timeStart, timeEnd, dataDir, polluteList[pp], subbasinID=0)
                 self.benefit_env += sum(simData) / polluteWt[pp]
         # print self.benefit_env
-        print ("cost_eco: ", self.cost_eco)
-        print ("benefit_env: ", self.benefit_env)
-        endT = time.clock()
-        print ("SEIMS running time: %.2fs" % (endT - startT))
+
+        printInfo("\ncost_eco: " + str(self.cost_eco))
+        printInfo("benefit_env: " + str(self.benefit_env))
+        endT = time.time()
+        printInfo("SEIMS running time: %.2fs" % (endT - startT))
