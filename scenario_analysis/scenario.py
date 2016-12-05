@@ -158,7 +158,7 @@ class Scenario:
     def saveInfo(self, txtfile):
         outfile = file(txtfile, 'a')
         infoStr = str(self.id) + "\t" + str(self.cost_eco) + "\t" + str(self.benefit_env) \
-                  + "\t" + str(numpy.array(self.attributes)) + os.linesep
+                  + "\t" + str(self.attributes) + LF
         outfile.write(infoStr)
         outfile.close()
 

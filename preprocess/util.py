@@ -13,6 +13,7 @@ import shutil
 import socket
 import sys
 import time
+import platform
 
 import numpy
 from gdalconst import *
@@ -455,6 +456,11 @@ def StringMatch(str1, str2):
 
 LFs = ['\r\n', '\n\r', '\r', '\n']
 
+sysstr = platform.system()
+if sysstr == "Windows":
+    LF = '\r\n'
+elif sysstr == "Linux":
+    LF = '\n'
 
 def ReadDataItemsFromTxt(txtFile):
     '''
@@ -628,7 +634,10 @@ def WriteLog(logfile, contentlist, MODE='replace'):
             logStatus = open(logfile, 'a')
     else:
         logStatus = open(logfile, 'w')
-    for content in contentlist:
-        logStatus.write("%s\n" % content)
+    if isinstance(contentlist, list) or isinstance(contentlist,tuple):
+        for content in contentlist:
+            logStatus.write("%s\n" % content)
+    else:
+        logStatus.write(contentlist)
     logStatus.flush()
     logStatus.close()

@@ -12,7 +12,7 @@ from scenario import *
 
 # Model
 def __uniqueid__():
-    id = int(str(uuid.uuid4().fields[-1])[:3])
+    id = int(str(uuid.uuid4().fields[-1])[:8])
     while True:
         yield id
         id += 1

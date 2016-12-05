@@ -115,17 +115,15 @@ def main(num_Gens, size_Pops, cx, seed=None):
             # Create plot
             createPlot(pop, model_Workdir, num_Gens, size_Pops, gen)
             # save in file
-            outputStr = "### Generation number: %d, Population size: %d ###" % (num_Gens, size_Pops) + os.linesep
-            outputStr += "### Generation_%d ###" % gen + os.linesep
-            outputStr += "cost\tbenefit\tscenario" + os.linesep
+            outputStr = "### Generation number: %d, Population size: %d ###" % (num_Gens, size_Pops) + LF
+            outputStr += "### Generation_%d ###" % gen + LF
+            outputStr += "cost\tbenefit\tscenario" + LF
             for indi in pop:
-                outputStr += str(indi) + os.linesep
-
+                outputStr += str(indi) + LF
             outfilename = model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" \
                            + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + os.sep + "Gen_" \
-                           + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + "resultLog.txt"
+                           + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + "_resultLog.txt"
             WriteLog(outfilename, outputStr, MODE='append')
-
     printInfo("Final population hypervolume is %f" % hypervolume(pop, [11.0, 11.0]))
     return pop, logbook
         
@@ -161,23 +159,27 @@ if __name__ == "__main__":
     createPlot(pop, model_Workdir, num_Gens, size_Pops, num_Gens)
 
     # Save log
-    outputStr = "### The best ###" + os.linesep
-    outputStr += "cost\tbenefit\tscenario" + os.linesep
+    outputStr = "### The best ###" + LF
+    outputStr += "cost\tbenefit\tscenario" + LF
     for indi in pop:
         printInfo(indi)
         outputStr += str(indi.fitness.values[0]) + "\t" + str(indi.fitness.values[1]) + "\t" \
-                     + str(numpy.array(indi)) + os.linesep
+                     + str(indi) + LF
     printInfo("Running time: %.2fs" % (endT - startT))
-    outputStr += "Running time: %.2fs" % (endT - startT) + os.linesep
+    outputStr += "Running time: %.2fs" % (endT - startT)
     # save as file
     outfilename = model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" \
                   + str(GenerationsNum) + "_Pop_" + str(PopulationSize)+ os.sep + "Gen_" \
-                  + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + "resultLog.txt"
+                  + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + "_resultLog.txt"
     WriteLog(outfilename, outputStr, MODE = 'append')
     # outfile = file(model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" \
     #               + str(GenerationsNum) + "_Pop_" + str(PopulationSize)+ os.sep + "Gen_" \
     #               + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + "resultLog.txt", 'a')
     # outfile.write(outputStr)
     # outfile.close()
+
+    # Clear
+    # Delete SEIMS output files
+    delModelOutfile(model_Workdir, scenarios_info, delfile=True)
 
 
