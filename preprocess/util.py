@@ -617,3 +617,18 @@ if __name__ == "__main__":
     datafile = r'G:\code_zhulj\SEIMS\model_data\dianbu\data_prepare\climate\Sites_P.txt'
     data = ReadDataItemsFromTxt(datafile)
     print (data)
+
+
+def WriteLog(logfile, contentlist, MODE='replace'):
+    if os.path.exists(logfile):
+        if MODE == 'replace':
+            os.remove(logfile)
+            logStatus = open(logfile, 'w')
+        else:
+            logStatus = open(logfile, 'a')
+    else:
+        logStatus = open(logfile, 'w')
+    for content in contentlist:
+        logStatus.write("%s\n" % content)
+    logStatus.flush()
+    logStatus.close()
