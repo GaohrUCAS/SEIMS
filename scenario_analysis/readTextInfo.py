@@ -8,6 +8,7 @@ import random
 import platform
 import scoop
 import matplotlib.pyplot as plt
+from pymongo import MongoClient
 from RelativeImportModules import *
 # import util module located in SEIMS/preprocess
 if __package__ is None:
@@ -277,6 +278,7 @@ def createForld(forldPath):
 def createPlot(pop, model_Workdir, num_Gens, size_Pops, GenID):
     front = numpy.array([ind.fitness.values for ind in pop])
     # Plot
+    plt.figure(GenID)
     plt.title("Pareto frontier of Scenarios Optimization\n", color="#aa0903")
     plt.xlabel("cost(Yuan)")
     plt.ylabel("contaminants(t)")
@@ -290,7 +292,49 @@ def createPlot(pop, model_Workdir, num_Gens, size_Pops, GenID):
     plt.savefig(pngFullpath)
     # plt.show()
 
+def getSceIDlist(scenarios_info):
+    # Get scenarios info
+    fieldTtextArr = []
+    if os.path.isfile(scenarios_info):
+        fieldfile_object = open(scenarios_info, "r")
+        for line in fieldfile_object:
+            fieldTtextArr.append(line.strip())
+    idlist = []
+    for i in range(0, len(fieldTtextArr)):
+        id = fieldTtextArr[i].split('\t')[0]
+        idlist.append(id)
+    return idlist
+
+def delScefromMongoByID(scenarios_info, hostname, port, dbname, delsce=True):
+    if delsce == True:
+        idList = getSceIDlist(scenarios_info)
+        client = MongoClient(hostname, port)
+        db = client[dbname]
+        collection = db.BMP_SCENARIOS
+        for id in idList:
+            collection.remove({"ID":id})
+    else:
+        return
+
+def delModelOutfile(model_workdir, scenarios_info, delfile=True):
+    if delfile == True:
+        idList = getSceIDlist(scenarios_info)
+        print idList
+        for id in idList:
+            outfilename = model_workdir + os.sep + "OUTPUT" + str(id)
+            fileList = os.listdir(outfilename)
+            for f in fileList:
+                filename = outfilename + os.sep + str(f)
+                if os.path.isfile(filename):
+                    os.remove(filename)
+            if os.path.isdir(outfilename):
+                os.rmdir(outfilename)
+    else:
+        return
+
+
 # if __name__ == "__main__":
+#     delModelOutfile("D:\SEIMS_model\Model_data\model_dianbu2_30m_longterm", "D:\SEIMS_model\Model_data\model_dianbu2_30m_longterm\NSGAII_OUTPUT\scenarios_info.txt", delfile=True)
 #     fieldFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\spatial\mgtfield_t100.txt'
 #     pointFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\management\point_source_distribution.txt'
 #     pointBMPsFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\management\point_source_management.txt'

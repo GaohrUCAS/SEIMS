@@ -29,8 +29,11 @@ def calBenefitandCost(individual):
     Sce.attributes = individual
     Sce.decoding()
     Sce.importoMongo(HOSTNAME, PORT, BMPScenarioDBName)
+    # Calculate benefit and cost
     Sce.cost()
     Sce.benefit()
+    # Save scenarios information in file
+    Sce.saveInfo(scenariosInfo)
     f1 = Sce.cost_eco
     f2 = Sce.benefit_env
     return f1, f2

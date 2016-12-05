@@ -18,6 +18,7 @@ if 'PATH' in cf.sections():
     fieldFile = cf.get('PATH', 'fieldFile'.lower())
     pointFile = cf.get('PATH', 'pointFile'.lower())
     pointBMPsFile = cf.get('PATH', 'pointBMPsFile'.lower())
+    scenariosInfo = cf.get('PATH', 'scenariosInfo'.lower())
 else:
     raise ValueError("[PATH] section MUST be existed in *.ini file.")
 if not isPathExists(MODEL_DIR):
@@ -29,6 +30,7 @@ if 'NSGAII' in cf.sections():
     PopulationSize = int(cf.getint('NSGAII', 'PopulationSize'))
     CrossoverRate = float(cf.get('NSGAII', 'CrossoverRate'))
     MutateRate = float(cf.get('NSGAII', 'MutateRate'))
+    SelectRate = float(cf.get('NSGAII', 'SelectRate'))
 else:
     raise ValueError("[NSGAII] section MUST be existed in *.ini file.")
 

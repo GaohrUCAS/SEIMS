@@ -72,7 +72,7 @@ def main(num_Gens, size_Pops, cx, seed=None):
 
     # This is just to assign the crowding distance to the individuals
     # no actual selection is done
-    pop = toolbox.select(pop, len(pop))
+    pop = toolbox.select(pop, int(len(pop) * SelectRate))
     record = stats.compile(pop)
     logbook.record(gen=0, evals=len(invalid_ind), **record)
     print(logbook.stream)
@@ -81,7 +81,7 @@ def main(num_Gens, size_Pops, cx, seed=None):
     for gen in range(1, num_Gens):
         printInfo("###### Iteration: %d ######" % gen)
         # Vary the population
-        offspring = tools.selTournamentDCD(pop, len(pop))
+        offspring = tools.selTournamentDCD(pop, int(len(pop) * SelectRate))
         offspring = [toolbox.clone(ind) for ind in offspring]
         for ind1, ind2 in zip(offspring[::2], offspring[1::2]):
             if random.random() <= cx:
@@ -115,16 +115,15 @@ def main(num_Gens, size_Pops, cx, seed=None):
             # Create plot
             createPlot(pop, model_Workdir, num_Gens, size_Pops, gen)
             # save in file
-            outputStr = "=== Generation_%d ===" % gen + os.linesep
-            outputStr += str(logbook) + os.linesep
+            outputStr = "### Generation number: %d, Population size: %d ###" % (num_Gens, size_Pops) + LF
+            outputStr += "### Generation_%d ###" % gen + LF
+            outputStr += "cost\tbenefit\tscenario" + LF
             for indi in pop:
-                outputStr += str(indi) + os.linesep
-
+                outputStr += str(indi) + LF
             outfilename = model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" \
                            + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + os.sep + "Gen_" \
-                           + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + "resultLog.txt"
+                           + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + "_resultLog.txt"
             WriteLog(outfilename, outputStr, MODE='append')
-
     printInfo("Final population hypervolume is %f" % hypervolume(pop, [11.0, 11.0]))
     return pop, logbook
         
@@ -136,14 +135,17 @@ if __name__ == "__main__":
         raise ValueError("'size_Pops' must be a multiple of 4.")
 
     # Create result forld and file
-    resultfold = model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" + str(GenerationsNum) \
-                 + "_Pop_" + str(PopulationSize)
-    createForld(resultfold)
-    logText = resultfold + os.sep + "Gen_" + str(GenerationsNum) + "_Pop_" \
-              + str(PopulationSize) + "resultLog.txt"
+    resultForld = model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" + str(GenerationsNum) \
+                + "_Pop_" + str(PopulationSize)
+    createForld(resultForld)
+    logText = resultForld + os.sep + "Gen_" + str(GenerationsNum) + "_Pop_" \
+              + str(PopulationSize) + "_resultLog.txt"
+    scenarios_info = model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "scenarios_info.txt"
     if os.path.isfile(logText):
         # If exit, then delete it
         os.remove(logText)
+    if os.path.isfile(scenarios_info):
+        os.remove(scenarios_info)
 
     # Run NSGA-II
     printInfo("### START TO SCENARIOS OPTIMIZING ###")
@@ -156,22 +158,28 @@ if __name__ == "__main__":
     # Create plot
     createPlot(pop, model_Workdir, num_Gens, size_Pops, num_Gens)
 
-    outputStr = "=== The best ===" + os.linesep
-    outputStr += str(stats) + os.linesep
+    # Save log
+    outputStr = "### The best ###" + LF
+    outputStr += "cost\tbenefit\tscenario" + LF
     for indi in pop:
         printInfo(indi)
-        outputStr += str(indi) + os.linesep
-
+        outputStr += str(indi.fitness.values[0]) + "\t" + str(indi.fitness.values[1]) + "\t" \
+                     + str(indi) + LF
     printInfo("Running time: %.2fs" % (endT - startT))
-    outputStr += "Running time: %.2fs" % (endT - startT) + os.linesep
+    outputStr += "Running time: %.2fs" % (endT - startT)
     # save as file
     outfilename = model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" \
                   + str(GenerationsNum) + "_Pop_" + str(PopulationSize)+ os.sep + "Gen_" \
-                  + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + "resultLog.txt"
+                  + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + "_resultLog.txt"
     WriteLog(outfilename, outputStr, MODE = 'append')
     # outfile = file(model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" \
     #               + str(GenerationsNum) + "_Pop_" + str(PopulationSize)+ os.sep + "Gen_" \
     #               + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + "resultLog.txt", 'a')
     # outfile.write(outputStr)
     # outfile.close()
+
+    # Clear
+    # Delete SEIMS output files
+    delModelOutfile(model_Workdir, scenarios_info, delfile=True)
+
 

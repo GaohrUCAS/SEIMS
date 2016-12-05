@@ -69,7 +69,7 @@ python G:\code_zhulj\SEIMS\preprocess\parameters_extraction.py -ini G:\code_zhul
 ## TEST COMMAND BY Huiran Gao:
 
 + D:\SEIMS_model\SEIMS\Release\seims_omp D:\SEIMS_model\Model_data\model_dianbu_30m_longterm 8 0 192.168.6.55 27017 6
-+ D:\SEIMS_model\SEIMS\Release\seims_omp D:\SEIMS_model\Model_data\model_dianbu2_30m_longterm 8 0 192.168.6.55 27017 0
++ D:\SEIMS_model\SEIMS\Release\seims_omp D:\SEIMS_model\Model_data\model_dianbu2_30m_longterm 8 0 192.168.6.55 27017 23737637
 
 + python D:\GaohrWS\GithubPrj\SEIMS\preprocess\import_parameters.py -ini D:\GaohrWS\GithubPrj\SEIMS\preprocess\dianbu_30m_longterm_omp_ghr_win.ini
 + python D:\GaohrWS\GithubPrj\SEIMS\preprocess\import_bmp_scenario.py -ini D:\GaohrWS\GithubPrj\SEIMS\preprocess\dianbu_30m_longterm_omp_ghr_win.ini
@@ -86,12 +86,12 @@ python G:\code_zhulj\SEIMS\preprocess\parameters_extraction.py -ini G:\code_zhul
   + python /home/zhulj/SEIMS/seims_omp_rel_x86-201611/preprocess/gen_subbasins.py -ini /home/zhulj/SEIMS/models/dianbu/dianbu2_30m_longterm_omp_dgpm.ini
 + Commands
   + /home/zhulj/SEIMS/seims_omp/seims_omp /home/zhulj/SEIMS/models/dianbu/model_dianbu2_30m_longterm 6 0 192.168.6.55 27017 0
-  + /home/zhulj/SEIMS/seims_omp_rel_x86-201611/seims_omp /home/zhulj/SEIMS/models/dianbu/model_dianbu2_30m_longterm 8 0 192.168.6.55 27017 0
+  + /home/zhulj/SEIMS/seims_omp_rel_x86-201611/seims_omp /home/zhulj/SEIMS/models/dianbu/model_dianbu2_30m_longterm 8 0 192.168.6.55 27017 66761492
 + Postprocess
   + python /home/zhulj/SEIMS/seims_omp_rel_x86-201611/postprocess/hydroPlot_main.py -ini /home/zhulj/SEIMS/models/dianbu/post_dianbu_30m_longterm_omp_dgpm.ini
   
 + Scenario analysis
-  + python -m scoop --hostfile /home/zhulj/SEIMS/models/dianbu/dgpm_hosts_SCOOP -n 8 /home/zhulj/SEIMS/seims_omp_rel_x86-201611/scenario_analysis/nsga2.py -ini /home/zhulj/SEIMS/models/dianbu/nsgaii_dianbu2_30m_longterm_omp_dgpm.ini
+  + python -m scoop --hostfile /home/zhulj/SEIMS/models/dianbu/dgpm_hosts_SCOOP -n 16 /home/zhulj/SEIMS/seims_omp_rel_x86-201611/scenario_analysis/nsga2.py -ini /home/zhulj/SEIMS/models/dianbu/nsgaii_dianbu2_30m_longterm_omp_dgpm.ini
   
 + 192.168.6.57
   + python G:\code_zhulj\SEIMS\preprocess\import_parameters.py -ini G:\code_zhulj\SEIMS\preprocess\dianbu2_30m_longterm_omp_zhulj_winserver.ini

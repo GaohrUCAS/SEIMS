@@ -1,4 +1,4 @@
-﻿# NSGA-II for Scenario Analysis Using SEIMS
+# NSGA-II for Scenario Analysis Using SEIMS
 
 ## 基于NSGA-II和SEIMS模型的情景优化
 
@@ -24,6 +24,9 @@ Latest Updated：Oct.16, 2016
 
 [**4. NSGA-II for SEIMS的Python实现**](#4-NSGA-II-for-SEIMS的Python实现)
 
+1. [文件组织结构](#i-文件组织结构])
+
+2. [运行方式](#i-运行方式])
 
 
 # 1. NSGA-II原理
@@ -70,7 +73,7 @@ NSGA与简单的遗传算法的主要区别在于:该算法在选择算子执行
 ![](http://i.imgur.com/9Scwo1B.png)
 
 # 4. NSGA-II for SEIMS的Python实现
-
+## i. 文件组织结构
 文件结构：
 ![文件组织结构](http://i.imgur.com/deDus2h.jpg)
 
@@ -104,7 +107,49 @@ NSGA与简单的遗传算法的主要区别在于:该算法在选择算子执行
 |cost(self)|计算费用|
 |benefit(self)|调用SEIMS模型，计算环境效益|
 
-运行方式：
-`python -m scoop -n 4 *\nsga2.py -ini *\nsgaii_dianbu_30m2_longterm_omp_gaohr_win.ini`
+## ii. 运行方式
 
+### （1）Windows下的scoop并行方式
 
+```shell
+python -m scoop -n 4 *\nsga2.py -ini *\nsgaii_dianbu2_30m_longterm_omp_gaohr_win.ini
+```
+
+### （2）Linux下提交PBS作业方式
+在PBS系统中，用户使用qsub 命令提交用户程序。用户运行程序的命令及PBS环境变量设置组成PBS作业脚本，作业脚本使用如下格式提交到PBS系统运行：
+
+```shell
+[zhulj@dgpm-cluster ~]$ qsub <PBS作业脚本.sh>
+```
+
+**PBS作业脚本**
++ 注释,以“#”开头
++ PBS指令,以“#PBS”开头
++ SHELL命令
+
+示例：
+
+```shell
+#PBS -N scenario_analysis	//指定作业名称
+#PBS -l nodes=3:ppn=5		//指定程序运行的节点数
+#PBS -M gaohrgao@163.com	//指定作业运行的一些状况信息发送到哪个邮箱
+#PBS -o /home/zhulj/SEIMS/models/dianbu/scenario_analysis.out	//指定作业输出文件的路径
+#PBS -e /home/zhulj/SEIMS/models/dianbu/scenario_analysis.err	//指定作业生成错误报告的路径
+
+# 非必须
+echo Running on hosts : $HOSTNAME  
+echo The date is :  
+date  
+echo The directory is : $PWD
+echo This job will run on the following nodes : $PBS_NODEFILE
+
+# 下面是真正执行作业的指令，和在集群中执行的时候用的指令是一样的
+python -m scoop --hostfile /home/zhulj/SEIMS/models/dianbu/dgpm_hosts_SCOOP -n 16 /home/zhulj/SEIMS/seims_omp_rel_x86-201611/scenario_analysis/nsga2.py -ini /home/zhulj/SEIMS/models/dianbu/nsgaii_dianbu2_30m_longterm_omp_dgpm.ini	
+```
+
+**优化程序参数设置**
+每一代的pop数、scoop的workers、hostfile中每个节点可运行进程数（此进程等同于worker）、以及SEIMS共享内存并行进程数之间的设置关系
+
++ 遗传算法种群数量（Population size），应设置为4的倍数；
++ scoop的并行数（Workers),应小于等于集群hostfile中设置的所有节点可运行进程总数；
++ SEIMS并行核数与Workers的乘积，要小于集群总的可用进程数。
