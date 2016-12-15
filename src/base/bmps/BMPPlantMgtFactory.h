@@ -15,7 +15,7 @@ using namespace PlantManagement;
 namespace MainBMP
 {
         /*!
-         * \class BMPPlantMgtFactory
+         * \addtogroup BMPPlantMgtFactory
          * \ingroup MainBMP
          *
          * \brief Initiate a plant management BMP

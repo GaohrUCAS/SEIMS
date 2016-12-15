@@ -15,7 +15,7 @@ using namespace MainBMP;
 namespace MainBMP
 {
         /*!
-         * \class ArealSourceLocations
+         * \addtogroup ArealSourceLocations
          * \ingroup MainBMP
          *
          * \brief Base class of point BMP, mainly store location related parameters
