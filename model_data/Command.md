@@ -22,7 +22,7 @@
 
 + `D:\Compile\SEIMS_OMP\Release\seims_omp C:\z_code\Hydro\SEIMS\model_data\dianbu\model_dianbu2_30m_longterm 6 0 192.168.6.55 27017 24217612`
 
-+ `D:\Compile\SEIMS_OMP\Release\seims_omp C:\z_code\Hydro\SEIMS\model_data\dianbu\model_dianbu2_30m_longterm 6 0 192.168.6.55 27017 1`
++ `D:\Compile\SEIMS_OMP\Release\seims_omp C:\z_code\Hydro\SEIMS\model_data\dianbu\model_dianbu_30m_longterm 6 0 127.0.0.1 27017 0`
 
 ### PostProcess-Python Scripts
 
