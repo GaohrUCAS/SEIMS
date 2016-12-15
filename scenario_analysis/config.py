@@ -61,42 +61,63 @@ bmps_cattle = []
 bmps_pig = []
 bmps_sewage = []
 bmps_farm_cost = []
-bmps_cattle_cost = []
-bmps_pig_cost = []
-bmps_sewage_cost = []
+# bmps_cattle_cost = []
+# bmps_pig_cost = []
+# bmps_sewage_cost = []
 if 'BMPs' in cf.sections():
     bmps_farm_STR = cf.get('BMPs', 'bmps_farm'.lower())
     bmps_cattle_STR = cf.get('BMPs', 'bmps_cattle'.lower())
     bmps_pig_STR = cf.get('BMPs', 'bmps_pig'.lower())
-    bmps_sewage_STR = cf.get('BMPs', 'bmps_sewage'.lower())
+    bmps_sewage_STR_1 = cf.get('BMPs', 'bmps_sewage_1'.lower())
+    bmps_sewage_STR_2 = cf.get('BMPs', 'bmps_sewage_2'.lower())
+    bmps_sewage_STR_3 = cf.get('BMPs', 'bmps_sewage_3'.lower())
+    bmps_sewage_STR_4 = cf.get('BMPs', 'bmps_sewage_4'.lower())
     bmps_farm_cost_STR = cf.get('BMPs', 'bmps_farm_cost'.lower())
-    bmps_cattle_cost_STR = cf.get('BMPs', 'bmps_cattle_cost'.lower())
-    bmps_pig_cost_STR = cf.get('BMPs', 'bmps_pig_cost'.lower())
-    bmps_sewage_cost_STR = cf.get('BMPs', 'bmps_sewage_cost'.lower())
+    # bmps_cattle_cost_STR = cf.get('BMPs', 'bmps_cattle_cost'.lower())
+    # bmps_pig_cost_STR = cf.get('BMPs', 'bmps_pig_cost'.lower())
+    # bmps_sewage_cost_STR = cf.get('BMPs', 'bmps_sewage_cost'.lower())
     bmps_farm = StrtoIntArr(SplitStr(StripStr(bmps_farm_STR)))
     bmps_cattle = StrtoIntArr(SplitStr(StripStr(bmps_cattle_STR)))
     bmps_pig = StrtoIntArr(SplitStr(StripStr(bmps_pig_STR)))
-    bmps_sewage = StrtoIntArr(SplitStr(StripStr(bmps_sewage_STR)))
+    bmps_sewage_1 = StrtoIntArr(SplitStr(StripStr(bmps_sewage_STR_1)))
+    bmps_sewage_2 = StrtoIntArr(SplitStr(StripStr(bmps_sewage_STR_2)))
+    bmps_sewage_3 = StrtoIntArr(SplitStr(StripStr(bmps_sewage_STR_3)))
+    bmps_sewage_4 = StrtoIntArr(SplitStr(StripStr(bmps_sewage_STR_4)))
+    bmps_sewage.append(bmps_sewage_1)
+    bmps_sewage.append(bmps_sewage_2)
+    bmps_sewage.append(bmps_sewage_3)
+    bmps_sewage.append(bmps_sewage_4)
+    # farm_area = float(cf.get('BMPs', 'farm_area'.lower()))
     bmps_farm_cost = StrtoFltArr(SplitStr(StripStr(bmps_farm_cost_STR)))
-    bmps_cattle_cost = StrtoFltArr(SplitStr(StripStr(bmps_cattle_cost_STR)))
-    bmps_pig_cost = StrtoFltArr(SplitStr(StripStr(bmps_pig_cost_STR)))
-    bmps_sewage_cost = StrtoFltArr(SplitStr(StripStr(bmps_sewage_cost_STR)))
+    # bmps_cattle_cost = StrtoFltArr(SplitStr(StripStr(bmps_cattle_cost_STR)))
+    # bmps_pig_cost = StrtoFltArr(SplitStr(StripStr(bmps_pig_cost_STR)))
+    # bmps_sewage_cost = StrtoFltArr(SplitStr(StripStr(bmps_sewage_cost_STR)))
 else:
     raise ValueError("[BMPs] section MUST be existed in *.ini file.")
 
 # Scenario
-field_farm = getFieldInfo(fieldFile)[1]
-field_lu = getFieldInfo(fieldFile)[2]
-point_cattle = getPointSource(pointFile)[0]
-point_pig = getPointSource(pointFile)[1]
-point_sewage = getPointSource(pointFile)[2]
+fieldInfo = getFieldInfo(fieldFile)
+pointSource = getPointSource(pointFile)
+bmpsInfo = getBMPsInfo(pointBMPsFile, pointFile)
 
-# farm_Num = len(getFieldInfo(fieldFile)[1])
-farm_Num = 1
+field_farm = fieldInfo[1]
+field_lu = fieldInfo[2]
+farm_area = fieldInfo[3]
+point_cattle = pointSource[0]
+point_pig = pointSource[1]
+point_sewage = pointSource[2]
+
+farm_Num = len(field_farm)
+# farm_Num = 1
 point_cattle_Num = len(point_cattle)
 point_pig_Num = len(point_pig)
 point_sewage_Num = len(point_sewage)
 
-# farm size
-point_cattle_size = getPointSource(pointFile)[3]
-point_pig_size = getPointSource(pointFile)[4]
+# BMP cost
+bmps_cattle_cost = bmpsInfo[4]
+bmps_pig_cost = bmpsInfo[5]
+bmps_sewage_cost = bmpsInfo[6]
+
+# livestock farm size
+point_cattle_size = pointSource[3]
+point_pig_size = pointSource[4]

@@ -4,16 +4,20 @@
 # @Date   2016-10-28
 
 import os
+import datetime
+import time
 import random
 import platform
 import scoop
 import matplotlib.pyplot as plt
 from pymongo import MongoClient
 from RelativeImportModules import *
-# import util module located in SEIMS/preprocess
-if __package__ is None:
-    __package__ = import_parents(level=2)
-from ..preprocess.util import *
+import numpy
+from util import *
+# # import util module located in SEIMS/preprocess
+# if __package__ is None:
+#     __package__ = import_parents(level=2)
+# from ..preprocess.util import *
 
 def delSpecialStr(line):
     '''
@@ -52,13 +56,15 @@ def getFieldInfo(fieldFile):
     fieldsNum = int(fieldTtextArr[0])
     farmFields = []
     farmLU = []
+    farm_area = []
     for i in range(1, fieldsNum):
         fieldInfo = fieldTtextArr[i].split('\t')
         if int(fieldInfo[3]) == 1 or int(fieldInfo[3]) == 33:
             farmFields.append(int(fieldInfo[0]))
+            farm_area.append(float(fieldInfo[2]) * 15.)  # ha -> mu
             farmLU.append(int(fieldInfo[3]))
     # print farmFields
-    return fieldsNum, farmFields, farmLU
+    return fieldsNum, farmFields, farmLU, farm_area
 
 
 def getPointSource(pointFile):
@@ -73,6 +79,7 @@ def getPointSource(pointFile):
     point_sewage = []
     point_cattle_size = []
     point_pig_size = []
+    point_sewage_size = []
     if os.path.isfile(pointFile):
         pointfile_object = open(pointFile, "r")
         try:
@@ -95,17 +102,18 @@ def getPointSource(pointFile):
             point_pig_size.append(int(pointInfo[7]))
         else:
             point_sewage.append(pointInfo[1])
-    return point_cattle, point_pig, point_sewage, point_cattle_size, point_pig_size
+            point_sewage_size.append(int(pointInfo[7]))
+    return point_cattle, point_pig, point_sewage, point_cattle_size, point_pig_size, point_sewage_size
 
 
-def getBMPsInfo(pointBMPsFile):
+def getBMPsInfo(pointBMPsFile, pointFile):
     '''
     :param pointBMPsFile: full path of points BMPs info file
     :return: farm BMPs, cattle BMPs, pig BMPs, sewage BMPs
     '''
     # Get BMPs info
-    BMPs_farm_id = []
-    BMPs_farm = []
+    # BMPs_farm_id = []
+    # BMPs_farm = []
     BMPs_cattle_id = []
     BMPs_cattle = []
     BMPs_pig_id = []
@@ -124,6 +132,7 @@ def getBMPsInfo(pointBMPsFile):
                         pointbmpsTextArr.append(line.strip())
         finally:
             pointbmpsfile_object.close()
+
     # Get animal farms' BMPs info
     for j in range(1, len(pointbmpsTextArr)):
         pointbmpsInfo = pointbmpsTextArr[j].split('\t')
@@ -143,19 +152,38 @@ def getBMPsInfo(pointBMPsFile):
         BMPs_sewage.append(int(BMPs_sewage_id[ss]) - 40000)
 
     # BMP cost
-    BMPs_farm_cost = []
+    # BMPs_farm_cost = []
     BMPs_cattle_cost = numpy.zeros((len(BMPs_cattle) + 1))
     BMPs_pig_cost = numpy.zeros((len(BMPs_pig) + 1))
     BMPs_sewage_cost = numpy.zeros((len(BMPs_sewage) + 1))
+
+    pt_swg_size = numpy.zeros((len(BMPs_sewage) + 1))
+    pt_swg = getPointSource(pointFile)[2]
+    pt_swg_size_tmp = getPointSource(pointFile)[5]
+    for p_s in range(len(pt_swg)):
+        p_s_index = int(float(pt_swg[p_s]) % 10000.) - 1
+        pt_swg_size[p_s_index] = pt_swg_size_tmp[p_s]
+        pt_swg_size[p_s_index + 4] = pt_swg_size_tmp[p_s]
+
     for j in range(1, len(pointbmpsTextArr)):
         pointbmpsInfo = pointbmpsTextArr[j].split('\t')
-        cost = float(pointbmpsInfo[20]) + float(pointbmpsInfo[21]) + float(pointbmpsInfo[22])
+        q_pollution = float(pointbmpsInfo[10])
+        CAPEX = float(pointbmpsInfo[20])
+        OPEX = float(pointbmpsInfo[21])
+        INCOME = float(pointbmpsInfo[22])
         if int(float(pointbmpsInfo[0]) / 10000.) == 1:
-            BMPs_cattle_cost[int(float(pointbmpsInfo[0]) - 10000.)] = cost
+            cost = CAPEX + OPEX - INCOME
+            bmp_ctco_index = int(float(pointbmpsInfo[0]) - 10000.)
+            BMPs_cattle_cost[bmp_ctco_index] = cost
         elif int(float(pointbmpsInfo[0]) / 10000.) == 2:
-            BMPs_pig_cost[int(float(pointbmpsInfo[0]) - 20000.)] = cost
+            cost = CAPEX + OPEX - INCOME
+            bmp_pgco_index = int(float(pointbmpsInfo[0]) - 20000.)
+            BMPs_pig_cost[bmp_pgco_index] = cost
         else:
-            BMPs_sewage_cost[int(float(pointbmpsInfo[0]) - 40000.)] = cost
+            bmp_swgco_index = int(float(pointbmpsInfo[0]) - 40000.)
+            # print q_pollution, pt_swg_size[bmp_swgco_index - 1]
+            cost = CAPEX + OPEX * q_pollution * pt_swg_size[bmp_swgco_index - 1] * 365 - INCOME
+            BMPs_sewage_cost[bmp_swgco_index] = cost
 
     # print BMPs_farm, '\n', BMPs_cattle, '\n', BMPs_pig, '\n', BMPs_sewage, '\n', \
     #         BMPs_cattle_cost, '\n', BMPs_pig_cost, '\n', BMPs_sewage_cost
@@ -171,6 +199,25 @@ def selectBMPatRandom(arr):
     n = random.randint(0, aLen - 1)
     return arr[n]
 
+def getFarmConfig(farm_scenario, field):
+    '''
+    :param farm_scenario: farm scenario
+    :param feild:
+    :return:
+    '''
+    farmConfig = []
+    bmpdo = ""
+    bmpundo = ""
+    for i in range(len(farm_scenario)):
+        if farm_scenario[i] == 0:
+            bmpundo += str(field[i]) + ","
+        else:
+            bmpdo += str(field[i]) + ","
+    farmConfig.append(bmpundo[:-1])
+    farmConfig.append(bmpdo[:-1])
+    return farmConfig
+
+
 def getPointConfig(scenario, bmps_point, point_source, start_index, end_index):
     '''
     :param scenario: scenario array
@@ -180,17 +227,21 @@ def getPointConfig(scenario, bmps_point, point_source, start_index, end_index):
     :param end_index: point source end index in scenario array
     :return: config info array
     '''
-    pointConfig = []
-    for bc in range(len(bmps_point)):
-        bmp_index = []
-        bmp_index.append(bmps_point[bc])
-        for c in range(start_index, end_index):
-            if scenario[c] == bmps_point[bc]:
-                bmp_index.append(point_source[c - start_index])
-            else:
-                continue
-        pointConfig.append(bmp_index)
-    return pointConfig
+    n_index = end_index - start_index
+    if n_index > 0:
+        pointConfig = []
+        for bc in range(len(bmps_point)):
+            bmp_index = []
+            bmp_index.append(bmps_point[bc])
+            for c in range(start_index, end_index):
+                if scenario[c] == bmps_point[bc]:
+                    bmp_index.append(point_source[c - start_index])
+                else:
+                    continue
+            pointConfig.append(bmp_index)
+        return pointConfig
+    else:
+        return []
 
 
 def decodPointScenario(id, pointConfig, ptsrc):
@@ -280,8 +331,10 @@ def createPlot(pop, model_Workdir, num_Gens, size_Pops, GenID):
     # Plot
     plt.figure(GenID)
     plt.title("Pareto frontier of Scenarios Optimization\n", color="#aa0903")
-    plt.xlabel("cost(Yuan)")
-    plt.ylabel("contaminants(t)")
+    plt.xlabel("Economic cost(Million Yuan)")
+    plt.ylabel("Pollution load(t)")
+    front[:, 0] /= 1000000.
+    front[:, 1] /= 1000.
     plt.scatter(front[:, 0], front[:, 1], c="r", alpha=0.8, s=12)
     plt.title("\nPopulation: %d, Generation: %d" % (size_Pops, GenID), color="green", fontsize=9, loc='right')
     imgPath = model_Workdir + os.sep + "NSGAII_OUTPUT"
@@ -319,7 +372,7 @@ def delScefromMongoByID(scenarios_info, hostname, port, dbname, delsce=True):
 def delModelOutfile(model_workdir, scenarios_info, delfile=True):
     if delfile == True:
         idList = getSceIDlist(scenarios_info)
-        print idList
+        # print idList
         for id in idList:
             outfilename = model_workdir + os.sep + "OUTPUT" + str(id)
             fileList = os.listdir(outfilename)
@@ -334,46 +387,41 @@ def delModelOutfile(model_workdir, scenarios_info, delfile=True):
 
 
 # if __name__ == "__main__":
-#     delModelOutfile("D:\SEIMS_model\Model_data\model_dianbu2_30m_longterm", "D:\SEIMS_model\Model_data\model_dianbu2_30m_longterm\NSGAII_OUTPUT\scenarios_info.txt", delfile=True)
 #     fieldFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\spatial\mgtfield_t100.txt'
 #     pointFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\management\point_source_distribution.txt'
 #     pointBMPsFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\management\point_source_management.txt'
-#     # Scenario
-#     field_farm = getFieldInfo(fieldFile)[1]
-#     field_lu = getFieldInfo(fieldFile)[2]
-#     point_cattle = getPointSource(pointFile)[0]
-#     point_pig = getPointSource(pointFile)[1]
-#     point_sewage = getPointSource(pointFile)[2]
-#
-#     # farm_Num = len(getFieldInfo(fieldFile)[1])
-#     farm_Num = 1
-#     point_cattle_Num = len(point_cattle)
-#     point_pig_Num = len(point_pig)
-#     point_sewage_Num = len(point_sewage)
-#
-#     bmps_farm = getBMPsInfo(pointBMPsFile)[0]
-#     bmps_cattle = numpy.sort(getBMPsInfo(pointBMPsFile)[1])
-#     bmps_pig = numpy.sort(getBMPsInfo(pointBMPsFile)[2])
-#     bmps_sewage = numpy.sort(getBMPsInfo(pointBMPsFile)[3])
-#
-#     bmps_farm_cost = [208., 166.]
-#     bmps_cattle_cost = getBMPsInfo(pointBMPsFile)[4]
-#     bmps_pig_cost = getBMPsInfo(pointBMPsFile)[5]
-#     bmps_sewage_cost = getBMPsInfo(pointBMPsFile)[6]
-#
-#     print 'field_farm ', field_farm
-#     print 'field_lu ', field_lu
-#     print 'point_cattle ', point_cattle
-#     print 'point_pig ', point_pig
-#     print 'point_sewage ', point_sewage
-#
-#     print 'bmps_farm ', bmps_farm
-#     print 'bmps_cattle ', bmps_cattle
-#     print 'bmps_pig ', bmps_pig
-#     print 'bmps_sewage ', bmps_sewage
-#
-#     print 'bmps_farm_cost ', bmps_farm_cost
-#     print 'bmps_cattle_cost ', bmps_cattle_cost
-#     print 'bmps_pig_cost ', bmps_pig_cost
-#     print 'bmps_sewage_cost ', bmps_sewage_cost
+    # Scenario
+    # fieldInfo = getFieldInfo(fieldFile)
+    # pointSource = getPointSource(pointFile)
+    # bmpsInfo = getBMPsInfo(pointBMPsFile, pointFile)
+    # field_farm = fieldInfo[1]
+    # field_lu = fieldInfo[2]
+    # farm_area = fieldInfo[3]
+    # point_cattle = pointSource[0]
+    # point_pig = pointSource[1]
+    # point_sewage = pointSource[2]
+    # farm_Num = len(field_farm)
+    # farm_Num = 1
+    # point_cattle_Num = len(point_cattle)
+    # point_pig_Num = len(point_pig)
+    # point_sewage_Num = len(point_sewage)
+    # BMP cost
+    # bmps_cattle_cost = bmpsInfo[4]
+    # bmps_pig_cost = bmpsInfo[5]
+    # bmps_sewage_cost = bmpsInfo[6]
+    # livestock farm size
+    # point_cattle_size = pointSource[3]
+    # point_pig_size = pointSource[4]
+
+    # print 'field_farm ', field_farm
+    # print 'field_lu ', field_lu
+    # print 'farm_area ', farm_area
+    # print 'point_cattle ', point_cattle
+    # print 'point_pig ', point_pig
+    # print 'point_sewage ', point_sewage
+    # print 'bmps_cattle_cost ', bmps_cattle_cost
+    # print 'bmps_pig_cost ', bmps_pig_cost
+    # print 'bmps_sewage_cost ', bmps_sewage_cost
+    # print 'point_cattle_size ', point_cattle_size
+    # print 'point_pig_size ', point_pig_size
 

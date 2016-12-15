@@ -13,6 +13,7 @@ from subprocess import PIPE
 from config import *
 from readTextInfo import *
 
+
 class Scenario:
     def __init__(self):
         self.id = None
@@ -54,8 +55,9 @@ class Scenario:
             self.attributes.append(selectBMPatRandom(bmps_cattle))
         for _ in range(self.point_pig_Num):
             self.attributes.append(selectBMPatRandom(bmps_pig))
-        for _ in range(self.point_sewage_Num):
-            self.attributes.append(selectBMPatRandom(bmps_sewage))
+        for pt_swg in range(self.point_sewage_Num):
+            p_s_index = int(point_sewage[pt_swg]) % 10000 - 1
+            self.attributes.append(selectBMPatRandom(bmps_sewage[p_s_index]))
 
     def decoding(self):
         # scenario section
@@ -68,28 +70,49 @@ class Scenario:
         point_pig_index = self.point_pig_Num + point_cattle_index
         point_sewage_index = self.point_sewage_Num + point_pig_index
         # farm field
-        for f in range(len(bmps_farm)):
-            scenario_Row = ""
-            scenario_Row += str(self.id) + "\tsName" + str(self.id) + "\t12\t"
-            farm_BMP_do = False
-            for i in range(0, field_index):
-                if self.attributes[i] == 1:
-                    farm_BMP_do = True
+        sinfo = str(self.id) + "\tS_" + str(self.id) + "\t12\t"
+        farm_BMP_dedupl = list(set(self.attributes[0:field_index]))
+        if len(farm_BMP_dedupl) > 1:
+            for f1 in range(4):
+                scenario_Row = ""
+                scenario_Row += sinfo
+                farm_conf = getFarmConfig(self.attributes[0:field_index], field_farm)
+                if f1 == 0 or f1 == 1:
+                    scenario_Row += str(f1) + "\tRASTER|MGT_FIELDS\tPLANT_MANAGEMENT\t" + farm_conf[0]
                 else:
-                    farm_BMP_do = False
-            if farm_BMP_do:
-                scenario_Row += str(bmps_farm[f] + 2) + "\t"
-            else:
-                scenario_Row += str(bmps_farm[f]) + "\t"
-            scenario_Row += "RASTER|MGT_FIELDS\tPLANT_MANAGEMENT\tALL"
-            self.sce_list.append(scenario_Row)
+                    scenario_Row += str(f1) + "\tRASTER|MGT_FIELDS\tPLANT_MANAGEMENT\t" + farm_conf[1]
+                self.sce_list.append(scenario_Row)
+        else:
+            for f2 in range(2):
+                scenario_Row = ""
+                scenario_Row += sinfo
+                farm_BMP_do = False
+                for i in range(0, field_index):
+                    if self.attributes[i] == 1:
+                        farm_BMP_do = True
+                    else:
+                        farm_BMP_do = False
+                if farm_BMP_do:
+                    scenario_Row += str(bmps_farm[f2] + 2) + "\t"
+                else:
+                    scenario_Row += str(bmps_farm[f2]) + "\t"
+                scenario_Row += "RASTER|MGT_FIELDS\tPLANT_MANAGEMENT\tALL"
+                self.sce_list.append(scenario_Row)
         # point source
+        # Cattle
         cattleConfig = getPointConfig(self.attributes, bmps_cattle, point_cattle, field_index, point_cattle_index)
+        if len(cattleConfig) > 0:
+            self.sce_list.extend(decodPointScenario(self.id, cattleConfig, 10000))
         pigConfig = getPointConfig(self.attributes, bmps_pig, point_pig, point_cattle_index, point_pig_index)
-        sewageConfig = getPointConfig(self.attributes, bmps_sewage, point_sewage, point_pig_index, point_sewage_index)
-        self.sce_list.extend(decodPointScenario(self.id, cattleConfig, 10000))
-        self.sce_list.extend(decodPointScenario(self.id, pigConfig, 20000))
-        self.sce_list.extend(decodPointScenario(self.id, sewageConfig, 40000))
+        # Pig
+        if len(pigConfig) > 0:
+            self.sce_list.extend(decodPointScenario(self.id, pigConfig, 20000))
+        # Sewage
+        for p_s in range(self.point_sewage_Num):
+            s_index = int(int(point_sewage[p_s]) % 10000)
+            sewageConfig = getPointConfig(self.attributes, bmps_sewage[s_index], point_sewage, point_pig_index, point_sewage_index)
+            if len(sewageConfig) > 0:
+                self.sce_list.extend(decodPointScenario(self.id, sewageConfig, 40000))
 
     def importoMongo(self, hostname, port, dbname):
         '''
@@ -118,7 +141,7 @@ class Scenario:
         point_pig_index = self.point_pig_Num + point_cattle_index
         point_sewage_index = self.point_sewage_Num + point_pig_index
         for i1 in range(0, field_index):
-            self.cost_eco += bmps_farm_cost[int(self.attributes[i1])]
+            self.cost_eco += bmps_farm_cost[int(self.attributes[i1])] * farm_area[i1]
         for i2 in range(field_index, point_cattle_index):
             self.cost_eco += bmps_cattle_cost[int(self.attributes[i2])] * point_cattle_size[i2 - field_index]
         for i3 in range(point_cattle_index, point_pig_index):
@@ -129,7 +152,8 @@ class Scenario:
     def benefit(self):
         printInfo("Scenario ID: " + str(self.id))
         startT = time.time()
-        cmdStr = "%s %s %d %d %s %d %d" % (model_Exe, model_Workdir, threadsNum, layeringMethod, HOSTNAME, PORT, self.id)
+        cmdStr = "%s %s %d %d %s %d %d" % (
+        model_Exe, model_Workdir, threadsNum, layeringMethod, HOSTNAME, PORT, self.id)
         # print cmdStr
         process = Popen(cmdStr, shell=True, stdout=PIPE)
         while process.stdout.readline() != "":
@@ -142,10 +166,12 @@ class Scenario:
         process.wait()
         time.sleep(1)
         if process.returncode == 0:
-        # if True:
+            # if True:
             dataDir = model_Workdir + os.sep + "OUTPUT" + str(self.id)
             polluteList = ['CH_COD', 'CH_TN', 'CH_TP']
-            polluteWt = [27., 4., 1.]
+            # polluteList = ['CH_COD']
+            polluteWt = [33., 4., 1.]
+            # polluteWt = [1.]
             for pp in range(len(polluteList)):
                 simData = ReadSimfromTxt(timeStart, timeEnd, dataDir, polluteList[pp], subbasinID=0)
                 self.benefit_env += sum(simData) / polluteWt[pp]
@@ -162,3 +188,11 @@ class Scenario:
         outfile.write(infoStr)
         outfile.close()
 
+
+# if __name__ == "__main__":
+#     s = Scenario()
+#     s.id = 1
+#     s.attributes = numpy.array([1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 3.0, 3.0, 3.0, 2.0, 3.0, 2.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 2.0, 2.0, 3.0, 2.0, 3.0, 2.0, 3.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 3.0])
+#     s.decoding()
+#     s.cost()
+#     print s.cost_eco

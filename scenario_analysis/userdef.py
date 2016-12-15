@@ -55,13 +55,21 @@ def mutModel(individual, indpb):
     point_pig_index = point_pig_Num + point_cattle_index
     # point_sewage_index = point_sewage_Num + point_pig_index
     if random.random() < indpb:
-        mpoint = random.randint(0, sceSize - 1)
-        if mpoint <= field_index:
-            individual[mpoint] = selectBMPatRandom(bmps_farm)
-        elif mpoint <= point_cattle_index:
-            individual[mpoint] = selectBMPatRandom(bmps_cattle)
-        elif mpoint <= point_pig_index:
-            individual[mpoint] = selectBMPatRandom(bmps_pig)
-        else:
-            individual[mpoint] = selectBMPatRandom(bmps_sewage)
+        mpoint_num = int(len(individual) / 10)
+        if mpoint_num == 0:
+            mpoint_num = 1
+        for _ in range(mpoint_num):
+            mpoint = random.randint(0, sceSize - 1)
+            if mpoint <= field_index:
+                individual[mpoint] = selectBMPatRandom(bmps_farm)
+            elif mpoint <= point_cattle_index:
+                individual[mpoint] = selectBMPatRandom(bmps_cattle)
+            elif mpoint <= point_pig_index:
+                individual[mpoint] = selectBMPatRandom(bmps_pig)
+            else:
+                for i in range(len(bmps_sewage)):
+                    if individual[mpoint] in bmps_sewage[i]:
+                        b_s_index = i
+                        break
+                individual[mpoint] = selectBMPatRandom(bmps_sewage[b_s_index])
     return individual

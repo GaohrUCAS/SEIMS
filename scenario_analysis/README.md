@@ -89,10 +89,12 @@ NSGA与简单的遗传算法的主要区别在于:该算法在选择算子执行
 
 `scenario.py`是情景与NSGA-II耦合的代码，将单个情景视为一个对象，具体设计实现如下表：
 
++增加`util.py`，通用函数文件
+
 |属性|意义|
 |---|---|
-|id|scenario编号（根据MongoDB已存在的情景生成）|
-|attributes|scenario的染色体编码，长度为1（农田视为一个整体）+牛场、猪场数目+污水处理点个数|
+|id|scenario编号（ ~~根据MongoDB已存在的情景生成~~ 自动获取8位随机数字长度的ID号）|
+|attributes|scenario的染色体编码， ~~长度为1（农田视为一个整体）~~ 农田个数+牛场、猪场数目+污水处理点个数|
 |*_Num|各点、面类型基因片段的长度|
 |sce_list|染色体解码后的情景列表（单个情景的列表）|
 |cost_eco|实施该情景的费用|
@@ -131,7 +133,8 @@ python -m scoop -n 4 *\nsga2.py -ini *\nsgaii_dianbu2_30m_longterm_omp_gaohr_win
 
 ```shell
 #PBS -N scenario_analysis	//指定作业名称
-#PBS -l nodes=3:ppn=5		//指定程序运行的节点数
+#PBS -l nodes=3:ppn=5		//指定程序运行的节点数，执行指令中有scoop分配线程时，此行可不加
+#PBS -W depend=afterok:n	//等待序号为n的作业进行完后，再提交改作业
 #PBS -M gaohrgao@163.com	//指定作业运行的一些状况信息发送到哪个邮箱
 #PBS -o /home/zhulj/SEIMS/models/dianbu/scenario_analysis.out	//指定作业输出文件的路径
 #PBS -e /home/zhulj/SEIMS/models/dianbu/scenario_analysis.err	//指定作业生成错误报告的路径
