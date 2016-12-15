@@ -14,6 +14,7 @@ from deap import tools
 from deap.benchmarks.tools import hypervolume
 from scenario import *
 from userdef import *
+from util import *
 
 creator.create("FitnessMin", base.Fitness, weights=(-1.0, -1.0))
 creator.create("Individuals", array.array, typecode='d', fitness=creator.FitnessMin)
@@ -29,6 +30,7 @@ toolbox.register("individual", tools.initIterate, creator.Individuals, toolbox.a
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 toolbox.register("evaluate", calBenefitandCost)
 toolbox.register("mate", tools.cxOnePoint)
+# toolbox.register("mate", tools.cxTwoPoint)
 toolbox.register("mutate", mutModel, indpb=MutateRate)
 toolbox.register("select", tools.selNSGA2)
 
@@ -72,7 +74,7 @@ def main(num_Gens, size_Pops, cx, seed=None):
 
     # This is just to assign the crowding distance to the individuals
     # no actual selection is done
-    pop = toolbox.select(pop, int(len(pop) * SelectRate))
+    pop = toolbox.select(pop, size_Pops)
     record = stats.compile(pop)
     logbook.record(gen=0, evals=len(invalid_ind), **record)
     print(logbook.stream)
@@ -81,7 +83,7 @@ def main(num_Gens, size_Pops, cx, seed=None):
     for gen in range(1, num_Gens):
         printInfo("###### Iteration: %d ######" % gen)
         # Vary the population
-        offspring = tools.selTournamentDCD(pop, int(len(pop) * SelectRate))
+        offspring = tools.selTournamentDCD(pop, int(size_Pops * SelectRate))
         offspring = [toolbox.clone(ind) for ind in offspring]
         for ind1, ind2 in zip(offspring[::2], offspring[1::2]):
             if random.random() <= cx:
@@ -119,7 +121,8 @@ def main(num_Gens, size_Pops, cx, seed=None):
             outputStr += "### Generation_%d ###" % gen + LF
             outputStr += "cost\tbenefit\tscenario" + LF
             for indi in pop:
-                outputStr += str(indi) + LF
+                outputStr += str(indi.fitness.values[0]) + "\t" + str(indi.fitness.values[1]) + "\t" \
+                             + str(indi) + LF
             outfilename = model_Workdir + os.sep + "NSGAII_OUTPUT" + os.sep + "Gen_" \
                            + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + os.sep + "Gen_" \
                            + str(GenerationsNum) + "_Pop_" + str(PopulationSize) + "_resultLog.txt"
