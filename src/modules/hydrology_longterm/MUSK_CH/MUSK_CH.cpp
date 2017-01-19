@@ -296,6 +296,7 @@ void MUSK_CH::Set1DData(const char *key, int n, float *value)
 {
     string sk(key);
     //check the input data
+	
     if (StringMatch(sk, VAR_SUBBSN))m_subbasin = value;
     else if (StringMatch(sk, VAR_SBOF))
     {
@@ -592,6 +593,7 @@ void MUSK_CH::ChannelFlow(int i)
     //////////////////////////////////////////////////////////////////////////
     // first add all the inflow water
     // 1. water from this subbasin
+
     float qIn = m_qsSub[i] + qiSub + qgSub + ptSub + m_deepGroundwater;  /// m^3
 	//if (i == m_outletID) /// this should be added to each channel. By lj
 	//	qIn += m_deepGroundwater;
@@ -606,6 +608,7 @@ void MUSK_CH::ChannelFlow(int i)
         qiUp += m_qiCh[upReachId];
         qgUp += m_qgCh[upReachId];
     }
+	// if (i == 8) cout << "qsUp:" << qsUp << ", qiUp:" << qiUp << ", qgUp:" << qgUp << ", m_qUpReach:" << m_qUpReach << endl;
     qIn += qsUp + qiUp + qgUp;
 	//qIn is equivalent to the wtrin variable in rtmusk.f of SWAT
     qIn += m_qUpReach; // m_qUpReach is zero for not-parallel program and qsUp, qiUp and qgUp are zero for parallel computing

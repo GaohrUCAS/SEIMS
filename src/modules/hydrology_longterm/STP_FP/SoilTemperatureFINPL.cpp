@@ -39,6 +39,10 @@ int SoilTemperatureFINPL::Execute()
 		float t = m_tMean[i];
 		float t1 = m_t1[i];
 		float t2 = m_t2[i];
+		if ((t > 60.f || t < -90.f) || (t1 > 60.f || t1 < -90.f) || (t2 > 60.f || t2 < -90.f))
+		{
+			throw ModelException(MID_STP_FP, "Execute", "The T value is invalid.");
+		}
 		if (FloatEqual(m_landuse[i], LANDUSE_ID_WATR))
 		{
 			/// if current landuse is water
@@ -158,7 +162,7 @@ void SoilTemperatureFINPL::Get1DData(const char *key, int *n, float **data)
     initialOutputs();
     string sk(key);
     *n = m_nCells;
-    if (StringMatch(sk, VAR_SOTE))*data = m_soilTemp;
+	if (StringMatch(sk, VAR_SOTE))*data = m_soilTemp;
     else if (StringMatch(sk, VAR_TMEAN1))*data = m_t1;
     else if (StringMatch(sk, VAR_TMEAN2))*data = m_t2;
     else

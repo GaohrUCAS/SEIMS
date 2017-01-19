@@ -21,7 +21,7 @@ PER_PI::PER_PI(void) : m_soilLayers(-1), m_dt(-1), m_nCells(-1), m_frozenT(NODAT
 
 PER_PI::~PER_PI(void)
 {
-    if (m_perc == NULL) Release2DArray(m_nCells, m_perc);
+    if (m_perc != NULL) Release2DArray(m_nCells, m_perc);
 }
 void PER_PI::initialOutputs()
 {
@@ -130,7 +130,6 @@ void PER_PI::Get2DData(const char *key, int *nRows, int *nCols, float ***data)
 void PER_PI::Set1DData(const char *key, int nRows, float *data)
 {
     string sk(key);
-
     CheckInputSize(key, nRows);
 
     if (StringMatch(sk, VAR_SOTE)) m_soilT = data;
@@ -144,7 +143,7 @@ void PER_PI::Set1DData(const char *key, int nRows, float *data)
 
 void PER_PI::Set2DData(const char *key, int nrows, int ncols, float **data)
 {
-    string sk(key);
+	string sk(key);
     CheckInputSize(key, nrows);
     m_soilLayers = ncols;
 

@@ -54,7 +54,6 @@ def GetPreciObs(timeStart, timeEnd, ClimateDB, SpatialDB):
     # print preci
     return preci
 
-
 ## Search observed value
 def SearchObs(timeStart, timeEnd, sim, ClimateDB):
     TIME_Start = datetime.datetime.strptime(timeStart, "%Y-%m-%d")
@@ -78,7 +77,6 @@ def SearchObs(timeStart, timeEnd, sim, ClimateDB):
                 for t in range(len(obsDate)):
                     if dateArr[s] == obsDate[t]:
                         obsValueArr[s] = obsValue[t]
-            # print obsValueArr
             return (obsValueArr, obsValue)
         else:
             return [[-1]]
@@ -118,7 +116,6 @@ def SearchObs2(timeStart, timeEnd, paramName, subbasinID, ClimateDB):
         return None, None
 
     if subbasinID == 0: # for the whole basin
-        siteItems = None
         siteItems = ClimateDB[Tag_ClimateDB_Sites.upper()].find_one({
             'TYPE': getBaseVariableName(paramName),
             'ISOUTLET': 1,
@@ -132,8 +129,9 @@ def SearchObs2(timeStart, timeEnd, paramName, subbasinID, ClimateDB):
             'TYPE': getObservedParameter(paramName),
             'STATIONID': siteID}):
             # print obs['TYPE']
-            obsValue.append(obs['VALUE'])
-            obsDate.append(obs['LOCALDATETIME'])
+            if obs['VALUE'] > 0:
+                obsValue.append(obs['VALUE'])
+                obsDate.append(obs['LOCALDATETIME'])
     else: # TODO, not finised yet!
         pass
     # dateArr = GetDateArr(timeStart, timeEnd)
@@ -176,11 +174,13 @@ def ReadSimfromTxt(timeStart, timeEnd, dataDir, sim, subbasinID = 0):
                     dateStr = strList[0] + " " + strList[1]
                     simDatetime = datetime.datetime.strptime(dateStr, "%Y-%m-%d %H:%M:%S")
                     if simDatetime >= TIME_Start and simDatetime <= TIME_End:
-                        simulate.append(float(strList[2]))
+                        if isNumericValue(strList[2]):
+                            simulate.append(float(strList[2]))
+                        else:
+                            simulate.append(0.)
             else:
                 break
         simfile.close()
-        # print (simulate)
         return simulate
     else:
         raise IOError("%s is not exist" % simData)
@@ -433,10 +433,10 @@ def CreatePlot2(sim_date, preci, simList, vari_Sim, model_dir, ClimateDB):
         # p1 = ax.bar(sim_date, obs[0], label = "Observation", color = "none", edgecolor = 'black',
         #             linewidth = 1, align = "center", hatch = "//")
         if obsValues is not None:
-            p1 = ax.bar(obsDates, obsValues, label = "Observation", color = "none", edgecolor = 'black',
-                    linewidth = 1, align = "center", hatch = "//")
-        p2, = ax.plot(sim_date, simList[i], label = "Simulation", color = "black",
-                      marker = "o", markersize = 2, linewidth = 1)
+        #    p1 = ax.bar(obsDates, obsValues, label = "Observation", color = "none", edgecolor = 'black',
+        #            linewidth = 1, align = "center", hatch = "//")
+            p1 = ax.bar(obsDates, obsValues, label="Observation", color="#55aa33", linewidth=0, align="center")
+        p2, = ax.plot(sim_date, simList[i], label="Simulation", color="black", marker="o", markersize=2, linewidth=1)
         plt.xlabel('Date')
         # format the ticks date axis
         # autodates = mdates.AutoDateLocator()
@@ -452,12 +452,12 @@ def CreatePlot2(sim_date, preci, simList, vari_Sim, model_dir, ClimateDB):
 
         plt.ylabel(ylabelStr)
         # plt.legend(bbox_to_anchor = (0.03, 0.85), loc = 2, shadow = True)
-        ax.set_ylim(float(min(simList[i])) * 0.8, float(max(simList[i])) * 1.8)
+        ax.set_ylim(float(min(simList[i])) * 0.2, float(max(simList[i])) * 1.8)
         ax2 = ax.twinx()
         ax.tick_params(axis = 'x', which = 'both', bottom = 'on', top = 'off')
         ax2.tick_params('y', length = 5, width = 2, which = 'major')
         ax2.set_ylabel(r"Precipitation (mm)")
-        p3 = ax2.bar(sim_date, preci, label = "Rainfall", color = "black", linewidth = 0, align = "center")
+        p3 = ax2.bar(sim_date, preci, label = "Rainfall", color = "#3366cc", linewidth = 0, align = "center")
         ax2.set_ylim(float(max(preci)) * 1.8, float(min(preci)) * 0.8)
         if obsValues is None or len(obsValues) < 2:
             ax.legend([p3, p2], ["Rainfall", "Simulation"],
@@ -487,5 +487,5 @@ def CreatePlot2(sim_date, preci, simList, vari_Sim, model_dir, ClimateDB):
         #            RSquare(obs[0], simList[i], len(obs[1]))),
         #           color = "red", loc = 'right')
         plt.tight_layout()
-        plt.savefig(model_dir + os.sep + vari_Sim[i] + ".png")
-    # plt.show()
+        plt.savefig(model_dir + os.sep + vari_Sim[i] + ".png", dpi=200)
+    plt.show()

@@ -94,7 +94,8 @@ void SSR_DA::FlowInSoil(int id)
                 k = m_ks[id][j] * pow(m_soilStorage[id][j] / maxSoilWater, dcIndex);
 				if(k < 0.f) k = 0.f;
             }
-            m_qi[id][j] = m_ki * s0 * k * m_dt / 3600.f * m_soilThick[id][j] / 1000.f / flowWidth; // the unit is mm
+			// cout << "QI:" << m_qi[id][j] << ", Conductivity:" << m_ks[id][j] << endl;
+            m_qi[8][0] = m_ki * s0 * k * m_dt / 3600.f * m_soilThick[id][j] / 1000.f / flowWidth; // the unit is mm
 
 			if (soilWater - m_qi[id][j]> maxSoilWater)
 				m_qi[id][j] = soilWater - maxSoilWater;

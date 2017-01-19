@@ -240,9 +240,9 @@ void SubbasinIUHCalculator::adjustRiceField(int& mint0, int& maxt0, vector<doubl
 {
 	if(maxt0 - mint0 == 0) // if water will flow to channel within one day
     {
-		maxt0 = 1;
-		iuhRow[0] = 0.1f;
-		iuhRow[1] = 0.9f; //must make sure m_iuhCell has at least 4 columns in the readin codes
+		//maxt0 = 1;
+		//iuhRow[0] = 0.1f;
+		//iuhRow[1] = 0.9f; //must make sure m_iuhCell has at least 4 columns in the readin codes
 		//maxt0 = 5;
 		//iuhRow[0] = 0.2f;
 		//iuhRow[1] = 0.46f;
@@ -250,6 +250,9 @@ void SubbasinIUHCalculator::adjustRiceField(int& mint0, int& maxt0, vector<doubl
 		//iuhRow[3] = 0.054f;
 		//iuhRow[4] = 0.005f;
 		//iuhRow[5] = 0.001f;
+		maxt0 = 1;
+		iuhRow[0] = 0.9f;
+		iuhRow[1] = 0.1f;
 	}
 	else
 	{

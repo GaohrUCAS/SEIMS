@@ -15,8 +15,8 @@ Nutrient_Transformation::Nutrient_Transformation(void) :
         m_nCells(-1), m_cellWidth(-1.f), m_soilLayers(-1), m_cmn(-1.f), m_cdn(-1.f), m_sdnco(-1.f),m_nactfr(-1.f), m_psp(-1.f), m_ssp(-1.f),
         m_nSoilLayers(NULL), m_sol_z(NULL), m_sol_thick(NULL), m_sol_clay(NULL), m_sol_bd(NULL),
         m_landcover(NULL), m_rsdco_pl(NULL), m_sol_cbn(NULL), m_a_days(NULL), m_b_days(NULL),
-        m_sol_wpmm(NULL),  m_sol_awc(NULL), m_sol_wsatur(NULL), m_sol_por(NULL), m_sand(NULL), 
-        m_sol_solp(NULL), m_sol_orgp(NULL),m_sol_actp(NULL), m_sol_stap(NULL),  m_sol_fop(NULL), 
+        m_sol_wpmm(NULL),  m_sol_awc(NULL), m_sol_wsatur(NULL), m_sol_por(NULL), m_sand(NULL),
+        m_sol_solp(NULL), m_sol_orgp(NULL),m_sol_actp(NULL), m_sol_stap(NULL),  m_sol_fop(NULL),
         m_sol_no3(NULL),m_sol_nh4(NULL),m_sol_orgn(NULL), m_sol_aorgn(NULL), m_sol_fon(NULL),
 		m_sol_cov(NULL),m_sol_rsd(NULL), 
 		/// from other modules
@@ -131,10 +131,10 @@ bool Nutrient_Transformation::CheckInputData()
 	//	throw ModelException(MID_NUTR_TF, "CheckInputData", "The residue on soil surface can not be NULL.");
 	//if (m_sol_rsd == NULL)
 	//	throw ModelException(MID_NUTR_TF, "CheckInputData", "The organic matter in soil classified as residue can not be NULL.");
-	if (this->m_a_days == NULL)
-		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_a_days can not be NULL.");
-	if (this->m_b_days == NULL)
-		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_b_days can not be NULL.");
+	//if (this->m_a_days == NULL)
+	//	throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_a_days can not be NULL.");
+	//if (this->m_b_days == NULL)
+	//	throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_b_days can not be NULL.");
 	if (this->m_sol_thick == NULL)
 		throw ModelException(MID_NUTR_TF, "CheckInputData", "The m_sol_thick can not be NULL.");
 	if (this->m_sol_bd == NULL)
@@ -192,8 +192,8 @@ void Nutrient_Transformation::Set1DData(const char *key, int n, float *data)
 	else if (StringMatch(sk, VAR_SOL_COV)) { this->m_sol_cov = data; }
 	else if (StringMatch(sk, VAR_SOILLAYERS)) { this->m_nSoilLayers = data; }
 	else if (StringMatch(sk, VAR_SOTE)) { this->m_sote = data; }
-	else if (StringMatch(sk, VAR_A_DAYS)) { this->m_a_days = data; }
-	else if (StringMatch(sk, VAR_B_DAYS)) { this->m_b_days = data; }
+	//else if (StringMatch(sk, VAR_A_DAYS)) { this->m_a_days = data; }
+	//else if (StringMatch(sk, VAR_B_DAYS)) { this->m_b_days = data; }
 	/// tillage related variables of CENTURY model
 	else if (StringMatch(sk, VAR_TILLAGE_DAYS)) m_tillage_days = data;
 	else if (StringMatch(sk, VAR_TILLAGE_DEPTH)) m_tillage_depth = data;
@@ -480,6 +480,8 @@ void Nutrient_Transformation::initialOutputs()
 
 int Nutrient_Transformation::Execute()
 {
+	if(m_a_days == NULL) Initialize1DArray(m_nCells, m_a_days, 0.f);
+	if(m_b_days == NULL) Initialize1DArray(m_nCells, m_b_days, 0.f);
     CheckInputData();
 	initialOutputs();
 	//int cellid = 3406;
