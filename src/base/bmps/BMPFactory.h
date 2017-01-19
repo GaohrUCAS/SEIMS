@@ -17,7 +17,7 @@
 namespace MainBMP
 {
         /*!
-         * \class BMPFactory
+         * \addtogroup BMPFactory
          * \ingroup MainBMP
          *
          * \brief Base class to initiate a BMP data

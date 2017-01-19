@@ -1,11 +1,13 @@
-### INSTRUCTION, BY LIANG-JUN ZHU
-### TYPE  : DATA AGGREGATION TYPE, e.g., SUM, AVE, MAX, NONE, etc. Types divided by ',', e.g., "SUM,AVE".
-### STARTTIME : DATA DERIVED TIME START, FORMAT MUST BE "YYYY-MM-DD HH:MM:SS", e.g., 2011-01-01 00:00:00
-### ENDTIME  : DATA DERIVED TIME END, SEE STARTTIME
-### SUBBASIN : SELECTED SUBBASIN ID(s). 'ALL', 'OUTLET' ARE SELECTABLE, OR SUBBASIN ID NUMBERS SPLIT BY ','.
-### FILENAME : OUTPUT FILENAME WITH SUFFIX, e.g., txt, asc, tif. FINAL FILENAME WILL BE APPENDED BY TYPE!
-### USE   ：OUTPUT OR NOT. DEFAULT IS 0, i.e., NOT USED. CHANGE TO 1 IF IT IS WANTED!
-
+### MODULECLASS : MODULE CLASS, e.g., PET.											
+### OUTPUTID : VARIABLE NAME FOR OUTPUT											
+### DESCRIPTION : DESCRIPTION of OUTPUT											
+### UNIT  : DEFAULT UNIT											
+### TYPE  : DATA AGGREGATION TYPE, e.g., SUM, AVE, MAX, NONE, etc. Types divided by ',', e.g., "SUM,AVE".											
+### STARTTIME : DATA DERIVED TIME START, FORMAT MUST BE "YYYY-MM-DD HH:MM:SS", e.g., 2011-01-01 00:00:00 											
+### ENDTIME  : DATA DERIVED TIME END, SEE STARTTIME											
+### SUBBASIN : SELECTED SUBBASIN ID(s). 'ALL', 'OUTLET' ARE SELECTABLE, OR SUBBASIN ID NUMBERS SPLIT BY ','.											
+### FILENAME : OUTPUT FILENAME WITH SUFFIX, e.g., txt, asc, tif. FINAL FILENAME WILL BE APPENDED BY TYPE!											
+### USE   ：OUTPUT OR NOT. DEFAULT IS 0, i.e., NOT USED. CHANGE TO 1 IF IT IS WANTED!											
 MODULE_CLASS	OUTPUTID	DESCRIPTION	UNIT	TYPE	STARTTIME	ENDTIME	INTERVAL	INTERVAL_UNIT	SUBBASIN	FILENAME	USE
 Climate	D_P	Precipitation	mm	SUM,AVE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	PREC.tif	0
 Climate	D_TMAX	Max temperature	deg C	SUM,AVE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	TMAX.tif	0
@@ -91,10 +93,10 @@ NutrientTransport	SEDORGN	organic nitrogen in surface runoff	kg/ha	SUM,AVE	2013-
 NutrientTransport	SEDORGP	organic phosphorus in surface runoff	kg/ha	SUM,AVE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	SEDORGP.tif	0
 NutrientTransport	SEDMINPA	active mineral phosphorus sorbed to sediment in surface runoff	kg/ha	SUM,AVE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	SEDMINPA.tif	0
 NutrientTransport	SEDMINPS	stable mineral phosphorus sorbed to sediment in surface runoff	kg/ha	SUM,AVE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	SEDMINPS.tif	0
-NutrientTransport	SEDORGNTOCH	organic nitrogen in surface runoff moved to channel	kg/ha	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	SEDORGNTOCH.txt	1
-NutrientTransport	SEDORGPTOCH	organic phosphorus in surface runoff moved to channel	kg/ha	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	SEDORGPTOCH.txt	1
-NutrientTransport	SEDMINPATOCH	active mineral phosphorus sorbed to sediment in surface runoff moved to channel	kg/ha	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	SEDMINPATOCH.txt	1
-NutrientTransport	SEDMINPSTOCH	stable mineral phosphorus sorbed to sediment in surface runoff moved to channel	kg/ha	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	SEDMINPSTOCH.txt	1
+NutrientTransport	SEDORGNTOCH	organic nitrogen in surface runoff moved to channel	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	SEDORGNTOCH.txt	1
+NutrientTransport	SEDORGPTOCH	organic phosphorus in surface runoff moved to channel	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	SEDORGPTOCH.txt	1
+NutrientTransport	SEDMINPATOCH	active mineral phosphorus sorbed to sediment in surface runoff moved to channel	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	SEDMINPATOCH.txt	1
+NutrientTransport	SEDMINPSTOCH	stable mineral phosphorus sorbed to sediment in surface runoff moved to channel	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	SEDMINPSTOCH.txt	1
 NutrientTransport	SUR_COD	carbonaceous oxygen demand of surface runoff	kg/ha	SUM,AVE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	SUR_COD.tif	0
 NutrientTransport	SUR_NO3	nitrate transported with surface runoff	kg/ha	SUM,AVE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	SUR_NO3.tif	0
 NutrientTransport	SUR_NH4	nitrate transported with surface runoff	kg/ha	SUM	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	SUR_NH4.tif	0
@@ -103,15 +105,16 @@ NutrientTransport	LATNO3	nitrate transported with lateral flow	kg/ha	SUM,AVE	201
 NutrientTransport	PERCO_N_GW	nitrate percolating past bottom of soil profile	kg/ha	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	PERCO_N_GW.txt	1
 NutrientTransport	PERCO_P_GW	soluble P percolating past bottom of soil profile	kg/ha	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	PERCO_P_GW.txt	1
 NutrientTransport	LATNO3TOCH	nitrate transported with lateral flow to channel	kg/ha	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	LATNO3TOCH.txt	1
-NutrientTransport	SUR_NO3_TOCH	nitrate transported with surface runoff to channel	kg/ha	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	SUR_NO3_TOCH.txt	1
-NutrientTransport	SUR_NH4_TOCH	nitrate transported with surface runoff to channel	kg/ha	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	SUR_NH4_TOCH.txt	1
-NutrientTransport	SUR_SOLP_TOCH	soluble phosphorus from surface runoff to channel	kg/ha	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	SUR_SOLP_TOCH.txt	1
+NutrientTransport	SUR_NO3_TOCH	nitrate transported with surface runoff to channel	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	SUR_NO3_TOCH.txt	1
+NutrientTransport	SUR_NH4_TOCH	nitrate transported with surface runoff to channel	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	SUR_NH4_TOCH.txt	1
+NutrientTransport	SUR_COD_TOCH	COD from surface runoff to channel	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	SUR_COD_TOCH.txt	1
+NutrientTransport	SUR_SOLP_TOCH	soluble phosphorus from surface runoff to channel	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	SUR_SOLP_TOCH.txt	1
 NutrientTransport	GWNO3_CONC	nitrate N concentration in groundwater	mg/L	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	GWNO3_CONC.txt	1
 NutrientTransport	GWSOLP_CONC	soluble P concentration in groundwater	mg/L	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	GWSOLP_CONC.txt	1
-NutrientTransport	NO3GWTOCH	nitrate loading to reach in groundwater	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	NO3GWTOCH.tif	0
-NutrientTransport	MINPGWTOCH	soluble P loading to reach in groundwater	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	MINPGWTOCH.tif	0
+NutrientTransport	NO3GWTOCH	nitrate loading to reach in groundwater	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	NO3GWTOCH.txt	1
+NutrientTransport	MINPGWTOCH	soluble P loading to reach in groundwater	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	MINPGWTOCH.txt	1
 NutrientTransport	CH_CHLORA	chlorophyll-a concentration in reach	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	CH_CHLORA.txt	1
-NutrientTransport	CH_COD	carbonaceous oxygen demand in reach	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	CH_COD.txt	1
+NutrientTransport	CH_COD	carbonaceous oxygen demand in reach	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	CH_COD.txt	1
 NutrientTransport	CH_SOLP	dissolved phosphorus concentration in reach	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	CH_SOLP.txt	1
 NutrientTransport	CH_NO3	nitrate concentration in reach	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	CH_NO3.txt	1
 NutrientTransport	CH_NO2	nitrite concentration in reach	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	CH_NO2.txt	1
@@ -134,13 +137,13 @@ NutrientTransport	CH_NH4Conc	ammonia concentration in reach	mg/L	NONE	2013-01-01
 NutrientTransport	CH_ORGPConc	organic phosphorus concentration in reach	mg/L	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	CH_ORGPConc.txt	1
 NutrientTransport	CH_ORGNConc	organic nitrogen concentration in reach	mg/L	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	CH_ORGNConc.txt	1
 NutrientTransport	CH_ALGAEConc	algal biomass concentration in reach	mg/L	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	CH_ALGAEConc.txt	1
-NutrientTransport	CH_TN	total nitrogen amount in reach	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	CH_TN.txt	1
+NutrientTransport	CH_TN	total nitrogen amount in reach	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	CH_TN.txt	1
 NutrientTransport	CH_TNConc	total nitrogen concentration in reach	mg/L	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	CH_TNConc.txt	1
-NutrientTransport	CH_TP	total phosphorus amount in reach	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	CH_TP.txt	1
+NutrientTransport	CH_TP	total phosphorus amount in reach	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	CH_TP.txt	1
 NutrientTransport	CH_TPConc	total phosphorus concentration in reach	mg/L	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	CH_TPConc.txt	1
-PointSources	ptTNToCh	total nitrogen loaded from point sources	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	0	ptTNToCh.txt	1
-PointSources	ptTPToCh	total phosphrus loaded from point sources	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	0	ptTPToCh.txt	1
-PointSources	ptCODToCh	total COD loaded from point sources	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	0	ptCODToCh.txt	1
+PointSources	ptTNToCh	total nitrogen loaded from point sources	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	ptTNToCh.txt	1
+PointSources	ptTPToCh	total phosphrus loaded from point sources	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	ptTPToCh.txt	1
+PointSources	ptCODToCh	total COD loaded from point sources	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	ALL	ptCODToCh.txt	1
 NutrientTransport	CHSTR_TP	total phosphorus stored in reach	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	CHSTR_TP.txt	1
 NutrientTransport	CHSTR_TN	total nitrogen stored in reach	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	CHSTR_TN.txt	1
 NutrientTransport	CHSTR_NH4	NH4-N stored in reach	kg	NONE	2013-01-01 00:00:00	2014-12-31 23:59:59	-9999	-9999	OUTLET	CHSTR_NH4.txt	1
