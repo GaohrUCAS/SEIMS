@@ -94,65 +94,65 @@ def getGenerationsInfo(f, gen):
         genPlotData.append(allpoints[g])
     return genPlotData
 
-# resultLog = r'C:\Users\dell\Desktop\sa\3_Gen_50_Pop_60\Gen_50_Pop_60_resultLog.txt'
-# genPlot = [5, 10, 20, 30, 40, -1]
-# markerlabel = [5, 10, 20, 30, 40, 50]
-# genPlotData = getGenerationsInfo(resultLog, genPlot)
-#
-# fig, ax = plt.subplots(figsize=(12, 6))
-# plt.title("Pareto frontier of Scenarios Optimization\n", color="#aa0903")
-#
-# colormap = plt.cm.Paired
-# plt.gca().set_color_cycle([colormap(i) for i in numpy.linspace(0, 0.8, 10)])
-#
-# for f in range(len(genPlotData)):
-#     x = numpy.array(genPlotData[f][0]) / 1000000.
-#     y = numpy.array(genPlotData[f][1]) / 1000.
-#
-#     plt.plot(x, y, marker='.', markersize=12, linestyle='none', alpha=0.9, label="Gen_" + str(markerlabel[f]))
-#     plt.legend(fontsize=12, loc=3)
-#     plt.grid(True)
-#
-# plt.title("\nPopulation: %d, Generation: %d" % (60, 50), color="green", fontsize=9, loc='right')
-# plt.xlabel("Economic cost(Million Yuan)")
-# plt.ylabel("Pollution load(t)")
-# plt.show()
+resultLog = r'C:\Users\dell\Desktop\sa\3_Gen_50_Pop_60\Gen_50_Pop_60_resultLog.txt'
+genPlot = [5, 10, 20, 30, 40, -1]
+markerlabel = [5, 10, 20, 30, 40, 50]
+genPlotData = getGenerationsInfo(resultLog, genPlot)
 
+fig, ax = plt.subplots(figsize=(12, 6))
+plt.title("Pareto frontier of Scenarios Optimization\n", color="#aa0903")
 
-sa_workDir = r'C:\Users\dell\Desktop\sa\1_Gen_50_Pop_60'
-sa = 'S_1_3.tiff'
-fieldFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\spatial\mgtfield_t100_3.txt'
-fieldTiff = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\spatial\mgtfield_t100_3.tif'
-farm_type = [1, 33]
-fieldInfo = getFieldInfo(fieldFile)
-farm_lu = fieldInfo[1]
-sa_farm_arr = numpy.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0])
-# print sa_farm[0:len(fieldInfo[1])]
+colormap = plt.cm.Paired
+plt.gca().set_color_cycle([colormap(i) for i in numpy.linspace(0, 0.8, 10)])
 
-# read raster info
-field = ReadRaster(fieldTiff).data
-nRows = ReadRaster(fieldTiff).nRows
-nCols = ReadRaster(fieldTiff).nCols
-geotrans = ReadRaster(fieldTiff).geotrans
-srs = ReadRaster(fieldTiff).srs
-noDataVal = ReadRaster(fieldTiff).noDataValue
+for f in range(len(genPlotData)):
+    x = numpy.array(genPlotData[f][0]) / 1000000.
+    y = numpy.array(genPlotData[f][1]) / 1000.
 
-sa_farm = numpy.zeros((nRows, nCols))
-print "Calculating..."
-for i in range(nRows):
-    for j in range(nCols):
-        if int(field[i][j]) in farm_lu:
-            sa_index = numpy.where(farm_lu == field[i][j])
-            if sa_farm_arr[sa_index] == 0:
-                sa_farm[i][j] = 0.
-            else:
-                sa_farm[i][j] = 1.
-        else:
-            if field[i][j] == noDataVal:
-                sa_farm[i][j] = field[i][j]
-            else:
-                sa_farm[i][j] = -1.
+    plt.plot(x, y, marker='.', markersize=12, linestyle='none', alpha=0.9, label="Gen_" + str(markerlabel[f]))
+    plt.legend(fontsize=12, loc=3)
+    plt.grid(True)
 
-outputFile = sa_workDir + os.sep + sa
-WriteGTiffFile(outputFile, nRows, nCols, sa_farm, geotrans, srs, noDataVal, gdal.GDT_Float32)
-print "Finished!"
+plt.title("\nPopulation: %d, Generation: %d" % (60, 50), color="green", fontsize=9, loc='right')
+plt.xlabel("Economic cost(Million Yuan)")
+plt.ylabel("Pollution load(t)")
+plt.show()
+
+# Create scenario raster
+# sa_workDir = r'C:\Users\dell\Desktop\sa\1_Gen_50_Pop_60'
+# sa = 'S_1_3.tiff'
+# fieldFile = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\spatial\mgtfield_t100_3.txt'
+# fieldTiff = r'D:\GaohrWS\GithubPrj\SEIMS\model_data\dianbu\data_prepare\spatial\mgtfield_t100_3.tif'
+# farm_type = [1, 33]
+# fieldInfo = getFieldInfo(fieldFile)
+# farm_lu = fieldInfo[1]
+# sa_farm_arr = numpy.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0])
+# # print sa_farm[0:len(fieldInfo[1])]
+#
+# # read raster info
+# field = ReadRaster(fieldTiff).data
+# nRows = ReadRaster(fieldTiff).nRows
+# nCols = ReadRaster(fieldTiff).nCols
+# geotrans = ReadRaster(fieldTiff).geotrans
+# srs = ReadRaster(fieldTiff).srs
+# noDataVal = ReadRaster(fieldTiff).noDataValue
+#
+# sa_farm = numpy.zeros((nRows, nCols))
+# print "Calculating..."
+# for i in range(nRows):
+#     for j in range(nCols):
+#         if int(field[i][j]) in farm_lu:
+#             sa_index = numpy.where(farm_lu == field[i][j])
+#             if sa_farm_arr[sa_index] == 0:
+#                 sa_farm[i][j] = 0.
+#             else:
+#                 sa_farm[i][j] = 1.
+#         else:
+#             if field[i][j] == noDataVal:
+#                 sa_farm[i][j] = field[i][j]
+#             else:
+#                 sa_farm[i][j] = -1.
+#
+# outputFile = sa_workDir + os.sep + sa
+# WriteGTiffFile(outputFile, nRows, nCols, sa_farm, geotrans, srs, noDataVal, gdal.GDT_Float32)
+# print "Finished!"

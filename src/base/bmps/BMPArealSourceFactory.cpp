@@ -272,6 +272,11 @@ void ArealSourceLocations::SetValidCells(int n, float* mgtFieldIDs)
                 throw ModelException("ArealSourceLocations", "SetValidCells", "The array size of must be greater than 0 and the array must not be NULL.");
 }
 
+void BMPArealSrcFactory::BMPParametersPreUpdate(map<string, clsRasterData<float>*> rsMap, int nSubbasin,  mongoc_gridfs_t *spatialData)
+{
+
+}
+
 void ArealSourceLocations::Dump(ostream *fs)
 {
         if (fs == NULL) return;

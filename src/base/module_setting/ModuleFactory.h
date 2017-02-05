@@ -70,6 +70,10 @@ public:
 
 	//! Add mask raster to m_rsMap
 	void AddMaskRaster(string, clsRasterData<float> *);
+
+	//! update BMP Parameters
+	void updateBMPOptParameter(int nSubbasin);
+
 private:
     typedef SimulationModule *(*InstanceFunction)(void);
 

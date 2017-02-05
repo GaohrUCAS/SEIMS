@@ -227,6 +227,10 @@ void Scenario::loadBMPs()
                                 this->m_bmpFactories[uniqueBMPID] = new BMPArealSrcFactory(m_id, BMPID, subScenario, BMPType,
                                                                                            BMPPriority, distribution,
                                                                                            collectionName, location);
+						if (BMPID == BMP_TYPE_AREALSTRUCT)
+								this->m_bmpFactories[uniqueBMPID] = new BMPArealStructFactory(m_id, BMPID, subScenario, BMPType,
+																							BMPPriority, distribution,
+																							collectionName, location);
                 }
         }
         bson_destroy(query);

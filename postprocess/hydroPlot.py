@@ -181,7 +181,12 @@ def ReadSimfromTxt(timeStart, timeEnd, dataDir, sim, subbasinID = 0):
             else:
                 break
         simfile.close()
-        return simulate
+        if sim == "SED":
+            simulate_sed = simulate[1:]
+            simulate_sed.append(0.)
+            return simulate_sed
+        else:
+            return simulate
     else:
         raise IOError("%s is not exist" % simData)
 

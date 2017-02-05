@@ -15,7 +15,7 @@ using namespace MainBMP;
 namespace MainBMP
 {
         /*!
-         * \addtogroup ArealSourceLocations
+         * \class ArealSourceLocations
          * \ingroup MainBMP
          *
          * \brief Base class of point BMP, mainly store location related parameters
@@ -220,6 +220,8 @@ public:
 
                 /// Output
                 void Dump(ostream *fs);
+
+				void BMPParametersPreUpdate(map<string, clsRasterData<float>*> rsMap, int nSubbasin, mongoc_gridfs_t *spatialData);
 
                 /*!
                  * \brief Load areal BMP location related parameters from MongoDB

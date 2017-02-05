@@ -15,7 +15,7 @@ using namespace PlantManagement;
 namespace MainBMP
 {
         /*!
-         * \addtogroup BMPPlantMgtFactory
+         * \class BMPPlantMgtFactory
          * \ingroup MainBMP
          *
          * \brief Initiate a plant management BMP
@@ -37,6 +37,8 @@ public:
 
                 /// Output
                 void Dump(ostream *fs);
+
+				void BMPParametersPreUpdate(map<string, clsRasterData<float>*> rsMap, int nSubbasin, mongoc_gridfs_t *spatialData);
 
                 /// Get landuse / landcover ID
                 int GetLUCCID() {

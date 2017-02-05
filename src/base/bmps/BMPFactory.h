@@ -17,7 +17,7 @@
 namespace MainBMP
 {
         /*!
-         * \addtogroup BMPFactory
+         * \class BMPFactory
          * \ingroup MainBMP
          *
          * \brief Base class to initiate a BMP data
@@ -35,6 +35,9 @@ public:
 
                 /// Load BMP parameters from MongoDB
                 virtual void loadBMP(mongoc_client_t *conn, string &bmpDBName) = 0;
+
+				/// BMP parameters pre-update
+				virtual void BMPParametersPreUpdate(map<string, clsRasterData<float>*> rsMap, int nSubbasin, mongoc_gridfs_t *spatialData) = 0;
 
                 /// Load BMP parameters from SQLite
                 ///virtual void loadBMP(string bmpDatabasePath) = 0;
@@ -61,13 +64,16 @@ public:
                 /// Output
                 virtual void Dump(ostream *fs) = 0;
 
+                /// SubScenario ID within one BMP ID
+                int m_subScenarioId;
+                /// Define where the BMP will be applied
+                string m_location;
+
 protected:
                 /// Scenario ID
                 int m_scenarioId;
                 /// BMP ID
                 int m_bmpId;
-                /// SubScenario ID within one BMP ID
-                int m_subScenarioId;
                 /// BMP Type
                 int m_bmpType;
                 /// BMP Priority
@@ -78,7 +84,5 @@ protected:
                 string m_distribution;
                 /// Collection to
                 string m_bmpCollection;
-                /// Define where the BMP will be applied
-                string m_location;
         };
 }

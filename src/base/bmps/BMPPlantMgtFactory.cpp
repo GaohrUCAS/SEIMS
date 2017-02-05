@@ -149,6 +149,11 @@ void BMPPlantMgtFactory::loadBMP(mongoc_client_t *conn, string &bmpDBName)
         mongoc_cursor_destroy(cursor);
 }
 
+void BMPPlantMgtFactory::BMPParametersPreUpdate(map<string, clsRasterData<float>*> rsMap, int nSubbasin,  mongoc_gridfs_t *spatialData)
+{
+
+}
+
 void BMPPlantMgtFactory::Dump(ostream *fs)
 {
         if (fs == NULL) return;

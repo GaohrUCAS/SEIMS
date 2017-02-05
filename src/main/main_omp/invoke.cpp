@@ -192,6 +192,8 @@ void MainMongoDB(string modelPath, char *host, int port, int scenarioID, int num
         ModuleFactory *factory = new ModuleFactory(configFile, modulePath, conn, dbName, nSubbasin, layeringMethod, scenarioID);
 		/// Setting Output is loaded in ModelMain. 
         ModelMain main(conn, dbName, projectPath, input, factory, nSubbasin, scenarioID, numThread, layeringMethod);
+		factory->updateBMPOptParameter(nSubbasin);
+		//cout << "***Model running***" << endl;
         main.Execute();
 		main.Output();
 

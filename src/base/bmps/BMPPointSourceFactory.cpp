@@ -134,6 +134,11 @@ void BMPPointSrcFactory::ReadPointSourceLocations(mongoc_client_t *conn, string 
         mongoc_cursor_destroy(cursor);
 }
 
+void BMPPointSrcFactory::BMPParametersPreUpdate(map<string, clsRasterData<float>*> rsMap, int nSubbasin,  mongoc_gridfs_t *spatialData)
+{
+
+}
+
 void BMPPointSrcFactory::Dump(ostream *fs)
 {
         if (fs == NULL) return;

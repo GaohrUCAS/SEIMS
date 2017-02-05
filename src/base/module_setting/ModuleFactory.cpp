@@ -1599,3 +1599,16 @@ void ModuleFactory::FindOutputParameter(string &outputID, int &iModule, ParamInf
 //	}
 //	ifs.close();
 //}
+
+// added by Huiran GAO, Feb. 2017
+void ModuleFactory::updateBMPOptParameter(int nSubbasin)
+{
+	map<int, BMPFactory *> *bmpFactories = m_scenario->GetBMPFactories();
+	for(map<int, BMPFactory *>::iterator iter = bmpFactories->begin(); iter != bmpFactories->end(); iter++)
+	{
+		//iter->second->m_subScenarioId;
+		//iter->second->m_location;
+		cout << "Modify BMP Params: BMP_" << iter->second->m_subScenarioId << endl;
+		iter->second->BMPParametersPreUpdate(m_rsMap, nSubbasin, m_spatialData);
+	}
+}
